@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import '../controllers/expense_controller.dart';
 import '../widgets/expense_card_widget.dart';
@@ -14,12 +15,12 @@ class ExpenseListScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Expenses'),
+        title: const Text('Spendly'),
         foregroundColor: Colors.white,
         backgroundColor: Colors.teal,
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: const FaIcon(FontAwesomeIcons.circlePlus),
             onPressed: () {
               Get.to(const CreateExpenseScreen());
             },
@@ -27,45 +28,56 @@ class ExpenseListScreen extends StatelessWidget {
         ],
       ),
       body: Obx(() {
-        if (controller.expenses.isEmpty) {
+        if (controller.isLoading.value) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (controller.expenses.isEmpty) {
           return const Center(child: Text('No expenses found.'));
         }
-        return Column(
-          children: [
-            _buildExpenseSummary(),
-            Expanded(
-              child: ListView.builder(
-                itemCount: controller.expenses.length,
-                itemBuilder: (context, index) {
-                  final expense = controller.expenses[index];
-                  return ExpenseCardWidget(expense: expense, onDismissed: () {
-                    controller.removeExpense(expense.id);
-                    Get.snackbar(
-                      "Expense Deleted",
-                      "${expense.category} has been removed from your list.",
-                      snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: Colors.red,
-                      colorText: Colors.white,
-                    );
-                  });
-                },
+        return RefreshIndicator(
+          onRefresh: () {
+            return controller.fetchExpenses();
+          },
+          child: Column(
+            children: [
+              _buildExpenseSummary(),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: controller.expenses.length,
+                  itemBuilder: (context, index) {
+                    final expense = controller.expenses[index];
+                    return ExpenseCardWidget(
+                        expense: expense,
+                        onDismissed: () {
+                          controller.removeExpense(expense.id);
+                          Get.snackbar(
+                            "Expense Deleted",
+                            "${expense.category} has been removed from your list.",
+                            snackPosition: SnackPosition.BOTTOM,
+                            backgroundColor: Colors.red,
+                            colorText: Colors.white,
+                          );
+                        });
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       }),
     );
   }
 
   Widget _buildExpenseSummary() {
-    double totalExpenses = controller.expenses.fold(0, (sum, item) => sum + item.amount);
+    double totalExpenses =
+        controller.expenses.fold(0, (sum, item) => sum + item.amount);
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Text(
-        'Total Expenses: \$${totalExpenses.toStringAsFixed(2)}',
+        'Total Expenses: ${totalExpenses.toStringAsFixed(2)} ৳',
         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
       ),
     );
   }
 }
-

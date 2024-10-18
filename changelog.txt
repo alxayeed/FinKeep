@@ -1,2 +1,6 @@
-Release 1
-- firebase and app distribution configured
+
+- taka icon added
+- icons updated
+- loader added in list screen
+- app icon updated
+- app display name updated
