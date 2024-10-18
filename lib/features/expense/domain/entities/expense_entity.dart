@@ -35,4 +35,24 @@ class ExpenseEntity extends Equatable {
       createdAt: createdAt,
     );
   }
+
+  ExpenseEntity copyWith({
+    String? id,
+    double? amount,
+    String? category,
+    DateTime? date,
+    String? description,
+    String? userId,
+    DateTime? createdAt,
+  }) {
+    return ExpenseEntity(
+      id: id ?? this.id,
+      amount: amount ?? this.amount,
+      category: category ?? this.category,
+      date: date ?? this.date,
+      description: description ?? this.description,
+      userId: userId ?? this.userId,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
 }

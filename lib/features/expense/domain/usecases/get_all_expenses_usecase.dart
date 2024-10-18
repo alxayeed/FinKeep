@@ -11,6 +11,6 @@ class GetAllExpensesUseCase {
     if (userId.isEmpty) {
       throw Exception('User ID cannot be empty');
     }
-    return await repository.getExpenses(userId);
+    return await repository.getExpenses("dummy_user_id");
   }
 }
