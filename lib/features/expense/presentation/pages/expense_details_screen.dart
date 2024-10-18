@@ -60,28 +60,43 @@ class ExpenseDetailsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildDetailRow('Amount', expense.amount.toString()),
-            _buildDetailRow('Category', expense.category),
-            _buildDetailRow('Date', expense.date.formatToReadable()),
-            _buildDetailRow('Description', expense.description),
-            _buildDetailRow('User ID', expense.userId),
+            _buildDetailText('Amount', expense.amount.toString(), Icons.attach_money),
+            const Divider(thickness: 1),
+            _buildDetailText('Category', expense.category, Icons.category),
+            const Divider(thickness: 1),
+            _buildDetailText('Date', expense.date.formatToReadable(), Icons.calendar_today),
+            const Divider(thickness: 1),
+            _buildDetailText('Description', expense.description, Icons.description),
+            const Divider(thickness: 1),
+            _buildDetailText('User ID', expense.userId, Icons.person),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDetailRow(String title, String value) {
+  Widget _buildDetailText(String title, String value, IconData icon) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Row(
         children: [
-          Text(
-            '$title: ',
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
+          Icon(icon, color: Colors.grey[700]), // Icon for the field
+          const SizedBox(width: 16.0),
           Expanded(
-            child: Text(value),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                const SizedBox(height: 4.0),
+                Text(
+                  value,
+                  style: const TextStyle(fontSize: 14, color: Colors.black87),
+                ),
+              ],
+            ),
           ),
         ],
       ),

@@ -25,12 +25,12 @@ extension DateTimeFormatter on DateTime {
     }
   }
 
-  String formatTime() {
-    final String hour = this.hour.toString().padLeft(2, '0');
-    final String minute = this.minute.toString().padLeft(2, '0');
-    final String period = this.hour >= 12 ? 'PM' : 'AM';
-    return '$hour:$minute $period';
-  }
+  // String formatTime() {
+  //   final String hour = this.hour.toString().padLeft(2, '0');
+  //   final String minute = this.minute.toString().padLeft(2, '0');
+  //   final String period = this.hour >= 12 ? 'PM' : 'AM';
+  //   return '$hour:$minute $period';
+  // }
 
   String formatDate() {
     final day = this.day;

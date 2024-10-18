@@ -28,6 +28,8 @@ class ExpenseController extends GetxController {
     super.onInit();
   }
 
+
+
   Future<void> fetchExpenses() async {
     isLoading.value = true;
     try {
