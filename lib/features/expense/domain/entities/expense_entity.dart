@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:spendly/features/expense/data/models/expense_model.dart';
 
 class ExpenseEntity extends Equatable {
   final String id;
@@ -22,4 +23,16 @@ class ExpenseEntity extends Equatable {
   @override
   List<Object?> get props =>
       [id, amount, category, date, description, userId, createdAt];
+
+  ExpenseModel toModel() {
+    return ExpenseModel(
+      id: id,
+      amount: amount,
+      category: category,
+      date: date,
+      description: description,
+      userId: userId,
+      createdAt: createdAt,
+    );
+  }
 }
