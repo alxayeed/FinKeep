@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:spendly/core/extensions/date_time_formatter.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../controllers/expense_controller.dart';
 import 'edit_expense_screen.dart';
@@ -61,10 +62,9 @@ class ExpenseDetailsScreen extends StatelessWidget {
           children: [
             _buildDetailRow('Amount', expense.amount.toString()),
             _buildDetailRow('Category', expense.category),
-            _buildDetailRow('Date', expense.date.toString()),
+            _buildDetailRow('Date', expense.date.formatToReadable()),
             _buildDetailRow('Description', expense.description),
             _buildDetailRow('User ID', expense.userId),
-            _buildDetailRow('Created At', expense.createdAt.toString()),
           ],
         ),
       ),

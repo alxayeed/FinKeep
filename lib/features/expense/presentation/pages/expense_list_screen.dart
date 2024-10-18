@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:spendly/features/expense/domain/entities/expense_entity.dart';
 import '../controllers/expense_controller.dart';
 import '../widgets/expense_widget.dart';
 import 'create_expense_screen.dart';
-import 'edit_expense_screen.dart';
 
 class ExpenseListScreen extends StatelessWidget {
   final ExpenseController controller = Get.find();
