@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:spendly/core/extensions/date_time_formatter.dart';
 import '../../domain/entities/expense_entity.dart';
@@ -18,14 +19,14 @@ class ExpenseDetailsScreen extends StatelessWidget {
         title: const Text('Expense Details'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit),
+            icon: const FaIcon(FontAwesomeIcons.filePen),
             onPressed: () {
               // Navigate to EditExpenseScreen
               Get.to(() => EditExpenseScreen(expense: expense));
             },
           ),
           IconButton(
-            icon: const Icon(Icons.delete),
+            icon: const FaIcon(FontAwesomeIcons.trash),
             onPressed: () async {
               // Show a confirmation dialog before deleting
               final confirm = await showDialog(
@@ -60,11 +61,11 @@ class ExpenseDetailsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildDetailText('Amount', expense.amount.toString(), Icons.attach_money),
+            _buildDetailText('Amount', expense.amount.toString(), FontAwesomeIcons.bangladeshiTakaSign),
             const Divider(thickness: 1),
             _buildDetailText('Category', expense.category, Icons.category),
             const Divider(thickness: 1),
-            _buildDetailText('Date', expense.date.formatToReadable(), Icons.calendar_today),
+            _buildDetailText('Date', expense.date.formatToReadable(), FontAwesomeIcons.calendarDays),
             const Divider(thickness: 1),
             _buildDetailText('Description', expense.description, Icons.description),
             const Divider(thickness: 1),
@@ -80,7 +81,7 @@ class ExpenseDetailsScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Row(
         children: [
-          Icon(icon, color: Colors.grey[700]), // Icon for the field
+          FaIcon(icon, color: Colors.grey[700]), // Icon for the field
           const SizedBox(width: 16.0),
           Expanded(
             child: Column(
