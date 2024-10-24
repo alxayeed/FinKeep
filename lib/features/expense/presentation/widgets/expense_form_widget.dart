@@ -1,25 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../../../core/enums/expense_category.dart';
 
-class ExpenseFormWidget extends StatelessWidget {
+class ExpenseFormWidget extends StatefulWidget {
   final TextEditingController amountController;
-  final TextEditingController categoryController;
   final TextEditingController descriptionController;
-  final DateTime selectedDate; // Make it non-nullable
-  final Function(DateTime) onDateSelected; // Callback for date selection
+  final DateTime selectedDate;
+  final Function(DateTime) onDateSelected;
   final Function() onSubmit;
   final String buttonText;
+  final ExpenseCategory? selectedCategory;
+  final Function(ExpenseCategory) onCategorySelected;
 
-  ExpenseFormWidget({
+  const ExpenseFormWidget({
     super.key,
     required this.amountController,
-    required this.categoryController,
     required this.descriptionController,
     required this.onDateSelected,
     required this.onSubmit,
-    DateTime? selectedDate, // Allow null, but set a default
+    required this.selectedDate,
+    required this.selectedCategory,
+    required this.onCategorySelected,
     required this.buttonText,
-  }) : selectedDate = selectedDate ?? DateTime.now(); // Default to today
+  });
+
+  @override
+  State<ExpenseFormWidget> createState() => _ExpenseFormWidgetState();
+}
+
+class _ExpenseFormWidgetState extends State<ExpenseFormWidget> {
+  late List<ExpenseCategory> dropdownItems;
+  late ExpenseCategory? currentCategory;
+
+  @override
+  void initState() {
+    super.initState();
+    dropdownItems = List.from(ExpenseCategory.values);
+    currentCategory = widget.selectedCategory;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +59,7 @@ class ExpenseFormWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TextField(
-            controller: amountController,
+            controller: widget.amountController,
             decoration: InputDecoration(
               labelText: 'Amount',
               labelStyle: const TextStyle(color: Colors.blueAccent),
@@ -52,19 +70,33 @@ class ExpenseFormWidget extends StatelessWidget {
             keyboardType: TextInputType.number,
           ),
           const SizedBox(height: 10),
-          TextField(
-            controller: categoryController,
+          DropdownButtonFormField<ExpenseCategory>(
+            value: currentCategory,
             decoration: InputDecoration(
-              labelText: 'Category',
-              labelStyle: const TextStyle(color: Colors.blueAccent),
+              labelText: "Category",
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10.0),
               ),
             ),
+            items: dropdownItems.map((ExpenseCategory category) {
+              return DropdownMenuItem<ExpenseCategory>(
+                value: category,
+                child: Text(category.displayName),
+              );
+            }).toList(),
+            onChanged: (ExpenseCategory? newValue) {
+              if (newValue != null) {
+                setState(() {
+                  currentCategory = newValue;
+                });
+                widget.onCategorySelected(newValue);
+              }
+            },
           ),
           const SizedBox(height: 10),
           TextField(
-            controller: descriptionController,
+            controller: widget.descriptionController,
+            maxLines: 3,
             decoration: InputDecoration(
               labelText: 'Description',
               labelStyle: const TextStyle(color: Colors.blueAccent),
@@ -78,12 +110,12 @@ class ExpenseFormWidget extends StatelessWidget {
             onTap: () async {
               final DateTime? pickedDate = await showDatePicker(
                 context: context,
-                initialDate: selectedDate,
+                initialDate: widget.selectedDate,
                 firstDate: DateTime(2000),
                 lastDate: DateTime(2101),
               );
               if (pickedDate != null) {
-                onDateSelected(pickedDate); // Call the callback
+                widget.onDateSelected(pickedDate);
               }
             },
             child: Container(
@@ -97,7 +129,7 @@ class ExpenseFormWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    DateFormat('d\'th\' MMMM').format(selectedDate), // Format date as "12th March"
+                    DateFormat('d\'th\' MMMM').format(widget.selectedDate),
                     style: const TextStyle(fontSize: 16, color: Colors.blueAccent),
                   ),
                   const Icon(Icons.calendar_today, color: Colors.blueAccent),
@@ -107,19 +139,21 @@ class ExpenseFormWidget extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           SizedBox(
-            width: double.infinity, // Full-width button
+            width: double.infinity,
             child: ElevatedButton(
-              onPressed: onSubmit,
+              onPressed: () {
+                widget.onSubmit();
+              },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.teal, // Updated background color
-                foregroundColor: Colors.white, // Updated text color
+                backgroundColor: Colors.teal,
+                foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 15.0),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.0),
                 ),
               ),
               child: Text(
-                buttonText,
+                widget.buttonText,
                 style: const TextStyle(fontSize: 16),
               ),
             ),

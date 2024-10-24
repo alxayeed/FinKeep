@@ -22,7 +22,10 @@ class ExpenseListScreen extends StatelessWidget {
           IconButton(
             icon: const FaIcon(FontAwesomeIcons.circlePlus),
             onPressed: () {
-              Get.to(const CreateExpenseScreen());
+              Get.bottomSheet(
+                const CreateExpenseScreen(),
+                isScrollControlled: true,
+              );
             },
           ),
         ],
@@ -71,7 +74,7 @@ class ExpenseListScreen extends StatelessWidget {
 
   Widget _buildExpenseSummary() {
     double totalExpenses =
-        controller.expenses.fold(0, (sum, item) => sum + item.amount);
+    controller.expenses.fold(0, (sum, item) => sum + item.amount);
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Text(
