@@ -1,3 +1,7 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../../presentation/pages/expense_list_screen.dart';
 import '../repositories/expense_repository.dart';
 
 class DeleteExpenseUseCase {
@@ -10,5 +14,15 @@ class DeleteExpenseUseCase {
       throw Exception('Invalid ID');
     }
     await repository.deleteExpense(id);
+
+    Get.snackbar(
+      'Success',
+      'Expense deleted successfully!',
+      backgroundColor: Colors.red,
+      snackPosition: SnackPosition.TOP,
+    );
+
+    Get.to(ExpenseListScreen());
+
   }
 }

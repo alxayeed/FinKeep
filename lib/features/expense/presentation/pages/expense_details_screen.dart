@@ -19,14 +19,18 @@ class ExpenseDetailsScreen extends StatelessWidget {
         title: const Text('Expense Details'),
         actions: [
           IconButton(
-            icon: const FaIcon(FontAwesomeIcons.filePen),
+            icon: const FaIcon(FontAwesomeIcons.filePen, color: Colors.green),
             onPressed: () {
               // Navigate to EditExpenseScreen
-              Get.to(() => EditExpenseScreen(expense: expense));
+              Get.bottomSheet(
+                EditExpenseScreen(expense: expense),
+                isScrollControlled: true,
+              );
+              // Get.to(() => EditExpenseScreen(expense: expense));
             },
           ),
           IconButton(
-            icon: const FaIcon(FontAwesomeIcons.trash),
+            icon: const FaIcon(FontAwesomeIcons.trash, color: Colors.red,),
             onPressed: () async {
               // Show a confirmation dialog before deleting
               final confirm = await showDialog(
@@ -40,7 +44,9 @@ class ExpenseDetailsScreen extends StatelessWidget {
                       child: const Text('Cancel'),
                     ),
                     TextButton(
-                      onPressed: () => Navigator.pop(ctx, true),
+                      onPressed: (){
+                        controller.deleteExpense(expense.id);
+                    },
                       child: const Text('Delete'),
                     ),
                   ],
