@@ -29,10 +29,10 @@ class ExpenseModel extends ExpenseEntity {
       'id': id,
       'amount': amount,
       'category': category,
-      'date': date,
+      'date': Timestamp.fromDate(date),
       'description': description,
       'userId': userId,
-      'createdAt': createdAt,
+      'createdAt': Timestamp.fromDate(createdAt),
     };
   }
 

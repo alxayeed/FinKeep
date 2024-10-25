@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import '../controllers/expense_controller.dart';
+import '../widgets/app_drawer.dart';
 import '../widgets/expense_card_widget.dart';
 import 'create_expense_screen.dart';
 
@@ -18,17 +19,18 @@ class ExpenseListScreen extends StatelessWidget {
         title: const Text('Spendly'),
         foregroundColor: Colors.white,
         backgroundColor: Colors.teal,
-        actions: [
-          IconButton(
-            icon: const FaIcon(FontAwesomeIcons.circlePlus),
-            onPressed: () {
-              Get.bottomSheet(
-                const CreateExpenseScreen(),
-                isScrollControlled: true,
-              );
-            },
-          ),
-        ],
+      ),
+      drawer: const AppDrawer(),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.teal,
+        foregroundColor: Colors.white,
+        onPressed: () {
+          Get.bottomSheet(
+            const CreateExpenseScreen(),
+            isScrollControlled: true,
+          );
+        },
+        child: const FaIcon(FontAwesomeIcons.plus),
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
@@ -54,13 +56,6 @@ class ExpenseListScreen extends StatelessWidget {
                         expense: expense,
                         onDismissed: () {
                           controller.removeExpense(expense.id);
-                          Get.snackbar(
-                            "Expense Deleted",
-                            "${expense.category} has been removed from your list.",
-                            snackPosition: SnackPosition.BOTTOM,
-                            backgroundColor: Colors.red,
-                            colorText: Colors.white,
-                          );
                         });
                   },
                 ),
@@ -74,7 +69,7 @@ class ExpenseListScreen extends StatelessWidget {
 
   Widget _buildExpenseSummary() {
     double totalExpenses =
-    controller.expenses.fold(0, (sum, item) => sum + item.amount);
+        controller.expenses.fold(0, (sum, item) => sum + item.amount);
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Text(

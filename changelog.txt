@@ -1,6 +1,5 @@
-
-- taka icon added
-- icons updated
-- loader added in list screen
-- app icon updated
-- app display name updated
+- Last added expenses will show first. Index and order by added
+- Add expense icon updated
+- Showing bottom snack while removing an item by swiping issue fixed
+- Always showing 12:0 AM issue fixed
+- Drawer added
