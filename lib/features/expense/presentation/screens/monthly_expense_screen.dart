@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -8,6 +9,7 @@ import '../widgets/widgets.dart';
 class MonthlyExpenseScreen extends StatelessWidget {
   MonthlyExpenseScreen({super.key});
   final ExpenseController controller = Get.find();
+  DateTime _selectedMonth = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
@@ -25,50 +27,56 @@ class MonthlyExpenseScreen extends StatelessWidget {
                 children: [
                   MonthSelector(
                     onMonthChanged: (selectedMonth) {
-                      // controller.fetchExpensesForMonth(selectedMonth);
+                      _selectedMonth = selectedMonth;
+                      controller.fetchMonthlyExpenses(selectedMonth);
                     },
                   ),
-                  _buildExpenseSummary(),
+                  Expanded(  // Wrap Column with Expanded
+                    child: _buildExpenseSummary(),
+                  ),
                   const Text("Chart view will be here"),
                 ],
               ),
             ),
             Center(
-              child: Obx(() {
-                if (controller.isLoading.value) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                } else if (controller.expenses.isEmpty) {
-                  return const Center(child: Text('No expenses found.'));
-                }
-                return RefreshIndicator(
-                  onRefresh: () => controller.fetchExpenses(),
-                  child: Column(
-                    children: [
-                      MonthSelector(
-                        onMonthChanged: (selectedMonth) {
-                          // controller.fetchExpensesForMonth(selectedMonth);
-                        },
-                      ),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: controller.expenses.length,
-                          itemBuilder: (context, index) {
-                            final expense = controller.expenses[index];
-                            return ExpenseCardWidget(
-                              expense: expense,
-                              onDismissed: () {
-                                controller.removeExpense(expense.id);
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                    ],
+              child: Column(
+                children: [
+                  MonthSelector(
+                    onMonthChanged: (selectedMonth) {
+                      _selectedMonth = selectedMonth;
+                      controller.fetchMonthlyExpenses(selectedMonth);
+                    },
                   ),
-                );
-              }),
+                  Expanded(
+                    child: Obx(() {
+                      if (controller.isLoading.value) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      } else if (controller.expenses.isEmpty) {
+                        return const Center(child: Text('No expenses found.'));
+                      }
+                      return RefreshIndicator(
+                        onRefresh: () => controller.fetchMonthlyExpenses(_selectedMonth),
+                        child: Expanded(
+                          child: ListView.builder(
+                            itemCount: controller.expenses.length,
+                            itemBuilder: (context, index) {
+                              final expense = controller.expenses[index];
+                              return ExpenseCardWidget(
+                                expense: expense,
+                                onDismissed: () {
+                                  controller.removeExpense(expense.id);
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -78,8 +86,9 @@ class MonthlyExpenseScreen extends StatelessWidget {
 
   Widget _buildExpenseSummary() {
     double totalExpenses = controller.expenses.fold(0, (sum, item) => sum + item.amount);
-    return Padding(
+    return Container(
       padding: const EdgeInsets.all(16.0),
+      height: 100, // Define height explicitly
       child: Text(
         'Total Expenses: ${totalExpenses.toStringAsFixed(2)} ৳',
         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),

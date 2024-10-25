@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:spendly/features/expense/domain/usecases/get_monthly_expense.dart';
 
 import '../../domain/entities/expense_entity.dart';
 import '../../domain/usecases/usecases.dart';
@@ -6,6 +7,7 @@ import '../../domain/usecases/usecases.dart';
 
 class ExpenseController extends GetxController {
   final GetAllExpensesUseCase getAllExpenses;
+  final GetMonthlyExpensesUseCase getMonthlyExpensesUseCase;
   final GetExpenseUseCase getExpense;
   final AddExpenseUseCase addExpense;
   final UpdateExpenseUseCase updateExpense;
@@ -16,6 +18,7 @@ class ExpenseController extends GetxController {
 
   ExpenseController({
     required this.getAllExpenses,
+    required this.getMonthlyExpensesUseCase,
     required this.getExpense,
     required this.addExpense,
     required this.updateExpense,
@@ -34,6 +37,17 @@ class ExpenseController extends GetxController {
     isLoading.value = true;
     try {
       expenses.value = await getAllExpenses.call('userId'); // Replace with actual userId
+    } catch (e) {
+      // Handle error
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchMonthlyExpenses(DateTime month) async {
+    isLoading.value = true;
+    try {
+      expenses.value = await getMonthlyExpensesUseCase('userId', month);
     } catch (e) {
       // Handle error
     } finally {
