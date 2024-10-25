@@ -54,13 +54,6 @@ class ExpenseListScreen extends StatelessWidget {
                         expense: expense,
                         onDismissed: () {
                           controller.removeExpense(expense.id);
-                          Get.snackbar(
-                            "Expense Deleted",
-                            "${expense.category} has been removed from your list.",
-                            snackPosition: SnackPosition.BOTTOM,
-                            backgroundColor: Colors.red,
-                            colorText: Colors.white,
-                          );
                         });
                   },
                 ),
