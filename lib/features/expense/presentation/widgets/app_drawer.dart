@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:spendly/core/routes/app_routes.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -31,32 +32,32 @@ class AppDrawer extends StatelessWidget {
             _createDrawerItem(
               icon: Icons.calendar_today,
               text: 'Daily Expense',
-              onTap: () => Get.toNamed('/dailyExpense'),
+              onTap: () => Get.toNamed(AppRoutes.dailyExpense),
             ),
             _createDrawerItem(
               icon: Icons.calendar_view_week,
               text: 'Weekly Expense',
-              onTap: () => Get.toNamed('/weeklyExpense'),
+              onTap: () => Get.toNamed(AppRoutes.weeklyExpense),
             ),
             _createDrawerItem(
               icon: Icons.calendar_today_outlined,
               text: 'Monthly Expense',
-              onTap: () => Get.toNamed('/monthlyExpense'),
+              onTap: () => Get.toNamed(AppRoutes.monthlyExpense),
             ),
             _createDrawerItem(
               icon: Icons.calendar_today_rounded,
               text: 'Yearly Expense',
-              onTap: () => Get.toNamed('/yearlyExpense'),
+              onTap: () => Get.toNamed(AppRoutes.yearlyExpense),
             ),
             _createDrawerItem(
               icon: Icons.bar_chart,
               text: 'Generate Report',
-              onTap: () => Get.toNamed('/generateReport'),
+              onTap: () {},
             ),
             _createDrawerItem(
               icon: Icons.monetization_on,
               text: 'Lend',
-              onTap: () => Get.toNamed('/lend'),
+              onTap: () {},
             ),
           ],
         ),
@@ -68,9 +69,7 @@ class AppDrawer extends StatelessWidget {
     return ListTile(
       leading: Icon(icon, color: Colors.teal),
       title: Text(text, style: const TextStyle(fontSize: 16)),
-      // TODO: navigate to screens
-      // onTap: onTap,
-      onTap: null,
+      onTap: onTap,
     );
   }
 }

@@ -1,5 +1,1 @@
-- Last added expenses will show first. Index and order by added
-- Add expense icon updated
-- Showing bottom snack while removing an item by swiping issue fixed
-- Always showing 12:0 AM issue fixed
-- Drawer added
+- Fixes #14 - routing added
