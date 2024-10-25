@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:spendly/core/routes/app_routes.dart';
 
-import '../../presentation/pages/expense_list_screen.dart';
 import '../repositories/expense_repository.dart';
 
 class DeleteExpenseUseCase {
@@ -22,7 +22,7 @@ class DeleteExpenseUseCase {
       snackPosition: SnackPosition.TOP,
     );
 
-    Get.to(ExpenseListScreen());
+    Get.toNamed(AppRoutes.expenses);
 
   }
 }
