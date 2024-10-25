@@ -9,6 +9,7 @@ class DailyExpenseScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Scaffold(
       appBar: CustomAppBar(),
+      floatingActionButton: CustomFAB(),
       body: Center(
         child: Text("Day view"),
       ),

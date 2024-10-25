@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:spendly/features/expense/presentation/widgets/custom_app_bar.dart';
+import 'package:spendly/features/expense/presentation/widgets/custom_fab.dart';
 import '../controllers/expense_controller.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/expense_card_widget.dart';
-import 'create_expense_screen.dart';
 
 class ExpenseListScreen extends StatelessWidget {
   final ExpenseController controller = Get.find();
@@ -15,19 +14,9 @@ class ExpenseListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(),
+      appBar: const CustomAppBar(),
       drawer: const AppDrawer(),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.teal,
-        foregroundColor: Colors.white,
-        onPressed: () {
-          Get.bottomSheet(
-            const CreateExpenseScreen(),
-            isScrollControlled: true,
-          );
-        },
-        child: const FaIcon(FontAwesomeIcons.plus),
-      ),
+      floatingActionButton: const CustomFAB(),
       body: Obx(() {
         if (controller.isLoading.value) {
           return const Center(

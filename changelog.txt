@@ -1,1 +1,4 @@
 - Fixes #14 - routing added
+- Custom app bar added
+- Custom FAB added
+- empty screens added for day, week, month, year view

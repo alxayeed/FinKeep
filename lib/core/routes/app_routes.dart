@@ -12,13 +12,13 @@ class AppRoutes {
   static const String yearlyExpense = '/yearlyExpense';
 
   static List<GetPage> routes = [
-    GetPage(name: home, page: () => ExpenseListScreen()),
+    GetPage(name: home, page: () => MonthlyExpenseScreen()),
     GetPage(
         name: expenseDetails,
         page: () => ExpenseDetailsScreen(expense: Get.arguments)),
     GetPage(name: dailyExpense, page: () => const DailyExpenseScreen()),
     GetPage(name: weeklyExpense, page: () => const WeeklyExpenseScreen()),
-    GetPage(name: monthlyExpense, page: () => const MonthlyExpenseScreen()),
+    GetPage(name: monthlyExpense, page: () => MonthlyExpenseScreen()),
     GetPage(name: yearlyExpense, page: () => const YearlyExpenseScreen()),
   ];
 }

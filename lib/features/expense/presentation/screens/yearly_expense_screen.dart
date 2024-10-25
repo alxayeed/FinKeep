@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:spendly/features/expense/presentation/widgets/custom_app_bar.dart';
+
+import '../widgets/widgets.dart';
 
 class YearlyExpenseScreen extends StatelessWidget {
   const YearlyExpenseScreen({super.key});
@@ -8,6 +9,7 @@ class YearlyExpenseScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Scaffold(
       appBar: CustomAppBar(),
+      floatingActionButton: CustomFAB(),
       body: Center(
         child: Text("Year view"),
       ),
