@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class MonthSelector extends StatefulWidget {
   final ValueChanged<DateTime> onMonthChanged;
+  final double totalExpense;
 
   const MonthSelector({
     super.key,
     required this.onMonthChanged,
+    this.totalExpense = 0.0,
   });
 
   @override
@@ -18,14 +21,20 @@ class _MonthSelectorState extends State<MonthSelector> {
 
   void _previousMonth() {
     setState(() {
-      _selectedMonth = DateTime(_selectedMonth.year, _selectedMonth.month - 1);
+      _selectedMonth = DateTime(
+        _selectedMonth.month == 1 ? _selectedMonth.year - 1 : _selectedMonth.year,
+        _selectedMonth.month == 1 ? 12 : _selectedMonth.month - 1,
+      );
       widget.onMonthChanged(_selectedMonth);
     });
   }
 
   void _nextMonth() {
     setState(() {
-      _selectedMonth = DateTime(_selectedMonth.year, _selectedMonth.month + 1);
+      _selectedMonth = DateTime(
+        _selectedMonth.month == 12 ? _selectedMonth.year + 1 : _selectedMonth.year,
+        _selectedMonth.month == 12 ? 1 : _selectedMonth.month + 1,
+      );
       widget.onMonthChanged(_selectedMonth);
     });
   }

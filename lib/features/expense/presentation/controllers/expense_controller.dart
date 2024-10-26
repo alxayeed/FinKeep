@@ -4,7 +4,6 @@ import 'package:spendly/features/expense/domain/usecases/get_monthly_expense.dar
 import '../../domain/entities/expense_entity.dart';
 import '../../domain/usecases/usecases.dart';
 
-
 class ExpenseController extends GetxController {
   final GetAllExpensesUseCase getAllExpenses;
   final GetMonthlyExpensesUseCase getMonthlyExpensesUseCase;
@@ -15,6 +14,7 @@ class ExpenseController extends GetxController {
 
   var expenses = <ExpenseEntity>[].obs;
   var isLoading = false.obs;
+  var totalExpense = 0.0.obs;
 
   ExpenseController({
     required this.getAllExpenses,
@@ -31,14 +31,15 @@ class ExpenseController extends GetxController {
     super.onInit();
   }
 
-
+  double getTotalExpense() {
+    totalExpense.value = expenses.fold(0.0, (sum, item) => sum + item.amount);
+  return totalExpense.value;
+  }
 
   Future<void> fetchExpenses() async {
     isLoading.value = true;
     try {
-      expenses.value = await getAllExpenses.call('userId'); // Replace with actual userId
-    } catch (e) {
-      // Handle error
+      expenses.value = await getAllExpenses.call('userId');
     } finally {
       isLoading.value = false;
     }
@@ -48,8 +49,8 @@ class ExpenseController extends GetxController {
     isLoading.value = true;
     try {
       expenses.value = await getMonthlyExpensesUseCase('userId', month);
-    } catch (e) {
-      // Handle error
+      getTotalExpense();
+      print(totalExpense);
     } finally {
       isLoading.value = false;
     }
@@ -64,7 +65,6 @@ class ExpenseController extends GetxController {
     await updateExpense.call(expense);
     fetchExpenses();
     Get.back();
-
   }
 
   Future<void> removeExpense(String id) async {
