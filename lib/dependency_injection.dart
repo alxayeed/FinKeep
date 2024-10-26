@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:spendly/features/expense/domain/usecases/get_monthly_expense.dart';
 import 'features/expense/data/datasources/firebase_cloudstore_datasource.dart';
 import 'features/expense/data/repositories/expense_repository_impl.dart';
 import 'features/expense/data/datasources/expense_remote_datasource.dart';
@@ -20,6 +21,7 @@ class DependencyInjection{
 
     // Use Cases
     Get.lazyPut(() => GetAllExpensesUseCase(Get.find()));
+    Get.lazyPut(() => GetMonthlyExpensesUseCase(Get.find()));
     Get.lazyPut(() => GetExpenseUseCase(Get.find()));
     Get.lazyPut(() => AddExpenseUseCase(Get.find()));
     Get.lazyPut(() => UpdateExpenseUseCase(Get.find()));
@@ -28,6 +30,7 @@ class DependencyInjection{
     // Controllers
     Get.lazyPut(() => ExpenseController(
       getAllExpenses: Get.find(),
+      getMonthlyExpensesUseCase: Get.find(),
       getExpense: Get.find(),
       addExpense: Get.find(),
       updateExpense: Get.find(),

@@ -1,10 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
-import 'package:get/get_navigation/src/routes/get_route.dart';
+import 'package:spendly/core/routes/app_routes.dart';
 
 import 'dependency_injection.dart';
-import 'features/expense/presentation/pages/expense_list_screen.dart';
+import 'features/expense/presentation/screens/screens.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -23,9 +23,8 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: ExpenseListScreen(),
-      ),
+      initialRoute: AppRoutes.home,
+      getPages: AppRoutes.routes,
     );
   }
 }

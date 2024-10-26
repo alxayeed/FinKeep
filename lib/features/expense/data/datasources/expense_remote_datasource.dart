@@ -6,4 +6,5 @@ abstract class ExpenseRemoteDataSource {
   Future<List<ExpenseModel>> getExpenses(String userId);
   Future<void> updateExpense(ExpenseModel expense);
   Future<void> deleteExpense(String id);
+  Future<List<ExpenseModel>> getExpensesForMonth(String userId, DateTime selectedMonth);
 }

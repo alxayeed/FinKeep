@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:spendly/features/expense/presentation/pages/expense_list_screen.dart';
 
+import '../../../../core/routes/app_routes.dart';
 import '../entities/expense_entity.dart';
 import '../repositories/expense_repository.dart';
 
@@ -23,6 +23,6 @@ class UpdateExpenseUseCase {
       snackPosition: SnackPosition.TOP,
     );
 
-    Get.off(ExpenseListScreen());
+    Get.off(AppRoutes.expenses);
   }
 }

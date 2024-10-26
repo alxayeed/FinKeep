@@ -34,4 +34,10 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
     final expenseModel = await remoteDataSource.getExpenseById(id);
     return expenseModel?.toEntity();
   }
+
+  @override
+  Future<List<ExpenseEntity>> getExpensesForMonth(String userId, DateTime selectedMonth) async {
+    final models = await remoteDataSource.getExpensesForMonth(userId, selectedMonth);
+    return models.map((model) => model.toEntity()).toList();
+  }
 }

@@ -53,4 +53,24 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
   Future<void> deleteExpense(String id) async {
     await fireStore.collection('expenses').doc(id).delete();
   }
+
+  @override
+  Future<List<ExpenseModel>> getExpensesForMonth(String userId, DateTime selectedMonth) async {
+    DateTime startOfMonth = DateTime(selectedMonth.year, selectedMonth.month, 1);
+    DateTime endOfMonth = DateTime(selectedMonth.year, selectedMonth.month + 1, 1).subtract(const Duration(seconds: 1));
+
+    final querySnapshot = await fireStore
+        .collection('expenses')
+        .where('userId', isEqualTo: userId)
+        .where('date', isGreaterThanOrEqualTo: startOfMonth)
+        .where('date', isLessThanOrEqualTo: endOfMonth)
+        .orderBy("createdAt", descending: true)
+        .get();
+
+    final result = querySnapshot.docs
+        .map((doc) => ExpenseModel.fromJson(doc.data()..['id'] = doc.id))
+        .toList();
+
+    return result;
+  }
 }
