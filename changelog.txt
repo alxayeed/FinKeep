@@ -1,7 +1,1 @@
-- Fixes #12 - expense saved with current time
-- Fixes #14 - routing added
-- Fixes #17 - monthly expense view implemented
-- Fixes #19 - query based on date field
-- Custom app bar added
-- Custom FAB added
-- empty screens added for day, week, month, year view
+- Donut chart
