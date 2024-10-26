@@ -13,9 +13,9 @@ class AppRoutes {
 
   static List<GetPage> routes = [
     GetPage(name: home, page: () => MonthlyExpenseScreen()),
-    GetPage(
-        name: expenseDetails,
-        page: () => ExpenseDetailsScreen(expense: Get.arguments)),
+    // GetPage(
+    //     name: expenseDetails,
+    //     page: () => ExpenseDetailsScreen(expense: Get.arguments)),
     GetPage(name: dailyExpense, page: () => const DailyExpenseScreen()),
     GetPage(name: weeklyExpense, page: () => const WeeklyExpenseScreen()),
     GetPage(name: monthlyExpense, page: () => MonthlyExpenseScreen()),

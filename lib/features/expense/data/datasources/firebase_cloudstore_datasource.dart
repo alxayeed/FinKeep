@@ -62,8 +62,8 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
     final querySnapshot = await fireStore
         .collection('expenses')
         .where('userId', isEqualTo: userId)
-        .where('createdAt', isGreaterThanOrEqualTo: startOfMonth)
-        .where('createdAt', isLessThanOrEqualTo: endOfMonth)
+        .where('date', isGreaterThanOrEqualTo: startOfMonth)
+        .where('date', isLessThanOrEqualTo: endOfMonth)
         .orderBy("createdAt", descending: true)
         .get();
 

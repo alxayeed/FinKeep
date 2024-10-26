@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -19,6 +18,7 @@ class MonthlyExpenseScreen extends StatelessWidget {
         appBar: const CustomAppBar(
           bottom: CustomTabBar(),
         ),
+        drawer: const AppDrawer(),
         floatingActionButton: const CustomFAB(),
         body: TabBarView(
           children: [
@@ -58,19 +58,17 @@ class MonthlyExpenseScreen extends StatelessWidget {
                       }
                       return RefreshIndicator(
                         onRefresh: () => controller.fetchMonthlyExpenses(_selectedMonth),
-                        child: Expanded(
-                          child: ListView.builder(
-                            itemCount: controller.expenses.length,
-                            itemBuilder: (context, index) {
-                              final expense = controller.expenses[index];
-                              return ExpenseCardWidget(
-                                expense: expense,
-                                onDismissed: () {
-                                  controller.removeExpense(expense.id);
-                                },
-                              );
-                            },
-                          ),
+                        child: ListView.builder(
+                          itemCount: controller.expenses.length,
+                          itemBuilder: (context, index) {
+                            final expense = controller.expenses[index];
+                            return ExpenseCardWidget(
+                              expense: expense,
+                              onDismissed: () {
+                                controller.removeExpense(expense.id);
+                              },
+                            );
+                          },
                         ),
                       );
                     }),

@@ -50,7 +50,7 @@ class _CreateExpenseScreenState extends State<CreateExpenseScreen> {
               id: DateTime.now().toString(),
               amount: double.parse(amountController.text),
               category: selectedCategory!.displayName,
-              date: DateTime.now(),
+              date: selectedDate ?? DateTime.now().toLocal(),
               description: descriptionController.text,
               userId: 'dummy_user_id',
             );

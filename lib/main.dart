@@ -25,9 +25,6 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: AppRoutes.home,
       getPages: AppRoutes.routes,
-      home: Scaffold(
-        body: ExpenseListScreen(),
-      ),
     );
   }
 }

@@ -63,6 +63,8 @@ class ExpenseController extends GetxController {
   Future<void> editExpense(ExpenseEntity expense) async {
     await updateExpense.call(expense);
     fetchExpenses();
+    Get.back();
+
   }
 
   Future<void> removeExpense(String id) async {
