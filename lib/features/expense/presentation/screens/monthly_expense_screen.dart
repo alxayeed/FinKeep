@@ -32,8 +32,13 @@ class MonthlyExpenseScreen extends StatelessWidget {
                         },
                         totalExpense: controller.totalExpense.value,
                       )),
-                  Obx(() => _buildExpenseSummary()),
-                  const Text("Chart view will be here"),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: DonutChart(expenses: controller.expenses),
+                    ),
+                  ),
+                  // const Text("Chart view will be here"),
                 ],
               ),
             ),

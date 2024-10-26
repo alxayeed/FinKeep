@@ -50,7 +50,6 @@ class ExpenseController extends GetxController {
     try {
       expenses.value = await getMonthlyExpensesUseCase('userId', month);
       getTotalExpense();
-      print(totalExpense);
     } finally {
       isLoading.value = false;
     }
