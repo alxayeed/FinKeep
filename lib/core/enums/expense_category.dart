@@ -33,4 +33,28 @@ extension ExpenseCategoryExtension on ExpenseCategory {
         return 'Other';
     }
   }
+
+  static ExpenseCategory fromString(String category) {
+    final normalizedCategory = category.trim().toLowerCase();
+    switch (normalizedCategory) {
+      case 'food':
+        return ExpenseCategory.food;
+      case 'transport':
+        return ExpenseCategory.transport;
+      case 'family':
+        return ExpenseCategory.family;
+      case 'personal':
+        return ExpenseCategory.personal;
+      case 'lend':
+        return ExpenseCategory.lend;
+      case 'clothing':
+        return ExpenseCategory.clothing;
+      case 'hangout':
+        return ExpenseCategory.hangout;
+      case 'utilities':
+        return ExpenseCategory.utilities;
+      default:
+        return ExpenseCategory.other;
+    }
+  }
 }

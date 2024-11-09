@@ -5,9 +5,16 @@ import '../controllers/expense_controller.dart';
 import '../widgets/month_selector.dart';
 import '../widgets/widgets.dart';
 
-class MonthlyExpenseScreen extends StatelessWidget {
-  MonthlyExpenseScreen({super.key});
+class MonthlyExpenseScreen extends StatefulWidget {
+  const MonthlyExpenseScreen({super.key});
+
+  @override
+  State<MonthlyExpenseScreen> createState() => _MonthlyExpenseScreenState();
+}
+
+class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
   final ExpenseController controller = Get.find();
+
   DateTime _selectedMonth = DateTime.now();
 
   @override
@@ -22,26 +29,32 @@ class MonthlyExpenseScreen extends StatelessWidget {
         floatingActionButton: const CustomFAB(),
         body: TabBarView(
           children: [
-            Center(
-              child: Column(
-                children: [
-                  Obx(() => MonthSelector(
-                        onMonthChanged: (selectedMonth) {
-                          _selectedMonth = selectedMonth;
-                          controller.fetchMonthlyExpenses(selectedMonth);
-                        },
-                        totalExpense: controller.totalExpense.value,
-                      )),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: DonutChart(expenses: controller.expenses),
-                    ),
+            Column(
+              children: [
+                Obx(() => MonthSelector(
+                  onMonthChanged: (selectedMonth) {
+                    _selectedMonth = selectedMonth;
+                    controller.fetchMonthlyExpenses(selectedMonth);
+                  },
+                  totalExpense: controller.totalExpense.value,
+                )),
+
+                // Display loading indicator or chart based on `isLoading`
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Obx(() {
+                      if (controller.isLoading.value) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else {
+                        return DonutChart(expenses: controller.expenses);
+                      }
+                    }),
                   ),
-                  // const Text("Chart view will be here"),
-                ],
-              ),
+                ),
+              ],
             ),
+
             Column(
               children: [
                 MonthSelector(
@@ -91,13 +104,12 @@ class MonthlyExpenseScreen extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16.0),
       width: double.infinity,
       decoration: BoxDecoration(
-          color: Colors.teal.shade400,
-          borderRadius: BorderRadius.circular(30)
-      ),
+          color: Colors.teal.shade400, borderRadius: BorderRadius.circular(30)),
       child: Center(
         child: Text(
           '${controller.totalExpense.value.toStringAsFixed(2)} ৳',
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w400, color: Colors.white),
+          style: const TextStyle(
+              fontSize: 18, fontWeight: FontWeight.w400, color: Colors.white),
         ),
       ),
     );

@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/styles/app_colors.dart';
 import '../../domain/entities/expense_entity.dart';
 
 class DonutChart extends StatefulWidget {
@@ -11,7 +12,7 @@ class DonutChart extends StatefulWidget {
   });
 
   @override
-  _DonutChartState createState() => _DonutChartState();
+  State<DonutChart> createState() => _DonutChartState();
 }
 
 class _DonutChartState extends State<DonutChart> {
@@ -21,99 +22,74 @@ class _DonutChartState extends State<DonutChart> {
   Widget build(BuildContext context) {
     final categorySpending = _calculateCategorySpending(widget.expenses);
     final totalSpending = categorySpending.fold<double>(0, (sum, item) => sum + item['amount']);
-    final colors = [Colors.teal, Colors.orange, Colors.blue, Colors.purple, Colors.amber];
 
     return Column(
       children: [
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            SizedBox(
-              height: 250,
-              child: PieChart(
-                PieChartData(
-                  sections: _generateSections(categorySpending, totalSpending, colors),
-                  centerSpaceRadius: 60,  // Adjust for compact text display in the center
-                  sectionsSpace: 2,
-                  startDegreeOffset: -90,
-                  borderData: FlBorderData(show: false),
-                  pieTouchData: PieTouchData(
-                    touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                      setState(() {
-                        // Set _tappedIndex only if a section was actually touched
-                        _tappedIndex = pieTouchResponse?.touchedSection?.touchedSectionIndex ?? -1;
-                      });
-                    },
-                  ),
-                ),
-              ),
-            ),
-            // Centered total expense text
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  "Total",
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
-                ),
-                Text(
-                  "${totalSpending.toStringAsFixed(2)} ৳",
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        // Show selected category amount or default text
         Text(
           (_tappedIndex != null && _tappedIndex! >= 0 && _tappedIndex! < categorySpending.length)
               ? "${categorySpending[_tappedIndex!]['category']}: ${categorySpending[_tappedIndex!]['amount']} ৳"
               : "Tap a category to see the total amount",
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 16),
-        // Legend for categories and colors
-        Wrap(
-          spacing: 10,
-          runSpacing: 8,
-          children: List.generate(categorySpending.length, (index) {
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: colors[index % colors.length],
-                    shape: BoxShape.circle,
+        const SizedBox(height: 30),
+        Expanded(
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                height: 250,
+                child: PieChart(
+                  PieChartData(
+                    sections: _generateSections(categorySpending, totalSpending),
+                    centerSpaceRadius: 60,
+                    sectionsSpace: 2,
+                    startDegreeOffset: -90,
+                    borderData: FlBorderData(show: false),
+                    pieTouchData: PieTouchData(
+                      touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                        setState(() {
+                          _tappedIndex = pieTouchResponse?.touchedSection?.touchedSectionIndex ?? -1;
+                        });
+                      },
+                    ),
                   ),
                 ),
-                const SizedBox(width: 4),
-                Text(
-                  categorySpending[index]['category'],
-                  style: const TextStyle(fontSize: 12),
-                ),
-              ],
-            );
-          }),
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Total",
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                  ),
+                  Text(
+                    "${totalSpending.toStringAsFixed(2)} ৳",
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
+        const SizedBox(height: 40),
+
       ],
     );
   }
 
   List<PieChartSectionData> _generateSections(
-      List<Map<String, dynamic>> categorySpending, double totalSpending, List<Color> colors) {
+      List<Map<String, dynamic>> categorySpending, double totalSpending) {
     return categorySpending.asMap().entries.map((entry) {
       final index = entry.key;
       final data = entry.value;
+      final category = data['category'];
       final spendingPercent = (data['amount'] / totalSpending) * 100;
 
       return PieChartSectionData(
-        color: colors[index % colors.length],
+        color: AppColors.getColorForCategory(category),
         value: data['amount'],
         title: '${spendingPercent.toStringAsFixed(1)}%',
-        radius: _tappedIndex == index ? 90 : 80,  // Increase radius when selected
+        radius: _tappedIndex == index ? 90 : 80,
         titleStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
       );
     }).toList();

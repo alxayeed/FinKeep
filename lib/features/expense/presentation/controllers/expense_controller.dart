@@ -27,7 +27,7 @@ class ExpenseController extends GetxController {
 
   @override
   void onInit() {
-    fetchExpenses();
+    fetchMonthlyExpenses(DateTime.now());
     super.onInit();
   }
 
