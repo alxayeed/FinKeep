@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:intl/intl.dart';
+
+import '../controllers/expense_controller.dart';
 
 class MonthSelector extends StatefulWidget {
   final ValueChanged<DateTime> onMonthChanged;
@@ -18,6 +21,21 @@ class MonthSelector extends StatefulWidget {
 
 class _MonthSelectorState extends State<MonthSelector> {
   DateTime _selectedMonth = DateTime.now();
+
+
+  @override
+  void initState() {
+
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    Future.delayed(const Duration(milliseconds: 500)).then((value) {
+      widget.onMonthChanged(_selectedMonth);
+    });
+    super.didChangeDependencies();
+  }
 
   void _previousMonth() {
     setState(() {

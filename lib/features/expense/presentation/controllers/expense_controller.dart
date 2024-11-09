@@ -27,7 +27,7 @@ class ExpenseController extends GetxController {
 
   @override
   void onInit() {
-    fetchExpenses();
+    fetchMonthlyExpenses(DateTime.now());
     super.onInit();
   }
 
@@ -50,7 +50,6 @@ class ExpenseController extends GetxController {
     try {
       expenses.value = await getMonthlyExpensesUseCase('userId', month);
       getTotalExpense();
-      print(totalExpense);
     } finally {
       isLoading.value = false;
     }

@@ -21,7 +21,7 @@ class CustomTabBar extends StatelessWidget implements PreferredSizeWidget{
       labelColor: Colors.black,
       unselectedLabelColor: Colors.white,
       tabs: const [
-        Tab(text: 'Chart'),
+        Tab(text: 'Overview'),
         Tab(text: 'Expenses'),
       ],
     );
