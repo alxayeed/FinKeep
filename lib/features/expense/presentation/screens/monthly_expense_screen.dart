@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -76,7 +75,6 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
                       final isAllCategory = index == 0;
                       final category = isAllCategory ? 'All' : controller.categories[index];
 
-                      // Move the Obx here to ensure only the selection state is observed
                       return Obx(() {
                         final isSelected = controller.selectedCategory.value == category;
 

@@ -100,5 +100,14 @@ class ExpenseController extends GetxController {
   void updateSelectedCategory(String category) {
     selectedCategory.value = category;
     filterExpensesByCategory();
+    updateTotalExpense();
+  }
+
+  void updateTotalExpense() {
+    if (selectedCategory.value == 'All') {
+      totalExpense.value = expenses.fold(0.0, (sum, item) => sum + item.amount);
+    } else {
+      totalExpense.value = filteredExpenses.fold(0.0, (sum, item) => sum + item.amount);
+    }
   }
 }
