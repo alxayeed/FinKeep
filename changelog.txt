@@ -1,1 +1,2 @@
-- Feature: Category based filtering added
+- Fixes #28 ->  Unusual auto refreshing fixed
+- Fixes #29 ->  Both overview and list tab should show same month when month is changed in either tab

@@ -25,6 +25,7 @@ class ExpenseController extends GetxController {
 
   var selectedCategory = 'All'.obs;
   var filteredExpenses = <ExpenseEntity>[].obs;
+  Rx<DateTime> selectedMonth = DateTime.now().obs;
 
   ExpenseController({
     required this.getAllExpenses,
@@ -37,7 +38,7 @@ class ExpenseController extends GetxController {
 
   @override
   void onInit() {
-    fetchMonthlyExpenses(DateTime.now());
+    fetchMonthlyExpenses();
     super.onInit();
   }
 
@@ -56,7 +57,15 @@ class ExpenseController extends GetxController {
     }
   }
 
-  Future<void> fetchMonthlyExpenses(DateTime month) async {
+  Future<void> fetchMonthlyExpenses() async {
+    DateTime month = selectedMonth.value;
+    if (_isCurrentMonthDataFetched(month)) {
+      filterExpensesByCategory();
+      updateTotalExpense();
+      return;
+    }
+
+    selectedCategory.value = 'All';
     isLoading.value = true;
     try {
       expenses.value = await getMonthlyExpensesUseCase('userId', month);
@@ -109,5 +118,20 @@ class ExpenseController extends GetxController {
     } else {
       totalExpense.value = filteredExpenses.fold(0.0, (sum, item) => sum + item.amount);
     }
+  }
+
+  bool _isCurrentMonthDataFetched(DateTime month) {
+    if (expenses.isEmpty) return false;
+
+    final currentMonth = month.month;
+    final firstExpenseMonth = expenses.first.date.month;
+
+    return currentMonth == firstExpenseMonth;
+  }
+
+  void updateSelectedMonth(DateTime selectedMonth) {
+    selectedMonth = selectedMonth;
+    filterExpensesByCategory();
+    updateTotalExpense();
   }
 }
