@@ -4,7 +4,6 @@ import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:spendly/core/routes/app_routes.dart';
 
 import 'dependency_injection.dart';
-import 'features/expense/presentation/screens/screens.dart';
 import 'firebase_options.dart';
 
 void main() async {
