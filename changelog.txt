@@ -1,3 +1,1 @@
-- Fixes #22 - Chart not showing data at first issue
-- Fixes #23 - Prev/Next action on one tab keeps showing same data one other tab issue
-- App colors added to show fixed colors for chart
+- Feature: Category based filtering added
