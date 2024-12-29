@@ -18,8 +18,6 @@ class AppColors {
 
   static Color getColorForCategory(String category) {
     final expenseCategory = ExpenseCategoryExtension.fromString(category);
-    print(expenseCategory);
-    print(categoryColors[expenseCategory]);
     return categoryColors[expenseCategory] ?? defaultColor;
   }
 }
