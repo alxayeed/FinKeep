@@ -27,7 +27,7 @@ class ExpenseListScreen extends StatelessWidget {
         }
         return RefreshIndicator(
           onRefresh: () {
-            return controller.fetchExpenses();
+            return controller.fetchMonthlyExpenses();
           },
           child: Column(
             children: [

@@ -26,6 +26,7 @@ class ExpenseController extends GetxController {
   var selectedCategory = 'All'.obs;
   var filteredExpenses = <ExpenseEntity>[].obs;
   Rx<DateTime> selectedMonth = DateTime.now().obs;
+  bool shouldRefresh = false;
 
   ExpenseController({
     required this.getAllExpenses,
@@ -47,19 +48,9 @@ class ExpenseController extends GetxController {
     return totalExpense.value;
   }
 
-  Future<void> fetchExpenses() async {
-    isLoading.value = true;
-    try {
-      expenses.value = await getAllExpenses.call('userId');
-      filterExpensesByCategory();
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
   Future<void> fetchMonthlyExpenses() async {
     DateTime month = selectedMonth.value;
-    if (_isCurrentMonthDataFetched(month)) {
+    if (_isCurrentMonthDataFetched(month) && !shouldRefresh) {
       filterExpensesByCategory();
       updateTotalExpense();
       return;
@@ -73,26 +64,29 @@ class ExpenseController extends GetxController {
       filterExpensesByCategory();
     } finally {
       isLoading.value = false;
+      shouldRefresh = false;
     }
   }
 
   Future<void> createExpense(ExpenseEntity expense) async {
+    shouldRefresh = true;
     await addExpense.call(expense);
-    fetchExpenses();
+    fetchMonthlyExpenses();
   }
 
   Future<void> editExpense(ExpenseEntity expense) async {
+    shouldRefresh = true;
     await updateExpense.call(expense);
-    fetchExpenses();
+    fetchMonthlyExpenses();
     Get.back();
   }
 
   Future<void> removeExpense(String id) async {
+    shouldRefresh = true;
     await deleteExpense.call(id);
-    fetchExpenses();
+    fetchMonthlyExpenses();
   }
 
-  // Filter expenses based on the selected category
   void filterExpensesByCategory() {
     if (selectedCategory.value == 'All') {
       filteredExpenses.value = expenses;

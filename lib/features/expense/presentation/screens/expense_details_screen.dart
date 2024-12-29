@@ -45,7 +45,7 @@ class ExpenseDetailsScreen extends StatelessWidget {
                     ),
                     TextButton(
                       onPressed: (){
-                        controller.deleteExpense(expense.id);
+                        controller.removeExpense(expense.id);
                     },
                       child: const Text('Delete'),
                     ),

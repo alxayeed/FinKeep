@@ -33,7 +33,7 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
   Future<List<ExpenseModel>> getExpenses(String userId) async {
     final querySnapshot = await fireStore
         .collection('expenses')
-        .where('userId', isEqualTo: userId).orderBy("createdAt", descending: true)
+        .where('userId', isEqualTo: userId).orderBy("date", descending: true)
         .get();
 
     return querySnapshot.docs
@@ -64,7 +64,7 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
         .where('userId', isEqualTo: userId)
         .where('date', isGreaterThanOrEqualTo: startOfMonth)
         .where('date', isLessThanOrEqualTo: endOfMonth)
-        .orderBy("createdAt", descending: true)
+        .orderBy("date", descending: true)
         .get();
 
     final result = querySnapshot.docs

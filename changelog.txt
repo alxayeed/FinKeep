@@ -1,2 +1,3 @@
-- Fixes #28 ->  Unusual auto refreshing fixed
-- Fixes #29 ->  Both overview and list tab should show same month when month is changed in either tab
+- Fixes #30 ->  creating a new expense fetches all data from db issue
+- Fixes #31 ->  expenses are now order by expense date instead of creation date
+- Update routing issue fixed

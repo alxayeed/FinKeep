@@ -23,6 +23,6 @@ class UpdateExpenseUseCase {
       snackPosition: SnackPosition.TOP,
     );
 
-    Get.off(AppRoutes.expenses);
+    Get.offNamed(AppRoutes.expenses);
   }
 }

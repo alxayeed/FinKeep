@@ -101,21 +101,17 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
                           } else if (controller.filteredExpenses.isEmpty) {
                             return const Center(child: Text('No expenses found.'));
                           }
-                          return RefreshIndicator(
-                            onRefresh: () =>
-                                controller.fetchMonthlyExpenses(),
-                            child: ListView.builder(
-                              itemCount: controller.filteredExpenses.length,
-                              itemBuilder: (context, index) {
-                                final expense = controller.filteredExpenses[index];
-                                return ExpenseCardWidget(
-                                  expense: expense,
-                                  onDismissed: () {
-                                    controller.removeExpense(expense.id);
-                                  },
-                                );
-                              },
-                            ),
+                          return ListView.builder(
+                            itemCount: controller.filteredExpenses.length,
+                            itemBuilder: (context, index) {
+                              final expense = controller.filteredExpenses[index];
+                              return ExpenseCardWidget(
+                                expense: expense,
+                                onDismissed: () {
+                                  controller.removeExpense(expense.id);
+                                },
+                              );
+                            },
                           );
                         }),
                       ),
