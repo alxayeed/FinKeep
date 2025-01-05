@@ -19,16 +19,24 @@ class ChartTabWidget extends StatelessWidget {
       child: Obx(() {
         if (controller.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
+        } else if (controller.expenses.isEmpty) {
+          return const Center(child: Text("No Expenses found"));
         } else {
-          return Column(
-            children: [
-              Expanded(
-                child: DonutChart(expenses: controller.expenses),
-              ),
-              Expanded(
-                child: ExpenseBarChart(expenses: controller.expenses),
-              ),
-            ],
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(
+                  height: MediaQuery.of(context).size.height *
+                      0.4, // Adjust height as needed
+                  child: DonutChart(expenses: controller.expenses),
+                ),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height *
+                      0.35, // Adjust height as needed
+                  child: ExpenseBarChart(expenses: controller.expenses),
+                ),
+              ],
+            ),
           );
         }
       }),
