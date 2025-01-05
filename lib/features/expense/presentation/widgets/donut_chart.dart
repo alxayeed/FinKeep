@@ -25,60 +25,54 @@ class _DonutChartState extends State<DonutChart> {
     final totalSpending =
         categorySpending.fold<double>(0, (sum, item) => sum + item['amount']);
 
-    return Column(
+    return Stack(
+      alignment: Alignment.center,
       children: [
-        const SizedBox(height: 10),
-        Expanded(
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              PieChart(
-                swapAnimationCurve: Curves.easeOutExpo,
-                PieChartData(
-                  sections: _generateSections(categorySpending, totalSpending),
-                  centerSpaceRadius: 80,
-                  sectionsSpace: 2,
-                  // startDegreeOffset: -120,
-                  titleSunbeamLayout: true,
-                  borderData: FlBorderData(show: false),
-                  pieTouchData: PieTouchData(
-                    touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                      setState(() {
-                        _tappedIndex = pieTouchResponse
-                                ?.touchedSection?.touchedSectionIndex ??
+        Padding(
+          padding: const EdgeInsets.all(28.0),
+          child: PieChart(
+            swapAnimationCurve: Curves.easeOutExpo,
+            PieChartData(
+              sections: _generateSections(categorySpending, totalSpending),
+              centerSpaceRadius: 80,
+              sectionsSpace: 2,
+              // startDegreeOffset: -120,
+              titleSunbeamLayout: true,
+              borderData: FlBorderData(show: false),
+              pieTouchData: PieTouchData(
+                touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                  setState(() {
+                    _tappedIndex =
+                        pieTouchResponse?.touchedSection?.touchedSectionIndex ??
                             -1;
-                      });
-                    },
-                  ),
-                ),
+                  });
+                },
               ),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    "Total",
-                    style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
-                  ),
-                  Text(
-                    "${totalSpending.toStringAsFixed(2)} ৳",
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    (_tappedIndex != null &&
-                            _tappedIndex! >= 0 &&
-                            _tappedIndex! < categorySpending.length)
-                        ? "${categorySpending[_tappedIndex!]['category']}: ${categorySpending[_tappedIndex!]['amount']} ৳"
-                        : "",
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.normal),
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
         ),
-        // const SizedBox(height: 10),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "Total",
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+            ),
+            Text(
+              "${totalSpending.toStringAsFixed(2)} ৳",
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            Text(
+              (_tappedIndex != null &&
+                      _tappedIndex! >= 0 &&
+                      _tappedIndex! < categorySpending.length)
+                  ? "${categorySpending[_tappedIndex!]['category']}: ${categorySpending[_tappedIndex!]['amount']} ৳"
+                  : "",
+              style:
+                  const TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+            ),
+          ],
+        ),
       ],
     );
   }

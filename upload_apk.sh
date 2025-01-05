@@ -11,11 +11,11 @@ TESTERS_EMAILS="alxayeed@gmail.com"  # Add tester emails, separated by commas
 TESTERS_GROUP="me"  # Use a group name, or use --users for individual emails
 
 # Step 3: Upload the APK to Firebase App Distribution with additional details
-#firebase appdistribution:distribute $APK_PATH --app $APP_ID \
-#    --release-notes-file $RELEASE_NOTES_FILE_PATH \
-#    --groups "$TESTERS_GROUP" \
-
-
 firebase appdistribution:distribute $APK_PATH --app $APP_ID \
-    --release-notes "Test release note" \
-    --testers "$TESTERS_EMAILS"
+    --release-notes-file $RELEASE_NOTES_FILE_PATH \
+    --groups "$TESTERS_GROUP" \
+
+
+#firebase appdistribution:distribute $APK_PATH --app $APP_ID \
+#    --release-notes "Test release note" \
+#    --testers "$TESTERS_EMAILS"

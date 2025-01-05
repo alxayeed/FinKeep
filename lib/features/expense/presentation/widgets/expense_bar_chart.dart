@@ -31,7 +31,7 @@ class ExpenseBarChart extends StatelessWidget {
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            reservedSize: 40,
+            reservedSize: 30,
             interval: 5000,
             getTitlesWidget: (value, meta) {
               return Text(
@@ -67,6 +67,8 @@ class ExpenseBarChart extends StatelessWidget {
       ),
       barTouchData: BarTouchData(
         touchTooltipData: BarTouchTooltipData(
+          fitInsideHorizontally: true,
+          fitInsideVertically: true,
           getTooltipItem: (group, groupIndex, rod, rodIndex) {
             final date =
                 DateTime(DateTime.now().year, DateTime.now().month, group.x);
@@ -98,7 +100,7 @@ class ExpenseBarChart extends StatelessWidget {
         barRods: [
           BarChartRodData(
             toY: total,
-            width: 10, // Reduced bar width
+            width: 4, // Reduced bar width
             color: total > 10000 ? Colors.redAccent : Colors.blueAccent,
           ),
         ],
