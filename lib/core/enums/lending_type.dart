@@ -1,0 +1,1 @@
+enum LendingType { given, taken }

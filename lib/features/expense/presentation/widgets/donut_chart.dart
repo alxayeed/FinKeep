@@ -31,7 +31,7 @@ class _DonutChartState extends State<DonutChart> {
         Padding(
           padding: const EdgeInsets.all(28.0),
           child: PieChart(
-            swapAnimationCurve: Curves.easeOutExpo,
+            curve: Curves.easeOutExpo,
             PieChartData(
               sections: _generateSections(categorySpending, totalSpending),
               centerSpaceRadius: 80,
