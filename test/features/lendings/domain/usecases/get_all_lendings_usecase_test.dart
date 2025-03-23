@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:spendly/core/enums/lending_type.dart';
 import 'package:spendly/core/error/failure.dart';
+import 'package:spendly/core/usecase/usecase.dart';
 import 'package:spendly/features/lendings/domain/entity/lend_entity.dart';
 import 'package:spendly/features/lendings/domain/repositories/lending_repository.dart';
 import 'package:spendly/features/lendings/domain/usecases/get_all_lendings_usecase.dart';
@@ -40,7 +41,7 @@ void main() {
       );
 
       // Act
-      final result = await useCase();
+      final result = await useCase(NoParams());
 
       // Assert
       expect(result.isRight(), true);
@@ -63,7 +64,7 @@ void main() {
       );
 
       // Act
-      final result = await useCase();
+      final result = await useCase(NoParams());
 
       // Assert
       expect(result.isLeft(), true);
@@ -86,7 +87,7 @@ void main() {
       );
 
       // Act
-      final result = await useCase();
+      final result = await useCase(NoParams());
 
       // Assert
       expect(result.isLeft(), true);
@@ -107,7 +108,7 @@ void main() {
       );
 
       // Act
-      final result = await useCase();
+      final result = await useCase(NoParams());
 
       // Assert
       expect(result.isRight(), true);
