@@ -2,10 +2,8 @@ import 'package:spendly/core/enums/lending_type.dart';
 import 'package:spendly/features/lendings/domain/entity/lend_entity.dart';
 
 class LendingModel extends LendingEntity {
-  final String id;
-
   const LendingModel({
-    required this.id,
+    required super.id,
     required super.amount,
     required super.date,
     required super.dueDate,

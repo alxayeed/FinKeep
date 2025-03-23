@@ -22,6 +22,7 @@ void main() {
   group('GetAllLendingsUseCase', () {
     final List<LendingEntity> tMockLendingList = [
       LendingEntity(
+        id: "test_id",
         amount: 100,
         date: DateTime.now(),
         dueDate: DateTime.now().add(Duration(days: 30)),
