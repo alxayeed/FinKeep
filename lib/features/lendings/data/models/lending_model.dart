@@ -15,7 +15,6 @@ class LendingModel extends LendingEntity {
     super.note,
   });
 
-  // fromJson method to parse the JSON map into a LendingModel
   factory LendingModel.fromJson(Map<String, dynamic> json) {
     return LendingModel(
       id: json['id'] as String,
@@ -30,5 +29,18 @@ class LendingModel extends LendingEntity {
       ),
       note: json['note'] as String?,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'amount': amount,
+      'date': date.toIso8601String(),
+      'dueDate': dueDate.toIso8601String(),
+      'lenderId': lenderId,
+      'borrowerName': borrowerName,
+      'type': type.toString().split('.').last,
+      'note': note,
+    };
   }
 }
