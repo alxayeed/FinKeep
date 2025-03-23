@@ -41,4 +41,17 @@ class LendingModel extends LendingEntity {
       'note': note,
     };
   }
+
+  LendingEntity toEntity() {
+    return LendingEntity(
+      id: id,
+      amount: amount,
+      date: date,
+      dueDate: dueDate,
+      lenderId: lenderId,
+      borrowerName: borrowerName,
+      type: type,
+      note: note,
+    );
+  }
 }
