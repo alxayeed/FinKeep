@@ -8,7 +8,7 @@ class GetAllLendingsUseCase {
 
   GetAllLendingsUseCase(this.lendingRepository);
 
-  Future<Either<Failure, List<LendingEntity>>> execute() {
+  Future<Either<Failure, List<LendingEntity>>> call() {
     return lendingRepository.getAllLendings();
   }
 }

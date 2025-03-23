@@ -40,7 +40,7 @@ void main() {
       );
 
       // Act
-      final result = await useCase.execute();
+      final result = await useCase();
 
       // Assert
       expect(result.isRight(), true);
@@ -63,7 +63,7 @@ void main() {
       );
 
       // Act
-      final result = await useCase.execute();
+      final result = await useCase();
 
       // Assert
       expect(result.isLeft(), true);
@@ -86,7 +86,7 @@ void main() {
       );
 
       // Act
-      final result = await useCase.execute();
+      final result = await useCase();
 
       // Assert
       expect(result.isLeft(), true);
@@ -107,7 +107,7 @@ void main() {
       );
 
       // Act
-      final result = await useCase.execute();
+      final result = await useCase();
 
       // Assert
       expect(result.isRight(), true);
