@@ -72,4 +72,19 @@ void main() {
 
     expect(result.type, LendingType.given);
   });
+
+  test('should convert LendingModel to JSON correctly', () {
+    final result = tLendingModel.toJson();
+
+    expect(result, {
+      'id': 'testId',
+      'amount': 1000,
+      'date': '2025-03-23T00:00:00.000',
+      'dueDate': '2025-06-23T00:00:00.000',
+      'lenderId': 'Lender123',
+      'borrowerName': 'John Doe',
+      'type': 'given',
+      'note': 'Test note',
+    });
+  });
 }
