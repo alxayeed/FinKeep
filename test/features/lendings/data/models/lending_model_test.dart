@@ -87,4 +87,19 @@ void main() {
       'note': 'Test note',
     });
   });
+
+  test('should convert LendingModel to LendingEntity correctly', () {
+    final result = tLendingModel.toEntity();
+
+    expect(result, isA<LendingEntity>());
+
+    expect(result.id, tLendingModel.id);
+    expect(result.amount, tLendingModel.amount);
+    expect(result.date, tLendingModel.date);
+    expect(result.dueDate, tLendingModel.dueDate);
+    expect(result.lenderId, tLendingModel.lenderId);
+    expect(result.borrowerName, tLendingModel.borrowerName);
+    expect(result.type, tLendingModel.type);
+    expect(result.note, tLendingModel.note);
+  });
 }
