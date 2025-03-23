@@ -22,4 +22,54 @@ void main() {
       expect(tLendingModel, isA<LendingEntity>());
     },
   );
+
+  test('should parse LendingType correctly from JSON', () {
+    final jsonMap = {
+      'id': 'testId',
+      'amount': 1000,
+      'date': '2025-03-23T00:00:00.000',
+      'dueDate': '2025-06-23T00:00:00.000',
+      'lenderId': 'Lender123',
+      'borrowerName': 'John Doe',
+      'type': 'given',
+      'note': 'Test note',
+    };
+
+    final result = LendingModel.fromJson(jsonMap);
+
+    expect(result.type, LendingType.given);
+  });
+
+  test('should default to LendingType.given for invalid type in JSON', () {
+    final jsonMap = {
+      'id': 'testId',
+      'amount': 1000,
+      'date': '2025-03-23T00:00:00.000',
+      'dueDate': '2025-06-23T00:00:00.000',
+      'lenderId': 'Lender123',
+      'borrowerName': 'John Doe',
+      'type': 'invalid_type',
+      'note': 'Test note',
+    };
+
+    final result = LendingModel.fromJson(jsonMap);
+
+    expect(result.type, LendingType.given);
+  });
+
+  test('should default to LendingType.given when type is missing in JSON', () {
+    final jsonMap = {
+      'id': 'testId',
+      'amount': 1000,
+      'date': '2025-03-23T00:00:00.000',
+      'dueDate': '2025-06-23T00:00:00.000',
+      'lenderId': 'Lender123',
+      'borrowerName': 'John Doe',
+      'note': 'Test note',
+    };
+
+    final result = LendingModel.fromJson(jsonMap);
+
+    expect(result.type, LendingType.given);
+  });
 }
