@@ -1,6 +1,6 @@
-export 'app_drawer.dart';
+export '../../../../core/common/widgets/app_drawer.dart';
+export '../../../../core/common/widgets/custom_app_bar.dart';
 export 'chart_tab_widget.dart';
-export 'custom_app_bar.dart';
 export 'custom_fab.dart';
 export 'custom_tab_bar.dart';
 export 'donut_chart.dart';

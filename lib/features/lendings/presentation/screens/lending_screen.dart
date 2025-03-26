@@ -4,8 +4,8 @@ import 'package:spendly/features/lendings/presentation/widgets/error_indicator_w
 import 'package:spendly/features/lendings/presentation/widgets/lending_card_widget.dart';
 import 'package:spendly/features/lendings/presentation/widgets/loading_indicator_widget.dart';
 
-import '../../../expense/presentation/widgets/app_drawer.dart';
-import '../../../expense/presentation/widgets/custom_app_bar.dart';
+import '../../../../core/common/widgets/app_drawer.dart';
+import '../../../../core/common/widgets/custom_app_bar.dart';
 import '../controllers/lendings_controller.dart';
 
 class LendingScreen extends StatelessWidget {
@@ -15,8 +15,6 @@ class LendingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    controller.getAllLendings();
-
     return Scaffold(
       appBar: const CustomAppBar(),
       drawer: const AppDrawer(),
