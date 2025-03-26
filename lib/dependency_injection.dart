@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:spendly/core/error/exception_mapper.dart';
 import 'package:spendly/features/expense/data/datasources/expense_remote_datasource.dart';
 import 'package:spendly/features/expense/data/datasources/firebase_cloudstore_datasource.dart';
 import 'package:spendly/features/expense/data/repositories/expense_repository_impl.dart';
@@ -10,30 +11,39 @@ import 'package:spendly/features/expense/domain/usecases/get_expense_usecase.dar
 import 'package:spendly/features/expense/domain/usecases/get_monthly_expense.dart';
 import 'package:spendly/features/expense/domain/usecases/update_expense_usecase.dart';
 import 'package:spendly/features/expense/presentation/controllers/expense_controller.dart';
+import 'package:spendly/features/lendings/data/repositories/lending_repository_impl.dart';
+import 'package:spendly/features/lendings/domain/repositories/lending_repository.dart';
+import 'package:spendly/features/lendings/domain/usecases/get_all_lendings_usecase.dart';
 
 class DependencyInjection {
   static void initDependencies() {
+    //ExceptionMapper
+    Get.lazyPut<ExceptionMapper>(() => ExceptionMapper());
+
     // Data Sources
     Get.lazyPut<ExpenseRemoteDataSource>(() => FirebaseCloudStoreDataSource());
     // Get.lazyPut<LendingDataSource>(() => LendingDataSourceImpl());
 
     // Repositories
     Get.lazyPut<ExpenseRepository>(() => ExpenseRepositoryImpl(Get.find()));
-    // Get.lazyPut<LendingRepository>(() => LendingRepositoryImpl(Get.find()));
+    Get.lazyPut<LendingRepository>(() => LendingRepositoryImpl(
+          dataSource: Get.find(),
+          exceptionMapper: Get.find(),
+        ));
 
     // Use Cases
-    //Expenses
+    // Expenses
     Get.lazyPut(() => GetAllExpensesUseCase(Get.find()));
     Get.lazyPut(() => GetMonthlyExpensesUseCase(Get.find()));
     Get.lazyPut(() => GetExpenseUseCase(Get.find()));
     Get.lazyPut(() => AddExpenseUseCase(Get.find()));
     Get.lazyPut(() => UpdateExpenseUseCase(Get.find()));
     Get.lazyPut(() => DeleteExpenseUseCase(Get.find()));
-    //Lendings
-    // Get.lazyPut(
-    //     () => CreateLendingRecordUsecase(Get.find()));
+    // Lendings
+    Get.lazyPut(() => GetAllLendingsUseCase(Get.find()));
 
     // Controllers
+    // Expenses
     Get.lazyPut(() => ExpenseController(
           getAllExpenses: Get.find(),
           getMonthlyExpensesUseCase: Get.find(),
@@ -42,5 +52,7 @@ class DependencyInjection {
           updateExpense: Get.find(),
           deleteExpense: Get.find(),
         ));
+    // Lendings
+    // Get.lazyPut(() => LendingController(getAllLendingsUseCase: Get.find()));
   }
 }
