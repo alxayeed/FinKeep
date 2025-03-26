@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:spendly/core/enums/lending_type.dart';
 import 'package:spendly/features/lendings/domain/entity/lend_entity.dart';
 
@@ -17,8 +18,8 @@ class LendingModel extends LendingEntity {
     return LendingModel(
       id: json['id'] as String,
       amount: json['amount'] as int,
-      date: DateTime.parse(json['date'] as String),
-      dueDate: DateTime.parse(json['dueDate'] as String),
+      date: (json['date'] as Timestamp).toDate(),
+      dueDate: (json['dueDate'] as Timestamp).toDate(),
       lenderId: json['lenderId'] as String,
       borrowerName: json['borrowerName'] as String,
       type: LendingType.values.firstWhere(
@@ -33,8 +34,8 @@ class LendingModel extends LendingEntity {
     return {
       'id': id,
       'amount': amount,
-      'date': date.toIso8601String(),
-      'dueDate': dueDate.toIso8601String(),
+      'date': Timestamp.fromDate(date),
+      'dueDate': Timestamp.fromDate(date),
       'lenderId': lenderId,
       'borrowerName': borrowerName,
       'type': type.toString().split('.').last,
