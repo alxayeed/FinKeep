@@ -29,35 +29,41 @@ class AppDrawer extends StatelessWidget {
                 ),
               ),
             ),
-            _createDrawerItem(
-              icon: Icons.calendar_today,
-              text: 'Daily Expense',
-              onTap: () => Get.toNamed(AppRoutes.dailyExpense),
-            ),
-            _createDrawerItem(
-              icon: Icons.calendar_view_week,
-              text: 'Weekly Expense',
-              onTap: () => Get.toNamed(AppRoutes.weeklyExpense),
-            ),
+            // _createDrawerItem(
+            //   icon: Icons.calendar_today,
+            //   text: 'Daily Expense',
+            //   onTap: () => Get.toNamed(AppRoutes.dailyExpense),
+            // ),
+            // _createDrawerItem(
+            //   icon: Icons.calendar_view_week,
+            //   text: 'Weekly Expense',
+            //   onTap: () => Get.toNamed(AppRoutes.weeklyExpense),
+            // ),
             _createDrawerItem(
               icon: Icons.calendar_today_outlined,
-              text: 'Monthly Expense',
-              onTap: () => Get.toNamed(AppRoutes.monthlyExpense),
-            ),
-            _createDrawerItem(
-              icon: Icons.calendar_today_rounded,
-              text: 'Yearly Expense',
-              onTap: () => Get.toNamed(AppRoutes.yearlyExpense),
-            ),
-            _createDrawerItem(
-              icon: Icons.bar_chart,
-              text: 'Generate Report',
-              onTap: () {},
+              text: 'Expenses',
+              onTap: () {
+                Get.back();
+                Get.toNamed(AppRoutes.monthlyExpense);
+              },
             ),
             _createDrawerItem(
               icon: Icons.monetization_on,
-              text: 'Lend',
-              onTap: () => Get.toNamed(AppRoutes.lendings),
+              text: 'Lends',
+              onTap: () {
+                Get.back();
+                Get.toNamed(AppRoutes.lendings);
+              },
+            ),
+            // _createDrawerItem(
+            //   icon: Icons.calendar_today_rounded,
+            //   text: 'Yearly Expense',
+            //   onTap: () => Get.toNamed(AppRoutes.yearlyExpense),
+            // ),
+            _createDrawerItem(
+              icon: Icons.bar_chart,
+              text: 'Reports',
+              onTap: () {},
             ),
           ],
         ),
