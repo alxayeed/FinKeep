@@ -15,7 +15,8 @@ class LendingFirestoreDataSource implements LendingDataSource {
   @override
   Future<List<LendingModel>> getAllLendings() async {
     try {
-      final querySnapshot = await firestore.collection('lendings').get();
+      final querySnapshot =
+          await firestore.collection(AppStrings.lendingsCollection).get();
 
       // Map the query snapshot to LendingModel list
       final lendings = querySnapshot.docs.map((doc) {

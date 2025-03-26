@@ -10,4 +10,7 @@ class AppStrings {
 
   //UI
   static const String notAvailable = 'Not Available';
+
+  //DB
+  static const String lendingsCollection = 'lends';
 }

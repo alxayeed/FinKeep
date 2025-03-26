@@ -4,17 +4,20 @@ import 'package:spendly/features/lendings/presentation/widgets/error_indicator_w
 import 'package:spendly/features/lendings/presentation/widgets/lending_card_widget.dart';
 import 'package:spendly/features/lendings/presentation/widgets/loading_indicator_widget.dart';
 
+import '../../../expense/presentation/widgets/app_drawer.dart';
+import '../../../expense/presentation/widgets/custom_app_bar.dart';
 import '../controllers/lendings_controller.dart';
 
-class LendingPage extends StatelessWidget {
-  const LendingPage({super.key});
+class LendingScreen extends StatelessWidget {
+  LendingScreen({super.key});
+
+  final LendingController controller = Get.find();
 
   @override
   Widget build(BuildContext context) {
-    final LendingController controller = Get.find();
-
     return Scaffold(
-      appBar: AppBar(title: Text('Lendings')),
+      appBar: const CustomAppBar(),
+      drawer: const AppDrawer(),
       body: Obx(() => _buildBody(controller)),
     );
   }

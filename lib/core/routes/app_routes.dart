@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:spendly/features/lendings/presentation/screens/lending_screen.dart';
 
 import '../../features/expense/presentation/screens/screens.dart';
 
@@ -11,6 +12,8 @@ class AppRoutes {
   static const String monthlyExpense = '/monthlyExpense';
   static const String yearlyExpense = '/yearlyExpense';
 
+  static const String lendings = '/lendings';
+
   static List<GetPage> routes = [
     GetPage(name: home, page: () => const MonthlyExpenseScreen()),
     // GetPage(
@@ -20,5 +23,6 @@ class AppRoutes {
     GetPage(name: weeklyExpense, page: () => const WeeklyExpenseScreen()),
     GetPage(name: monthlyExpense, page: () => const MonthlyExpenseScreen()),
     GetPage(name: yearlyExpense, page: () => const YearlyExpenseScreen()),
+    GetPage(name: lendings, page: () => LendingScreen()),
   ];
 }

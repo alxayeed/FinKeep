@@ -1,16 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../models/expense_model.dart';
 import 'expense_remote_datasource.dart';
 
 class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
-  static final FirebaseCloudStoreDataSource _instance = FirebaseCloudStoreDataSource._internal();
   final FirebaseFirestore fireStore;
 
-  factory FirebaseCloudStoreDataSource() {
-    return _instance;
-  }
-
-  FirebaseCloudStoreDataSource._internal() : fireStore = FirebaseFirestore.instance;
+  FirebaseCloudStoreDataSource({required this.fireStore});
 
   @override
   Future<void> createExpense(ExpenseModel expense) async {
@@ -33,7 +29,8 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
   Future<List<ExpenseModel>> getExpenses(String userId) async {
     final querySnapshot = await fireStore
         .collection('expenses')
-        .where('userId', isEqualTo: userId).orderBy("date", descending: true)
+        .where('userId', isEqualTo: userId)
+        .orderBy("date", descending: true)
         .get();
 
     return querySnapshot.docs
@@ -55,9 +52,13 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
   }
 
   @override
-  Future<List<ExpenseModel>> getExpensesForMonth(String userId, DateTime selectedMonth) async {
-    DateTime startOfMonth = DateTime(selectedMonth.year, selectedMonth.month, 1);
-    DateTime endOfMonth = DateTime(selectedMonth.year, selectedMonth.month + 1, 1).subtract(const Duration(seconds: 1));
+  Future<List<ExpenseModel>> getExpensesForMonth(
+      String userId, DateTime selectedMonth) async {
+    DateTime startOfMonth =
+        DateTime(selectedMonth.year, selectedMonth.month, 1);
+    DateTime endOfMonth =
+        DateTime(selectedMonth.year, selectedMonth.month + 1, 1)
+            .subtract(const Duration(seconds: 1));
 
     final querySnapshot = await fireStore
         .collection('expenses')

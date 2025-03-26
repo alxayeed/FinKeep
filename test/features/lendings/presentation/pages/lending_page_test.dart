@@ -8,7 +8,7 @@ import 'package:spendly/features/lendings/domain/entity/lend_entity.dart';
 import 'package:spendly/features/lendings/domain/repositories/lending_repository.dart';
 import 'package:spendly/features/lendings/domain/usecases/get_all_lendings_usecase.dart';
 import 'package:spendly/features/lendings/presentation/controllers/lendings_controller.dart';
-import 'package:spendly/features/lendings/presentation/pages/lending_page.dart';
+import 'package:spendly/features/lendings/presentation/screens/lending_screen.dart';
 import 'package:spendly/features/lendings/presentation/widgets/error_indicator_widget.dart';
 import 'package:spendly/features/lendings/presentation/widgets/lending_card_widget.dart';
 import 'package:spendly/features/lendings/presentation/widgets/loading_indicator_widget.dart';
@@ -34,7 +34,7 @@ void main() {
     Get.delete<LendingController>(); // Clean up the controller after each test
   });
 
-  testWidgets('LendingPage displays a list of lending cards', (tester) async {
+  testWidgets('LendingScreen displays a list of lending cards', (tester) async {
     final lendings = [
       LendingEntity(
         id: '1',
@@ -66,7 +66,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: LendingPage(),
+        home: LendingScreen(),
       ),
     );
 
@@ -77,26 +77,26 @@ void main() {
     expect(find.text('Borrower: Jane Doe'), findsOneWidget);
   });
 
-  testWidgets('LendingPage shows loading indicator when loading',
+  testWidgets('LendingScreen shows loading indicator when loading',
       (tester) async {
     controller.isLoading.value = true;
 
     await tester.pumpWidget(
       MaterialApp(
-        home: LendingPage(),
+        home: LendingScreen(),
       ),
     );
 
     expect(find.byType(LoadingIndicatorWidget), findsOneWidget);
   });
 
-  testWidgets('LendingPage shows error indicator when error occurs',
+  testWidgets('LendingScreen shows error indicator when error occurs',
       (tester) async {
     controller.errorMessage.value = 'An error occurred';
 
     await tester.pumpWidget(
       MaterialApp(
-        home: LendingPage(),
+        home: LendingScreen(),
       ),
     );
 
@@ -104,13 +104,13 @@ void main() {
     expect(find.text('An error occurred'), findsOneWidget);
   });
 
-  testWidgets('LendingPage displays empty state when no lendings available',
+  testWidgets('LendingScreen displays empty state when no lendings available',
       (tester) async {
     controller.lendings.clear();
 
     await tester.pumpWidget(
       MaterialApp(
-        home: LendingPage(),
+        home: LendingScreen(),
       ),
     );
 
