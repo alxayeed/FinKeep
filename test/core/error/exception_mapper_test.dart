@@ -41,5 +41,14 @@ void main() {
       expect(() => exceptionMapper.map(exception),
           throwsA(isA<UnimplementedError>()));
     });
+
+    test(
+        'should map UnknownException to ServerFailure with unknownError message',
+        () {
+      final exception = UnknownException(message: AppStrings.unknownError);
+      final result = exceptionMapper.map(exception);
+      expect(result, isA<UnknownFailure>());
+      expect((result as UnknownFailure).message, AppStrings.unknownError);
+    });
   });
 }

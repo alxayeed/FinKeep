@@ -28,10 +28,10 @@ void main() {
     });
 
     test('should map unknown Failure to exceptionNotHandled message', () {
-      final failure = UnknownFailure(); // Using the UnknownFailure class
+      final failure = UnknownFailure(message: AppStrings.unknownError);
       final message = FailureMapper.mapFailureToMessage(failure);
 
-      expect(message, AppStrings.exceptionNotHandled);
+      expect(message, AppStrings.unknownError);
     });
   });
 }

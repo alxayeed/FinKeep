@@ -10,9 +10,9 @@ class FailureMapper {
     } else if (failure is AuthenticationFailure) {
       return failure.message;
     } else if (failure is UnknownFailure) {
-      return AppStrings.exceptionNotHandled;
+      return AppStrings.unknownError;
     } else {
-      return AppStrings.exceptionNotHandled;
+      return AppStrings.unknownError;
     }
   }
 }

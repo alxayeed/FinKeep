@@ -11,6 +11,8 @@ class ExceptionMapper {
       return ServerFailure(message: exception.message);
     } else if (exception is AuthenticationException) {
       return AuthenticationFailure(message: exception.message);
+    } else if (exception is UnknownException) {
+      return UnknownFailure(message: exception.message);
     } else {
       throw UnimplementedError(AppStrings.exceptionNotHandled);
     }

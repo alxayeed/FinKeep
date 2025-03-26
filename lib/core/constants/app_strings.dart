@@ -5,4 +5,5 @@ class AppStrings {
   static const String cacheNotFound = 'Cache not found';
   static const String invalidEmailFormat = 'Invalid email format';
   static const String exceptionNotHandled = 'Exception type not handled';
+  static const String unknownError = 'Unknown Error Occurred';
 }

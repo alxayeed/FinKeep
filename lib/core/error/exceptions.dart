@@ -25,3 +25,7 @@ class ValidationException extends CustomException {
 class CacheException extends CustomException {
   const CacheException({required super.message});
 }
+
+class UnknownException extends CustomException {
+  const UnknownException({required super.message});
+}

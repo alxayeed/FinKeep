@@ -54,5 +54,16 @@ void main() {
         expect((e as CacheException).message, AppStrings.cacheNotFound);
       }
     });
+
+    test('UnknownException should throw and store the correct message', () {
+      try {
+        throw UnknownException(message: AppStrings.unknownError);
+      } catch (e) {
+        expect(e, isA<UnknownException>());
+        expect((e as UnknownException).message, AppStrings.unknownError);
+
+        // No message to check, since UnknownException doesn't have one
+      }
+    });
   });
 }
