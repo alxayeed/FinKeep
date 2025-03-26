@@ -52,7 +52,7 @@ android {
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         minSdkVersion 21
         targetSdkVersion flutter.targetSdkVersion
-        versionCode 13
+        versionCode 14
         versionName "1.0.0"
     }
 
@@ -62,9 +62,9 @@ android {
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig signingConfigs.debug
             firebaseAppDistribution {
-                artifactType="APK"
+                artifactType = "APK"
                 releaseNotesFile = "../changelog.txt"
-                testers="alxayeed@gmail.com"
+                testers = "alxayeed@gmail.com"
             }
         }
     }
