@@ -33,3 +33,10 @@ class AuthenticationFailure extends Failure {
   @override
   List<Object?> get props => [message];
 }
+
+class UnknownFailure extends Failure {
+  const UnknownFailure();
+
+  @override
+  List<Object?> get props => [];
+}
