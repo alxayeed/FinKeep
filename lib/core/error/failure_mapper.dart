@@ -12,7 +12,7 @@ class FailureMapper {
     } else if (failure is UnknownFailure) {
       return AppStrings.unknownError;
     } else {
-      return AppStrings.unknownError;
+      return AppStrings.exceptionNotHandled;
     }
   }
 }
