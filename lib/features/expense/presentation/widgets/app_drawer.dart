@@ -15,7 +15,7 @@ class AppDrawer extends StatelessWidget {
           children: [
             const DrawerHeader(
               decoration: BoxDecoration(
-                  color: Colors.teal,
+                color: Colors.teal,
                 image: DecorationImage(
                   opacity: 0.3,
                   image: AssetImage('assets/img/drawer.jpg'),
@@ -57,7 +57,7 @@ class AppDrawer extends StatelessWidget {
             _createDrawerItem(
               icon: Icons.monetization_on,
               text: 'Lend',
-              onTap: () {},
+              onTap: () => Get.toNamed(AppRoutes.lendings),
             ),
           ],
         ),
@@ -65,7 +65,10 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  Widget _createDrawerItem({required IconData icon, required String text, required VoidCallback onTap}) {
+  Widget _createDrawerItem(
+      {required IconData icon,
+      required String text,
+      required VoidCallback onTap}) {
     return ListTile(
       leading: Icon(icon, color: Colors.teal),
       title: Text(text, style: const TextStyle(fontSize: 16)),
