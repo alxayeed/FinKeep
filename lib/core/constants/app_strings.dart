@@ -12,5 +12,5 @@ class AppStrings {
   static const String notAvailable = 'Not Available';
 
   //DB
-  static const String lendingsCollection = 'lends';
+  static const String lendingsCollection = 'lendings';
 }

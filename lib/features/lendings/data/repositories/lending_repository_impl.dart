@@ -18,6 +18,8 @@ class LendingRepositoryImpl implements LendingRepository {
 
   @override
   Future<Either<Failure, List<LendingEntity>>> getAllLendings() async {
+    print(
+        "--------------------LendingRepositoryImpl----------------------------------");
     try {
       final lendingModels = await dataSource.getAllLendings();
       final lendingEntities =

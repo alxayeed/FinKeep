@@ -75,6 +75,7 @@ class DependencyInjection {
       () => LendingController(
         getAllLendingsUseCase: Get.find(),
       ),
+      // permanent: true,
     );
   }
 }

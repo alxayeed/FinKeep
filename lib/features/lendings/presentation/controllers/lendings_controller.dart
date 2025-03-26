@@ -14,6 +14,12 @@ class LendingController extends GetxController {
   var isLoading = false.obs;
   var errorMessage = RxnString();
 
+  @override
+  void onInit() {
+    super.onInit();
+    getAllLendings();
+  }
+
   Future<void> getAllLendings() async {
     isLoading.value = true;
     errorMessage.value = null;

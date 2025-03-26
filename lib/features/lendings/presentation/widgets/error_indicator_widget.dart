@@ -20,7 +20,7 @@ class ErrorIndicatorWidget extends StatelessWidget {
               SizedBox(width: 8),
               Text(
                 message,
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.white, fontSize: 10),
               ),
             ],
           ),

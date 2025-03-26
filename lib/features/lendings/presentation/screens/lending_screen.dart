@@ -15,6 +15,8 @@ class LendingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    controller.getAllLendings();
+
     return Scaffold(
       appBar: const CustomAppBar(),
       drawer: const AppDrawer(),

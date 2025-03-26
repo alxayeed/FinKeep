@@ -14,6 +14,9 @@ class LendingFirestoreDataSource implements LendingDataSource {
 
   @override
   Future<List<LendingModel>> getAllLendings() async {
+    print(
+        "--------------------LendingFirestoreDataSource----------------------------------");
+
     try {
       final querySnapshot =
           await firestore.collection(AppStrings.lendingsCollection).get();
