@@ -25,42 +25,25 @@ class _DonutChartState extends State<DonutChart> {
     final totalSpending =
         categorySpending.fold<double>(0, (sum, item) => sum + item['amount']);
 
-    return Stack(
-      alignment: Alignment.center,
+    return Column(
+      // alignment: Alignment.center,
       children: [
-        Padding(
-          padding: const EdgeInsets.all(28.0),
-          child: PieChart(
-            curve: Curves.easeOutExpo,
-            PieChartData(
-              sections: _generateSections(categorySpending, totalSpending),
-              centerSpaceRadius: 80,
-              sectionsSpace: 2,
-              // startDegreeOffset: -120,
-              titleSunbeamLayout: true,
-              borderData: FlBorderData(show: false),
-              pieTouchData: PieTouchData(
-                touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                  setState(() {
-                    _tappedIndex =
-                        pieTouchResponse?.touchedSection?.touchedSectionIndex ??
-                            -1;
-                  });
-                },
-              ),
-            ),
-          ),
-        ),
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              "Total",
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
-            ),
-            Text(
-              "${totalSpending.toStringAsFixed(2)} ৳",
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Total: ",
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                ),
+                Text(
+                  "${totalSpending.toStringAsFixed(2)} ৳",
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ],
             ),
             Text(
               (_tappedIndex != null &&
@@ -73,6 +56,30 @@ class _DonutChartState extends State<DonutChart> {
             ),
           ],
         ),
+        SizedBox(height: 10),
+
+        // Expanded(
+        //   child: PieChart(
+        //     curve: Curves.easeOutExpo,
+        //     PieChartData(
+        //       sections: _generateSections(categorySpending, totalSpending),
+        //       centerSpaceRadius: 30,
+        //       sectionsSpace: 2,
+        //       // startDegreeOffset: -120,
+        //       titleSunbeamLayout: true,
+        //       borderData: FlBorderData(show: false),
+        //       pieTouchData: PieTouchData(
+        //         touchCallback: (FlTouchEvent event, pieTouchResponse) {
+        //           setState(() {
+        //             _tappedIndex =
+        //                 pieTouchResponse?.touchedSection?.touchedSectionIndex ??
+        //                     -1;
+        //           });
+        //         },
+        //       ),
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }

@@ -3,6 +3,7 @@ import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:spendly/core/common/widgets/loading_animation.dart';
 
 import '../controllers/expense_controller.dart';
+import 'expense_summery.dart';
 import 'widgets.dart';
 
 class ChartTabWidget extends StatelessWidget {
@@ -28,9 +29,14 @@ class ChartTabWidget extends StatelessWidget {
               children: [
                 SizedBox(
                   height: MediaQuery.of(context).size.height *
-                      0.4, // Adjust height as needed
-                  child: DonutChart(expenses: controller.expenses),
+                      0.3, // Adjust height as needed
+                  child: ExpenseSummery(expenses: controller.expenses),
                 ),
+                // SizedBox(
+                //   height: MediaQuery.of(context).size.height *
+                //       0.4, // Adjust height as needed
+                //   child: DonutChart(expenses: controller.expenses),
+                // ),
                 SizedBox(
                   height: MediaQuery.of(context).size.height *
                       0.35, // Adjust height as needed
