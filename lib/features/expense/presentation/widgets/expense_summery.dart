@@ -47,7 +47,7 @@ class ExpenseSummery extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

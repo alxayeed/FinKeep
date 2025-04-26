@@ -1,68 +1,101 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:spendly/core/common/widgets/custom_app_bar.dart';
-import 'package:spendly/core/common/widgets/loading_animation.dart';
-import 'package:spendly/features/expense/presentation/widgets/custom_fab.dart';
+import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
+import 'package:spendly/core/common/widgets/no_data_widget.dart';
 
-import '../../../../core/common/widgets/app_drawer.dart';
+import '../../../../core/common/widgets/loader_widget.dart';
 import '../controllers/expense_controller.dart';
 import '../widgets/expense_card_widget.dart';
 
 class ExpenseListScreen extends StatelessWidget {
-  final ExpenseController controller = Get.find();
+  final ExpenseController controller;
 
-  ExpenseListScreen({super.key});
+  const ExpenseListScreen({
+    super.key,
+    required this.controller,
+  });
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const CustomAppBar(),
-      drawer: const AppDrawer(),
-      floatingActionButton: const CustomFAB(),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(
-            child: LoadingAnimation(),
-          );
-        } else if (controller.expenses.isEmpty) {
-          return const Center(child: Text('No expenses found.'));
-        }
-        return RefreshIndicator(
-          onRefresh: () {
-            return controller.fetchMonthlyExpenses();
-          },
-          child: Column(
-            children: [
-              _buildExpenseSummary(),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: controller.expenses.length,
-                  itemBuilder: (context, index) {
-                    final expense = controller.expenses[index];
-                    return ExpenseCardWidget(
-                        expense: expense,
-                        onDismissed: () {
-                          controller.removeExpense(expense.id);
-                        });
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      }),
+  Widget _buildExpenseSummary() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      margin: const EdgeInsets.symmetric(horizontal: 16.0),
+      width: double.infinity,
+      decoration: BoxDecoration(
+          color: Colors.teal.shade400, borderRadius: BorderRadius.circular(10)),
+      child: Center(
+        child: Text(
+          '${controller.totalExpense.value.toStringAsFixed(2)} ৳',
+          style: const TextStyle(
+              fontSize: 18, fontWeight: FontWeight.w400, color: Colors.white),
+        ),
+      ),
     );
   }
 
-  Widget _buildExpenseSummary() {
-    double totalExpenses =
-        controller.expenses.fold(0, (sum, item) => sum + item.amount);
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Text(
-        'Total Expenses: ${totalExpenses.toStringAsFixed(2)} ৳',
-        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-      ),
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Category list
+        Container(
+          height: 50,
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: controller.categories.length,
+            itemBuilder: (context, index) {
+              final isAllCategory = index == 0;
+              final category =
+                  isAllCategory ? 'All' : controller.categories[index];
+
+              return Obx(() {
+                final isSelected =
+                    controller.selectedCategory.value == category;
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  child: ChoiceChip(
+                    label: Text(
+                      category,
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : Colors.black,
+                      ),
+                    ),
+                    selected: isSelected,
+                    selectedColor: Colors.teal,
+                    onSelected: (selected) {
+                      if (selected) {
+                        controller.updateSelectedCategory(category);
+                      }
+                    },
+                  ),
+                );
+              });
+            },
+          ),
+        ),
+        Obx(() => _buildExpenseSummary()),
+        Expanded(
+          child: Obx(() {
+            if (controller.isLoading.value) {
+              return const Center(child: LoaderWidget());
+            } else if (controller.filteredExpenses.isEmpty) {
+              return const Center(child: NoDataWidget());
+            }
+            return ListView.builder(
+              itemCount: controller.filteredExpenses.length,
+              itemBuilder: (context, index) {
+                final expense = controller.filteredExpenses[index];
+                return ExpenseCardWidget(
+                  expense: expense,
+                  onDismissed: () {
+                    controller.removeExpense(expense.id);
+                  },
+                );
+              },
+            );
+          }),
+        ),
+      ],
     );
   }
 }
