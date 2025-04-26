@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
+import 'package:spendly/core/common/widgets/loading_animation.dart';
 
 import '../controllers/expense_controller.dart';
 import 'widgets.dart';
@@ -18,7 +19,7 @@ class ChartTabWidget extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: LoadingAnimation());
         } else if (controller.expenses.isEmpty) {
           return const Center(child: Text("No Expenses found"));
         } else {

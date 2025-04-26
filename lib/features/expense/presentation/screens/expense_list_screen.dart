@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:spendly/core/common/widgets/custom_app_bar.dart';
+import 'package:spendly/core/common/widgets/loading_animation.dart';
 import 'package:spendly/features/expense/presentation/widgets/custom_fab.dart';
 
 import '../../../../core/common/widgets/app_drawer.dart';
@@ -21,7 +22,7 @@ class ExpenseListScreen extends StatelessWidget {
       body: Obx(() {
         if (controller.isLoading.value) {
           return const Center(
-            child: CircularProgressIndicator(),
+            child: LoadingAnimation(),
           );
         } else if (controller.expenses.isEmpty) {
           return const Center(child: Text('No expenses found.'));

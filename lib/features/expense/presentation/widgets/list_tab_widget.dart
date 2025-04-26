@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 
+import '../../../../core/common/widgets/loading_animation.dart';
 import '../controllers/expense_controller.dart';
 import 'expense_card_widget.dart';
 
@@ -43,7 +44,7 @@ class ListTabWidget extends StatelessWidget {
             itemBuilder: (context, index) {
               final isAllCategory = index == 0;
               final category =
-              isAllCategory ? 'All' : controller.categories[index];
+                  isAllCategory ? 'All' : controller.categories[index];
 
               return Obx(() {
                 final isSelected =
@@ -75,7 +76,7 @@ class ListTabWidget extends StatelessWidget {
         Expanded(
           child: Obx(() {
             if (controller.isLoading.value) {
-              return const Center(child: CircularProgressIndicator());
+              return const Center(child: LoadingAnimation());
             } else if (controller.filteredExpenses.isEmpty) {
               return const Center(child: Text('No expenses found.'));
             }
