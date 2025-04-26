@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:spendly/features/lendings/presentation/widgets/error_indicator_widget.dart';
+import 'package:spendly/core/common/widgets/error_widget.dart';
 
 void main() {
   testWidgets('ErrorIndicator displays the correct error message',
@@ -10,7 +10,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: ErrorIndicatorWidget(message: errorMessage),
+          body: ErrorIndicatorWidget(errorMessage: errorMessage),
         ),
       ),
     );
@@ -24,7 +24,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: ErrorIndicatorWidget(message: errorMessage),
+          body: ErrorIndicatorWidget(errorMessage: errorMessage),
         ),
       ),
     );
@@ -38,7 +38,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: ErrorIndicatorWidget(message: errorMessage),
+          body: ErrorIndicatorWidget(errorMessage: errorMessage),
         ),
       ),
     );
