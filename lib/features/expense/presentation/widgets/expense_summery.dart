@@ -88,12 +88,12 @@ class ExpenseSummery extends StatelessWidget {
             children: [
               const Text(
                 "Total:",
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               Text(
                 "${totalSpending.toStringAsFixed(0)} ৳",
                 style:
-                    const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ],
           ),
