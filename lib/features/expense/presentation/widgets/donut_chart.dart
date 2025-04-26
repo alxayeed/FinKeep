@@ -57,29 +57,28 @@ class _DonutChartState extends State<DonutChart> {
           ],
         ),
         SizedBox(height: 10),
-
-        // Expanded(
-        //   child: PieChart(
-        //     curve: Curves.easeOutExpo,
-        //     PieChartData(
-        //       sections: _generateSections(categorySpending, totalSpending),
-        //       centerSpaceRadius: 30,
-        //       sectionsSpace: 2,
-        //       // startDegreeOffset: -120,
-        //       titleSunbeamLayout: true,
-        //       borderData: FlBorderData(show: false),
-        //       pieTouchData: PieTouchData(
-        //         touchCallback: (FlTouchEvent event, pieTouchResponse) {
-        //           setState(() {
-        //             _tappedIndex =
-        //                 pieTouchResponse?.touchedSection?.touchedSectionIndex ??
-        //                     -1;
-        //           });
-        //         },
-        //       ),
-        //     ),
-        //   ),
-        // ),
+        Expanded(
+          child: PieChart(
+            curve: Curves.easeOutExpo,
+            PieChartData(
+              sections: _generateSections(categorySpending, totalSpending),
+              centerSpaceRadius: 30,
+              sectionsSpace: 2,
+              // startDegreeOffset: -120,
+              titleSunbeamLayout: true,
+              borderData: FlBorderData(show: false),
+              pieTouchData: PieTouchData(
+                touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                  setState(() {
+                    _tappedIndex =
+                        pieTouchResponse?.touchedSection?.touchedSectionIndex ??
+                            -1;
+                  });
+                },
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }
