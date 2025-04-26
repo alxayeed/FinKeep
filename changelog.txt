@@ -1,4 +1,6 @@
 Lending feature(In Progress)
-- Loader animation widget added
-- Expenses will be shown as list, pie chart removed
+- Loader animation updated
+- Error animation updated
+- Empty list animation updated
+- Code refactored
 
