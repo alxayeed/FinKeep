@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../controllers/expense_controller.dart';
 import '../widgets/month_selector.dart';
 import '../widgets/widgets.dart';
+import 'expense_list_screen.dart';
 
 class MonthlyExpenseScreen extends StatefulWidget {
   const MonthlyExpenseScreen({super.key});
@@ -37,8 +38,8 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
             Expanded(
               child: TabBarView(
                 children: [
-                  ChartTabWidget(controller: controller),
-                  ListTabWidget(controller: controller),
+                  ExpenseSummeryScreen(controller: controller),
+                  ExpenseListScreen(controller: controller),
                 ],
               ),
             ),
@@ -48,5 +49,3 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
     );
   }
 }
-
-

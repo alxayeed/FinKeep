@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:spendly/core/common/widgets/error_widget.dart';
 import 'package:spendly/core/enums/lending_type.dart';
 import 'package:spendly/features/lendings/domain/entity/lend_entity.dart';
 import 'package:spendly/features/lendings/domain/repositories/lending_repository.dart';
 import 'package:spendly/features/lendings/domain/usecases/get_all_lendings_usecase.dart';
 import 'package:spendly/features/lendings/presentation/controllers/lendings_controller.dart';
 import 'package:spendly/features/lendings/presentation/screens/lending_screen.dart';
-import 'package:spendly/features/lendings/presentation/widgets/error_indicator_widget.dart';
 import 'package:spendly/features/lendings/presentation/widgets/lending_card_widget.dart';
 import 'package:spendly/features/lendings/presentation/widgets/loading_indicator_widget.dart';
 

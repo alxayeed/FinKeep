@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:spendly/core/common/widgets/loading_animation.dart';
-import 'package:spendly/features/lendings/presentation/widgets/error_indicator_widget.dart';
+import 'package:spendly/core/common/widgets/loader_widget.dart';
 import 'package:spendly/features/lendings/presentation/widgets/lending_card_widget.dart';
 import 'package:spendly/features/lendings/presentation/widgets/loading_indicator_widget.dart';
 
 import '../../../../core/common/widgets/app_drawer.dart';
 import '../../../../core/common/widgets/custom_app_bar.dart';
+import '../../../../core/common/widgets/error_widget.dart';
 import '../controllers/lendings_controller.dart';
 
 class LendingScreen extends StatelessWidget {
@@ -30,15 +30,18 @@ class LendingScreen extends StatelessWidget {
 
     if (controller.errorMessage.value != null) {
       return Center(
-        child: ErrorIndicatorWidget(message: controller.errorMessage.value!),
+        child:
+            ErrorIndicatorWidget(errorMessage: controller.errorMessage.value!),
       );
     }
 
     if (controller.lendings.isEmpty) {
       return Center(child: Text('No lendings available'));
     }
+    return ErrorIndicatorWidget(
+        errorMessage: controller.errorMessage.value ?? " Under Development!");
 
-    return LoadingAnimation();
+    return LoaderWidget();
 
     return ListView.builder(
       itemCount: controller.lendings.length,
