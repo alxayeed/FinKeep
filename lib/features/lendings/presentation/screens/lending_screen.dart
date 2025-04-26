@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:spendly/core/common/widgets/loading_animation.dart';
 import 'package:spendly/features/lendings/presentation/widgets/error_indicator_widget.dart';
 import 'package:spendly/features/lendings/presentation/widgets/lending_card_widget.dart';
 import 'package:spendly/features/lendings/presentation/widgets/loading_indicator_widget.dart';
@@ -36,6 +37,8 @@ class LendingScreen extends StatelessWidget {
     if (controller.lendings.isEmpty) {
       return Center(child: Text('No lendings available'));
     }
+
+    return LoadingAnimation();
 
     return ListView.builder(
       itemCount: controller.lendings.length,
