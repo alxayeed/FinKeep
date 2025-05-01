@@ -16,8 +16,9 @@ import 'package:spendly/features/lendings/data/datasources/lending_data_source.d
 import 'package:spendly/features/lendings/data/datasources/lending_firestore_data_source.dart';
 import 'package:spendly/features/lendings/data/repositories/lending_repository_impl.dart';
 import 'package:spendly/features/lendings/domain/repositories/lending_repository.dart';
-import 'package:spendly/features/lendings/domain/usecases/get_all_lendings_usecase.dart';
 import 'package:spendly/features/lendings/presentation/controllers/lendings_controller.dart';
+
+import 'features/lendings/domain/usecases/get_lendings_usecase.dart';
 
 class DependencyInjection {
   static void initDependencies() {
@@ -43,7 +44,7 @@ class DependencyInjection {
     // Repositories
     Get.lazyPut<ExpenseRepository>(() => ExpenseRepositoryImpl(Get.find()));
     Get.lazyPut<LendingRepository>(() => LendingRepositoryImpl(
-          dataSource: Get.find(),
+          remoteDataSource: Get.find(),
           exceptionMapper: Get.find(),
         ));
 
@@ -57,7 +58,11 @@ class DependencyInjection {
     Get.lazyPut(() => DeleteExpenseUseCase(Get.find()));
 
     // Lendings
-    Get.lazyPut(() => GetAllLendingsUseCase(Get.find()));
+    Get.lazyPut(
+      () => GetLendingsUseCase(
+        repository: Get.find(),
+      ),
+    );
 
     // Controllers
     // Expenses

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:spendly/core/constants/app_strings.dart';
-import 'package:spendly/core/enums/lending_type.dart';
 import 'package:spendly/features/lendings/domain/entity/lend_entity.dart';
 import 'package:spendly/features/lendings/presentation/widgets/lending_card_widget.dart';
 
