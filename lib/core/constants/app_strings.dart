@@ -7,6 +7,10 @@ class AppStrings {
   static const String invalidEmailFormat = 'Invalid email format';
   static const String exceptionNotHandled = 'Exception type not handled';
   static const String unknownError = 'Unknown Error Occurred';
+  static const String operationFailed = 'Operation Failed';
+  static const String fetchFailed = 'Fetch Failed';
+  static const String updateFailed = 'Update Failed';
+  static const String deleteFailed = 'Delete Failed';
 
   //UI
   static const String notAvailable = 'Not Available';

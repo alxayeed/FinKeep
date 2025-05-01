@@ -1,6 +1,7 @@
-Lending feature(In Progress)
-- Loader animation updated
-- Error animation updated
-- Empty list animation updated
+Lending feature
+- List
+- Add
+- Delete
 - Code refactored
+
 
