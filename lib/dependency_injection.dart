@@ -75,8 +75,11 @@ class DependencyInjection {
         ));
     // Use Cases
     Get.lazyPut(() => GetLendingsUseCase(repository: Get.find()));
-    Get.lazyPut(() => AddLendingUseCase(
-        repository: Get.find())); // Register AddLendingUseCase
+    Get.lazyPut(
+      () => AddLendingUseCase(
+        repository: Get.find(),
+      ),
+    ); // Register AddLendingUseCase
     // Register other lending use cases here as needed:
     // Get.lazyPut(() => UpdateLendingStatusUseCase(repository: Get.find()));
     // Get.lazyPut(() => DeleteLendingUseCase(repository: Get.find()));

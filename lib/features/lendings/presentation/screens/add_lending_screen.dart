@@ -25,7 +25,6 @@ class AddLendingScreen extends GetView<AddLendingController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Person Name
                 CustomTextFormField(
                   controller: controller.personNameController,
                   labelText: 'Person Name',
@@ -34,8 +33,6 @@ class AddLendingScreen extends GetView<AddLendingController> {
                       : null,
                 ),
                 const SizedBox(height: 16),
-
-                // Amount
                 CustomTextFormField(
                   controller: controller.amountController,
                   labelText: 'Amount',
@@ -52,16 +49,13 @@ class AddLendingScreen extends GetView<AddLendingController> {
                   },
                 ),
                 const SizedBox(height: 16),
-
-                // Lending Type Dropdown
                 Obx(() => CustomDropdownFormField<LendingType>(
                       labelText: 'Type',
                       value: controller.selectedType.value,
                       items: LendingType.values
                           .map((type) => DropdownMenuItem(
                                 value: type,
-                                child: Text(type.name.capitalizeFirst ??
-                                    type.name), // Simple capitalize
+                                child: Text(type.name ?? type.name),
                               ))
                           .toList(),
                       onChanged: controller.updateType,
@@ -69,17 +63,13 @@ class AddLendingScreen extends GetView<AddLendingController> {
                           value == null ? 'Please select a type' : null,
                     )),
                 const SizedBox(height: 16),
-
-                // Status Dropdown (Consider if this should be editable on add)
-                // If always 'Due' on add, hide this or make it non-editable display
                 Obx(() => CustomDropdownFormField<LendingStatus>(
                       labelText: 'Status',
                       value: controller.selectedStatus.value,
                       items: LendingStatus.values
                           .map((status) => DropdownMenuItem(
                                 value: status,
-                                child: Text(
-                                    status.name.capitalizeFirst ?? status.name),
+                                child: Text(status.name ?? status.name),
                               ))
                           .toList(),
                       onChanged: controller.updateStatus,
@@ -87,43 +77,24 @@ class AddLendingScreen extends GetView<AddLendingController> {
                           value == null ? 'Please select a status' : null,
                     )),
                 const SizedBox(height: 16),
-
-                // Created Date Picker
-                Obx(() => CustomDatePickerFormField(
-                      labelText: 'Date',
-                      selectedDate: controller.selectedCreatedDate.value,
-                      onDateSelected: controller.updateCreatedDate,
-                      firstDate: DateTime(2000),
-                      // Adjust range as needed
-                      lastDate: DateTime(2101),
-                      validator: (value) =>
-                          value == null ? 'Please select a date' : null,
-                    )),
-                const SizedBox(height: 16),
-
-                // Due Date Picker (Optional)
                 Obx(() => CustomDatePickerFormField(
                       labelText: 'Due Date (Optional)',
                       selectedDate: controller.selectedDueDate.value,
                       onDateSelected: controller.updateDueDate,
-                      firstDate: DateTime(2000),
+                      firstDate:
+                          DateTime.now().subtract(const Duration(days: 30)),
+                      // Sensible start date maybe
                       lastDate: DateTime(2101),
-                      isOptional: true, // Allows clearing
-                      // No validator needed if optional, or add custom logic
+                      isOptional: true,
                     )),
                 const SizedBox(height: 16),
-
-                // Description (Optional)
                 CustomTextFormField(
                   controller: controller.descriptionController,
                   labelText: 'Description (Optional)',
                   maxLines: 3,
                   keyboardType: TextInputType.multiline,
-                  // No validator needed if optional
                 ),
                 const SizedBox(height: 24),
-
-                // Error Message Display
                 Obx(() {
                   if (controller.errorMessage.value != null) {
                     return Padding(
@@ -138,8 +109,6 @@ class AddLendingScreen extends GetView<AddLendingController> {
                   }
                   return const SizedBox.shrink();
                 }),
-
-                // Submit Button
                 Obx(() => CustomElevatedButton(
                       text: 'Add Lending',
                       isLoading: controller.isLoading.value,
@@ -151,5 +120,13 @@ class AddLendingScreen extends GetView<AddLendingController> {
         ),
       ),
     );
+  }
+}
+
+// Helper extension for capitalizing first letter (optional)
+extension StringExtension on String {
+  String? get capitalizeFirst {
+    if (isEmpty) return this;
+    return '${this[0].toUpperCase()}${substring(1)}';
   }
 }

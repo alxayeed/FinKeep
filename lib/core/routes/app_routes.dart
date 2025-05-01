@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:spendly/features/expense/presentation/screens/screens.dart';
 import 'package:spendly/features/lendings/presentation/screens/lending_list_screen.dart';
 
+import '../../features/lendings/presentation/bindings/add_lending_binding.dart';
 import '../../features/lendings/presentation/screens/add_lending_screen.dart';
 
 class AppRoutes {
@@ -36,7 +37,7 @@ class AppRoutes {
     GetPage(
       name: addLending,
       page: () => const AddLendingScreen(),
-      // binding: LendingBindings(), // Example: Add binding if specific dependencies needed
+      binding: AddLendingBinding(),
     ),
   ];
 }
