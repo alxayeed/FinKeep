@@ -8,11 +8,8 @@ import '../../domain/entity/lend_entity.dart';
 class AddLendingController extends GetxController {
   final AddLendingUseCase addLendingUseCase;
 
-  // final AuthService authService;
-
   AddLendingController({
     required this.addLendingUseCase,
-    // required this.authService,
   });
 
   final formKey = GlobalKey<FormState>();
@@ -20,9 +17,8 @@ class AddLendingController extends GetxController {
   final amountController = TextEditingController();
   final descriptionController = TextEditingController();
 
-  final selectedType = Rx<LendingType>(LendingType.given);
-  final selectedStatus = Rx<LendingStatus>(LendingStatus.due);
-  final selectedCreatedDate = Rx<DateTime>(DateTime.now());
+  final selectedType = Rx<LendingType?>(null);
+  final selectedStatus = Rx<LendingStatus?>(null);
   final selectedDueDate = Rx<DateTime?>(null);
 
   final isLoading = false.obs;
@@ -37,21 +33,11 @@ class AddLendingController extends GetxController {
   }
 
   void updateType(LendingType? type) {
-    if (type != null) {
-      selectedType.value = type;
-    }
+    selectedType.value = type;
   }
 
   void updateStatus(LendingStatus? status) {
-    if (status != null) {
-      selectedStatus.value = status;
-    }
-  }
-
-  void updateCreatedDate(DateTime? date) {
-    if (date != null) {
-      selectedCreatedDate.value = date;
-    }
+    selectedStatus.value = status;
   }
 
   void updateDueDate(DateTime? date) {
@@ -64,6 +50,15 @@ class AddLendingController extends GetxController {
       return;
     }
 
+    if (selectedType.value == null) {
+      errorMessage.value = "Please select a lending type.";
+      return;
+    }
+    if (selectedStatus.value == null) {
+      errorMessage.value = "Please select a lending status.";
+      return;
+    }
+
     isLoading.value = true;
 
     final amount = double.tryParse(amountController.text);
@@ -73,19 +68,19 @@ class AddLendingController extends GetxController {
       return;
     }
 
-    const userId = "placeholder_user_id"; // Replace with actual logic
+    const userId = "placeholder_user_id";
 
     final newLending = LendingEntity(
       id: '',
-      type: selectedType.value,
+      type: selectedType.value!,
       personName: personNameController.text.trim(),
       amount: amount,
       description: descriptionController.text.trim().isEmpty
           ? null
           : descriptionController.text.trim(),
-      createdDate: selectedCreatedDate.value,
+      createdDate: DateTime.now(),
       dueDate: selectedDueDate.value,
-      status: selectedStatus.value,
+      status: selectedStatus.value!,
       userId: userId,
     );
 

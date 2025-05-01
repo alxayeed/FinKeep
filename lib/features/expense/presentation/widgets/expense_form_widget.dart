@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import '../../../../core/enums/expense_category.dart';
+import 'package:spendly/core/common/widgets/widgets.dart';
+import 'package:spendly/core/enums/expense_category.dart';
 
-class ExpenseFormWidget extends StatefulWidget {
+import '../../../../core/styles/app_colors.dart';
+
+class ExpenseFormWidget extends StatelessWidget {
   final TextEditingController amountController;
   final TextEditingController descriptionController;
-  final DateTime selectedDate;
-  final Function(DateTime) onDateSelected;
+  final DateTime? selectedDate; // Changed to nullable
+  final Function(DateTime?) onDateSelected; // Changed signature
   final Function() onSubmit;
   final String buttonText;
   final ExpenseCategory? selectedCategory;
-  final Function(ExpenseCategory) onCategorySelected;
+  final Function(ExpenseCategory?) onCategorySelected;
+  final GlobalKey<FormState>? formKey;
+  final bool isLoading;
 
   const ExpenseFormWidget({
     super.key,
@@ -22,29 +26,39 @@ class ExpenseFormWidget extends StatefulWidget {
     required this.selectedCategory,
     required this.onCategorySelected,
     required this.buttonText,
+    this.formKey,
+    this.isLoading = false,
   });
 
-  @override
-  State<ExpenseFormWidget> createState() => _ExpenseFormWidgetState();
-}
-
-class _ExpenseFormWidgetState extends State<ExpenseFormWidget> {
-  late List<ExpenseCategory> dropdownItems;
-  late ExpenseCategory? currentCategory;
-
-  @override
-  void initState() {
-    super.initState();
-    dropdownItems = List.from(ExpenseCategory.values);
-    currentCategory = widget.selectedCategory;
+  List<DropdownMenuItem<ExpenseCategory>> _buildStyledDropdownItems(
+      List<ExpenseCategory> items) {
+    return items.map((item) {
+      return DropdownMenuItem<ExpenseCategory>(
+        value: item,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
+          child: Text(
+            item.displayName,
+            style: const TextStyle(
+              fontSize: 15,
+              color: AppColors.primaryTealDark,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      );
+    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
+    final List<DropdownMenuItem<ExpenseCategory>> categoryDropdownItems =
+        _buildStyledDropdownItems(ExpenseCategory.values);
+
     return Container(
       padding: const EdgeInsets.all(20.0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(15.0),
         boxShadow: const [
           BoxShadow(
@@ -55,110 +69,71 @@ class _ExpenseFormWidgetState extends State<ExpenseFormWidget> {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          TextField(
-            controller: widget.amountController,
-            decoration: InputDecoration(
+      child: Form(
+        key: formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            StyledTextFormField(
+              controller: amountController,
               labelText: 'Amount',
-              labelStyle: const TextStyle(color: Colors.blueAccent),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-            ),
-            keyboardType: TextInputType.number,
-          ),
-          const SizedBox(height: 10),
-          DropdownButtonFormField<ExpenseCategory>(
-            value: currentCategory,
-            decoration: InputDecoration(
-              labelText: "Category",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-            ),
-            items: dropdownItems.map((ExpenseCategory category) {
-              return DropdownMenuItem<ExpenseCategory>(
-                value: category,
-                child: Text(category.displayName),
-              );
-            }).toList(),
-            onChanged: (ExpenseCategory? newValue) {
-              if (newValue != null) {
-                setState(() {
-                  currentCategory = newValue;
-                });
-                widget.onCategorySelected(newValue);
-              }
-            },
-          ),
-          const SizedBox(height: 10),
-          TextField(
-            controller: widget.descriptionController,
-            maxLines: 3,
-            decoration: InputDecoration(
-              labelText: 'Description',
-              labelStyle: const TextStyle(color: Colors.blueAccent),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          GestureDetector(
-            onTap: () async {
-              final DateTime? pickedDate = await showDatePicker(
-                context: context,
-                initialDate: widget.selectedDate,
-                firstDate: DateTime(2000),
-                lastDate: DateTime(2101),
-              );
-              if (pickedDate != null) {
-                widget.onDateSelected(pickedDate);
-              }
-            },
-            child: Container(
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Colors.blue[50],
-                borderRadius: BorderRadius.circular(10.0),
-                border: Border.all(color: Colors.blueAccent),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    DateFormat('d\'th\' MMMM').format(widget.selectedDate),
-                    style: const TextStyle(fontSize: 16, color: Colors.blueAccent),
-                  ),
-                  const Icon(Icons.calendar_today, color: Colors.blueAccent),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                widget.onSubmit();
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              prefixIcon: Icons.currency_rupee,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter an amount';
+                }
+                if (double.tryParse(value) == null ||
+                    double.parse(value) <= 0) {
+                  return 'Please enter a valid positive amount';
+                }
+                return null;
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.teal,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 15.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-              ),
-              child: Text(
-                widget.buttonText,
-                style: const TextStyle(fontSize: 16),
-              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 15),
+            StyledDropdownFormField<ExpenseCategory>(
+              value: selectedCategory,
+              labelText: "Category",
+              items: categoryDropdownItems,
+              onChanged: onCategorySelected,
+              prefixIcon: Icons.category_outlined,
+              validator: (value) =>
+                  value == null ? 'Please select a category' : null,
+              itemHeight: 55, // Add itemHeight for consistency
+            ),
+            const SizedBox(height: 15),
+            StyledTextFormField(
+              controller: descriptionController,
+              labelText: 'Description',
+              maxLines: 3,
+              keyboardType: TextInputType.multiline,
+              prefixIcon: Icons.notes_rounded,
+            ),
+            const SizedBox(height: 20),
+            StyledDatePickerButton(
+              labelText: 'Date',
+              hintText: 'Select Expense Date',
+              selectedDate: selectedDate,
+              // Pass nullable date
+              onDateSelected: onDateSelected,
+              // Pass nullable callback
+              isOptional: false,
+              // Expense date is typically required
+              firstDate: DateTime(2000),
+              lastDate: DateTime.now()
+                  .add(const Duration(days: 365)), // Example range
+            ),
+            const SizedBox(height: 25),
+            StyledElevatedButton(
+              text: buttonText,
+              onPressed: onSubmit,
+              isLoading: isLoading,
+              icon: Icons.save_alt_rounded,
+            ),
+          ],
+        ),
       ),
     );
   }

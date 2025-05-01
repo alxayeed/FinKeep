@@ -9,6 +9,7 @@ class AppRoutes {
   // Existing Expense Routes
   static const String home = '/';
   static const String expenses = '/expenses';
+  static const String addExpense = '/addExpense';
   static const String expenseDetails = '/expenseDetails';
   static const String dailyExpense = '/dailyExpense';
   static const String weeklyExpense = '/weeklyExpense';
@@ -22,6 +23,7 @@ class AppRoutes {
   static List<GetPage> routes = [
     // Keep existing routes
     GetPage(name: home, page: () => const MonthlyExpenseScreen()),
+    GetPage(name: addExpense, page: () => const CreateExpenseScreen()),
     // GetPage(name: expenseDetails, page: () => ExpenseDetailsScreen(expense: Get.arguments)),
     GetPage(name: dailyExpense, page: () => const DailyExpenseScreen()),
     GetPage(name: weeklyExpense, page: () => const WeeklyExpenseScreen()),
