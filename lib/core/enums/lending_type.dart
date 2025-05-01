@@ -1,1 +1,1 @@
-enum LendingType { given, taken }
+// enum LendingType { given, taken }

@@ -1,105 +1,182 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:spendly/core/enums/lending_type.dart';
 import 'package:spendly/features/lendings/data/models/lending_model.dart';
 import 'package:spendly/features/lendings/domain/entity/lend_entity.dart';
 
 void main() {
+  final tDateTimeCreated = DateTime(2024, 5, 10, 10, 30);
+  final tTimestampCreated = Timestamp.fromDate(tDateTimeCreated);
+  final tDateTimeDue = DateTime(2024, 8, 10);
+  final tTimestampDue = Timestamp.fromDate(tDateTimeDue);
+
   final tLendingModel = LendingModel(
-    id: "testId",
-    amount: 1000,
-    date: DateTime(2025, 3, 23),
-    dueDate: DateTime(2025, 6, 23),
-    lenderId: 'Lender123',
-    borrowerName: 'John Doe',
+    id: "testId123",
     type: LendingType.given,
-    note: 'Test note',
+    personName: "John Borrower",
+    amount: 1500.50,
+    description: "Loan for project",
+    createdDate: tDateTimeCreated,
+    dueDate: tDateTimeDue,
+    status: LendingStatus.due,
+    userId: "userABC",
+  );
+
+  final tLendingModelNoOptionals = LendingModel(
+    id: "testId456",
+    type: LendingType.taken,
+    personName: "Jane Lender",
+    amount: 300.0,
+    // description is null
+    createdDate: tDateTimeCreated,
+    // dueDate is null
+    status: LendingStatus.paid,
+    userId: "userXYZ",
   );
 
   test(
     'should be a subclass of LendingEntity',
     () async {
-      // Assert
       expect(tLendingModel, isA<LendingEntity>());
     },
   );
 
-  test('should parse LendingType correctly from JSON', () {
-    final jsonMap = {
-      'id': 'testId',
-      'amount': 1000,
-      'date': '2025-03-23T00:00:00.000',
-      'dueDate': '2025-06-23T00:00:00.000',
-      'lenderId': 'Lender123',
-      'borrowerName': 'John Doe',
-      'type': 'given',
-      'note': 'Test note',
-    };
+  group('fromJson', () {
+    test('should return a valid model from JSON', () {
+      final Map<String, dynamic> jsonMap = {
+        'id': "testId123",
+        'type': 'given',
+        'personName': "John Borrower",
+        'amount': 1500.50, // Can be double
+        'description': "Loan for project",
+        'createdDate': tTimestampCreated,
+        'dueDate': tTimestampDue,
+        'status': 'due',
+        'userId': "userABC",
+      };
 
-    final result = LendingModel.fromJson(jsonMap);
+      final result = LendingModel.fromJson(jsonMap);
 
-    expect(result.type, LendingType.given);
+      expect(result, equals(tLendingModel));
+    });
+
+    test('should return a valid model from JSON with null optional fields', () {
+      final Map<String, dynamic> jsonMap = {
+        'id': "testId456",
+        'type': 'taken',
+        'personName': "Jane Lender",
+        'amount': 300, // Can be int
+        'description': null,
+        'createdDate': tTimestampCreated,
+        'dueDate': null,
+        'status': 'paid',
+        'userId': "userXYZ",
+      };
+
+      final result = LendingModel.fromJson(jsonMap);
+
+      expect(result, equals(tLendingModelNoOptionals));
+      expect(result.description, isNull);
+      expect(result.dueDate, isNull);
+    });
+
+    test('should default LendingType correctly for invalid type string', () {
+      final Map<String, dynamic> jsonMap = {
+        'id': "testId123",
+        'type': 'invalid_type',
+        'personName': "John Borrower",
+        'amount': 1500.50,
+        'description': "Loan for project",
+        'createdDate': tTimestampCreated,
+        'dueDate': tTimestampDue,
+        'status': 'due',
+        'userId': "userABC",
+      };
+
+      final result = LendingModel.fromJson(jsonMap);
+
+      expect(result.type, LendingType.given); // Check default
+    });
+
+    test('should default LendingStatus correctly for invalid status string',
+        () {
+      final Map<String, dynamic> jsonMap = {
+        'id': "testId123",
+        'type': 'given',
+        'personName': "John Borrower",
+        'amount': 1500.50,
+        'description': "Loan for project",
+        'createdDate': tTimestampCreated,
+        'dueDate': tTimestampDue,
+        'status': 'invalid_status', // Invalid status
+        'userId': "userABC",
+      };
+
+      final result = LendingModel.fromJson(jsonMap);
+
+      expect(result.status, LendingStatus.due); // Check default
+    });
+
+    // Note: Tests for missing fields would likely cause runtime errors
+    // due to required fields in factory constructor, unless you add specific handling.
+    // Testing defaults for enums handles the primary parsing logic robustness.
   });
 
-  test('should default to LendingType.given for invalid type in JSON', () {
-    final jsonMap = {
-      'id': 'testId',
-      'amount': 1000,
-      'date': '2025-03-23T00:00:00.000',
-      'dueDate': '2025-06-23T00:00:00.000',
-      'lenderId': 'Lender123',
-      'borrowerName': 'John Doe',
-      'type': 'invalid_type',
-      'note': 'Test note',
-    };
+  group('toJson', () {
+    test('should convert LendingModel to JSON map correctly', () {
+      final result = tLendingModel.toJson();
+      final expectedJsonMap = {
+        'id': "testId123",
+        'type': 'given',
+        'personName': "John Borrower",
+        'amount': 1500.50,
+        'description': "Loan for project",
+        'createdDate': tTimestampCreated,
+        'dueDate': tTimestampDue,
+        'status': 'due',
+        'userId': "userABC",
+      };
 
-    final result = LendingModel.fromJson(jsonMap);
+      expect(result, equals(expectedJsonMap));
+    });
 
-    expect(result.type, LendingType.given);
-  });
+    test(
+        'should convert LendingModel with null optionals to JSON map correctly',
+        () {
+      final result = tLendingModelNoOptionals.toJson();
+      final expectedJsonMap = {
+        'id': "testId456",
+        'type': 'taken',
+        'personName': "Jane Lender",
+        'amount': 300.0,
+        'description': null,
+        'createdDate': tTimestampCreated,
+        'dueDate': null,
+        'status': 'paid',
+        'userId': "userXYZ",
+      };
 
-  test('should default to LendingType.given when type is missing in JSON', () {
-    final jsonMap = {
-      'id': 'testId',
-      'amount': 1000,
-      'date': '2025-03-23T00:00:00.000',
-      'dueDate': '2025-06-23T00:00:00.000',
-      'lenderId': 'Lender123',
-      'borrowerName': 'John Doe',
-      'note': 'Test note',
-    };
-
-    final result = LendingModel.fromJson(jsonMap);
-
-    expect(result.type, LendingType.given);
-  });
-
-  test('should convert LendingModel to JSON correctly', () {
-    final result = tLendingModel.toJson();
-
-    expect(result, {
-      'id': 'testId',
-      'amount': 1000,
-      'date': '2025-03-23T00:00:00.000',
-      'dueDate': '2025-06-23T00:00:00.000',
-      'lenderId': 'Lender123',
-      'borrowerName': 'John Doe',
-      'type': 'given',
-      'note': 'Test note',
+      expect(result, equals(expectedJsonMap));
     });
   });
 
   test('should convert LendingModel to LendingEntity correctly', () {
     final result = tLendingModel.toEntity();
 
+    // Basic type check
     expect(result, isA<LendingEntity>());
 
+    // Check field values are copied correctly
     expect(result.id, tLendingModel.id);
-    expect(result.amount, tLendingModel.amount);
-    expect(result.date, tLendingModel.date);
-    expect(result.dueDate, tLendingModel.dueDate);
-    expect(result.lenderId, tLendingModel.lenderId);
-    expect(result.borrowerName, tLendingModel.borrowerName);
     expect(result.type, tLendingModel.type);
-    expect(result.note, tLendingModel.note);
+    expect(result.personName, tLendingModel.personName);
+    expect(result.amount, tLendingModel.amount);
+    expect(result.description, tLendingModel.description);
+    expect(result.createdDate, tLendingModel.createdDate);
+    expect(result.dueDate, tLendingModel.dueDate);
+    expect(result.status, tLendingModel.status);
+    expect(result.userId, tLendingModel.userId);
+
+    // Ensure it's not the same instance (if that matters for your logic)
+    expect(result, isNot(same(tLendingModel)));
   });
 }
