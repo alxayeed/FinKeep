@@ -1,7 +1,7 @@
+import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:spendly/core/constants/app_strings.dart';
-import 'package:spendly/core/enums/lending_type.dart';
 import 'package:spendly/core/error/exception_mapper.dart';
 import 'package:spendly/core/error/exceptions.dart';
 import 'package:spendly/core/error/failure.dart';
@@ -21,124 +21,276 @@ void main() {
     mockLendingDataSource = MockLendingDataSource();
     exceptionMapper = ExceptionMapper();
     lendingRepositoryImpl = LendingRepositoryImpl(
-      dataSource: mockLendingDataSource,
+      remoteDataSource: mockLendingDataSource,
       exceptionMapper: exceptionMapper,
     );
+    // Register fallback values for any() matchers if needed, especially for custom types/enums
+    registerFallbackValue(LendingType.given);
+    registerFallbackValue(LendingStatus.due);
+    registerFallbackValue(LendingModel(
+      id: 'fallbackId',
+      type: LendingType.given,
+      personName: 'Fallback Person',
+      amount: 0.0,
+      createdDate: DateTime(2000),
+      status: LendingStatus.due,
+      userId: 'fallbackUser',
+    ));
   });
 
-  group('getAllLendings', () {
-    final tLendingModel = LendingModel(
-      id: "testId",
-      amount: 1000,
-      date: DateTime(2025, 3, 23),
-      dueDate: DateTime(2025, 6, 23),
-      lenderId: 'Lender123',
-      borrowerName: 'John Doe',
-      type: LendingType.given,
-      note: 'Test note',
-    );
+  // --- Test Data ---
+  const tUserId = 'user123';
+  final tDateTimeCreated = DateTime(2024, 5, 10);
+  final tDateTimeDue = DateTime(2024, 8, 10);
 
-    final tLendingEntity = LendingEntity(
-      id: "testId",
-      amount: 1000,
-      date: DateTime(2025, 3, 23),
-      dueDate: DateTime(2025, 6, 23),
-      lenderId: 'Lender123',
-      borrowerName: 'John Doe',
-      type: LendingType.given,
-      note: 'Test note',
-    );
+  final tLendingModel = LendingModel(
+    id: "lend1",
+    type: LendingType.given,
+    personName: "John Doe",
+    amount: 100.0,
+    description: "Test desc",
+    createdDate: tDateTimeCreated,
+    dueDate: tDateTimeDue,
+    status: LendingStatus.due,
+    userId: tUserId,
+  );
+
+  final tLendingEntity = LendingEntity(
+    id: "lend1",
+    type: LendingType.given,
+    personName: "John Doe",
+    amount: 100.0,
+    description: "Test desc",
+    createdDate: tDateTimeCreated,
+    dueDate: tDateTimeDue,
+    status: LendingStatus.due,
+    userId: tUserId,
+  );
+
+  const tLendingId = 'lend1';
+  const tNewStatus = LendingStatus.paid;
+  const tTotalAmount = 150.50;
+  const tCount = 5;
+  final tServerException =
+      ServerException(message: AppStrings.internalServerError);
+  final tServerFailure = ServerFailure(message: AppStrings.internalServerError);
+
+  // --- Test Groups ---
+
+  group('getLendings', () {
+    test(
+        'should return a list of LendingEntity when data source call is successful',
+        () async {
+      // Arrange
+      when(() => mockLendingDataSource.getLendings(
+            userId: any(named: 'userId'),
+            typeFilter: any(named: 'typeFilter'),
+            monthFilter: any(named: 'monthFilter'),
+            statusFilter: any(named: 'statusFilter'),
+            personNameFilter: any(named: 'personNameFilter'),
+          )).thenAnswer((_) async => [tLendingModel]);
+      // Act
+      final result = await lendingRepositoryImpl.getLendings(userId: tUserId);
+      // Assert
+      expect(result, equals(Right([tLendingModel]))); // Model extends Entity
+      verify(() => mockLendingDataSource.getLendings(
+            userId: tUserId,
+            typeFilter: null,
+            monthFilter: null,
+            statusFilter: null,
+            personNameFilter: null,
+          )).called(1);
+      verifyNoMoreInteractions(mockLendingDataSource);
+    });
 
     test(
-        'should return a list of LendingEntity when data is fetched successfully',
+        'should return ServerFailure when data source call throws ServerException',
         () async {
-      when(() => mockLendingDataSource.getAllLendings())
-          .thenAnswer((_) async => [tLendingModel]);
+      // Arrange
+      when(() =>
+              mockLendingDataSource.getLendings(userId: any(named: 'userId')))
+          .thenThrow(tServerException);
+      // Act
+      final result = await lendingRepositoryImpl.getLendings(userId: tUserId);
+      // Assert
+      expect(result, equals(Left(tServerFailure)));
+      verify(() => mockLendingDataSource.getLendings(userId: tUserId))
+          .called(1);
+      verifyNoMoreInteractions(mockLendingDataSource);
+    });
+  });
 
-      final result = await lendingRepositoryImpl.getAllLendings();
-
-      expect(result.isRight(), true);
-      result.fold(
-        (failure) => null,
-        (lendings) {
-          expect(lendings, isA<List<LendingEntity>>());
-          expect(lendings.length, 1);
-          expect(lendings[0], tLendingEntity);
-        },
-      );
+  group('addLending', () {
+    test('should return Right(null) when data source call is successful',
+        () async {
+      // Arrange
+      when(() => mockLendingDataSource.addLending(any()))
+          .thenAnswer((_) async => Future.value()); // Simulate void success
+      // Act
+      final result = await lendingRepositoryImpl.addLending(tLendingEntity);
+      // Assert
+      expect(result, equals(const Right(null)));
+      verify(() => mockLendingDataSource.addLending(tLendingModel)).called(1);
+      verifyNoMoreInteractions(mockLendingDataSource);
     });
 
-    test('should return a ServerFailure when data fetching fails', () async {
-      when(() => mockLendingDataSource.getAllLendings())
-          .thenThrow(ServerException(message: AppStrings.internalServerError));
+    test(
+        'should return ServerFailure when data source call throws ServerException',
+        () async {
+      // Arrange
+      when(() => mockLendingDataSource.addLending(any()))
+          .thenThrow(tServerException);
+      // Act
+      final result = await lendingRepositoryImpl.addLending(tLendingEntity);
+      // Assert
+      expect(result, equals(Left(tServerFailure)));
+      verify(() => mockLendingDataSource.addLending(tLendingModel)).called(1);
+      verifyNoMoreInteractions(mockLendingDataSource);
+    });
+  });
 
-      final result = await lendingRepositoryImpl.getAllLendings();
-
-      expect(result.isLeft(), true);
-      result.fold(
-        (failure) {
-          expect(failure, isA<ServerFailure>());
-          expect((failure as ServerFailure).message,
-              AppStrings.internalServerError);
-        },
-        (lendings) => null,
-      );
+  group('updateLendingStatus', () {
+    test('should return Right(null) when data source call is successful',
+        () async {
+      // Arrange
+      when(() => mockLendingDataSource.updateLendingStatus(any(), any()))
+          .thenAnswer((_) async => Future.value());
+      // Act
+      final result = await lendingRepositoryImpl.updateLendingStatus(
+          tLendingId, tNewStatus);
+      // Assert
+      expect(result, equals(const Right(null)));
+      verify(() =>
+              mockLendingDataSource.updateLendingStatus(tLendingId, tNewStatus))
+          .called(1);
+      verifyNoMoreInteractions(mockLendingDataSource);
     });
 
-    test('should return an empty list if no data is found', () async {
-      when(() => mockLendingDataSource.getAllLendings())
-          .thenAnswer((_) async => []);
+    test(
+        'should return ServerFailure when data source call throws ServerException',
+        () async {
+      // Arrange
+      when(() => mockLendingDataSource.updateLendingStatus(any(), any()))
+          .thenThrow(tServerException);
+      // Act
+      final result = await lendingRepositoryImpl.updateLendingStatus(
+          tLendingId, tNewStatus);
+      // Assert
+      expect(result, equals(Left(tServerFailure)));
+      verify(() =>
+              mockLendingDataSource.updateLendingStatus(tLendingId, tNewStatus))
+          .called(1);
+      verifyNoMoreInteractions(mockLendingDataSource);
+    });
+  });
 
-      final result = await lendingRepositoryImpl.getAllLendings();
-
-      expect(result.isRight(), true);
-      result.fold(
-        (failure) => null,
-        (lendings) {
-          expect(lendings, isA<List<LendingEntity>>());
-          expect(lendings.isEmpty, true);
-        },
-      );
+  group('deleteLending', () {
+    test('should return Right(null) when data source call is successful',
+        () async {
+      // Arrange
+      when(() => mockLendingDataSource.deleteLending(any()))
+          .thenAnswer((_) async => Future.value());
+      // Act
+      final result = await lendingRepositoryImpl.deleteLending(tLendingId);
+      // Assert
+      expect(result, equals(const Right(null)));
+      verify(() => mockLendingDataSource.deleteLending(tLendingId)).called(1);
+      verifyNoMoreInteractions(mockLendingDataSource);
     });
 
-    // Test for Model to Entity Conversion
-    test('should convert LendingModel to LendingEntity', () async {
-      when(() => mockLendingDataSource.getAllLendings())
-          .thenAnswer((_) async => [tLendingModel]);
+    test(
+        'should return ServerFailure when data source call throws ServerException',
+        () async {
+      // Arrange
+      when(() => mockLendingDataSource.deleteLending(any()))
+          .thenThrow(tServerException);
+      // Act
+      final result = await lendingRepositoryImpl.deleteLending(tLendingId);
+      // Assert
+      expect(result, equals(Left(tServerFailure)));
+      verify(() => mockLendingDataSource.deleteLending(tLendingId)).called(1);
+      verifyNoMoreInteractions(mockLendingDataSource);
+    });
+  });
 
-      final result = await lendingRepositoryImpl.getAllLendings();
-
-      result.fold(
-        (failure) => null,
-        (lendings) {
-          expect(lendings[0], isA<LendingEntity>());
-          expect(lendings[0].id, tLendingEntity.id);
-          expect(lendings[0].amount, tLendingEntity.amount);
-          expect(lendings[0].date, tLendingEntity.date);
-          expect(lendings[0].dueDate, tLendingEntity.dueDate);
-          expect(lendings[0].lenderId, tLendingEntity.lenderId);
-          expect(lendings[0].borrowerName, tLendingEntity.borrowerName);
-          expect(lendings[0].type, tLendingEntity.type);
-          expect(lendings[0].note, tLendingEntity.note);
-        },
-      );
+  group('getTotalLendingAmount', () {
+    test('should return total amount when data source call is successful',
+        () async {
+      // Arrange
+      when(() => mockLendingDataSource.getTotalLendingAmount(
+            userId: any(named: 'userId'),
+            typeFilter: any(named: 'typeFilter'),
+            statusFilter: any(named: 'statusFilter'),
+            personNameFilter: any(named: 'personNameFilter'),
+          )).thenAnswer((_) async => tTotalAmount);
+      // Act
+      final result =
+          await lendingRepositoryImpl.getTotalLendingAmount(userId: tUserId);
+      // Assert
+      expect(result, equals(const Right(tTotalAmount)));
+      verify(() => mockLendingDataSource.getTotalLendingAmount(
+            userId: tUserId,
+            typeFilter: null,
+            statusFilter: null,
+            personNameFilter: null,
+          )).called(1);
+      verifyNoMoreInteractions(mockLendingDataSource);
     });
 
-    // Test for Exception Mapping
-    test('should map ServerException to ServerFailure', () async {
-      when(() => mockLendingDataSource.getAllLendings())
-          .thenThrow(ServerException(message: AppStrings.internalServerError));
+    test(
+        'should return ServerFailure when data source call throws ServerException',
+        () async {
+      // Arrange
+      when(() => mockLendingDataSource.getTotalLendingAmount(
+          userId: any(named: 'userId'))).thenThrow(tServerException);
+      // Act
+      final result =
+          await lendingRepositoryImpl.getTotalLendingAmount(userId: tUserId);
+      // Assert
+      expect(result, equals(Left(tServerFailure)));
+      verify(() => mockLendingDataSource.getTotalLendingAmount(userId: tUserId))
+          .called(1);
+      verifyNoMoreInteractions(mockLendingDataSource);
+    });
+  });
 
-      final result = await lendingRepositoryImpl.getAllLendings();
+  group('getLendingsCount', () {
+    test('should return count when data source call is successful', () async {
+      // Arrange
+      when(() => mockLendingDataSource.getLendingsCount(
+            userId: any(named: 'userId'),
+            typeFilter: any(named: 'typeFilter'),
+            statusFilter: any(named: 'statusFilter'),
+            personNameFilter: any(named: 'personNameFilter'),
+          )).thenAnswer((_) async => tCount);
+      // Act
+      final result =
+          await lendingRepositoryImpl.getLendingsCount(userId: tUserId);
+      // Assert
+      expect(result, equals(const Right(tCount)));
+      verify(() => mockLendingDataSource.getLendingsCount(
+            userId: tUserId,
+            typeFilter: null,
+            statusFilter: null,
+            personNameFilter: null,
+          )).called(1);
+      verifyNoMoreInteractions(mockLendingDataSource);
+    });
 
-      result.fold(
-        (failure) {
-          expect(failure, isA<ServerFailure>());
-          expect((failure as ServerFailure).message,
-              AppStrings.internalServerError);
-        },
-        (lendings) => null,
-      );
+    test(
+        'should return ServerFailure when data source call throws ServerException',
+        () async {
+      // Arrange
+      when(() => mockLendingDataSource.getLendingsCount(
+          userId: any(named: 'userId'))).thenThrow(tServerException);
+      // Act
+      final result =
+          await lendingRepositoryImpl.getLendingsCount(userId: tUserId);
+      // Assert
+      expect(result, equals(Left(tServerFailure)));
+      verify(() => mockLendingDataSource.getLendingsCount(userId: tUserId))
+          .called(1);
+      verifyNoMoreInteractions(mockLendingDataSource);
     });
   });
 }
