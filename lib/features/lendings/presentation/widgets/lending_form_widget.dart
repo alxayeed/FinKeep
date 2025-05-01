@@ -100,7 +100,7 @@ class LendingFormWidget extends StatelessWidget {
               labelText: 'Amount',
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
-              prefixIcon: Icons.currency_rupee,
+              prefixIcon: Icons.currency_lira,
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter an amount';

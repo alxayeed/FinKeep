@@ -68,6 +68,23 @@ class LendingRepositoryImpl implements LendingRepository {
   }
 
   @override
+  Future<Either<Failure, void>> updateLending(LendingEntity lending) async {
+    try {
+      if (lending.id.isEmpty) {
+        return Left(ServerFailure(
+            message: 'Cannot update lending without a valid ID.'));
+      }
+      await remoteDataSource.updateLending(lending.toModel());
+      return const Right(null);
+    } catch (exception) {
+      final failure = exception is Exception
+          ? exceptionMapper.map(exception)
+          : ServerFailure(message: AppStrings.unknownError);
+      return Left(failure);
+    }
+  }
+
+  @override
   Future<Either<Failure, void>> updateLendingStatus(
       String lendingId, LendingStatus newStatus) async {
     try {

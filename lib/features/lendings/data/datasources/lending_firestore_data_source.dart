@@ -162,4 +162,18 @@ class LendingFirestoreDataSource implements LendingDataSource {
       throw ServerException(message: '${AppStrings.fetchFailed}: $e');
     }
   }
+
+  @override
+  Future<void> updateLending(LendingModel lending) async {
+    try {
+      final data = lending.toJson();
+      final String docId = data.remove('id');
+      if (docId.isEmpty) {
+        throw ArgumentError('Lending ID cannot be empty for update.');
+      }
+      await _lendingsCollection.doc(docId).update(data);
+    } catch (e) {
+      throw ServerException(message: '${AppStrings.updateFailed}: $e');
+    }
+  }
 }

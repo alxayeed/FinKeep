@@ -4,10 +4,11 @@ import 'package:spendly/core/common/widgets/app_drawer.dart';
 import 'package:spendly/core/common/widgets/custom_app_bar.dart';
 import 'package:spendly/core/common/widgets/error_widget.dart';
 import 'package:spendly/core/common/widgets/loader_widget.dart';
-import 'package:spendly/features/lendings/presentation/controllers/lending_list_controller.dart';
+import 'package:spendly/core/styles/app_colors.dart';
+import 'package:spendly/features/lendings/presentation/controllers/lendings_controller.dart';
 import 'package:spendly/features/lendings/presentation/widgets/lending_list_item.dart';
 
-class LendingListScreen extends GetView<LendingListController> {
+class LendingListScreen extends GetView<LendingsController> {
   const LendingListScreen({super.key});
 
   @override
@@ -20,11 +21,13 @@ class LendingListScreen extends GetView<LendingListController> {
         child: Obx(() => _buildContent(context)),
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: AppColors.primaryTeal,
+        foregroundColor: Colors.white,
         onPressed: () {
           Get.toNamed('/addLending');
         },
         tooltip: 'Add Lending',
-        child: const Icon(Icons.add),
+        child: Icon(Icons.add),
       ),
     );
   }
@@ -38,8 +41,6 @@ class LendingListScreen extends GetView<LendingListController> {
       return Center(
         child: ErrorIndicatorWidget(
           errorMessage: controller.errorMessage.value!,
-          // onRetry: controller
-          //     .fetchLendings, // Ensure ErrorIndicatorWidget accepts onRetry
         ),
       );
     }
@@ -63,15 +64,12 @@ class LendingListScreen extends GetView<LendingListController> {
     }
 
     return ListView.builder(
+      padding: const EdgeInsets.only(bottom: 80), // Add padding for FAB overlap
       itemCount: controller.lendingsList.length,
       itemBuilder: (context, index) {
         final lending = controller.lendingsList[index];
-        return LendingListItem(
-          lending: lending,
-          onTap: () {
-            print('Tapped on: ${lending.personName}');
-          },
-        );
+        // LendingListItem handles its own onTap navigation now
+        return LendingListItem(lending: lending);
       },
     );
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:spendly/features/lendings/domain/usecases/add_lending_usecase.dart';
-import 'package:spendly/features/lendings/presentation/controllers/lending_list_controller.dart';
+import 'package:spendly/features/lendings/presentation/controllers/lendings_controller.dart';
 
 import '../../domain/entity/lend_entity.dart';
 
@@ -94,8 +94,8 @@ class AddLendingController extends GetxController {
       },
       (_) {
         try {
-          if (Get.isRegistered<LendingListController>()) {
-            final listController = Get.find<LendingListController>();
+          if (Get.isRegistered<LendingsController>()) {
+            final listController = Get.find<LendingsController>();
             listController.fetchLendings(showLoading: false);
           }
         } catch (e) {

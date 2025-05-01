@@ -14,8 +14,7 @@ abstract class LendingRepository {
     String? personNameFilter,
   });
 
-  Future<Either<Failure, void>> updateLendingStatus(
-      String lendingId, LendingStatus newStatus);
+  Future<Either<Failure, void>> updateLending(LendingEntity lending);
 
   Future<Either<Failure, void>> deleteLending(String lendingId);
 

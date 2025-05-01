@@ -15,6 +15,8 @@ abstract class LendingDataSource {
 
   Future<void> updateLendingStatus(String lendingId, LendingStatus newStatus);
 
+  Future<void> updateLending(LendingModel lending);
+
   Future<void> deleteLending(String lendingId);
 
   Future<double> getTotalLendingAmount({
