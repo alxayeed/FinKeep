@@ -25,7 +25,7 @@ class ErrorIndicatorWidget extends StatelessWidget {
         const SizedBox(height: 10),
         Text(
           errorMessage,
-          style: TextStyle(fontSize: 26, color: Colors.black54),
+          style: TextStyle(fontSize: 16, color: Colors.black54),
         ),
       ],
     );

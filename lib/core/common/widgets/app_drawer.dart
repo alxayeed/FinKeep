@@ -52,7 +52,7 @@ class AppDrawer extends StatelessWidget {
               text: 'Lends',
               onTap: () {
                 Get.back();
-                Get.toNamed(AppRoutes.lendings);
+                Get.toNamed(AppRoutes.lendingList);
               },
             ),
             // _createDrawerItem(
