@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:spendly/features/lendings/domain/usecases/add_lending_usecase.dart';
+import 'package:spendly/features/lendings/presentation/controllers/lending_list_controller.dart';
 
 import '../../domain/entity/lend_entity.dart';
-// import 'package:spendly/services/auth_service.dart'; // Placeholder for getting user ID
 
 class AddLendingController extends GetxController {
   final AddLendingUseCase addLendingUseCase;
 
-  // final AuthService authService; // Example: Inject service to get user ID
+  // final AuthService authService;
 
   AddLendingController({
     required this.addLendingUseCase,
     // required this.authService,
   });
 
-  // Form State
   final formKey = GlobalKey<FormState>();
   final personNameController = TextEditingController();
   final amountController = TextEditingController();
@@ -26,7 +25,6 @@ class AddLendingController extends GetxController {
   final selectedCreatedDate = Rx<DateTime>(DateTime.now());
   final selectedDueDate = Rx<DateTime?>(null);
 
-  // Operation State
   final isLoading = false.obs;
   final errorMessage = Rx<String?>(null);
 
@@ -57,7 +55,6 @@ class AddLendingController extends GetxController {
   }
 
   void updateDueDate(DateTime? date) {
-    // Allow setting it to null or a specific date
     selectedDueDate.value = date;
   }
 
@@ -78,11 +75,8 @@ class AddLendingController extends GetxController {
 
     const userId = "placeholder_user_id"; // Replace with actual logic
 
-    // Firestore generates the ID, so we pass an entity without a real ID here
-    // Or adjust UseCase/Repo if ID isn't required in Entity for adding
     final newLending = LendingEntity(
       id: '',
-      // Firestore will generate this
       type: selectedType.value,
       personName: personNameController.text.trim(),
       amount: amount,
@@ -97,18 +91,26 @@ class AddLendingController extends GetxController {
 
     final result = await addLendingUseCase(newLending);
 
+    isLoading.value = false;
+
     result.fold(
       (failure) {
         errorMessage.value = failure.message;
       },
       (_) {
-        // Success
+        try {
+          if (Get.isRegistered<LendingListController>()) {
+            final listController = Get.find<LendingListController>();
+            listController.fetchLendings(showLoading: false);
+          }
+        } catch (e) {
+          print(
+              "LendingListController not found or error triggering refresh: $e");
+        }
+
         Get.back();
         Get.snackbar('Success', 'Lending added successfully!');
-        // TODO: Potentially trigger a refresh on the list screen
       },
     );
-
-    isLoading.value = false;
   }
 }
