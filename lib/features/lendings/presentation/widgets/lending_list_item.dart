@@ -48,7 +48,7 @@ class LendingListItem extends StatelessWidget {
           Get.to(() => LendingDetailsScreen(lending: lending));
         },
         leading: CircleAvatar(
-          backgroundColor: typeColor.withOpacity(0.15),
+          backgroundColor: typeColor.withValues(alpha: 0.5),
           child: Icon(
             _getTypeIcon(lending.type),
             color: typeColor,
@@ -71,13 +71,13 @@ class LendingListItem extends StatelessWidget {
               padding:
                   const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
               decoration: BoxDecoration(
-                color: statusColor.withOpacity(0.2),
+                color: statusColor.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(4.0),
               ),
               child: Text(
                 lending.status.name.toUpperCase(),
                 style: theme.textTheme.labelSmall?.copyWith(
-                  color: statusColor.withOpacity(0.9),
+                  color: statusColor.withValues(alpha: 0.5),
                   fontWeight: FontWeight.bold,
                   letterSpacing: 0.5,
                 ),

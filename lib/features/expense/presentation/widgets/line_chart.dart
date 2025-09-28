@@ -65,7 +65,7 @@ class ExpenseLineChart extends StatelessWidget {
       ),
       borderData: FlBorderData(
         show: true,
-        border: Border.all(color: Colors.grey.withOpacity(0.3)),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.5)),
       ),
       lineBarsData: [
         LineChartBarData(

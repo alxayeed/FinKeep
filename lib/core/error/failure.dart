@@ -10,6 +10,7 @@ abstract class Failure extends Equatable {
 }
 
 class NetworkFailure extends Failure {
+  @override
   final String message;
 
   const NetworkFailure({required this.message});
@@ -19,6 +20,7 @@ class NetworkFailure extends Failure {
 }
 
 class ServerFailure extends Failure {
+  @override
   final String message;
 
   const ServerFailure({required this.message});
@@ -28,6 +30,7 @@ class ServerFailure extends Failure {
 }
 
 class AuthenticationFailure extends Failure {
+  @override
   final String message;
 
   const AuthenticationFailure({required this.message});
@@ -37,6 +40,7 @@ class AuthenticationFailure extends Failure {
 }
 
 class UnknownFailure extends Failure {
+  @override
   final String message;
 
   const UnknownFailure({required this.message});

@@ -149,7 +149,7 @@ class LendingDetailsScreen extends StatelessWidget {
                   value,
                   style: TextStyle(
                     fontSize: 15,
-                    color: valueColor ?? AppColors.black.withOpacity(0.85),
+                    color: valueColor ?? AppColors.black.withValues(alpha: 0.5),
                     fontWeight: valueColor != null
                         ? FontWeight.w600
                         : FontWeight.normal,

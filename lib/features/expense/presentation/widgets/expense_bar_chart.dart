@@ -62,8 +62,8 @@ class ExpenseBarChart extends StatelessWidget {
       ),
       borderData: FlBorderData(
         show: true, // Show borders
-        border:
-            Border.all(color: Colors.grey.withOpacity(0.5)), // Set border color
+        border: Border.all(
+            color: Colors.grey.withValues(alpha: 0.5)), // Set border color
       ),
       barTouchData: BarTouchData(
         touchTooltipData: BarTouchTooltipData(
