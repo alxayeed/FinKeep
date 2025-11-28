@@ -16,7 +16,7 @@ class LendingListScreen extends GetView<LendingsController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const CustomAppBar(title: 'Lendings'),
-      drawer: const AppDrawer(),
+      drawer: AppDrawer(),
       body: RefreshIndicator(
         onRefresh: controller.refreshLendings,
         child: Obx(() => _buildContent(context)),

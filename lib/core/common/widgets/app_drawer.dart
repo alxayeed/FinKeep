@@ -3,7 +3,9 @@ import 'package:get/get.dart';
 import 'package:spendly/core/routes/app_routes.dart';
 
 class AppDrawer extends StatelessWidget {
-  const AppDrawer({super.key});
+  AppDrawer({super.key});
+
+  // final authenticator = LocalAuthDeviceAuthenticator();
 
   @override
   Widget build(BuildContext context) {
@@ -50,9 +52,23 @@ class AppDrawer extends StatelessWidget {
             _createDrawerItem(
               icon: Icons.monetization_on,
               text: 'Lends',
-              onTap: () {
+              onTap: () async {
                 Get.back();
                 Get.toNamed(AppRoutes.lendingList);
+
+                // final ok = await authenticator.authenticate(
+                //   reason: 'Authenticate to access Lends',
+                // );
+                //
+                // if (ok) {
+                //   Get.toNamed(AppRoutes.lendingList);
+                // } else {
+                //   Get.snackbar(
+                //     'Authentication failed',
+                //     'Unable to unlock Lends section',
+                //     snackPosition: SnackPosition.BOTTOM,
+                //   );
+                // }
               },
             ),
             // _createDrawerItem(
@@ -63,7 +79,10 @@ class AppDrawer extends StatelessWidget {
             _createDrawerItem(
               icon: Icons.bar_chart,
               text: 'Reports',
-              onTap: () {},
+              onTap: () {
+                Get.back();
+                Get.toNamed(AppRoutes.expenseReport);
+              },
             ),
           ],
         ),

@@ -3,46 +3,46 @@ import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:spendly/core/common/widgets/loader_widget.dart';
 
 import '../../../../core/common/widgets/no_data_widget.dart';
+import '../../domain/entities/expense_entity.dart';
 import '../controllers/expense_controller.dart';
 import '../widgets/expense_summery.dart';
 import '../widgets/widgets.dart';
 
 class ExpenseSummeryScreen extends StatelessWidget {
-  const ExpenseSummeryScreen({
-    super.key,
-    required this.controller,
-  });
+  const ExpenseSummeryScreen(
+      {super.key, required this.controller, this.isReport = false});
 
   final ExpenseController controller;
+  final bool isReport;
+
+  List<ExpenseEntity> get _dataList {
+    return isReport ? controller.reportExpenses : controller.expenses;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Obx(() {
+        final data = _dataList;
+
         if (controller.isLoading.value) {
           return const Center(child: LoaderWidget());
-        } else if (controller.expenses.isEmpty) {
+        } else if (data.isEmpty) {
           return const Center(child: NoDataWidget());
         } else {
           return SingleChildScrollView(
             child: Column(
               children: [
                 SizedBox(
-                  height: MediaQuery.of(context).size.height *
-                      0.33, // Adjust height as needed
-                  child: ExpenseSummery(expenses: controller.expenses),
+                  height: MediaQuery.of(context).size.height * 0.36,
+                  child: ExpenseSummery(expenses: data),
                 ),
-                // SizedBox(
-                //   height: MediaQuery.of(context).size.height *
-                //       0.4, // Adjust height as needed
-                //   child: DonutChart(expenses: controller.expenses),
-                // ),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height *
-                      0.35, // Adjust height as needed
-                  child: ExpenseBarChart(expenses: controller.expenses),
-                ),
+                if (!isReport)
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.35,
+                    child: ExpenseBarChart(expenses: data),
+                  ),
               ],
             ),
           );

@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:spendly/core/extensions/double_ext.dart';
 
 import '../../../../core/styles/app_colors.dart';
 import '../../domain/entities/expense_entity.dart';
@@ -39,7 +40,7 @@ class _DonutChartState extends State<DonutChart> {
                   style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                 ),
                 Text(
-                  "${totalSpending.toStringAsFixed(2)} ৳",
+                  "${totalSpending.toCurrency()} ৳",
                   style: const TextStyle(
                       fontSize: 18, fontWeight: FontWeight.bold),
                 ),
@@ -94,7 +95,7 @@ class _DonutChartState extends State<DonutChart> {
       return PieChartSectionData(
         color: AppColors.getColorForCategory(category),
         value: data['amount'],
-        title: '${spendingPercent.toStringAsFixed(1)}%',
+        title: '${spendingPercent.toCurrency()}%',
         radius: _tappedIndex == index ? 90 : 80,
         titleStyle: const TextStyle(
             fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),

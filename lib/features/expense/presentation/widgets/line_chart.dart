@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:spendly/core/extensions/date_time_formatter.dart';
+import 'package:spendly/core/extensions/double_ext.dart';
 
 import '../../domain/entities/expense_entity.dart';
 
@@ -109,7 +110,7 @@ class ExpenseLineChart extends StatelessWidget {
                   .fold(0.0, (sum, expense) => sum + expense.amount);
 
               return LineTooltipItem(
-                '${date.formatDate()}\nAmount: ${total.toStringAsFixed(0)} ৳',
+                '${date.formatDate()}\nAmount: ${total.toCurrency()} ৳',
                 const TextStyle(color: Colors.white, fontSize: 12),
               );
             }).toList();

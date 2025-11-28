@@ -74,4 +74,23 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
 
     return result;
   }
+
+  @override
+  Future<List<ExpenseModel>> getExpensesInRange(
+    String userId,
+    DateTime start,
+    DateTime end,
+  ) async {
+    final querySnapshot = await fireStore
+        .collection('expenses')
+        .where('userId', isEqualTo: userId)
+        .where('date', isGreaterThanOrEqualTo: start)
+        .where('date', isLessThanOrEqualTo: end)
+        .orderBy('date', descending: true)
+        .get();
+
+    return querySnapshot.docs
+        .map((doc) => ExpenseModel.fromJson(doc.data()..['id'] = doc.id))
+        .toList();
+  }
 }
