@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:spendly/core/extensions/double_ext.dart';
 
 import '../../domain/entities/expense_entity.dart';
 
@@ -38,8 +39,8 @@ class ExpenseBarChart extends StatelessWidget {
                 value == 0
                     ? '0'
                     : value >= 1000
-                        ? '${(value / 1000).toStringAsFixed(0)}k'
-                        : value.toStringAsFixed(0),
+                        ? '${(value / 1000).toCurrency()}k'
+                        : value.toCurrency(),
                 style: const TextStyle(fontSize: 12),
               );
             },
@@ -62,8 +63,8 @@ class ExpenseBarChart extends StatelessWidget {
       ),
       borderData: FlBorderData(
         show: true, // Show borders
-        border:
-            Border.all(color: Colors.grey.withOpacity(0.5)), // Set border color
+        border: Border.all(
+            color: Colors.grey.withValues(alpha: 0.5)), // Set border color
       ),
       barTouchData: BarTouchData(
         touchTooltipData: BarTouchTooltipData(

@@ -4,6 +4,7 @@ import 'package:spendly/core/common/widgets/app_drawer.dart';
 import 'package:spendly/core/common/widgets/custom_app_bar.dart';
 import 'package:spendly/core/common/widgets/error_widget.dart';
 import 'package:spendly/core/common/widgets/loader_widget.dart';
+import 'package:spendly/core/common/widgets/no_data_widget.dart';
 import 'package:spendly/core/styles/app_colors.dart';
 import 'package:spendly/features/lendings/presentation/controllers/lendings_controller.dart';
 import 'package:spendly/features/lendings/presentation/widgets/lending_list_item.dart';
@@ -15,7 +16,7 @@ class LendingListScreen extends GetView<LendingsController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const CustomAppBar(title: 'Lendings'),
-      drawer: const AppDrawer(),
+      drawer: AppDrawer(),
       body: RefreshIndicator(
         onRefresh: controller.refreshLendings,
         child: Obx(() => _buildContent(context)),
@@ -46,25 +47,13 @@ class LendingListScreen extends GetView<LendingsController> {
     }
 
     if (controller.lendingsList.isEmpty) {
-      return LayoutBuilder(
-        builder: (context, constraints) {
-          return SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: const Center(
-                  child: Text(
-                'No lendings recorded yet.\nTap + to add one!',
-                textAlign: TextAlign.center,
-              )),
-            ),
-          );
-        },
+      return const Center(
+        child: NoDataWidget(),
       );
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.only(bottom: 80), // Add padding for FAB overlap
+      padding: const EdgeInsets.only(bottom: 80),
       itemCount: controller.lendingsList.length,
       itemBuilder: (context, index) {
         final lending = controller.lendingsList[index];

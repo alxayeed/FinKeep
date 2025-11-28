@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:spendly/core/extensions/double_ext.dart';
 
 import '../../domain/entities/expense_entity.dart';
 
@@ -63,12 +64,12 @@ class ExpenseSummery extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "${data['category']}(${spendingPercent.toStringAsFixed(1)}%)",
+                    "${data['category']}(${spendingPercent.toCurrency()}%)",
                     style: const TextStyle(
                         fontSize: 14, fontWeight: FontWeight.w500),
                   ),
                   Text(
-                    "${currentAmount.toStringAsFixed(0)} ৳",
+                    "${currentAmount.toCurrency()} ৳",
                     style: const TextStyle(
                         fontSize: 14, fontWeight: FontWeight.w600),
                   ),
@@ -91,7 +92,7 @@ class ExpenseSummery extends StatelessWidget {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               Text(
-                "${totalSpending.toStringAsFixed(0)} ৳",
+                "${totalSpending.toCurrency()} ৳",
                 style:
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),

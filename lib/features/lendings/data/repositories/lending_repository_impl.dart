@@ -84,7 +84,6 @@ class LendingRepositoryImpl implements LendingRepository {
     }
   }
 
-  @override
   Future<Either<Failure, void>> updateLendingStatus(
       String lendingId, LendingStatus newStatus) async {
     try {

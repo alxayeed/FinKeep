@@ -103,10 +103,8 @@ class ExpenseCardWidget extends StatelessWidget {
                     children: [
                       Text(
                         expense.category,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          color: Colors.grey
-                        ),
+                        style:
+                            const TextStyle(fontSize: 18, color: Colors.grey),
                       ),
                       const SizedBox(height: 8.0),
                       Text(
@@ -140,7 +138,10 @@ class ExpenseCardWidget extends StatelessWidget {
                             fontSize: 16,
                           ),
                         ),
-                        const Icon(FontAwesomeIcons.bangladeshiTakaSign,size: 16,)
+                        const Icon(
+                          FontAwesomeIcons.bangladeshiTakaSign,
+                          size: 16,
+                        )
                       ],
                     ),
                     const SizedBox(height: 8.0),
@@ -156,15 +157,15 @@ class ExpenseCardWidget extends StatelessWidget {
 
   Future<bool> _showConfirmationDialog() async {
     return await Get.defaultDialog<bool>(
-      title: 'Delete Expense',
-      middleText: 'Are you sure you want to delete this expense?',
-      onConfirm: () {
-        Get.back(result: true);
-      },
-      onCancel: () {
-        Get.back(result: false);
-      },
-    ) ??
+          title: 'Delete Expense',
+          middleText: 'Are you sure you want to delete this expense?',
+          onConfirm: () {
+            Get.back(result: true);
+          },
+          onCancel: () {
+            Get.back(result: false);
+          },
+        ) ??
         false;
   }
 }

@@ -24,7 +24,7 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
         appBar: const CustomAppBar(
           bottom: CustomTabBar(),
         ),
-        drawer: const AppDrawer(),
+        drawer: AppDrawer(),
         floatingActionButton: const CustomFAB(),
         body: Column(
           children: [

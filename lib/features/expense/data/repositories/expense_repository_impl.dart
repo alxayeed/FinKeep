@@ -1,4 +1,3 @@
-
 import '../../domain/entities/expense_entity.dart';
 import '../../domain/repositories/expense_repository.dart';
 import '../datasources/expense_remote_datasource.dart';
@@ -36,8 +35,25 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
   }
 
   @override
-  Future<List<ExpenseEntity>> getExpensesForMonth(String userId, DateTime selectedMonth) async {
-    final models = await remoteDataSource.getExpensesForMonth(userId, selectedMonth);
+  Future<List<ExpenseEntity>> getExpensesForMonth(
+      String userId, DateTime selectedMonth) async {
+    final models =
+        await remoteDataSource.getExpensesForMonth(userId, selectedMonth);
+    return models.map((model) => model.toEntity()).toList();
+  }
+
+  @override
+  Future<List<ExpenseEntity>> getExpensesInRange(
+    String userId,
+    DateTime start,
+    DateTime end,
+  ) async {
+    final models = await remoteDataSource.getExpensesInRange(
+      userId,
+      start,
+      end,
+    );
+
     return models.map((model) => model.toEntity()).toList();
   }
 }

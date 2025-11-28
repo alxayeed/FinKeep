@@ -99,7 +99,7 @@ class AddLendingController extends GetxController {
             listController.fetchLendings(showLoading: false);
           }
         } catch (e) {
-          print(
+          debugPrint(
               "LendingListController not found or error triggering refresh: $e");
         }
 

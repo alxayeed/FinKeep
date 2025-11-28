@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:spendly/core/styles/app_colors.dart'; // Import AppColors
+import 'package:spendly/core/styles/app_colors.dart';
 
 class StyledDropdownFormField<T> extends StatelessWidget {
   final T? value;
@@ -25,6 +25,7 @@ class StyledDropdownFormField<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint("Current selected value: $value");
     return DropdownButtonFormField<T>(
       value: value,
       decoration: InputDecoration(
@@ -60,7 +61,6 @@ class StyledDropdownFormField<T> extends StatelessWidget {
       items: items,
       onChanged: onChanged,
       validator: validator,
-      isExpanded: true,
       iconEnabledColor: AppColors.primaryTealDark,
       focusColor: Colors.transparent,
       itemHeight: itemHeight,
