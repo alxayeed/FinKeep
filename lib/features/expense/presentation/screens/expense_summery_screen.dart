@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:spendly/core/common/widgets/loader_widget.dart';
 
+import '../../../../core/common/widgets/expense_monthly_analysis.dart';
 import '../../../../core/common/widgets/no_data_widget.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../controllers/expense_controller.dart';
@@ -34,15 +35,17 @@ class ExpenseSummeryScreen extends StatelessWidget {
           return SingleChildScrollView(
             child: Column(
               children: [
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.36,
-                  child: ExpenseSummery(expenses: data),
-                ),
-                if (!isReport)
+                ExpenseSummery(expenses: data),
+                if (isReport) ...[
+                  const SizedBox(height: 16),
+                  ExpenseMonthlyAnalysis(expenses: data),
+                ],
+                if (!isReport) ...[
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.35,
                     child: ExpenseBarChart(expenses: data),
                   ),
+                ]
               ],
             ),
           );

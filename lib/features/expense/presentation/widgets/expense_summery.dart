@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:spendly/core/extensions/double_ext.dart';
 
+import '../../../../core/common/widgets/custom_divider.dart';
 import '../../domain/entities/expense_entity.dart';
 
 class ExpenseSummery extends StatelessWidget {
@@ -47,11 +48,41 @@ class ExpenseSummery extends StatelessWidget {
       );
     }
 
+    final ThemeData theme = Theme.of(context);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Total Spent:",
+                style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              Text(
+                "${totalSpending.toCurrency()} ৳",
+                style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.error), // Emphasize Total
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          const CustomDivider(),
+          Text(
+            'Summary By Category',
+            style: theme.textTheme.titleMedium!
+                .copyWith(fontWeight: FontWeight.bold),
+          ),
+          const CustomDivider(),
+          const SizedBox(height: 8),
           ...sortedCategorySpending.map((data) {
             final double currentAmount = data['amount'] as double;
             double spendingPercent = totalSpending == 0
@@ -64,7 +95,7 @@ class ExpenseSummery extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "${data['category']}(${spendingPercent.toCurrency()}%)",
+                    "${data['category']} (${spendingPercent.toCurrency()}%)",
                     style: const TextStyle(
                         fontSize: 14, fontWeight: FontWeight.w500),
                   ),
@@ -77,27 +108,6 @@ class ExpenseSummery extends StatelessWidget {
               ),
             );
           }),
-          const SizedBox(height: 8),
-          const Divider(
-            height: 1,
-            thickness: 1,
-            color: Colors.grey,
-          ),
-          const SizedBox(height: 4),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Total:",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              Text(
-                "${totalSpending.toCurrency()} ৳",
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
           const SizedBox(height: 8),
         ],
       ),

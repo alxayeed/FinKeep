@@ -21,28 +21,67 @@ class AppRoutes {
   static const String lendingList = '/lendingList';
   static const String addLending = '/addLending';
 
+  static const Duration _transitionDuration = Duration(milliseconds: 350);
+  static const Transition _defaultTransition = Transition.noTransition;
+
   static List<GetPage> routes = [
-    GetPage(name: home, page: () => const MonthlyExpenseScreen()),
-    GetPage(name: addExpense, page: () => const CreateExpenseScreen()),
+    GetPage(
+      name: home,
+      page: () => const MonthlyExpenseScreen(),
+      transition: _defaultTransition,
+      transitionDuration: _transitionDuration,
+    ),
+    GetPage(
+      name: addExpense,
+      page: () => const CreateExpenseScreen(),
+      transition: _defaultTransition,
+      transitionDuration: _transitionDuration,
+    ),
     // GetPage(name: expenseDetails, page: () => ExpenseDetailsScreen(expense: Get.arguments)),
-    GetPage(name: dailyExpense, page: () => const DailyExpenseScreen()),
-    GetPage(name: weeklyExpense, page: () => const WeeklyExpenseScreen()),
-    GetPage(name: monthlyExpense, page: () => const MonthlyExpenseScreen()),
-    GetPage(name: yearlyExpense, page: () => const YearlyExpenseScreen()),
+    GetPage(
+      name: dailyExpense,
+      page: () => const DailyExpenseScreen(),
+      transition: _defaultTransition,
+      transitionDuration: _transitionDuration,
+    ),
+    GetPage(
+      name: weeklyExpense,
+      page: () => const WeeklyExpenseScreen(),
+      transition: _defaultTransition,
+      transitionDuration: _transitionDuration,
+    ),
+    GetPage(
+      name: monthlyExpense,
+      page: () => const MonthlyExpenseScreen(),
+      transition: _defaultTransition,
+      transitionDuration: _transitionDuration,
+    ),
+    GetPage(
+      name: yearlyExpense,
+      page: () => const YearlyExpenseScreen(),
+      transition: _defaultTransition,
+      transitionDuration: _transitionDuration,
+    ),
 
     GetPage(
       name: lendingList,
       page: () => const LendingListScreen(),
       // binding: LendingBindings(),
+      transition: _defaultTransition,
+      transitionDuration: _transitionDuration,
     ),
     GetPage(
       name: addLending,
       page: () => const AddLendingScreen(),
       binding: AddLendingBinding(),
+      transition: _defaultTransition,
+      transitionDuration: _transitionDuration,
     ),
     GetPage(
       name: AppRoutes.expenseReport,
       page: () => const ExpenseReportScreen(),
+      transition: _defaultTransition,
+      transitionDuration: _transitionDuration,
     ),
   ];
 }

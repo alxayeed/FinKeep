@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:spendly/core/common/widgets/loader_widget.dart';
 
+import '../../../../core/common/widgets/date_selector_button.dart';
 import '../controllers/expense_controller.dart';
 import '../widgets/widgets.dart';
 import 'expense_list_screen.dart';
@@ -18,7 +20,6 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
 
   @override
   void initState() {
-    // Clear any previous report data and date selections when the screen opens
     controller.clearReportState();
     super.initState();
   }
@@ -70,7 +71,7 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
           'Invalid Range',
           'Start date cannot be after end date.',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withOpacity(0.8),
+          backgroundColor: Colors.red.withValues(alpha: 0.8),
           colorText: Colors.white,
         );
         return;
@@ -106,7 +107,7 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
               ),
               Expanded(
                 child: controller.isLoading.value
-                    ? const Center(child: CircularProgressIndicator())
+                    ? const Center(child: LoaderWidget())
                     : startDate == null || endDate == null
                         ? const Center(
                             child: Padding(
@@ -155,8 +156,14 @@ class _ReportHeader extends StatelessWidget {
     required this.onEndDateSelect,
   });
 
-  String _formatDate(DateTime? date) {
-    if (date == null) return 'Select Date';
+  String _formatDate(DateTime? date, {required bool isFrom}) {
+    if (date == null) {
+      if (isFrom) {
+        return "Start Date";
+      } else {
+        return "End Date";
+      }
+    }
     return DateFormat('d MMM, yyyy').format(date);
   }
 
@@ -165,7 +172,7 @@ class _ReportHeader extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
 
     return Container(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(8.0),
       color: theme.colorScheme.surfaceContainerHigh,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -173,89 +180,20 @@ class _ReportHeader extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _DateSelectorButton(
+              DateSelectorButton(
                 title: 'START DATE',
-                dateText: _formatDate(startDate),
+                dateText: _formatDate(startDate, isFrom: true),
                 onTap: onStartDateSelect,
               ),
               const Icon(Icons.arrow_right_alt, color: Colors.grey),
-              _DateSelectorButton(
+              DateSelectorButton(
                 title: 'END DATE',
-                dateText: _formatDate(endDate),
+                dateText: _formatDate(endDate, isFrom: false),
                 onTap: onEndDateSelect,
               ),
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _DateSelectorButton extends StatelessWidget {
-  final String title;
-  final String dateText;
-  final VoidCallback onTap;
-
-  const _DateSelectorButton({
-    required this.title,
-    required this.dateText,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Card(
-        elevation: 1,
-        color: theme.colorScheme.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.calendar_month,
-                    size: 24,
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: theme.colorScheme.primary,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    dateText,
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: theme.colorScheme.onSurface),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
