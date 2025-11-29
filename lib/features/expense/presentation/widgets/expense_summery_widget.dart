@@ -6,11 +6,11 @@ import '../../../../core/common/widgets/expense_monthly_analysis.dart';
 import '../../../../core/common/widgets/no_data_widget.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../controllers/expense_controller.dart';
-import '../widgets/expense_summery.dart';
-import '../widgets/widgets.dart';
+import 'expense_summery.dart';
+import 'widgets.dart';
 
-class ExpenseSummeryScreen extends StatelessWidget {
-  const ExpenseSummeryScreen(
+class ExpenseSummeryWidget extends StatelessWidget {
+  const ExpenseSummeryWidget(
       {super.key, required this.controller, this.isReport = false});
 
   final ExpenseController controller;

@@ -156,26 +156,27 @@ class ExpenseMonthlyAnalysis extends StatelessWidget {
               theme.colorScheme.onSurface,
             );
           }),
+          const SizedBox(height: 8),
           const CustomDivider(),
           Text(
-            'Period Analysis',
+            'High/Low/Avg(Month)',
             style: theme.textTheme.titleMedium!
                 .copyWith(fontWeight: FontWeight.bold),
           ),
           const CustomDivider(),
           const SizedBox(height: 4),
           _buildSummaryStatRow(
-            'Highest Spend (${summary['highestMonth']})',
+            'Highest (${summary['highestMonth']})',
             summary['highestAmount'],
             theme.colorScheme.error,
           ),
           _buildSummaryStatRow(
-            'Lowest Spend (${summary['lowestMonth']})',
+            'Lowest (${summary['lowestMonth']})',
             summary['lowestAmount'],
             theme.colorScheme.tertiary,
           ),
           _buildSummaryStatRow(
-            'Average Monthly Spend',
+            'Average',
             summary['average'],
             theme.colorScheme.onSurfaceVariant,
           ),

@@ -21,7 +21,7 @@ class AppRoutes {
   static const String lendingList = '/lendingList';
   static const String addLending = '/addLending';
 
-  static const Duration _transitionDuration = Duration(milliseconds: 350);
+  static const Duration _transitionDuration = Duration(milliseconds: 0);
   static const Transition _defaultTransition = Transition.noTransition;
 
   static List<GetPage> routes = [
@@ -37,19 +37,6 @@ class AppRoutes {
       transition: _defaultTransition,
       transitionDuration: _transitionDuration,
     ),
-    // GetPage(name: expenseDetails, page: () => ExpenseDetailsScreen(expense: Get.arguments)),
-    GetPage(
-      name: dailyExpense,
-      page: () => const DailyExpenseScreen(),
-      transition: _defaultTransition,
-      transitionDuration: _transitionDuration,
-    ),
-    GetPage(
-      name: weeklyExpense,
-      page: () => const WeeklyExpenseScreen(),
-      transition: _defaultTransition,
-      transitionDuration: _transitionDuration,
-    ),
     GetPage(
       name: monthlyExpense,
       page: () => const MonthlyExpenseScreen(),
@@ -57,16 +44,17 @@ class AppRoutes {
       transitionDuration: _transitionDuration,
     ),
     GetPage(
-      name: yearlyExpense,
-      page: () => const YearlyExpenseScreen(),
-      transition: _defaultTransition,
-      transitionDuration: _transitionDuration,
-    ),
-
-    GetPage(
       name: lendingList,
       page: () => const LendingListScreen(),
       // binding: LendingBindings(),
+      transition: _defaultTransition,
+      transitionDuration: _transitionDuration,
+    ),
+    GetPage(
+      name: expenseDetails,
+      page: () => ExpenseDetailsScreen(
+        expense: Get.arguments,
+      ),
       transition: _defaultTransition,
       transitionDuration: _transitionDuration,
     ),

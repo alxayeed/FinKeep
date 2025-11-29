@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../controllers/expense_controller.dart';
+import '../widgets/expense_list_widget.dart';
 import '../widgets/month_selector.dart';
 import '../widgets/widgets.dart';
-import 'expense_list_screen.dart';
 
 class MonthlyExpenseScreen extends StatefulWidget {
   const MonthlyExpenseScreen({super.key});
@@ -38,8 +38,8 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
             Expanded(
               child: TabBarView(
                 children: [
-                  ExpenseSummeryScreen(controller: controller),
-                  ExpenseListScreen(controller: controller),
+                  ExpenseSummeryWidget(controller: controller),
+                  ExpenseListWidget(controller: controller),
                 ],
               ),
             ),

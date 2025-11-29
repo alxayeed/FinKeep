@@ -5,8 +5,8 @@ import 'package:spendly/core/common/widgets/loader_widget.dart';
 
 import '../../../../core/common/widgets/date_selector_button.dart';
 import '../controllers/expense_controller.dart';
+import '../widgets/expense_list_widget.dart';
 import '../widgets/widgets.dart';
-import 'expense_list_screen.dart';
 
 class ExpenseReportScreen extends StatefulWidget {
   const ExpenseReportScreen({super.key});
@@ -122,11 +122,11 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
                           )
                         : TabBarView(
                             children: [
-                              ExpenseSummeryScreen(
+                              ExpenseSummeryWidget(
                                 controller: controller,
                                 isReport: true,
                               ),
-                              ExpenseListScreen(
+                              ExpenseListWidget(
                                 controller: controller,
                                 isReport: true,
                               ),

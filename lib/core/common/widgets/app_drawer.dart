@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:spendly/core/routes/app_routes.dart';
 
 class AppDrawer extends StatelessWidget {
-  AppDrawer({super.key});
+  const AppDrawer({super.key});
 
   // final authenticator = LocalAuthDeviceAuthenticator();
 
@@ -31,16 +31,6 @@ class AppDrawer extends StatelessWidget {
                 ),
               ),
             ),
-            // _createDrawerItem(
-            //   icon: Icons.calendar_today,
-            //   text: 'Daily Expense',
-            //   onTap: () => Get.toNamed(AppRoutes.dailyExpense),
-            // ),
-            // _createDrawerItem(
-            //   icon: Icons.calendar_view_week,
-            //   text: 'Weekly Expense',
-            //   onTap: () => Get.toNamed(AppRoutes.weeklyExpense),
-            // ),
             _createDrawerItem(
               icon: Icons.calendar_today_outlined,
               text: 'Expenses',
@@ -71,11 +61,6 @@ class AppDrawer extends StatelessWidget {
                 // }
               },
             ),
-            // _createDrawerItem(
-            //   icon: Icons.calendar_today_rounded,
-            //   text: 'Yearly Expense',
-            //   onTap: () => Get.toNamed(AppRoutes.yearlyExpense),
-            // ),
             _createDrawerItem(
               icon: Icons.bar_chart,
               text: 'Reports',

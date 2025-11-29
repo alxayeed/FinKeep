@@ -35,16 +35,13 @@ class ExpenseFormWidget extends StatelessWidget {
     return items.map((item) {
       return DropdownMenuItem<ExpenseCategory>(
         value: item,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
-          child: Text(
-            item.displayName,
-            style: const TextStyle(
-              fontSize: 15,
-              color: AppColors.primaryTealDark,
-            ),
-            overflow: TextOverflow.ellipsis,
+        child: Text(
+          item.displayName,
+          style: const TextStyle(
+            fontSize: 15,
+            color: AppColors.primaryTealDark,
           ),
+          overflow: TextOverflow.ellipsis,
         ),
       );
     }).toList();

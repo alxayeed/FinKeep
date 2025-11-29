@@ -7,13 +7,13 @@ import 'package:spendly/core/extensions/double_ext.dart';
 import '../../../../core/common/widgets/loader_widget.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../controllers/expense_controller.dart';
-import '../widgets/expense_card_widget.dart';
+import 'expense_card_widget.dart';
 
-class ExpenseListScreen extends StatelessWidget {
+class ExpenseListWidget extends StatelessWidget {
   final ExpenseController controller;
   final bool isReport;
 
-  const ExpenseListScreen({
+  const ExpenseListWidget({
     super.key,
     required this.controller,
     this.isReport = false,

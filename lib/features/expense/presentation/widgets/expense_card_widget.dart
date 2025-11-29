@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:spendly/core/extensions/date_time_formatter.dart';
-
-import '../screens/screens.dart';
+import 'package:spendly/core/routes/app_routes.dart';
 
 class ExpenseCardWidget extends StatelessWidget {
   final dynamic expense;
@@ -74,7 +73,7 @@ class ExpenseCardWidget extends StatelessWidget {
       },
       child: GestureDetector(
         onTap: () {
-          Get.to(ExpenseDetailsScreen(expense: expense));
+          Get.toNamed(AppRoutes.expenseDetails, arguments: expense);
         },
         child: Card(
           margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
