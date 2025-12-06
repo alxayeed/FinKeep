@@ -58,7 +58,7 @@ class LendingsController extends GetxController {
   final selectedPersonFilter = Rx<String?>(null);
   final selectedMonthFilter = Rx<DateTime?>(null);
 
-  String get _userId => "placeholder_user_id";
+  String get _userId => "dummy_user";
 
   @override
   void onInit() {
@@ -130,6 +130,8 @@ class LendingsController extends GetxController {
   Future<void> addLending(LendingEntity lending) async {
     isLoading.value = true;
     errorMessage.value = null;
+
+    lending = lending.copyWith(userId: _userId);
 
     final result = await addLendingUseCase(lending);
 

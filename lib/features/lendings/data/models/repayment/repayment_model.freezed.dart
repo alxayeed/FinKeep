@@ -18,6 +18,7 @@ mixin _$RepaymentModel {
   String get lendingId;
   String get userId;
   double get amount;
+  @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
   DateTime get paidDate;
   String? get notes;
 
@@ -69,7 +70,7 @@ abstract mixin class $RepaymentModelCopyWith<$Res> {
       String lendingId,
       String userId,
       double amount,
-      DateTime paidDate,
+      @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) DateTime paidDate,
       String? notes});
 }
 
@@ -215,8 +216,14 @@ extension RepaymentModelPatterns on RepaymentModel {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(String id, String lendingId, String userId, double amount,
-            DateTime paidDate, String? notes)?
+    TResult Function(
+            String id,
+            String lendingId,
+            String userId,
+            double amount,
+            @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
+            DateTime paidDate,
+            String? notes)?
         $default, {
     required TResult orElse(),
   }) {
@@ -245,8 +252,14 @@ extension RepaymentModelPatterns on RepaymentModel {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(String id, String lendingId, String userId, double amount,
-            DateTime paidDate, String? notes)
+    TResult Function(
+            String id,
+            String lendingId,
+            String userId,
+            double amount,
+            @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
+            DateTime paidDate,
+            String? notes)
         $default,
   ) {
     final _that = this;
@@ -273,8 +286,14 @@ extension RepaymentModelPatterns on RepaymentModel {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(String id, String lendingId, String userId, double amount,
-            DateTime paidDate, String? notes)?
+    TResult? Function(
+            String id,
+            String lendingId,
+            String userId,
+            double amount,
+            @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
+            DateTime paidDate,
+            String? notes)?
         $default,
   ) {
     final _that = this;
@@ -296,6 +315,7 @@ class _RepaymentModel extends RepaymentModel {
       required this.lendingId,
       required this.userId,
       required this.amount,
+      @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
       required this.paidDate,
       this.notes})
       : super._();
@@ -311,6 +331,7 @@ class _RepaymentModel extends RepaymentModel {
   @override
   final double amount;
   @override
+  @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
   final DateTime paidDate;
   @override
   final String? notes;
@@ -369,7 +390,7 @@ abstract mixin class _$RepaymentModelCopyWith<$Res>
       String lendingId,
       String userId,
       double amount,
-      DateTime paidDate,
+      @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) DateTime paidDate,
       String? notes});
 }
 

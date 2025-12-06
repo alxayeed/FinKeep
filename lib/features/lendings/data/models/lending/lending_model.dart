@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../domain/entity/lending/lending_entity.dart';
@@ -17,7 +18,9 @@ abstract class LendingModel with _$LendingModel {
     required LendingPersonModel person,
     required double amount,
     String? description,
+    @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
     required DateTime createdDate,
+    @JsonKey(fromJson: _fromJsonNullableDate, toJson: _toJsonNullableDate)
     DateTime? dueDate,
     required LendingStatus status,
     required String userId,
@@ -60,4 +63,25 @@ abstract class LendingModel with _$LendingModel {
       repayments: repayments?.map((repayment) => repayment.toEntity()).toList(),
     );
   }
+}
+
+DateTime _fromJsonDate(dynamic value) {
+  if (value is Timestamp) return value.toDate();
+  if (value is String) return DateTime.parse(value);
+  throw Exception('Invalid date: $value');
+}
+
+dynamic _toJsonDate(DateTime value) {
+  return Timestamp.fromDate(value);
+}
+
+DateTime? _fromJsonNullableDate(dynamic value) {
+  if (value == null) return null;
+  if (value is Timestamp) return value.toDate();
+  if (value is String) return DateTime.parse(value);
+  throw Exception('Invalid nullable date: $value');
+}
+
+dynamic _toJsonNullableDate(DateTime? value) {
+  return value == null ? null : Timestamp.fromDate(value);
 }

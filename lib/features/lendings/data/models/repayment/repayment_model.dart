@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../domain/entity/repayment/repayment_entity.dart';
@@ -14,6 +15,7 @@ abstract class RepaymentModel with _$RepaymentModel {
     required String lendingId,
     required String userId,
     required double amount,
+    @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
     required DateTime paidDate,
     String? notes,
   }) = _RepaymentModel;
@@ -44,4 +46,14 @@ abstract class RepaymentModel with _$RepaymentModel {
       notes: notes,
     );
   }
+}
+
+DateTime _fromJsonDate(dynamic value) {
+  if (value is Timestamp) return value.toDate();
+  if (value is String) return DateTime.parse(value);
+  throw Exception('Invalid date: $value');
+}
+
+dynamic _toJsonDate(DateTime value) {
+  return Timestamp.fromDate(value);
 }

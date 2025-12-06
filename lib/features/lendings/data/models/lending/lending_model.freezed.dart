@@ -19,7 +19,9 @@ mixin _$LendingModel {
   LendingPersonModel get person;
   double get amount;
   String? get description;
+  @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
   DateTime get createdDate;
+  @JsonKey(fromJson: _fromJsonNullableDate, toJson: _toJsonNullableDate)
   DateTime? get dueDate;
   LendingStatus get status;
   String get userId;
@@ -89,7 +91,9 @@ abstract mixin class $LendingModelCopyWith<$Res> {
       LendingPersonModel person,
       double amount,
       String? description,
+      @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
       DateTime createdDate,
+      @JsonKey(fromJson: _fromJsonNullableDate, toJson: _toJsonNullableDate)
       DateTime? dueDate,
       LendingStatus status,
       String userId,
@@ -275,7 +279,10 @@ extension LendingModelPatterns on LendingModel {
             LendingPersonModel person,
             double amount,
             String? description,
+            @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
             DateTime createdDate,
+            @JsonKey(
+                fromJson: _fromJsonNullableDate, toJson: _toJsonNullableDate)
             DateTime? dueDate,
             LendingStatus status,
             String userId,
@@ -323,7 +330,10 @@ extension LendingModelPatterns on LendingModel {
             LendingPersonModel person,
             double amount,
             String? description,
+            @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
             DateTime createdDate,
+            @JsonKey(
+                fromJson: _fromJsonNullableDate, toJson: _toJsonNullableDate)
             DateTime? dueDate,
             LendingStatus status,
             String userId,
@@ -369,7 +379,10 @@ extension LendingModelPatterns on LendingModel {
             LendingPersonModel person,
             double amount,
             String? description,
+            @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
             DateTime createdDate,
+            @JsonKey(
+                fromJson: _fromJsonNullableDate, toJson: _toJsonNullableDate)
             DateTime? dueDate,
             LendingStatus status,
             String userId,
@@ -405,7 +418,9 @@ class _LendingModel extends LendingModel {
       required this.person,
       required this.amount,
       this.description,
+      @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
       required this.createdDate,
+      @JsonKey(fromJson: _fromJsonNullableDate, toJson: _toJsonNullableDate)
       this.dueDate,
       required this.status,
       required this.userId,
@@ -426,8 +441,10 @@ class _LendingModel extends LendingModel {
   @override
   final String? description;
   @override
+  @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
   final DateTime createdDate;
   @override
+  @JsonKey(fromJson: _fromJsonNullableDate, toJson: _toJsonNullableDate)
   final DateTime? dueDate;
   @override
   final LendingStatus status;
@@ -513,7 +530,9 @@ abstract mixin class _$LendingModelCopyWith<$Res>
       LendingPersonModel person,
       double amount,
       String? description,
+      @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
       DateTime createdDate,
+      @JsonKey(fromJson: _fromJsonNullableDate, toJson: _toJsonNullableDate)
       DateTime? dueDate,
       LendingStatus status,
       String userId,
