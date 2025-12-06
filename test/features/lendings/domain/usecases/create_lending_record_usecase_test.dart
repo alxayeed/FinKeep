@@ -3,7 +3,7 @@
 // import 'package:mocktail/mocktail.dart';
 // import 'package:spendly/core/enums/lending_type.dart';
 // import 'package:spendly/core/error/failure.dart';
-// import 'package:spendly/features/lendings/domain/entity/lend_entity.dart';
+// import 'package:spendly/features/lendings/domain/entity/lending_entity.dart';
 // import 'package:spendly/features/lendings/domain/repositories/lending_repository.dart';
 // import 'package:spendly/features/lendings/domain/usecases/add_lending_usecase.dart';
 //

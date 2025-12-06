@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:spendly/core/styles/app_colors.dart';
 import 'package:spendly/features/lendings/presentation/controllers/lendings_controller.dart';
 
-import '../../domain/entity/lend_entity.dart';
+import '../../domain/entity/lending/lending_entity.dart';
 
 class LendingDetailsScreen extends StatelessWidget {
   final LendingEntity lending;
@@ -73,7 +73,7 @@ class LendingDetailsScreen extends StatelessWidget {
             const Divider(thickness: 1, height: 1),
             _buildDetailItem(
               title: 'Person',
-              value: lending.personName,
+              value: lending.person.name,
               icon: Icons.person_outline,
             ),
             const Divider(thickness: 1, height: 1),

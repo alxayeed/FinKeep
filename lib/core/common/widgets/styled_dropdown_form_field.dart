@@ -27,7 +27,7 @@ class StyledDropdownFormField<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     debugPrint("Current selected value: $value");
     return DropdownButtonFormField<T>(
-      value: value,
+      initialValue: value,
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: const TextStyle(color: AppColors.primaryTealDark),

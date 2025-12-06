@@ -16,50 +16,49 @@ class LendingListScreen extends GetView<LendingsController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const CustomAppBar(title: 'Lendings'),
-      drawer: AppDrawer(),
+      drawer: const AppDrawer(),
       body: RefreshIndicator(
         onRefresh: controller.refreshLendings,
-        child: Obx(() => _buildContent(context)),
+        child: Obx(() {
+          if (controller.isLoading.value && controller.lendingsList.isEmpty) {
+            return const Center(child: LoaderWidget());
+          }
+
+          if (controller.errorMessage.value != null) {
+            return Center(
+              child: ErrorIndicatorWidget(
+                errorMessage: controller.errorMessage.value!,
+              ),
+            );
+          }
+
+          if (controller.lendingsList.isEmpty) {
+            return const Center(child: NoDataWidget());
+          }
+
+          return ListView.separated(
+            padding: const EdgeInsets.only(bottom: 80, top: 8),
+            itemCount: controller.lendingsList.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 8),
+            itemBuilder: (context, index) {
+              final lending = controller.lendingsList[index];
+              return LendingListItem(lending: lending);
+            },
+          );
+        }),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: AppColors.primaryTeal,
-        foregroundColor: Colors.white,
-        onPressed: () {
-          Get.toNamed('/addLending');
-        },
-        tooltip: 'Add Lending',
-        child: Icon(Icons.add),
-      ),
-    );
-  }
-
-  Widget _buildContent(BuildContext context) {
-    if (controller.isLoading.value && controller.lendingsList.isEmpty) {
-      return const Center(child: LoaderWidget());
-    }
-
-    if (controller.errorMessage.value != null) {
-      return Center(
-        child: ErrorIndicatorWidget(
-          errorMessage: controller.errorMessage.value!,
-        ),
-      );
-    }
-
-    if (controller.lendingsList.isEmpty) {
-      return const Center(
-        child: NoDataWidget(),
-      );
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.only(bottom: 80),
-      itemCount: controller.lendingsList.length,
-      itemBuilder: (context, index) {
-        final lending = controller.lendingsList[index];
-        // LendingListItem handles its own onTap navigation now
-        return LendingListItem(lending: lending);
-      },
+      floatingActionButton: Obx(() {
+        return FloatingActionButton(
+          backgroundColor:
+              controller.isLoading.value ? Colors.grey : AppColors.primaryTeal,
+          foregroundColor: Colors.white,
+          onPressed: controller.isLoading.value
+              ? null
+              : () => Get.toNamed('/addLending'),
+          tooltip: 'Add Lending',
+          child: const Icon(Icons.add),
+        );
+      }),
     );
   }
 }

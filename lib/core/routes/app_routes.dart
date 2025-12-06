@@ -3,7 +3,6 @@ import 'package:spendly/features/expense/presentation/screens/screens.dart';
 import 'package:spendly/features/lendings/presentation/screens/lending_list_screen.dart';
 
 import '../../features/expense/presentation/screens/expense_report_screen.dart';
-import '../../features/lendings/presentation/bindings/add_lending_binding.dart';
 import '../../features/lendings/presentation/screens/add_lending_screen.dart';
 
 class AppRoutes {
@@ -61,7 +60,7 @@ class AppRoutes {
     GetPage(
       name: addLending,
       page: () => const AddLendingScreen(),
-      binding: AddLendingBinding(),
+      // binding: AddLendingBinding(),
       transition: _defaultTransition,
       transitionDuration: _transitionDuration,
     ),
