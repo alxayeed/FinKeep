@@ -65,7 +65,7 @@ class LendingFirestoreDataSource implements LendingDataSource {
     LendingType? typeFilter,
     DateTime? monthFilter,
     LendingStatus? statusFilter,
-    String? personIdFilter, // filter by personId now
+    String? personIdFilter,
   }) async {
     try {
       Query<Map<String, dynamic>> query =
@@ -74,36 +74,56 @@ class LendingFirestoreDataSource implements LendingDataSource {
       if (typeFilter != null) {
         query = query.where('type', isEqualTo: typeFilter.name);
       }
+
       if (statusFilter != null) {
         query = query.where('status', isEqualTo: statusFilter.name);
       }
+
       if (personIdFilter != null && personIdFilter.isNotEmpty) {
         query = query.where('personId', isEqualTo: personIdFilter);
       }
+
       if (monthFilter != null) {
         final startOfMonth = Timestamp.fromDate(
-            DateTime(monthFilter.year, monthFilter.month, 1));
-        final endOfMonth = Timestamp.fromDate((monthFilter.month < 12)
-            ? DateTime(monthFilter.year, monthFilter.month + 1, 1)
-                .subtract(const Duration(milliseconds: 1))
-            : DateTime(monthFilter.year + 1, 1, 1)
-                .subtract(const Duration(milliseconds: 1)));
+          DateTime(monthFilter.year, monthFilter.month, 1),
+        );
+
+        final endOfMonth = Timestamp.fromDate(
+          (monthFilter.month < 12)
+              ? DateTime(monthFilter.year, monthFilter.month + 1, 1)
+                  .subtract(const Duration(milliseconds: 1))
+              : DateTime(monthFilter.year + 1, 1, 1)
+                  .subtract(const Duration(milliseconds: 1)),
+        );
+
         query = query
             .where('createdDate', isGreaterThanOrEqualTo: startOfMonth)
             .where('createdDate', isLessThanOrEqualTo: endOfMonth);
       }
 
       query = query.orderBy('createdDate', descending: true);
+
       final snapshot = await query.get();
 
-      // Map documents to LendingModel with personId only
-      return snapshot.docs.map((doc) {
+      // If no docs, return empty
+      if (snapshot.docs.isEmpty) return [];
+
+      final List<LendingModel> lendings = [];
+
+      for (final doc in snapshot.docs) {
         final data = doc.data();
         data['id'] = doc.id;
-        // person object will contain only the ID; full details can be fetched separately
-        data['person'] = {'id': data['personId'], 'userId': userId, 'name': ''};
-        return LendingModel.fromJson(data);
-      }).toList();
+
+        final String personId = data['personId'];
+
+        final person = await getPersonById(personId);
+
+        data['person'] = person.toJson();
+
+        lendings.add(LendingModel.fromJson(data));
+      }
+
+      return lendings;
     } catch (e) {
       throw ServerException(message: '${AppStrings.fetchFailed}: $e');
     }
