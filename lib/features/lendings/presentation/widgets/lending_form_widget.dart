@@ -21,7 +21,8 @@ class LendingFormWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final personController = TextEditingController();
+    final personNameController = TextEditingController();
+    final personContactController = TextEditingController();
     final amountController = TextEditingController();
     final descriptionController = TextEditingController();
 
@@ -48,11 +49,21 @@ class LendingFormWidget extends StatelessWidget {
             children: [
               // --- Person Name (manual for now) ---
               StyledTextFormField(
-                controller: personController,
+                controller: personNameController,
                 labelText: 'Person Name',
                 prefixIcon: Icons.person_outline,
                 validator: (value) => (value == null || value.isEmpty)
                     ? 'Please enter a name'
+                    : null,
+              ),
+              const SizedBox(height: 15),
+              StyledTextFormField(
+                controller: personContactController,
+                keyboardType: TextInputType.phone,
+                labelText: 'Contact No',
+                prefixIcon: Icons.phone,
+                validator: (value) => (value == null || value.isEmpty)
+                    ? 'Please enter a phone no'
                     : null,
               ),
               const SizedBox(height: 15),
@@ -141,7 +152,7 @@ class LendingFormWidget extends StatelessWidget {
                 text: buttonText,
                 onPressed: () {
                   if (formKey?.currentState?.validate() ?? true) {
-                    final personName = personController.text.trim();
+                    final personName = personNameController.text.trim();
 
                     final lending = LendingEntity(
                       id: '',
