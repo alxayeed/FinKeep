@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:spendly/core/styles/app_colors.dart';
 import 'package:spendly/features/lendings/presentation/controllers/lendings_controller.dart';
 
+import '../../../../core/routes/app_routes.dart';
 import '../../domain/entity/lending/lending_entity.dart';
 import '../../domain/entity/repayment/repayment_entity.dart';
 
@@ -46,8 +47,17 @@ class LendingDetailsScreen extends StatelessWidget {
             icon: const Icon(Icons.edit_note_rounded,
                 color: AppColors.primaryTealDark),
             tooltip: 'Edit Lending',
-            onPressed: () {
-              Get.snackbar('Info', 'Edit functionality not implemented yet.');
+            onPressed: () async {
+              final updatedLending = await Get.toNamed(AppRoutes.updateLending,
+                  arguments: lending);
+
+              if (updatedLending != null) {
+                final success = await controller.updateLending(updatedLending);
+                if (success) {
+                  Get.snackbar('Success', 'Lending updated',
+                      snackPosition: SnackPosition.BOTTOM);
+                }
+              }
             },
           ),
           IconButton(
