@@ -19,7 +19,6 @@ class LendingDetailsScreen extends StatelessWidget {
     final currencyFormat = NumberFormat.currency(locale: 'en_IN', symbol: '৳');
     final dateFormat = DateFormat('dd MMMM, yyyy');
 
-    // Fetch repayments when screen builds
     controller.fetchRepayments(lending.id);
 
     final isGiven = lending.type == LendingType.given;
@@ -48,20 +47,25 @@ class LendingDetailsScreen extends StatelessWidget {
                 color: AppColors.primaryTealDark),
             tooltip: 'Edit Lending',
             onPressed: () async {
-              final updatedLending = await Get.toNamed(AppRoutes.updateLending,
-                  arguments: lending);
-
+              final updatedLending = await Get.toNamed(
+                AppRoutes.updateLending,
+                arguments: lending,
+              );
               if (updatedLending != null) {
                 final success = await controller.updateLending(updatedLending);
                 if (success) {
-                  Get.snackbar('Success', 'Lending updated',
-                      snackPosition: SnackPosition.BOTTOM);
+                  Get.snackbar(
+                    'Success',
+                    'Lending updated',
+                    snackPosition: SnackPosition.BOTTOM,
+                  );
                 }
               }
             },
           ),
           IconButton(
-            icon: Icon(Icons.delete_outline_rounded, color: AppColors.error),
+            icon: const Icon(Icons.delete_outline_rounded,
+                color: AppColors.error),
             tooltip: 'Delete Lending',
             onPressed: () async {
               final confirm = await Get.dialog<bool>(
@@ -83,7 +87,6 @@ class LendingDetailsScreen extends StatelessWidget {
                   ],
                 ),
               );
-
               if (confirm == true) {
                 await controller.deleteLending(lending.id);
               }
@@ -95,7 +98,6 @@ class LendingDetailsScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            /// SUMMARY SECTION
             Container(
               padding: const EdgeInsets.all(16),
               margin: const EdgeInsets.only(bottom: 16),
@@ -122,61 +124,75 @@ class LendingDetailsScreen extends StatelessWidget {
                 ],
               ),
             ),
-
-            /// DETAILS (COMPACT)
-            _buildCompactRow(
-              title: 'Amount',
-              value: amount,
-              icon: Icons.currency_rupee,
-              valueColor: AppColors.getColorForLendingType(lending.type),
+            GridView(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.zero,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 8,
+                crossAxisSpacing: 12,
+                childAspectRatio: 3.2,
+              ),
+              children: [
+                _buildGridItem('Amount', amount, Icons.currency_rupee,
+                    valueColor: AppColors.getColorForLendingType(lending.type)),
+                _buildGridItem(
+                    'Person', lending.person.name, Icons.person_outline),
+                _buildGridItem(
+                    'Type',
+                    lending.type.name.capitalizeFirst ?? lending.type.name,
+                    Icons.swap_horiz),
+                _buildGridItem(
+                    'Status',
+                    lending.status.name.capitalizeFirst ?? lending.status.name,
+                    Icons.check_circle_outline,
+                    valueColor:
+                        AppColors.getColorForLendingStatus(lending.status)),
+                _buildGridItem('', dateFormat.format(lending.createdDate),
+                    Icons.calendar_today_outlined),
+                _buildGridItem(
+                    '',
+                    lending.dueDate != null
+                        ? dateFormat.format(lending.dueDate!)
+                        : 'N/A',
+                    Icons.event_busy_outlined),
+              ],
             ),
-            _buildCompactRow(
-              title: 'Person',
-              value: lending.person.name,
-              icon: Icons.person_outline,
-            ),
-            _buildCompactRow(
-              title: 'Type',
-              value: lending.type.name.capitalizeFirst ?? lending.type.name,
-              icon: Icons.swap_horiz,
-            ),
-            _buildCompactRow(
-              title: 'Status',
-              value: lending.status.name.capitalizeFirst ?? lending.status.name,
-              icon: Icons.check_circle_outline,
-              valueColor: AppColors.getColorForLendingStatus(lending.status),
-            ),
-            _buildCompactRow(
-              title: 'Date Created',
-              value: dateFormat.format(lending.createdDate),
-              icon: Icons.calendar_today_outlined,
-            ),
-            _buildCompactRow(
-              title: 'Due Date',
-              value: lending.dueDate != null
-                  ? dateFormat.format(lending.dueDate!)
-                  : 'N/A',
-              icon: Icons.event_busy_outlined,
-            ),
-            _buildCompactRow(
-              title: 'Description',
-              value: lending.description?.isNotEmpty ?? false
-                  ? lending.description!
-                  : 'N/A',
-              icon: Icons.notes_rounded,
-              isMultiline: true,
-            ),
-
-            /// REPAYMENT HISTORY SECTION
             const SizedBox(height: 20),
+            const Text(
+              'Description',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+                color: AppColors.darkGrey,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: AppColors.subtleBackground,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                lending.description?.isNotEmpty ?? false
+                    ? lending.description!
+                    : 'No description provided.',
+                style: const TextStyle(fontSize: 14, height: 1.5),
+              ),
+            ),
+            const SizedBox(height: 24),
             const Text(
               'Repayment History',
               style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                  color: AppColors.darkGrey),
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+                color: AppColors.darkGrey,
+              ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             Obx(() {
               if (controller.repaymentsList.isEmpty) {
                 return const Text(
@@ -184,16 +200,38 @@ class LendingDetailsScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 14, color: Colors.grey),
                 );
               }
-              return Column(
-                children: controller.repaymentsList.map((RepaymentEntity r) {
-                  final paidDate = dateFormat.format(r.paidDate);
-                  final amount = currencyFormat.format(r.amount);
-                  return _buildCompactRow(
-                    title: paidDate,
-                    value: amount,
-                    icon: Icons.payment_outlined,
-                  );
-                }).toList(),
+              return Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: AppColors.subtleBackground,
+                ),
+                height: 220,
+                child: ListView.separated(
+                  itemCount: controller.repaymentsList.length,
+                  separatorBuilder: (_, __) => const Divider(height: 16),
+                  itemBuilder: (context, index) {
+                    final RepaymentEntity r = controller.repaymentsList[index];
+                    final paidDate = dateFormat.format(r.paidDate);
+                    final amount = currencyFormat.format(r.amount);
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          paidDate,
+                          style: const TextStyle(fontWeight: FontWeight.w500),
+                        ),
+                        Text(
+                          amount,
+                          style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.primaryTealDark),
+                        ),
+                      ],
+                    );
+                  },
+                ),
               );
             }),
           ],
@@ -202,50 +240,26 @@ class LendingDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCompactRow({
-    required String title,
-    required String value,
-    required IconData icon,
-    Color? valueColor,
-    bool isMultiline = false,
-  }) {
+  Widget _buildGridItem(String title, String value, IconData icon,
+      {Color? valueColor}) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      decoration: const BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Color(0xFFE0E0E0), width: 0.6),
-        ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: AppColors.subtleBackground,
       ),
       child: Row(
-        crossAxisAlignment:
-            isMultiline ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(
-            icon,
-            size: 18,
-            color: Colors.grey.shade500,
-          ),
-          const SizedBox(width: 12),
+          Icon(icon, size: 18, color: Colors.grey.shade600),
+          const SizedBox(width: 6),
           Text(
-            '$title:',
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 13,
-              color: Color(0xFF616161),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              value,
-              style: TextStyle(
-                fontSize: 14,
-                height: 1.4,
-                color: valueColor ?? const Color(0xFF424242),
-                fontWeight:
-                    valueColor != null ? FontWeight.w600 : FontWeight.w400,
-              ),
-              softWrap: true,
+            value,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight:
+                  valueColor != null ? FontWeight.w600 : FontWeight.w400,
+              color: valueColor ?? const Color(0xFF212121),
             ),
           ),
         ],
