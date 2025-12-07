@@ -6,7 +6,7 @@ import 'package:spendly/features/lendings/data/datasources/lending_data_source.d
 import 'package:spendly/features/lendings/domain/repositories/lending_repository.dart';
 
 import '../../domain/entity/lending/lending_entity.dart';
-import '../../domain/entity/lending_person_entity.dart';
+import '../../domain/entity/lending_person/lending_person_entity.dart';
 import '../../domain/entity/repayment/repayment_entity.dart';
 import '../models/lending/lending_model.dart';
 import '../models/lending_person/lending_person_model.dart';

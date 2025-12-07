@@ -4,7 +4,7 @@ import 'package:spendly/core/routes/app_routes.dart';
 import 'package:spendly/features/lendings/domain/usecases/repayment/get_repayments_for_lending_usecase.dart';
 
 import '../../domain/entity/lending/lending_entity.dart';
-import '../../domain/entity/lending_person_entity.dart';
+import '../../domain/entity/lending_person/lending_person_entity.dart';
 import '../../domain/entity/repayment/repayment_entity.dart';
 import '../../domain/usecases/lending/add_lending_usecase.dart';
 import '../../domain/usecases/lending/delete_lending_usecase.dart';

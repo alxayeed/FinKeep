@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../lending_person_entity.dart';
+import '../lending_person/lending_person_entity.dart';
 import '../repayment/repayment_entity.dart';
 
 part 'lending_entity.freezed.dart';

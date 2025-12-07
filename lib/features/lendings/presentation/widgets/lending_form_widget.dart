@@ -5,7 +5,7 @@ import 'package:spendly/features/lendings/presentation/controllers/lendings_cont
 
 import '../../../../core/styles/app_colors.dart';
 import '../../domain/entity/lending/lending_entity.dart';
-import '../../domain/entity/lending_person_entity.dart';
+import '../../domain/entity/lending_person/lending_person_entity.dart';
 
 class LendingFormWidget extends StatelessWidget {
   final LendingsController controller;

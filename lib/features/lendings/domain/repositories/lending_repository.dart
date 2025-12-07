@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 
 import '../../../../core/error/failure.dart';
 import '../entity/lending/lending_entity.dart';
-import '../entity/lending_person_entity.dart';
+import '../entity/lending_person/lending_person_entity.dart';
 import '../entity/repayment/repayment_entity.dart';
 
 abstract class LendingRepository {
