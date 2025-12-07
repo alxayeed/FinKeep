@@ -1,7 +1,5 @@
-Release 20
-- Details no transition
-- Category selected dropdown shows nothing fixed
-- Unwanted code removed
-- Code refactored
+Release 23
+- Repayment history
+
 
 
