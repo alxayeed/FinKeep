@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../features/lendings/domain/entity/lend_entity.dart';
+import '../../features/lendings/domain/entity/lending/lending_entity.dart';
 import '../enums/expense_category.dart';
 
 class AppColors {
@@ -72,8 +72,11 @@ class AppColors {
         return lendingStatusDue;
       case LendingStatus.paid:
         return lendingStatusPaid;
-      case LendingStatus.dismissed:
+      case LendingStatus.overdue:
         return lendingStatusDismissed;
+      case LendingStatus.partial:
+        // TODO: Handle this case.
+        throw UnimplementedError();
     }
   }
 }

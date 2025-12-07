@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import '../entity/lend_entity.dart';
+import '../entity/lending/lending_entity.dart';
 
 class GetLendingsParams extends Equatable {
   final String userId;

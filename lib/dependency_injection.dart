@@ -18,13 +18,23 @@ import 'package:spendly/features/lendings/data/datasources/lending_data_source.d
 import 'package:spendly/features/lendings/data/datasources/lending_firestore_data_source.dart';
 import 'package:spendly/features/lendings/data/repositories/lending_repository_impl.dart';
 import 'package:spendly/features/lendings/domain/repositories/lending_repository.dart';
-import 'package:spendly/features/lendings/domain/usecases/add_lending_usecase.dart';
-import 'package:spendly/features/lendings/domain/usecases/delete_lending_usecase.dart';
-import 'package:spendly/features/lendings/domain/usecases/get_lendings_usecase.dart';
-import 'package:spendly/features/lendings/domain/usecases/update_lending_usecase.dart';
-import 'package:spendly/features/lendings/presentation/controllers/add_lending_controller.dart';
 
 import 'features/expense/domain/usecases/get_expenses_in_range_usecase.dart';
+import 'features/lendings/domain/usecases/lending/add_lending_usecase.dart';
+import 'features/lendings/domain/usecases/lending/delete_lending_usecase.dart';
+import 'features/lendings/domain/usecases/lending/get_lendings_count_usecase.dart';
+import 'features/lendings/domain/usecases/lending/get_lendings_usecase.dart';
+import 'features/lendings/domain/usecases/lending/get_total_lending_amount_usecase.dart';
+import 'features/lendings/domain/usecases/lending/update_lending_usecase.dart';
+import 'features/lendings/domain/usecases/lending_person/add_person_usecase.dart';
+import 'features/lendings/domain/usecases/lending_person/delete_person_usecase.dart';
+import 'features/lendings/domain/usecases/lending_person/get_person_by_id_usecase.dart';
+import 'features/lendings/domain/usecases/lending_person/get_user_persons_usecase.dart';
+import 'features/lendings/domain/usecases/lending_person/update_person_usecase.dart';
+import 'features/lendings/domain/usecases/repayment/add_repayment_usecase.dart';
+import 'features/lendings/domain/usecases/repayment/delete_repayment_usecase.dart';
+import 'features/lendings/domain/usecases/repayment/get_repayments_for_lending_usecase.dart';
+import 'features/lendings/domain/usecases/repayment/update_repayment_usecase.dart';
 import 'features/lendings/presentation/controllers/lendings_controller.dart';
 
 class DependencyInjection {
@@ -50,7 +60,6 @@ class DependencyInjection {
           getAllExpenses: Get.find(),
           getMonthlyExpensesUseCase: Get.find(),
           getExpensesInRangeUseCase: Get.find(),
-          // new
           getExpense: Get.find(),
           addExpense: Get.find(),
           updateExpense: Get.find(),
@@ -66,27 +75,42 @@ class DependencyInjection {
           exceptionMapper: Get.find(),
         ));
 
-    // Use Cases
+    // Lending Use Cases
     Get.lazyPut(() => GetLendingsUseCase(repository: Get.find()));
     Get.lazyPut(() => AddLendingUseCase(repository: Get.find()));
     Get.lazyPut(() => UpdateLendingUseCase(repository: Get.find()));
     Get.lazyPut(() => DeleteLendingUseCase(repository: Get.find()));
-    // Get.lazyPut(() => GetTotalLendingAmountUseCase(repository: Get.find()));
-    // Get.lazyPut(() => GetLendingsCountUseCase(repository: Get.find()));
+    Get.lazyPut(() => GetTotalLendingAmountUseCase(repository: Get.find()));
+    Get.lazyPut(() => GetLendingsCountUseCase(repository: Get.find()));
+
+    // LendingPerson Use Cases
+    Get.lazyPut(() => AddPersonUseCase(repository: Get.find()));
+    Get.lazyPut(() => GetPersonByIdUseCase(repository: Get.find()));
+    Get.lazyPut(() => GetUserPersonsUseCase(repository: Get.find()));
+    Get.lazyPut(() => UpdatePersonUseCase(repository: Get.find()));
+    Get.lazyPut(() => DeletePersonUseCase(repository: Get.find()));
+
+    // Repayment Use Cases
+    Get.lazyPut(() => AddRepaymentUseCase(repository: Get.find()));
+    Get.lazyPut(() => GetRepaymentsForLendingUseCase(repository: Get.find()));
+    Get.lazyPut(() => UpdateRepaymentUseCase(repository: Get.find()));
+    Get.lazyPut(() => DeleteRepaymentUseCase(repository: Get.find()));
 
     // Controllers
-    Get.lazyPut(() => AddLendingController(
-          addLendingUseCase: Get.find(),
-          // authService: Get.find(),
-        ));
+
     Get.lazyPut(() => LendingsController(
           getLendingsUseCase: Get.find(),
           deleteLendingUseCase: Get.find(),
           updateLendingUseCase: Get.find(),
+          addLendingUseCase: Get.find(),
+          addPersonUseCase: Get.find(),
+          getUserPersonsUseCase: Get.find(),
+          updatePersonUseCase: Get.find(),
+          deletePersonUseCase: Get.find(),
+          addRepaymentUseCase: Get.find(),
+          getRepaymentsUseCase: Get.find(),
+          updateRepaymentUseCase: Get.find(),
+          deleteRepaymentUseCase: Get.find(),
         ));
-    // Register EditLendingController when created
-    // Get.lazyPut(() => EditLendingController(updateLendingUseCase: Get.find(), ...));
-    // Register LendingSummaryController when created
-    // Get.lazyPut(() => LendingSummaryController(getTotalLendingAmountUseCase: Get.find(), ...));
   }
 }

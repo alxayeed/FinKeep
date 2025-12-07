@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:spendly/core/styles/app_colors.dart';
 
 class StyledElevatedButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final String text;
   final bool isLoading;
-  final IconData? icon; // Added optional icon
+  final IconData? icon;
 
   const StyledElevatedButton({
     super.key,
@@ -16,20 +17,28 @@ class StyledElevatedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDisabled = onPressed == null || isLoading;
+
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: isLoading ? null : onPressed,
+        onPressed: isDisabled ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.teal,
-          // Color from example
+          backgroundColor: isDisabled
+              ? AppColors.enabledBorderColor.withValues(alpha: 0.6)
+              : AppColors.primaryTealDark,
           foregroundColor: Colors.white,
-          // Color from example
           padding: const EdgeInsets.symmetric(vertical: 15.0),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10.0),
           ),
-          textStyle: const TextStyle(fontSize: 16), // Text style from example
+          elevation: isDisabled ? 0 : 2,
+          textStyle: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+          splashFactory:
+              isDisabled ? NoSplash.splashFactory : InkRipple.splashFactory,
         ),
         child: isLoading
             ? const SizedBox(
@@ -41,10 +50,8 @@ class StyledElevatedButton extends StatelessWidget {
                 ),
               )
             : Row(
-                // Use Row for optional icon
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
-                // Prevent Row from stretching unnecessarily
                 children: [
                   if (icon != null) ...[
                     Icon(icon, size: 18),

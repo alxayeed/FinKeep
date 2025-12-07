@@ -1,21 +1,19 @@
 import 'package:equatable/equatable.dart';
-// Import the LendingModel - create this file if it doesn't exist yet
-// in lib/features/lendings/data/models/lending_model.dart
-// For now, we just need the import for the toModel signature.
-import 'package:spendly/features/lendings/data/models/lending_model.dart';
 
-enum LendingType {
-  given,
-  taken,
-}
+import 'lending/lending_entity.dart';
 
-enum LendingStatus {
-  due,
-  paid,
-  dismissed,
-}
+// enum LendingType {
+//   given,
+//   taken,
+// }
+//
+// enum LendingStatus {
+//   due,
+//   paid,
+//   dismissed,
+// }
 
-class LendingEntity extends Equatable {
+class LendEntity extends Equatable {
   final String id;
   final LendingType type;
   final String personName;
@@ -26,7 +24,7 @@ class LendingEntity extends Equatable {
   final LendingStatus status;
   final String userId;
 
-  const LendingEntity({
+  const LendEntity({
     required this.id,
     required this.type,
     required this.personName,
@@ -51,53 +49,53 @@ class LendingEntity extends Equatable {
         userId,
       ];
 
-  // Note: Usually Repositories convert Model -> Entity.
-  // This method might be more useful in the Model (fromEntity)
-  // or before saving (converting Entity -> Model in Repository/DataSource).
-  // Keeping consistent with your ExpenseEntity pattern for now.
-  LendingModel toModel() {
-    return LendingModel(
-      id: id,
-      type: type,
-      personName: personName,
-      amount: amount,
-      description: description,
-      createdDate: createdDate,
-      dueDate: dueDate,
-      status: status,
-      userId: userId,
-    );
-  }
-
-  LendingEntity copyWith({
-    String? id,
-    LendingType? type,
-    String? personName,
-    double? amount,
-    // Use Object() trick for explicit null assignment if needed, else standard null handling
-    String? description,
-    DateTime? createdDate,
-    DateTime? dueDate,
-    LendingStatus? status,
-    String? userId,
-  }) {
-    return LendingEntity(
-      id: id ?? this.id,
-      type: type ?? this.type,
-      personName: personName ?? this.personName,
-      amount: amount ?? this.amount,
-      description: description ?? this.description,
-      createdDate: createdDate ?? this.createdDate,
-      dueDate: dueDate ?? this.dueDate,
-      status: status ?? this.status,
-      userId: userId ?? this.userId,
-    );
-    // For explicit null assignment for nullable fields (more complex):
-    // Use a helper like `ValueGetter<T?>` or a special sentinel object.
-    // Example:
-    // description: (description is ValueGetter<String?>) ? description() : this.description,
-    // dueDate: (dueDate is ValueGetter<DateTime?>) ? dueDate() : this.dueDate,
-    // Where you'd call copyWith(description: () => null) to explicitly set null.
-    // Sticking to simpler version above for now.
-  }
+// Note: Usually Repositories convert Model -> Entity.
+// This method might be more useful in the Model (fromEntity)
+// or before saving (converting Entity -> Model in Repository/DataSource).
+// Keeping consistent with your ExpenseEntity pattern for now.
+// LendingModel toModel() {
+//   return LendingModel(
+//     id: id,
+//     type: type,
+//     personName: personName,
+//     amount: amount,
+//     description: description,
+//     createdDate: createdDate,
+//     dueDate: dueDate,
+//     status: status,
+//     userId: userId,
+//   );
+// }
+//
+// LendEntity copyWith({
+//   String? id,
+//   LendingType? type,
+//   String? personName,
+//   double? amount,
+//   // Use Object() trick for explicit null assignment if needed, else standard null handling
+//   String? description,
+//   DateTime? createdDate,
+//   DateTime? dueDate,
+//   LendingStatus? status,
+//   String? userId,
+// }) {
+//   return LendEntity(
+//     id: id ?? this.id,
+//     type: type ?? this.type,
+//     personName: personName ?? this.personName,
+//     amount: amount ?? this.amount,
+//     description: description ?? this.description,
+//     createdDate: createdDate ?? this.createdDate,
+//     dueDate: dueDate ?? this.dueDate,
+//     status: status ?? this.status,
+//     userId: userId ?? this.userId,
+//   );
+//   // For explicit null assignment for nullable fields (more complex):
+//   // Use a helper like `ValueGetter<T?>` or a special sentinel object.
+//   // Example:
+//   // description: (description is ValueGetter<String?>) ? description() : this.description,
+//   // dueDate: (dueDate is ValueGetter<DateTime?>) ? dueDate() : this.dueDate,
+//   // Where you'd call copyWith(description: () => null) to explicitly set null.
+//   // Sticking to simpler version above for now.
+// }
 }
