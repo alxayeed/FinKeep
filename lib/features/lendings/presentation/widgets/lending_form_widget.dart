@@ -153,14 +153,17 @@ class LendingFormWidget extends StatelessWidget {
                 onPressed: () {
                   if (formKey?.currentState?.validate() ?? true) {
                     final personName = personNameController.text.trim();
+                    final personContact = personContactController.text.trim();
 
                     final lending = LendingEntity(
                       id: '',
+                      personId: "",
                       userId: "dummy_user",
                       person: LendingPersonEntity(
                         id: '', // Will be created if new
                         userId: "dummy_user",
                         name: personName,
+                        contactNumber: personContact,
                       ),
                       amount: double.tryParse(amountController.text) ?? 0,
                       description: descriptionController.text.trim(),

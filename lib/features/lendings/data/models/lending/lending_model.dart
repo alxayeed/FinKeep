@@ -15,7 +15,8 @@ abstract class LendingModel with _$LendingModel {
   const factory LendingModel({
     required String id,
     required LendingType type,
-    required LendingPersonModel person,
+    required String personId,
+    @JsonKey(includeToJson: false) required LendingPersonModel person,
     required double amount,
     String? description,
     @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
@@ -35,6 +36,7 @@ abstract class LendingModel with _$LendingModel {
     return LendingModel(
       id: entity.id,
       type: entity.type,
+      personId: entity.personId,
       person: LendingPersonModel.fromEntity(entity.person),
       amount: entity.amount,
       description: entity.description,
@@ -53,6 +55,7 @@ abstract class LendingModel with _$LendingModel {
     return LendingEntity(
       id: id,
       type: type,
+      personId: personId,
       person: person.toEntity(),
       amount: amount,
       description: description,

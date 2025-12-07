@@ -16,6 +16,8 @@ T _$identity<T>(T value) => value;
 mixin _$LendingModel {
   String get id;
   LendingType get type;
+  String get personId;
+  @JsonKey(includeToJson: false)
   LendingPersonModel get person;
   double get amount;
   String? get description;
@@ -45,6 +47,8 @@ mixin _$LendingModel {
             other is LendingModel &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.type, type) || other.type == type) &&
+            (identical(other.personId, personId) ||
+                other.personId == personId) &&
             (identical(other.person, person) || other.person == person) &&
             (identical(other.amount, amount) || other.amount == amount) &&
             (identical(other.description, description) ||
@@ -64,6 +68,7 @@ mixin _$LendingModel {
       runtimeType,
       id,
       type,
+      personId,
       person,
       amount,
       description,
@@ -75,7 +80,7 @@ mixin _$LendingModel {
 
   @override
   String toString() {
-    return 'LendingModel(id: $id, type: $type, person: $person, amount: $amount, description: $description, createdDate: $createdDate, dueDate: $dueDate, status: $status, userId: $userId, repayments: $repayments)';
+    return 'LendingModel(id: $id, type: $type, personId: $personId, person: $person, amount: $amount, description: $description, createdDate: $createdDate, dueDate: $dueDate, status: $status, userId: $userId, repayments: $repayments)';
   }
 }
 
@@ -88,7 +93,8 @@ abstract mixin class $LendingModelCopyWith<$Res> {
   $Res call(
       {String id,
       LendingType type,
-      LendingPersonModel person,
+      String personId,
+      @JsonKey(includeToJson: false) LendingPersonModel person,
       double amount,
       String? description,
       @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
@@ -116,6 +122,7 @@ class _$LendingModelCopyWithImpl<$Res> implements $LendingModelCopyWith<$Res> {
   $Res call({
     Object? id = null,
     Object? type = null,
+    Object? personId = null,
     Object? person = null,
     Object? amount = null,
     Object? description = freezed,
@@ -134,6 +141,10 @@ class _$LendingModelCopyWithImpl<$Res> implements $LendingModelCopyWith<$Res> {
           ? _self.type
           : type // ignore: cast_nullable_to_non_nullable
               as LendingType,
+      personId: null == personId
+          ? _self.personId
+          : personId // ignore: cast_nullable_to_non_nullable
+              as String,
       person: null == person
           ? _self.person
           : person // ignore: cast_nullable_to_non_nullable
@@ -276,7 +287,8 @@ extension LendingModelPatterns on LendingModel {
     TResult Function(
             String id,
             LendingType type,
-            LendingPersonModel person,
+            String personId,
+            @JsonKey(includeToJson: false) LendingPersonModel person,
             double amount,
             String? description,
             @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
@@ -296,6 +308,7 @@ extension LendingModelPatterns on LendingModel {
         return $default(
             _that.id,
             _that.type,
+            _that.personId,
             _that.person,
             _that.amount,
             _that.description,
@@ -327,7 +340,8 @@ extension LendingModelPatterns on LendingModel {
     TResult Function(
             String id,
             LendingType type,
-            LendingPersonModel person,
+            String personId,
+            @JsonKey(includeToJson: false) LendingPersonModel person,
             double amount,
             String? description,
             @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
@@ -346,6 +360,7 @@ extension LendingModelPatterns on LendingModel {
         return $default(
             _that.id,
             _that.type,
+            _that.personId,
             _that.person,
             _that.amount,
             _that.description,
@@ -376,7 +391,8 @@ extension LendingModelPatterns on LendingModel {
     TResult? Function(
             String id,
             LendingType type,
-            LendingPersonModel person,
+            String personId,
+            @JsonKey(includeToJson: false) LendingPersonModel person,
             double amount,
             String? description,
             @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
@@ -395,6 +411,7 @@ extension LendingModelPatterns on LendingModel {
         return $default(
             _that.id,
             _that.type,
+            _that.personId,
             _that.person,
             _that.amount,
             _that.description,
@@ -415,7 +432,8 @@ class _LendingModel extends LendingModel {
   const _LendingModel(
       {required this.id,
       required this.type,
-      required this.person,
+      required this.personId,
+      @JsonKey(includeToJson: false) required this.person,
       required this.amount,
       this.description,
       @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
@@ -435,6 +453,9 @@ class _LendingModel extends LendingModel {
   @override
   final LendingType type;
   @override
+  final String personId;
+  @override
+  @JsonKey(includeToJson: false)
   final LendingPersonModel person;
   @override
   final double amount;
@@ -482,6 +503,8 @@ class _LendingModel extends LendingModel {
             other is _LendingModel &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.type, type) || other.type == type) &&
+            (identical(other.personId, personId) ||
+                other.personId == personId) &&
             (identical(other.person, person) || other.person == person) &&
             (identical(other.amount, amount) || other.amount == amount) &&
             (identical(other.description, description) ||
@@ -501,6 +524,7 @@ class _LendingModel extends LendingModel {
       runtimeType,
       id,
       type,
+      personId,
       person,
       amount,
       description,
@@ -512,7 +536,7 @@ class _LendingModel extends LendingModel {
 
   @override
   String toString() {
-    return 'LendingModel(id: $id, type: $type, person: $person, amount: $amount, description: $description, createdDate: $createdDate, dueDate: $dueDate, status: $status, userId: $userId, repayments: $repayments)';
+    return 'LendingModel(id: $id, type: $type, personId: $personId, person: $person, amount: $amount, description: $description, createdDate: $createdDate, dueDate: $dueDate, status: $status, userId: $userId, repayments: $repayments)';
   }
 }
 
@@ -527,7 +551,8 @@ abstract mixin class _$LendingModelCopyWith<$Res>
   $Res call(
       {String id,
       LendingType type,
-      LendingPersonModel person,
+      String personId,
+      @JsonKey(includeToJson: false) LendingPersonModel person,
       double amount,
       String? description,
       @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
@@ -557,6 +582,7 @@ class __$LendingModelCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? type = null,
+    Object? personId = null,
     Object? person = null,
     Object? amount = null,
     Object? description = freezed,
@@ -575,6 +601,10 @@ class __$LendingModelCopyWithImpl<$Res>
           ? _self.type
           : type // ignore: cast_nullable_to_non_nullable
               as LendingType,
+      personId: null == personId
+          ? _self.personId
+          : personId // ignore: cast_nullable_to_non_nullable
+              as String,
       person: null == person
           ? _self.person
           : person // ignore: cast_nullable_to_non_nullable

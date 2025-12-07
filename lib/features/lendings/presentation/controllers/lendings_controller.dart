@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:spendly/core/routes/app_routes.dart';
 import 'package:spendly/features/lendings/domain/usecases/repayment/get_repayments_for_lending_usecase.dart';
 
 import '../../domain/entity/lending/lending_entity.dart';
@@ -65,6 +66,7 @@ class LendingsController extends GetxController {
     super.onInit();
     _setupFilterListeners();
     fetchLendings();
+    fetchUserPersons();
   }
 
   void _setupFilterListeners() {
@@ -140,7 +142,7 @@ class LendingsController extends GetxController {
         errorMessage.value = failure.message;
       },
       (_) async {
-        await fetchLendings(showLoading: false);
+        await fetchLendings(showLoading: true);
 
         Get.snackbar(
           'Success',
@@ -149,6 +151,7 @@ class LendingsController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
+        Get.toNamed(AppRoutes.lendingList);
       },
     );
 
@@ -178,7 +181,7 @@ class LendingsController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
-        await fetchLendings(showLoading: false);
+        await fetchLendings(showLoading: true);
         success = true;
       },
     );
@@ -209,8 +212,9 @@ class LendingsController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
-        await fetchLendings(showLoading: false);
+        await fetchLendings(showLoading: true);
         success = true;
+        Get.toNamed(AppRoutes.lendingList);
       },
     );
 

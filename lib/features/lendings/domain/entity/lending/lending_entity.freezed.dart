@@ -16,6 +16,7 @@ T _$identity<T>(T value) => value;
 mixin _$LendingEntity {
   String get id;
   LendingType get type;
+  String get personId;
   LendingPersonEntity get person;
   double get amount;
   String? get description;
@@ -40,6 +41,8 @@ mixin _$LendingEntity {
             other is LendingEntity &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.type, type) || other.type == type) &&
+            (identical(other.personId, personId) ||
+                other.personId == personId) &&
             (identical(other.person, person) || other.person == person) &&
             (identical(other.amount, amount) || other.amount == amount) &&
             (identical(other.description, description) ||
@@ -58,6 +61,7 @@ mixin _$LendingEntity {
       runtimeType,
       id,
       type,
+      personId,
       person,
       amount,
       description,
@@ -69,7 +73,7 @@ mixin _$LendingEntity {
 
   @override
   String toString() {
-    return 'LendingEntity(id: $id, type: $type, person: $person, amount: $amount, description: $description, createdDate: $createdDate, dueDate: $dueDate, status: $status, userId: $userId, repayments: $repayments)';
+    return 'LendingEntity(id: $id, type: $type, personId: $personId, person: $person, amount: $amount, description: $description, createdDate: $createdDate, dueDate: $dueDate, status: $status, userId: $userId, repayments: $repayments)';
   }
 }
 
@@ -82,6 +86,7 @@ abstract mixin class $LendingEntityCopyWith<$Res> {
   $Res call(
       {String id,
       LendingType type,
+      String personId,
       LendingPersonEntity person,
       double amount,
       String? description,
@@ -109,6 +114,7 @@ class _$LendingEntityCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? type = null,
+    Object? personId = null,
     Object? person = null,
     Object? amount = null,
     Object? description = freezed,
@@ -127,6 +133,10 @@ class _$LendingEntityCopyWithImpl<$Res>
           ? _self.type
           : type // ignore: cast_nullable_to_non_nullable
               as LendingType,
+      personId: null == personId
+          ? _self.personId
+          : personId // ignore: cast_nullable_to_non_nullable
+              as String,
       person: null == person
           ? _self.person
           : person // ignore: cast_nullable_to_non_nullable
@@ -269,6 +279,7 @@ extension LendingEntityPatterns on LendingEntity {
     TResult Function(
             String id,
             LendingType type,
+            String personId,
             LendingPersonEntity person,
             double amount,
             String? description,
@@ -286,6 +297,7 @@ extension LendingEntityPatterns on LendingEntity {
         return $default(
             _that.id,
             _that.type,
+            _that.personId,
             _that.person,
             _that.amount,
             _that.description,
@@ -317,6 +329,7 @@ extension LendingEntityPatterns on LendingEntity {
     TResult Function(
             String id,
             LendingType type,
+            String personId,
             LendingPersonEntity person,
             double amount,
             String? description,
@@ -333,6 +346,7 @@ extension LendingEntityPatterns on LendingEntity {
         return $default(
             _that.id,
             _that.type,
+            _that.personId,
             _that.person,
             _that.amount,
             _that.description,
@@ -363,6 +377,7 @@ extension LendingEntityPatterns on LendingEntity {
     TResult? Function(
             String id,
             LendingType type,
+            String personId,
             LendingPersonEntity person,
             double amount,
             String? description,
@@ -379,6 +394,7 @@ extension LendingEntityPatterns on LendingEntity {
         return $default(
             _that.id,
             _that.type,
+            _that.personId,
             _that.person,
             _that.amount,
             _that.description,
@@ -399,6 +415,7 @@ class _LendingEntity implements LendingEntity {
   const _LendingEntity(
       {required this.id,
       required this.type,
+      required this.personId,
       required this.person,
       required this.amount,
       this.description,
@@ -413,6 +430,8 @@ class _LendingEntity implements LendingEntity {
   final String id;
   @override
   final LendingType type;
+  @override
+  final String personId;
   @override
   final LendingPersonEntity person;
   @override
@@ -452,6 +471,8 @@ class _LendingEntity implements LendingEntity {
             other is _LendingEntity &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.type, type) || other.type == type) &&
+            (identical(other.personId, personId) ||
+                other.personId == personId) &&
             (identical(other.person, person) || other.person == person) &&
             (identical(other.amount, amount) || other.amount == amount) &&
             (identical(other.description, description) ||
@@ -470,6 +491,7 @@ class _LendingEntity implements LendingEntity {
       runtimeType,
       id,
       type,
+      personId,
       person,
       amount,
       description,
@@ -481,7 +503,7 @@ class _LendingEntity implements LendingEntity {
 
   @override
   String toString() {
-    return 'LendingEntity(id: $id, type: $type, person: $person, amount: $amount, description: $description, createdDate: $createdDate, dueDate: $dueDate, status: $status, userId: $userId, repayments: $repayments)';
+    return 'LendingEntity(id: $id, type: $type, personId: $personId, person: $person, amount: $amount, description: $description, createdDate: $createdDate, dueDate: $dueDate, status: $status, userId: $userId, repayments: $repayments)';
   }
 }
 
@@ -496,6 +518,7 @@ abstract mixin class _$LendingEntityCopyWith<$Res>
   $Res call(
       {String id,
       LendingType type,
+      String personId,
       LendingPersonEntity person,
       double amount,
       String? description,
@@ -524,6 +547,7 @@ class __$LendingEntityCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? type = null,
+    Object? personId = null,
     Object? person = null,
     Object? amount = null,
     Object? description = freezed,
@@ -542,6 +566,10 @@ class __$LendingEntityCopyWithImpl<$Res>
           ? _self.type
           : type // ignore: cast_nullable_to_non_nullable
               as LendingType,
+      personId: null == personId
+          ? _self.personId
+          : personId // ignore: cast_nullable_to_non_nullable
+              as String,
       person: null == person
           ? _self.person
           : person // ignore: cast_nullable_to_non_nullable

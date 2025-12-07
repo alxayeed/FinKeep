@@ -14,6 +14,7 @@ abstract class LendingEntity with _$LendingEntity {
   const factory LendingEntity({
     required String id,
     required LendingType type,
+    required String personId,
     required LendingPersonEntity person,
     required double amount,
     String? description,

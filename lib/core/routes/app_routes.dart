@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:spendly/features/expense/presentation/screens/screens.dart';
+import 'package:spendly/features/lendings/presentation/screens/lending_details_screen.dart';
 import 'package:spendly/features/lendings/presentation/screens/lending_list_screen.dart';
 import 'package:spendly/features/lendings/presentation/screens/update_lending_screen.dart';
 
@@ -19,6 +20,7 @@ class AppRoutes {
 
   // Lending Routes
   static const String lendingList = '/lendingList';
+  static const String lendingDetails = '/lendingDetails';
   static const String addLending = '/addLending';
   static const String updateLending = '/updateLending';
 
@@ -44,6 +46,14 @@ class AppRoutes {
       transition: _defaultTransition,
       transitionDuration: _transitionDuration,
     ),
+
+    GetPage(
+      name: expenseDetails,
+      page: () => ExpenseDetailsScreen(expense: Get.arguments),
+      transition: _defaultTransition,
+      transitionDuration: _transitionDuration,
+    ),
+    // Lending
     GetPage(
       name: lendingList,
       page: () => const LendingListScreen(),
@@ -51,14 +61,14 @@ class AppRoutes {
       transitionDuration: _transitionDuration,
     ),
     GetPage(
-      name: expenseDetails,
-      page: () => ExpenseDetailsScreen(expense: Get.arguments),
+      name: addLending,
+      page: () => const AddLendingScreen(),
       transition: _defaultTransition,
       transitionDuration: _transitionDuration,
     ),
     GetPage(
-      name: addLending,
-      page: () => const AddLendingScreen(),
+      name: lendingDetails,
+      page: () => LendingDetailsScreen(lending: Get.arguments),
       transition: _defaultTransition,
       transitionDuration: _transitionDuration,
     ),

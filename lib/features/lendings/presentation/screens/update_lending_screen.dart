@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
+import 'package:spendly/core/common/widgets/widgets.dart';
 import 'package:spendly/core/styles/app_colors.dart';
 
 import '../../domain/entity/lending/lending_entity.dart';
@@ -20,188 +20,205 @@ class _UpdateLendingScreenState extends State<UpdateLendingScreen> {
   final _formKey = GlobalKey<FormState>();
   final LendingsController controller = Get.find<LendingsController>();
 
-  final TextEditingController _amountController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
-  LendingType? _selectedType;
-  LendingStatus? _selectedStatus;
-  LendingPersonEntity? _selectedPerson;
-  DateTime? _dueDate;
+  late TextEditingController personNameController;
+  late TextEditingController personContactController;
+  late TextEditingController amountController;
+  late TextEditingController descriptionController;
 
   @override
   void initState() {
     super.initState();
-    controller.fetchUserPersons(); // load persons
 
     final l = widget.lending;
-    _amountController.text = l.amount.toString();
-    _descriptionController.text = l.description ?? '';
-    _selectedType = l.type;
-    _selectedStatus = l.status;
-    _selectedPerson =
-        controller.personsList.firstWhereOrNull((p) => p.id == l.person.id);
-    _dueDate = l.dueDate;
+
+    personNameController = TextEditingController(text: l.person.name);
+    personContactController =
+        TextEditingController(text: l.person.contactNumber);
+    amountController = TextEditingController(text: l.amount.toString());
+    descriptionController = TextEditingController(text: l.description ?? '');
+
+    controller.selectedTypeFilter.value = l.type;
+    controller.selectedStatusFilter.value = l.status;
+    controller.selectedMonthFilter.value = l.dueDate;
   }
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('dd MMMM, yyyy');
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Update Lending'),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Obx(() {
-          return controller.personsList.isEmpty
-              ? const Center(child: CircularProgressIndicator())
-              : Form(
-                  key: _formKey,
-                  child: ListView(
-                    children: [
-                      // Person
-                      DropdownButtonFormField<LendingPersonEntity>(
-                        initialValue: _selectedPerson,
-                        items: controller.personsList
-                            .map((p) => DropdownMenuItem(
-                                  value: p,
-                                  child: Text(p.name),
-                                ))
-                            .toList(),
-                        decoration: const InputDecoration(
-                          labelText: 'Person',
-                          border: OutlineInputBorder(),
-                        ),
-                        onChanged: (val) =>
-                            setState(() => _selectedPerson = val),
-                        validator: (val) =>
-                            val == null ? 'Please select a person' : null,
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Amount
-                      TextFormField(
-                        controller: _amountController,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          labelText: 'Amount',
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (val) {
-                          if (val == null || val.isEmpty) return 'Enter amount';
-                          if (double.tryParse(val) == null)
-                            return 'Invalid number';
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Type
-                      DropdownButtonFormField<LendingType>(
-                        initialValue: _selectedType,
-                        items: LendingType.values
-                            .map((t) => DropdownMenuItem(
-                                  value: t,
-                                  child: Text(t.name.capitalizeFirst ?? t.name),
-                                ))
-                            .toList(),
-                        decoration: const InputDecoration(
-                          labelText: 'Type',
-                          border: OutlineInputBorder(),
-                        ),
-                        onChanged: (val) => setState(() => _selectedType = val),
-                        validator: (val) => val == null ? 'Select type' : null,
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Status
-                      DropdownButtonFormField<LendingStatus>(
-                        initialValue: _selectedStatus,
-                        items: LendingStatus.values
-                            .map((s) => DropdownMenuItem(
-                                  value: s,
-                                  child: Text(s.name.capitalizeFirst ?? s.name),
-                                ))
-                            .toList(),
-                        decoration: const InputDecoration(
-                          labelText: 'Status',
-                          border: OutlineInputBorder(),
-                        ),
-                        onChanged: (val) =>
-                            setState(() => _selectedStatus = val),
-                        validator: (val) =>
-                            val == null ? 'Select status' : null,
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Due Date
-                      TextFormField(
-                        readOnly: true,
-                        decoration: InputDecoration(
-                          labelText: 'Due Date',
-                          border: const OutlineInputBorder(),
-                          suffixIcon: Icon(Icons.calendar_today,
-                              color: AppColors.primaryTeal),
-                        ),
-                        controller: TextEditingController(
-                            text: _dueDate != null
-                                ? dateFormat.format(_dueDate!)
-                                : ''),
-                        onTap: () async {
-                          final picked = await showDatePicker(
-                            context: context,
-                            initialDate: _dueDate ?? DateTime.now(),
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime(2100),
-                          );
-                          if (picked != null) setState(() => _dueDate = picked);
-                        },
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Description
-                      TextFormField(
-                        controller: _descriptionController,
-                        maxLines: 3,
-                        decoration: const InputDecoration(
-                          labelText: 'Description',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Submit
-                      ElevatedButton(
-                        onPressed: _submitForm,
-                        child: const Text('Update Lending'),
-                      ),
-                    ],
+          return Container(
+            padding: const EdgeInsets.all(20.0),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(15.0),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 10.0,
+                  spreadRadius: 1.0,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  /// Person Name
+                  StyledTextFormField(
+                    controller: personNameController,
+                    labelText: 'Person Name',
+                    prefixIcon: Icons.person_outline,
+                    validator: (value) => (value == null || value.isEmpty)
+                        ? 'Please enter a name'
+                        : null,
                   ),
-                );
+
+                  const SizedBox(height: 15),
+
+                  /// Contact
+                  StyledTextFormField(
+                    controller: personContactController,
+                    keyboardType: TextInputType.phone,
+                    labelText: 'Contact No',
+                    prefixIcon: Icons.phone,
+                    validator: (value) => (value == null || value.isEmpty)
+                        ? 'Please enter a phone no'
+                        : null,
+                  ),
+
+                  const SizedBox(height: 15),
+
+                  /// Amount
+                  StyledTextFormField(
+                    controller: amountController,
+                    labelText: 'Amount',
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    prefixIcon: Icons.currency_lira,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter an amount';
+                      }
+                      if (double.tryParse(value) == null ||
+                          double.parse(value) <= 0) {
+                        return 'Please enter a valid positive amount';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 15),
+
+                  /// Type
+                  StyledDropdownFormField<LendingType>(
+                    value: controller.selectedTypeFilter.value,
+                    labelText: 'Type',
+                    items: LendingType.values
+                        .map((type) => DropdownMenuItem(
+                              value: type,
+                              child:
+                                  Text(type.name.capitalizeFirst ?? type.name),
+                            ))
+                        .toList(),
+                    onChanged: (type) =>
+                        controller.selectedTypeFilter.value = type,
+                    prefixIcon: Icons.swap_horiz,
+                    validator: (value) =>
+                        value == null ? 'Please select type' : null,
+                  ),
+
+                  const SizedBox(height: 15),
+
+                  /// Status
+                  StyledDropdownFormField<LendingStatus>(
+                    value: controller.selectedStatusFilter.value,
+                    labelText: 'Status',
+                    items: LendingStatus.values
+                        .map((status) => DropdownMenuItem(
+                              value: status,
+                              child: Text(
+                                  status.name.capitalizeFirst ?? status.name),
+                            ))
+                        .toList(),
+                    onChanged: (status) =>
+                        controller.selectedStatusFilter.value = status,
+                    prefixIcon: Icons.check_circle_outline,
+                    validator: (value) =>
+                        value == null ? 'Please select status' : null,
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  /// Due date
+                  StyledDatePickerButton(
+                    labelText: 'Due Date',
+                    hintText: 'Select Due Date (Optional)',
+                    selectedDate: controller.selectedMonthFilter.value,
+                    onDateSelected: (date) =>
+                        controller.selectedMonthFilter.value = date,
+                    isOptional: true,
+                    firstDate:
+                        DateTime.now().subtract(const Duration(days: 365)),
+                    lastDate: DateTime(2101),
+                  ),
+
+                  const SizedBox(height: 15),
+
+                  /// Description
+                  StyledTextFormField(
+                    controller: descriptionController,
+                    labelText: 'Description (Optional)',
+                    maxLines: 3,
+                    keyboardType: TextInputType.multiline,
+                    prefixIcon: Icons.notes_rounded,
+                  ),
+
+                  const SizedBox(height: 25),
+
+                  /// Submit button
+                  StyledElevatedButton(
+                    text: 'Update',
+                    isLoading: controller.isLoading.value,
+                    icon: Icons.update_rounded,
+                    onPressed: () {
+                      if (!_formKey.currentState!.validate()) return;
+
+                      final updated = LendingEntity(
+                        id: widget.lending.id,
+                        userId: widget.lending.userId,
+                        personId: widget.lending.person.id,
+                        person: LendingPersonEntity(
+                          id: widget.lending.person.id,
+                          userId: widget.lending.userId,
+                          name: personNameController.text.trim(),
+                          contactNumber: personContactController.text.trim(),
+                        ),
+                        amount: double.parse(amountController.text),
+                        description: descriptionController.text.trim(),
+                        type: controller.selectedTypeFilter.value!,
+                        status: controller.selectedStatusFilter.value!,
+                        dueDate: controller.selectedMonthFilter.value,
+                        createdDate: widget.lending.createdDate,
+                        repayments: widget.lending.repayments,
+                      );
+
+                      controller.updateLending(updated);
+                      Get.back();
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
         }),
       ),
     );
-  }
-
-  void _submitForm() {
-    if (!_formKey.currentState!.validate()) return;
-    if (_selectedPerson == null ||
-        _selectedType == null ||
-        _selectedStatus == null) return;
-
-    final updated = LendingEntity(
-      id: widget.lending.id,
-      person: _selectedPerson!,
-      amount: double.parse(_amountController.text),
-      type: _selectedType!,
-      status: _selectedStatus!,
-      description: _descriptionController.text,
-      createdDate: widget.lending.createdDate,
-      dueDate: _dueDate,
-      userId: widget.lending.userId,
-      repayments: widget.lending.repayments,
-    );
-
-    Get.back(result: updated);
   }
 }
