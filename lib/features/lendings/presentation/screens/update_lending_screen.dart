@@ -4,7 +4,6 @@ import 'package:spendly/core/common/widgets/widgets.dart';
 import 'package:spendly/core/styles/app_colors.dart';
 
 import '../../domain/entity/lending/lending_entity.dart';
-import '../../domain/entity/lending_person_entity.dart';
 import '../controllers/lendings_controller.dart';
 
 class UpdateLendingScreen extends StatefulWidget {
@@ -73,24 +72,20 @@ class _UpdateLendingScreenState extends State<UpdateLendingScreen> {
                   /// Person Name
                   StyledTextFormField(
                     controller: personNameController,
+                    readOnly: true,
                     labelText: 'Person Name',
                     prefixIcon: Icons.person_outline,
-                    validator: (value) => (value == null || value.isEmpty)
-                        ? 'Please enter a name'
-                        : null,
                   ),
 
                   const SizedBox(height: 15),
 
                   /// Contact
                   StyledTextFormField(
+                    readOnly: true,
                     controller: personContactController,
                     keyboardType: TextInputType.phone,
                     labelText: 'Contact No',
                     prefixIcon: Icons.phone,
-                    validator: (value) => (value == null || value.isEmpty)
-                        ? 'Please enter a phone no'
-                        : null,
                   ),
 
                   const SizedBox(height: 15),
@@ -177,7 +172,7 @@ class _UpdateLendingScreenState extends State<UpdateLendingScreen> {
                     labelText: 'Description (Optional)',
                     maxLines: 3,
                     keyboardType: TextInputType.multiline,
-                    prefixIcon: Icons.notes_rounded,
+                    // prefixIcon: Icons.notes_rounded,
                   ),
 
                   const SizedBox(height: 25),
@@ -194,12 +189,7 @@ class _UpdateLendingScreenState extends State<UpdateLendingScreen> {
                         id: widget.lending.id,
                         userId: widget.lending.userId,
                         personId: widget.lending.person.id,
-                        person: LendingPersonEntity(
-                          id: widget.lending.person.id,
-                          userId: widget.lending.userId,
-                          name: personNameController.text.trim(),
-                          contactNumber: personContactController.text.trim(),
-                        ),
+                        person: widget.lending.person,
                         amount: double.parse(amountController.text),
                         description: descriptionController.text.trim(),
                         type: controller.selectedTypeFilter.value!,

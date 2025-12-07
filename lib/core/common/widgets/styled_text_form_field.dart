@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:spendly/core/styles/app_colors.dart'; // Import AppColors
+
+import '../../styles/app_colors.dart';
 
 class StyledTextFormField extends StatelessWidget {
   final TextEditingController controller;
@@ -11,6 +12,7 @@ class StyledTextFormField extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   final bool obscureText;
   final IconData? prefixIcon;
+  final bool readOnly;
 
   const StyledTextFormField({
     super.key,
@@ -22,31 +24,46 @@ class StyledTextFormField extends StatelessWidget {
     this.inputFormatters,
     this.obscureText = false,
     this.prefixIcon,
+    this.readOnly = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final defaultBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10.0),
+      borderSide: const BorderSide(color: AppColors.enabledBorderColor),
+    );
+
     return TextFormField(
       controller: controller,
+      readOnly: readOnly,
+      enableInteractiveSelection: !readOnly,
+      showCursor: !readOnly,
       decoration: InputDecoration(
         labelText: labelText,
-        labelStyle: TextStyle(color: AppColors.primaryTealDark),
+        labelStyle: TextStyle(
+          color: readOnly ? AppColors.darkGrey : AppColors.primaryTealDark,
+        ),
         prefixIcon: prefixIcon != null
-            ? Icon(prefixIcon, color: AppColors.iconColor)
+            ? Icon(
+                prefixIcon,
+                color: readOnly ? AppColors.darkGrey : AppColors.iconColor,
+              )
             : null,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide(color: AppColors.borderColor),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide(color: AppColors.enabledBorderColor),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide:
-              const BorderSide(color: AppColors.focusedBorderColor, width: 2.0),
-        ),
+
+        // Same border for all states when readonly
+        border: defaultBorder,
+        enabledBorder: defaultBorder,
+        focusedBorder: readOnly
+            ? defaultBorder
+            : OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: const BorderSide(
+                  color: AppColors.focusedBorderColor,
+                  width: 2.0,
+                ),
+              ),
+
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),
           borderSide: const BorderSide(color: AppColors.error, width: 1.5),
@@ -55,15 +72,18 @@ class StyledTextFormField extends StatelessWidget {
           borderRadius: BorderRadius.circular(10.0),
           borderSide: const BorderSide(color: AppColors.error, width: 2.0),
         ),
+
         filled: true,
-        fillColor: AppColors.subtleBackground,
+        fillColor: readOnly
+            ? AppColors.subtleBackground.withValues(alpha: 0.5)
+            : AppColors.subtleBackground,
       ),
       keyboardType: keyboardType,
       maxLines: maxLines,
       validator: validator,
       inputFormatters: inputFormatters,
       obscureText: obscureText,
-      cursorColor: AppColors.primaryTealDark,
+      cursorColor: readOnly ? Colors.transparent : AppColors.primaryTealDark,
     );
   }
 }

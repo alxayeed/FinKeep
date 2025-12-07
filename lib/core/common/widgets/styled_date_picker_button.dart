@@ -10,6 +10,7 @@ class StyledDatePickerButton extends StatelessWidget {
   final String labelText;
   final String hintText;
   final bool isOptional;
+  final bool readOnly;
 
   const StyledDatePickerButton({
     super.key,
@@ -20,9 +21,12 @@ class StyledDatePickerButton extends StatelessWidget {
     required this.labelText,
     this.hintText = 'Select Date',
     this.isOptional = false,
+    this.readOnly = false,
   });
 
   Future<void> _pickDate(BuildContext context) async {
+    if (readOnly) return;
+
     final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: selectedDate ?? DateTime.now(),
@@ -46,6 +50,7 @@ class StyledDatePickerButton extends StatelessWidget {
         );
       },
     );
+
     if (pickedDate != null) {
       onDateSelected(pickedDate);
     }
@@ -57,25 +62,29 @@ class StyledDatePickerButton extends StatelessWidget {
     final String displayText = selectedDate != null
         ? DateFormat(displayFormat).format(selectedDate!)
         : hintText;
+
     final bool hasValue = selectedDate != null;
 
     return InkWell(
-      onTap: () => _pickDate(context),
+      onTap: readOnly ? null : () => _pickDate(context),
       borderRadius: BorderRadius.circular(10.0),
       child: InputDecorator(
         decoration: InputDecoration(
           labelText: labelText,
           labelStyle: const TextStyle(color: AppColors.primaryTealDark),
-          prefixIcon: const Icon(Icons.calendar_today_outlined,
-              color: AppColors.iconColor),
-          suffixIcon: (isOptional && hasValue)
+          prefixIcon: Icon(
+            Icons.calendar_today_outlined,
+            color: readOnly
+                ? AppColors.darkGrey.withValues(alpha: 0.6)
+                : AppColors.iconColor,
+          ),
+          suffixIcon: (isOptional && hasValue && !readOnly)
               ? IconButton(
                   icon: const Icon(Icons.clear, size: 20),
                   color: AppColors.darkGrey,
-                  tooltip: 'Clear Date',
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
-                  onPressed: () => onDateSelected(null), // Clear the date
+                  onPressed: () => onDateSelected(null),
                 )
               : null,
           border: OutlineInputBorder(
@@ -88,22 +97,28 @@ class StyledDatePickerButton extends StatelessWidget {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
-            borderSide: const BorderSide(
-                color: AppColors.focusedBorderColor, width: 2.0),
+            borderSide: BorderSide(
+              color: readOnly
+                  ? AppColors.enabledBorderColor
+                  : AppColors.focusedBorderColor,
+              width: readOnly ? 1.0 : 2.0,
+            ),
           ),
           filled: true,
-          fillColor: AppColors.subtleBackground,
-          contentPadding:
-              const EdgeInsets.fromLTRB(0, 15, 10, 15), // Adjust padding
+          fillColor: readOnly
+              ? AppColors.subtleBackground.withValues(alpha: 0.7)
+              : AppColors.subtleBackground,
+          contentPadding: const EdgeInsets.fromLTRB(0, 15, 10, 15),
         ),
         child: Padding(
           padding: const EdgeInsetsDirectional.only(start: 12.0),
-          // Align with icon
           child: Text(
             displayText,
             style: TextStyle(
               fontSize: 16,
-              color: hasValue ? AppColors.primaryTealDark : AppColors.hintText,
+              color: readOnly
+                  ? AppColors.darkGrey
+                  : (hasValue ? AppColors.primaryTealDark : AppColors.hintText),
             ),
           ),
         ),
