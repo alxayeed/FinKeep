@@ -1,5 +1,7 @@
-Release 23
-- Repayment history
+Release 24
+- Go router
+- Year start/end button added in report calender
+- some ui navigation issue fixed
 
 
 
