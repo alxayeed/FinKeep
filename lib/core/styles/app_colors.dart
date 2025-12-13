@@ -23,6 +23,7 @@ class AppColors {
   static const Color white = Colors.white;
   static const Color black = Colors.black;
   static const Color grey = Colors.grey;
+  static const Color orange = Colors.deepOrange;
   static const Color lightGrey = Color(0xFFBDBDBD);
   static const Color darkGrey = Color(0xFF616161);
   static const Color hintText = Colors.grey;
@@ -33,6 +34,7 @@ class AppColors {
   static const Color lendingStatusDue = warning;
   static const Color lendingStatusPaid = success;
   static const Color lendingStatusDismissed = grey;
+  static const Color lendingStatusPartial = orange;
 
   static const Map<ExpenseCategory, Color> categoryColors = {
     ExpenseCategory.food: primaryTeal,
@@ -75,8 +77,7 @@ class AppColors {
       case LendingStatus.overdue:
         return lendingStatusDismissed;
       case LendingStatus.partial:
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        return lendingStatusPartial;
     }
   }
 }

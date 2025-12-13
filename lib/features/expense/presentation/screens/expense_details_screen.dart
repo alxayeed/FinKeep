@@ -1,16 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:spendly/core/extensions/date_time_formatter.dart';
+
+import '../../../../core/routes/app_router.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../controllers/expense_controller.dart';
 import 'edit_expense_screen.dart';
 
-class ExpenseDetailsScreen extends StatelessWidget {
+class ExpenseDetailsScreen extends StatefulWidget {
   final ExpenseEntity expense;
-  final ExpenseController controller = Get.find();
 
-  ExpenseDetailsScreen({super.key, required this.expense});
+  const ExpenseDetailsScreen({super.key, required this.expense});
+
+  @override
+  State<ExpenseDetailsScreen> createState() => _ExpenseDetailsScreenState();
+}
+
+class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
+  final ExpenseController controller = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -21,42 +30,65 @@ class ExpenseDetailsScreen extends StatelessWidget {
           IconButton(
             icon: const FaIcon(FontAwesomeIcons.filePen, color: Colors.green),
             onPressed: () {
-              // Navigate to EditExpenseScreen
-              Get.bottomSheet(
-                EditExpenseScreen(expense: expense),
+              showModalBottomSheet(
+                context: context,
                 isScrollControlled: true,
+                builder: (BuildContext context) {
+                  return EditExpenseScreen(expense: widget.expense);
+                },
               );
-              // Get.to(() => EditExpenseScreen(expense: expense));
             },
           ),
           IconButton(
-            icon: const FaIcon(FontAwesomeIcons.trash, color: Colors.red,),
+            icon: const FaIcon(
+              FontAwesomeIcons.trash,
+              color: Colors.red,
+            ),
             onPressed: () async {
-              // Show a confirmation dialog before deleting
-              final confirm = await showDialog(
+              final bool? confirm = await showDialog<bool>(
                 context: context,
                 builder: (ctx) => AlertDialog(
                   title: const Text('Delete Expense'),
-                  content: const Text('Are you sure you want to delete this expense?'),
+                  content: const Text(
+                      'Are you sure you want to delete this expense?'),
                   actions: [
                     TextButton(
-                      onPressed: () => Navigator.pop(ctx, false),
+                      onPressed: () => context.pop(false),
                       child: const Text('Cancel'),
                     ),
                     TextButton(
-                      onPressed: (){
-                        controller.removeExpense(expense.id);
-                    },
+                      onPressed: () => context.pop(true),
                       child: const Text('Delete'),
                     ),
                   ],
                 ),
               );
 
-              // If the user confirmed, delete the expense
-              if (confirm) {
-                await controller.removeExpense(expense.id);
-                Get.back(); // Go back after deletion
+              if (confirm == true) {
+                await controller.removeExpense(
+                  widget.expense.id,
+                  onSuccess: () {
+                    if (!context.mounted) return;
+                    context.pushReplacementNamed(AppRoutes.expenses);
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Expense successfully deleted.'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  },
+                  onError: (e) {
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content:
+                            Text('Failed to delete expense: ${e.toString()}'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  },
+                );
               }
             },
           ),
@@ -67,15 +99,19 @@ class ExpenseDetailsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildDetailText('Amount', expense.amount.toString(), FontAwesomeIcons.bangladeshiTakaSign),
+            _buildDetailText('Amount', widget.expense.amount.toString(),
+                FontAwesomeIcons.bangladeshiTakaSign),
             const Divider(thickness: 1),
-            _buildDetailText('Category', expense.category, Icons.category),
+            _buildDetailText(
+                'Category', widget.expense.category, Icons.category),
             const Divider(thickness: 1),
-            _buildDetailText('Date', expense.date.formatToReadable(), FontAwesomeIcons.calendarDays),
+            _buildDetailText('Date', widget.expense.date.formatToReadable(),
+                FontAwesomeIcons.calendarDays),
             const Divider(thickness: 1),
-            _buildDetailText('Description', expense.description, Icons.description),
+            _buildDetailText(
+                'Description', widget.expense.description, Icons.description),
             const Divider(thickness: 1),
-            _buildDetailText('User ID', expense.userId, Icons.person),
+            _buildDetailText('User ID', widget.expense.userId, Icons.person),
           ],
         ),
       ),
@@ -87,7 +123,7 @@ class ExpenseDetailsScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Row(
         children: [
-          FaIcon(icon, color: Colors.grey[700]), // Icon for the field
+          FaIcon(icon, color: Colors.grey[700]),
           const SizedBox(width: 16.0),
           Expanded(
             child: Column(
@@ -95,7 +131,8 @@ class ExpenseDetailsScreen extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 const SizedBox(height: 4.0),
                 Text(

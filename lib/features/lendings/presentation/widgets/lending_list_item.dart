@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:spendly/core/styles/app_colors.dart';
 
-import '../../../../core/routes/app_routes.dart';
+import '../../../../core/routes/app_router.dart';
 import '../../domain/entity/lending/lending_entity.dart';
 
 class LendingListItem extends StatelessWidget {
@@ -45,8 +45,7 @@ class LendingListItem extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
       child: ListTile(
         onTap: () {
-          Get.toNamed(AppRoutes.lendingDetails, arguments: lending);
-          // Get.toNamed(() => LendingDetailsScreen(lending: lending));
+          context.pushNamed(AppRoutes.lendingDetails, extra: lending);
         },
         leading: CircleAvatar(
           backgroundColor: typeColor.withValues(alpha: 0.5),

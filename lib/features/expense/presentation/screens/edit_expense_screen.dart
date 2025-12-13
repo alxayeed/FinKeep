@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
+
 import '../../../../core/enums/expense_category.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../controllers/expense_controller.dart';
@@ -25,11 +27,13 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
   @override
   void initState() {
     super.initState();
-    amountController = TextEditingController(text: widget.expense.amount.toString());
-    descriptionController = TextEditingController(text: widget.expense.description);
+    amountController =
+        TextEditingController(text: widget.expense.amount.toString());
+    descriptionController =
+        TextEditingController(text: widget.expense.description);
     selectedDate = widget.expense.date;
     selectedCategory = ExpenseCategory.values.firstWhere(
-          (category) => category.displayName == widget.expense.category,
+      (category) => category.displayName == widget.expense.category,
     );
   }
 
@@ -64,14 +68,14 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
               selectedCategory = category;
             });
           },
-          onSubmit: () {
+          onSubmit: () async {
             if (selectedCategory == null) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Please select a category.')),
               );
               return;
             }
-        
+
             final updatedExpense = widget.expense.copyWith(
               amount: double.parse(amountController.text),
               category: selectedCategory!.displayName,
@@ -82,8 +86,32 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
               ),
               description: descriptionController.text,
             );
-            controller.editExpense(updatedExpense);
-            Get.back();
+
+            await controller.editExpense(
+              updatedExpense,
+              onSuccess: () {
+                if (!context.mounted) return;
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Expense updated successfully!'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+
+                context.pop();
+              },
+              onError: (e) {
+                if (!context.mounted) return;
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to update expense: ${e.toString()}'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              },
+            );
           },
           buttonText: 'Update Expense',
         ),

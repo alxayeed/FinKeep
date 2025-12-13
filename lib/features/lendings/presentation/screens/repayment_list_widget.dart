@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart'; // Added for context.pop() in dialogs
 import 'package:intl/intl.dart';
 
 import '../../../../core/common/widgets/styled_date_picker_button.dart';
@@ -11,12 +12,22 @@ import '../../domain/entity/repayment/repayment_entity.dart';
 import '../controllers/lendings_controller.dart';
 import '../widgets/repayment_item_widget.dart';
 
-class RepaymentListWidget extends StatelessWidget {
+class RepaymentListWidget extends StatefulWidget {
   final LendingEntity lending;
+
+  const RepaymentListWidget({super.key, required this.lending});
+
+  @override
+  State<RepaymentListWidget> createState() => _RepaymentListWidgetState();
+}
+
+class _RepaymentListWidgetState extends State<RepaymentListWidget> {
   final LendingsController controller = Get.find<LendingsController>();
 
-  RepaymentListWidget({super.key, required this.lending}) {
-    controller.fetchRepayments(lending.id);
+  @override
+  void initState() {
+    super.initState();
+    controller.fetchRepayments(widget.lending.id);
   }
 
   @override
@@ -29,7 +40,7 @@ class RepaymentListWidget extends StatelessWidget {
         0,
         (sum, r) => sum + r.amount,
       );
-      return lending.amount - paid;
+      return widget.lending.amount - paid;
     }
 
     return Container(
@@ -99,27 +110,30 @@ class RepaymentListWidget extends StatelessWidget {
                       child: const Icon(Icons.delete, color: Colors.white),
                     ),
                     confirmDismiss: (direction) async {
-                      final confirm = await Get.dialog<bool>(
-                        AlertDialog(
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
                           title: const Text('Delete Repayment'),
                           content: const Text(
                               'Are you sure you want to delete this repayment?'),
                           actions: [
                             TextButton(
-                                onPressed: () => Get.back(result: false),
+                                onPressed: () => context.pop(false),
                                 child: const Text('Cancel')),
                             TextButton(
                               style: TextButton.styleFrom(
                                   foregroundColor: AppColors.error),
-                              onPressed: () => Get.back(result: true),
+                              onPressed: () => context.pop(true),
                               child: const Text('Delete'),
                             ),
                           ],
                         ),
                       );
+
                       if (confirm == true) {
                         await controller.deleteRepayment(repayment);
                       }
+
                       return confirm ?? false;
                     },
                     child: RepaymentItemWidget(
@@ -147,128 +161,142 @@ class RepaymentListWidget extends StatelessWidget {
     final notesController = TextEditingController(text: repayment?.notes ?? '');
     final formKey = GlobalKey<FormState>();
 
-    Get.bottomSheet(
-      SingleChildScrollView(
-        padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom + 16),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-          ),
-          child: Form(
-            key: formKey,
-            child: Column(
-              children: [
-                StyledTextFormField(
-                  controller: amountController,
-                  labelText: 'Amount',
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  validator: (val) {
-                    if (val == null || val.isEmpty) return 'Enter amount';
-                    if (double.tryParse(val) == null ||
-                        double.parse(val) <= 0) {
-                      return 'Invalid amount';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                Obx(() {
-                  return StyledDatePickerButton(
-                    labelText: 'Paid Date',
-                    selectedDate: dateController.value,
-                    onDateSelected: (date) => dateController.value = date,
-                  );
-                }),
-                const SizedBox(height: 16),
-                StyledTextFormField(
-                  controller: notesController,
-                  labelText: 'Notes (Optional)',
-                  maxLines: 2,
-                ),
-                const SizedBox(height: 24),
-                StyledElevatedButton(
-                  text: isEdit ? 'Update' : 'Add',
-                  onPressed: () async {
-                    if (formKey.currentState?.validate() ?? false) {
-                      final enteredAmount = double.parse(amountController.text);
-                      final totalPaid = controller.repaymentsList.fold<double>(
-                          0,
-                          (sum, r) =>
-                              sum + (r.id == repayment?.id ? 0 : r.amount));
-                      final dueAmount = lending.amount - totalPaid;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (modalContext) {
+        return SingleChildScrollView(
+          padding: EdgeInsets.only(
+              bottom: MediaQuery.of(modalContext).viewInsets.bottom + 16),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            child: Form(
+              key: formKey,
+              child: Column(
+                children: [
+                  StyledTextFormField(
+                    controller: amountController,
+                    labelText: 'Amount',
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    validator: (val) {
+                      if (val == null || val.isEmpty) return 'Enter amount';
+                      if (double.tryParse(val) == null ||
+                          double.parse(val) <= 0) {
+                        return 'Invalid amount';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  Obx(() {
+                    return StyledDatePickerButton(
+                      labelText: 'Paid Date',
+                      selectedDate: dateController.value,
+                      onDateSelected: (date) => dateController.value = date,
+                    );
+                  }),
+                  const SizedBox(height: 16),
+                  StyledTextFormField(
+                    controller: notesController,
+                    labelText: 'Notes (Optional)',
+                    maxLines: 2,
+                  ),
+                  const SizedBox(height: 24),
+                  StyledElevatedButton(
+                    text: isEdit ? 'Update' : 'Add',
+                    onPressed: () async {
+                      if (formKey.currentState?.validate() ?? false) {
+                        final enteredAmount =
+                            double.parse(amountController.text);
+                        final totalPaid = controller.repaymentsList
+                            .fold<double>(
+                                0,
+                                (sum, r) =>
+                                    sum +
+                                    (r.id == repayment?.id ? 0 : r.amount));
+                        final dueAmount = widget.lending.amount - totalPaid;
 
-                      if (!isEdit && dueAmount <= 0) {
-                        await Get.dialog(
-                          AlertDialog(
-                            title: const Text('No due left'),
-                            content: const Text(
-                                'This lending has already been fully repaid.'),
-                            actions: [
-                              TextButton(
-                                  onPressed: () => Get.back(),
-                                  child: const Text('OK')),
-                            ],
-                          ),
+                        if (!isEdit && dueAmount <= 0) {
+                          await showDialog(
+                            context: modalContext,
+                            builder: (ctx) => AlertDialog(
+                              title: const Text('No due left'),
+                              content: const Text(
+                                  'This lending has already been fully repaid.'),
+                              actions: [
+                                TextButton(
+                                    onPressed: () => modalContext.pop(),
+                                    child: const Text('OK')),
+                              ],
+                            ),
+                          );
+                          if (!mounted) return;
+                          return;
+                        }
+
+                        bool allowProceed = true;
+                        if (!isEdit && enteredAmount > dueAmount) {
+                          allowProceed = await showDialog<bool>(
+                                context: modalContext,
+                                builder: (ctx) => AlertDialog(
+                                  title: const Text('Overpayment Warning'),
+                                  content: Text(
+                                      'The due amount is ${NumberFormat.currency(locale: 'en_IN', symbol: '৳').format(dueAmount)}. '
+                                      'You are about to pay ${NumberFormat.currency(locale: 'en_IN', symbol: '৳').format(enteredAmount)}. '
+                                      'Do you want to proceed?'),
+                                  actions: [
+                                    TextButton(
+                                        onPressed: () =>
+                                            modalContext.pop(false),
+                                        child: const Text('Cancel')),
+                                    TextButton(
+                                        onPressed: () => modalContext.pop(true),
+                                        child: const Text('Proceed')),
+                                  ],
+                                ),
+                              ) ??
+                              false;
+                        }
+
+                        if (!allowProceed) return;
+
+                        if (!mounted) return;
+
+                        final newRepayment = RepaymentEntity(
+                          id: repayment?.id ?? UniqueKey().toString(),
+                          lendingId: widget.lending.id,
+                          userId: "dummy_user",
+                          amount: enteredAmount,
+                          paidDate: dateController.value ?? DateTime.now(),
+                          notes: notesController.text.trim().isEmpty
+                              ? null
+                              : notesController.text.trim(),
                         );
-                        return;
+
+                        if (isEdit) {
+                          await controller.updateRepayment(newRepayment);
+                        } else {
+                          await controller.addRepayment(newRepayment);
+                        }
+
+                        if (!mounted) return;
+
+                        modalContext.pop();
                       }
-
-                      bool allowProceed = true;
-                      if (!isEdit && enteredAmount > dueAmount) {
-                        allowProceed = await Get.dialog<bool>(
-                              AlertDialog(
-                                title: const Text('Overpayment Warning'),
-                                content: Text(
-                                    'The due amount is ${NumberFormat.currency(locale: 'en_IN', symbol: '৳').format(dueAmount)}. '
-                                    'You are about to pay ${NumberFormat.currency(locale: 'en_IN', symbol: '৳').format(enteredAmount)}. '
-                                    'Do you want to proceed?'),
-                                actions: [
-                                  TextButton(
-                                      onPressed: () => Get.back(result: false),
-                                      child: const Text('Cancel')),
-                                  TextButton(
-                                      onPressed: () => Get.back(result: true),
-                                      child: const Text('Proceed')),
-                                ],
-                              ),
-                            ) ??
-                            false;
-                      }
-
-                      if (!allowProceed) return;
-
-                      final newRepayment = RepaymentEntity(
-                        id: repayment?.id ?? UniqueKey().toString(),
-                        lendingId: lending.id,
-                        userId: "dummy_user",
-                        amount: enteredAmount,
-                        paidDate: dateController.value ?? DateTime.now(),
-                        notes: notesController.text.trim().isEmpty
-                            ? null
-                            : notesController.text.trim(),
-                      );
-
-                      if (isEdit) {
-                        await controller.updateRepayment(newRepayment);
-                      } else {
-                        await controller.addRepayment(newRepayment);
-                      }
-
-                      Get.back();
-                    }
-                  },
-                  icon: isEdit ? Icons.edit : Icons.add,
-                ),
-              ],
+                    },
+                    icon: isEdit ? Icons.edit : Icons.add,
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      ),
-      isScrollControlled: true,
+        );
+      },
     );
   }
 }

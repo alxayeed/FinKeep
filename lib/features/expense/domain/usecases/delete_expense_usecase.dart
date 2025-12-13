@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:spendly/core/routes/app_routes.dart';
 
 import '../repositories/expense_repository.dart';
 
@@ -21,8 +20,5 @@ class DeleteExpenseUseCase {
       backgroundColor: Colors.red,
       snackPosition: SnackPosition.TOP,
     );
-
-    Get.toNamed(AppRoutes.expenses);
-
   }
 }

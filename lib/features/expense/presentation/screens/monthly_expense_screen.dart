@@ -5,6 +5,7 @@ import '../controllers/expense_controller.dart';
 import '../widgets/expense_list_widget.dart';
 import '../widgets/month_selector.dart';
 import '../widgets/widgets.dart';
+import 'create_expense_screen.dart';
 
 class MonthlyExpenseScreen extends StatefulWidget {
   const MonthlyExpenseScreen({super.key});
@@ -24,8 +25,18 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
         appBar: const CustomAppBar(
           bottom: CustomTabBar(),
         ),
-        drawer: AppDrawer(),
-        floatingActionButton: const CustomFAB(),
+        // drawer: AppDrawer(),
+        floatingActionButton: CustomFAB(
+          onPressed: () {
+            showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              builder: (BuildContext context) {
+                return const CreateExpenseScreen();
+              },
+            );
+          },
+        ),
         body: Column(
           children: [
             Obx(() => MonthSelector(

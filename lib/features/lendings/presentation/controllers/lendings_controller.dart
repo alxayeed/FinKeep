@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:spendly/core/routes/app_routes.dart';
 import 'package:spendly/features/lendings/domain/usecases/repayment/get_repayments_for_lending_usecase.dart';
 
 import '../../domain/entity/lending/lending_entity.dart';
@@ -59,7 +58,7 @@ class LendingsController extends GetxController {
   final selectedPersonFilter = Rx<String?>(null);
   final selectedMonthFilter = Rx<DateTime?>(null);
 
-  String get _userId => "dummy_user";
+  String get userId => "dummy_user";
 
   @override
   void onInit() {
@@ -105,7 +104,7 @@ class LendingsController extends GetxController {
     errorMessage.value = null;
 
     final params = GetLendingsParams(
-      userId: _userId,
+      userId: userId,
       typeFilter: selectedTypeFilter.value,
       statusFilter: selectedStatusFilter.value,
       personNameFilter: selectedPersonFilter.value,
@@ -129,59 +128,48 @@ class LendingsController extends GetxController {
 
   Future<void> refreshLendings() async => fetchLendings(showLoading: false);
 
-  Future<void> addLending(LendingEntity lending) async {
+  Future<void> addLending(
+    LendingEntity lending, {
+    VoidCallback? onSuccess,
+    Function(dynamic)? onError,
+  }) async {
     isLoading.value = true;
     errorMessage.value = null;
 
-    lending = lending.copyWith(userId: _userId);
+    lending = lending.copyWith(userId: userId);
 
     final result = await addLendingUseCase(lending);
 
-    result.fold(
-      (failure) {
+    await result.fold(
+      (failure) async {
         errorMessage.value = failure.message;
+        onError?.call(failure.message);
       },
       (_) async {
         await fetchLendings(showLoading: true);
-
-        Get.snackbar(
-          'Success',
-          'Lending added successfully',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-        );
-        Get.toNamed(AppRoutes.lendingList);
+        onSuccess?.call();
       },
     );
 
     isLoading.value = false;
   }
 
-  Future<bool> deleteLending(String lendingId) async {
+  Future<bool> deleteLending(
+    String lendingId, {
+    VoidCallback? onSuccess,
+    Function(dynamic)? onError,
+  }) async {
     final result = await deleteLendingUseCase(lendingId);
     bool success = false;
 
     await result.fold(
       (failure) async {
-        Get.snackbar(
-          'Error',
-          failure.message ?? "Unknown Error",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white,
-        );
+        onError?.call(failure.message);
         success = false;
       },
       (_) async {
-        Get.snackbar(
-          'Success',
-          'Lending deleted successfully!',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-        );
         await fetchLendings(showLoading: true);
+        onSuccess?.call();
         success = true;
       },
     );
@@ -189,32 +177,23 @@ class LendingsController extends GetxController {
     return success;
   }
 
-  Future<bool> updateLending(LendingEntity lending) async {
+  Future<bool> updateLending(
+    LendingEntity lending, {
+    VoidCallback? onSuccess,
+    Function(dynamic)? onError,
+  }) async {
     final result = await updateLendingUseCase(lending);
     bool success = false;
 
     await result.fold(
       (failure) async {
-        Get.snackbar(
-          'Error',
-          failure.message ?? "Unknown Error",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white,
-        );
+        onError?.call(failure.message);
         success = false;
       },
       (_) async {
-        Get.snackbar(
-          'Success',
-          'Lending updated successfully!',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-        );
         await fetchLendings(showLoading: true);
+        onSuccess?.call();
         success = true;
-        Get.toNamed(AppRoutes.lendingList);
       },
     );
 
@@ -223,7 +202,7 @@ class LendingsController extends GetxController {
 
   // --- Person Methods ---
   Future<void> fetchUserPersons() async {
-    final result = await getUserPersonsUseCase(_userId);
+    final result = await getUserPersonsUseCase(userId);
     result.fold(
       (failure) {
         errorMessage.value = failure.message;

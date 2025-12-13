@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:ui';
 
 import 'package:get/get.dart';
 import 'package:spendly/features/expense/domain/usecases/get_monthly_expense.dart';
@@ -129,23 +130,58 @@ class ExpenseController extends GetxController {
     }
   }
 
-  Future<void> createExpense(ExpenseEntity expense) async {
+  Future<void> createExpense(
+    ExpenseEntity expense, {
+    VoidCallback? onSuccess,
+    Function(dynamic)? onError,
+  }) async {
     shouldRefresh = true;
-    await addExpense.call(expense);
-    fetchMonthlyExpenses();
+    try {
+      await addExpense.call(expense);
+
+      onSuccess?.call();
+
+      fetchMonthlyExpenses();
+    } catch (e) {
+      onError?.call(e);
+      log('Create Expense Error: $e');
+    }
   }
 
-  Future<void> editExpense(ExpenseEntity expense) async {
+  Future<void> editExpense(
+    ExpenseEntity expense, {
+    VoidCallback? onSuccess,
+    Function(dynamic)? onError,
+  }) async {
     shouldRefresh = true;
-    await updateExpense.call(expense);
-    fetchMonthlyExpenses();
-    Get.back();
+    try {
+      await updateExpense.call(expense);
+
+      onSuccess?.call();
+
+      fetchMonthlyExpenses();
+    } catch (e) {
+      onError?.call(e);
+      log('Edit Expense Error: $e');
+    }
   }
 
-  Future<void> removeExpense(String id) async {
+  Future<void> removeExpense(
+    String id, {
+    VoidCallback? onSuccess,
+    Function(dynamic)? onError,
+  }) async {
     shouldRefresh = true;
-    await deleteExpense.call(id);
-    fetchMonthlyExpenses();
+    try {
+      await deleteExpense.call(id);
+
+      onSuccess?.call();
+
+      fetchMonthlyExpenses();
+    } catch (e) {
+      onError?.call(e);
+      log('Remove Expense Error: $e');
+    }
   }
 
   void filterExpensesByCategory() {

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:spendly/core/common/widgets/widgets.dart';
 import 'package:spendly/core/styles/app_colors.dart';
 
+import '../../../../core/routes/app_router.dart';
 import '../../domain/entity/lending/lending_entity.dart';
 import '../controllers/lendings_controller.dart';
 
@@ -39,6 +41,63 @@ class _UpdateLendingScreenState extends State<UpdateLendingScreen> {
     controller.selectedTypeFilter.value = l.type;
     controller.selectedStatusFilter.value = l.status;
     controller.selectedMonthFilter.value = l.dueDate;
+  }
+
+  @override
+  void dispose() {
+    personNameController.dispose();
+    personContactController.dispose();
+    amountController.dispose();
+    descriptionController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _updateLending(
+      BuildContext context, GlobalKey<FormState> formKey) async {
+    if (!formKey.currentState!.validate()) {
+      return;
+    }
+
+    final updated = LendingEntity(
+      id: widget.lending.id,
+      userId: widget.lending.userId,
+      personId: widget.lending.person.id,
+      person: widget.lending.person,
+      amount: double.parse(amountController.text),
+      description: descriptionController.text.trim(),
+      type: controller.selectedTypeFilter.value!,
+      status: controller.selectedStatusFilter.value!,
+      dueDate: controller.selectedMonthFilter.value,
+      createdDate: widget.lending.createdDate,
+      repayments: widget.lending.repayments,
+    );
+
+    await controller.updateLending(
+      updated,
+      onSuccess: () {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Lending updated successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        context.pop();
+        context.pushReplacementNamed(AppRoutes.lendings);
+      },
+      onError: (e) {
+        if (!context.mounted) return;
+
+        final errorMessage = e?.toString() ?? 'An unknown error occurred.';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update lending: $errorMessage'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -182,26 +241,7 @@ class _UpdateLendingScreenState extends State<UpdateLendingScreen> {
                     text: 'Update',
                     isLoading: controller.isLoading.value,
                     icon: Icons.update_rounded,
-                    onPressed: () {
-                      if (!_formKey.currentState!.validate()) return;
-
-                      final updated = LendingEntity(
-                        id: widget.lending.id,
-                        userId: widget.lending.userId,
-                        personId: widget.lending.person.id,
-                        person: widget.lending.person,
-                        amount: double.parse(amountController.text),
-                        description: descriptionController.text.trim(),
-                        type: controller.selectedTypeFilter.value!,
-                        status: controller.selectedStatusFilter.value!,
-                        dueDate: controller.selectedMonthFilter.value,
-                        createdDate: widget.lending.createdDate,
-                        repayments: widget.lending.repayments,
-                      );
-
-                      controller.updateLending(updated);
-                      Get.back();
-                    },
+                    onPressed: () => _updateLending(context, _formKey),
                   ),
                 ],
               ),

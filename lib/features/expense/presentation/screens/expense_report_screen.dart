@@ -1,9 +1,11 @@
+import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:spendly/core/common/widgets/loader_widget.dart';
 
 import '../../../../core/common/widgets/date_selector_button.dart';
+import '../../../../core/styles/app_colors.dart';
 import '../controllers/expense_controller.dart';
 import '../widgets/expense_list_widget.dart';
 import '../widgets/widgets.dart';
@@ -27,28 +29,73 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
   Future<void> _selectDate(BuildContext context,
       {required bool isStartDate}) async {
     final DateTime now = DateTime.now();
-
-    DateTime initialDate = isStartDate
-        ? controller.startDate.value ?? now.subtract(const Duration(days: 30))
+    DateTime selectedDate = isStartDate
+        ? controller.startDate.value ?? now
         : controller.endDate.value ?? now;
 
-    DateTime firstDate = isStartDate
-        ? DateTime(now.year - 5)
-        : controller.startDate.value ?? DateTime(now.year - 5);
-
-    if (initialDate.isBefore(firstDate)) {
-      initialDate = firstDate;
-    }
-
-    final DateTime? picked = await showDatePicker(
+    final results = await showDialog<List<DateTime?>>(
       context: context,
-      initialDate: initialDate,
-      firstDate: firstDate,
-      lastDate: DateTime(now.year + 1),
-      helpText: isStartDate ? 'Select Start Date' : 'Select End Date',
+      builder: (context) {
+        return Dialog(
+          insetPadding: const EdgeInsets.symmetric(horizontal: 16),
+          child: SizedBox(
+            width: 360,
+            height: 460,
+            child: Column(
+              children: [
+                CalendarDatePicker2(
+                  value: [selectedDate],
+                  config: CalendarDatePicker2Config(
+                    calendarType: CalendarDatePicker2Type.single,
+                    firstDate: DateTime(now.year - 5),
+                    lastDate: DateTime(now.year + 1, 12, 31),
+                    selectedDayHighlightColor: AppColors.primaryTeal,
+                  ),
+                  onValueChanged: (dates) {
+                    selectedDate = dates.first;
+                  },
+                ),
+                ActionChip(
+                  label: Text(
+                    isStartDate ? 'YEAR START' : 'YEAR END',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: AppColors.primaryTeal,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.6,
+                        ),
+                  ),
+                  backgroundColor:
+                      AppColors.primaryTeal.withValues(alpha: 0.08),
+                  shape: StadiumBorder(
+                    side: BorderSide(
+                      color: AppColors.primaryTeal.withValues(alpha: 0.4),
+                    ),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  onPressed: () {
+                    Navigator.pop(
+                      context,
+                      [
+                        isStartDate
+                            ? DateTime(now.year, 1, 1)
+                            : DateTime(now.year, 12, 31),
+                      ],
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
 
-    if (picked != null) {
+    if (results != null && results.first != null) {
+      final picked = results.first!;
+
       if (isStartDate) {
         controller.startDate.value =
             DateTime(picked.year, picked.month, picked.day);
@@ -90,7 +137,7 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
           title: 'Expense Report',
           bottom: CustomTabBar(),
         ),
-        drawer: AppDrawer(),
+        // drawer: AppDrawer(),
         body: Obx(() {
           final startDate = controller.startDate.value;
           final endDate = controller.endDate.value;

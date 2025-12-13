@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:spendly/core/common/widgets/widgets.dart';
 import 'package:spendly/features/lendings/presentation/controllers/lendings_controller.dart';
 
@@ -7,7 +8,7 @@ import '../../../../core/styles/app_colors.dart';
 import '../../domain/entity/lending/lending_entity.dart';
 import '../../domain/entity/lending_person/lending_person_entity.dart';
 
-class LendingFormWidget extends StatelessWidget {
+class LendingFormWidget extends StatefulWidget {
   final LendingsController controller;
   final GlobalKey<FormState>? formKey;
   final String buttonText;
@@ -20,12 +21,85 @@ class LendingFormWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final personNameController = TextEditingController();
-    final personContactController = TextEditingController();
-    final amountController = TextEditingController();
-    final descriptionController = TextEditingController();
+  State<LendingFormWidget> createState() => _LendingFormWidgetState();
+}
 
+class _LendingFormWidgetState extends State<LendingFormWidget> {
+  final personNameController = TextEditingController();
+  final personContactController = TextEditingController();
+  final amountController = TextEditingController();
+  final descriptionController = TextEditingController();
+
+  Future<void> _saveLending(BuildContext context) async {
+    if (!(widget.formKey?.currentState?.validate() ?? false)) {
+      return;
+    }
+
+    if (widget.controller.selectedTypeFilter.value == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a lending type.')),
+      );
+      return;
+    }
+
+    final personName = personNameController.text.trim();
+    final personContact = personContactController.text.trim();
+
+    final lending = LendingEntity(
+      id: '',
+      personId: "",
+      userId: widget.controller.userId,
+      person: LendingPersonEntity(
+        id: '',
+        userId: widget.controller.userId,
+        name: personName,
+        contactNumber: personContact,
+      ),
+      amount: double.tryParse(amountController.text) ?? 0,
+      description: descriptionController.text.trim(),
+      type: widget.controller.selectedTypeFilter.value!,
+      status: widget.controller.selectedStatusFilter.value!,
+      dueDate: widget.controller.selectedMonthFilter.value,
+      createdDate: DateTime.now(),
+    );
+
+    await widget.controller.addLending(
+      lending,
+      onSuccess: () {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Lending added successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        context.pop();
+      },
+      onError: (e) {
+        if (!context.mounted) return;
+
+        final errorMessage = e?.toString() ?? 'An unknown error occurred.';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to add lending: $errorMessage'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    personNameController.dispose();
+    personContactController.dispose();
+    amountController.dispose();
+    descriptionController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Obx(() {
       return Container(
         padding: const EdgeInsets.all(20.0),
@@ -42,7 +116,7 @@ class LendingFormWidget extends StatelessWidget {
           ],
         ),
         child: Form(
-          key: formKey,
+          key: widget.formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -90,7 +164,7 @@ class LendingFormWidget extends StatelessWidget {
 
               // --- Lending Type ---
               StyledDropdownFormField<LendingType>(
-                value: controller.selectedTypeFilter.value,
+                value: widget.controller.selectedTypeFilter.value,
                 labelText: 'Type',
                 items: LendingType.values
                     .map((type) => DropdownMenuItem(
@@ -98,7 +172,8 @@ class LendingFormWidget extends StatelessWidget {
                           child: Text(type.name.capitalizeFirst ?? type.name),
                         ))
                     .toList(),
-                onChanged: (type) => controller.selectedTypeFilter.value = type,
+                onChanged: (type) =>
+                    widget.controller.selectedTypeFilter.value = type,
                 prefixIcon: Icons.swap_horiz,
                 validator: (value) =>
                     value == null ? 'Please select a type' : null,
@@ -107,7 +182,7 @@ class LendingFormWidget extends StatelessWidget {
 
               // --- Lending Status ---
               StyledDropdownFormField<LendingStatus>(
-                value: controller.selectedStatusFilter.value,
+                value: widget.controller.selectedStatusFilter.value,
                 labelText: 'Status',
                 items: LendingStatus.values
                     .map((status) => DropdownMenuItem(
@@ -117,7 +192,7 @@ class LendingFormWidget extends StatelessWidget {
                         ))
                     .toList(),
                 onChanged: (status) =>
-                    controller.selectedStatusFilter.value = status,
+                    widget.controller.selectedStatusFilter.value = status,
                 prefixIcon: Icons.check_circle_outline,
                 validator: (value) =>
                     value == null ? 'Please select a status' : null,
@@ -128,9 +203,9 @@ class LendingFormWidget extends StatelessWidget {
               StyledDatePickerButton(
                 labelText: 'Due Date',
                 hintText: 'Select Due Date (Optional)',
-                selectedDate: controller.selectedMonthFilter.value,
+                selectedDate: widget.controller.selectedMonthFilter.value,
                 onDateSelected: (date) =>
-                    controller.selectedMonthFilter.value = date,
+                    widget.controller.selectedMonthFilter.value = date,
                 isOptional: true,
                 firstDate: DateTime.now().subtract(const Duration(days: 365)),
                 lastDate: DateTime(2101),
@@ -149,34 +224,9 @@ class LendingFormWidget extends StatelessWidget {
 
               // --- Submit Button ---
               StyledElevatedButton(
-                text: buttonText,
-                onPressed: () {
-                  if (formKey?.currentState?.validate() ?? true) {
-                    final personName = personNameController.text.trim();
-                    final personContact = personContactController.text.trim();
-
-                    final lending = LendingEntity(
-                      id: '',
-                      personId: "",
-                      userId: "dummy_user",
-                      person: LendingPersonEntity(
-                        id: '', // Will be created if new
-                        userId: "dummy_user",
-                        name: personName,
-                        contactNumber: personContact,
-                      ),
-                      amount: double.tryParse(amountController.text) ?? 0,
-                      description: descriptionController.text.trim(),
-                      type: controller.selectedTypeFilter.value!,
-                      status: controller.selectedStatusFilter.value!,
-                      dueDate: controller.selectedMonthFilter.value,
-                      createdDate: DateTime.now(),
-                    );
-
-                    controller.addLending(lending);
-                  }
-                },
-                isLoading: controller.isLoading.value,
+                text: widget.buttonText,
+                onPressed: () => _saveLending(context),
+                isLoading: widget.controller.isLoading.value,
                 icon: Icons.save_alt_rounded,
               ),
             ],

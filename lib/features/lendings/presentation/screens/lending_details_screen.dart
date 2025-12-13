@@ -1,38 +1,83 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:spendly/core/styles/app_colors.dart';
 import 'package:spendly/features/lendings/presentation/controllers/lendings_controller.dart';
 import 'package:spendly/features/lendings/presentation/screens/repayment_list_widget.dart';
 
-import '../../../../core/routes/app_routes.dart';
+import '../../../../core/routes/app_router.dart';
 import '../../domain/entity/lending/lending_entity.dart';
 
-class LendingDetailsScreen extends StatelessWidget {
+class LendingDetailsScreen extends StatefulWidget {
   final LendingEntity lending;
+
+  const LendingDetailsScreen({super.key, required this.lending});
+
+  @override
+  State<LendingDetailsScreen> createState() => _LendingDetailsScreenState();
+}
+
+class _LendingDetailsScreenState extends State<LendingDetailsScreen> {
   final LendingsController controller = Get.find<LendingsController>();
 
-  LendingDetailsScreen({super.key, required this.lending});
+  Future<void> _handleDeleteLending(BuildContext context) async {
+    await controller.deleteLending(
+      widget.lending.id,
+      onSuccess: () {
+        if (!context.mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Lending record successfully deleted!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        context.pop();
+      },
+      onError: (e) {
+        if (!context.mounted) return;
+
+        final errorMessage = e?.toString() ?? 'An unknown error occurred.';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to delete lending: $errorMessage'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      },
+    );
+  }
+
+  double calculatePaidAmount() {
+    final paid = controller.repaymentsList.fold<double>(
+      0,
+      (sum, r) => sum + r.amount,
+    );
+
+    return paid;
+  }
 
   @override
   Widget build(BuildContext context) {
     final currencyFormat = NumberFormat.currency(locale: 'en_IN', symbol: '৳');
     final dateFormat = DateFormat('dd MMM, yyyy');
 
-    controller.fetchRepayments(lending.id);
+    controller.fetchRepayments(widget.lending.id);
 
-    final isGiven = lending.type == LendingType.given;
-    final personName = lending.person.name;
-    final amount = currencyFormat.format(lending.amount);
-    final createdDate = dateFormat.format(lending.createdDate);
+    final isGiven = widget.lending.type == LendingType.given;
+    final personName = widget.lending.person.name;
+    final amount = currencyFormat.format(widget.lending.amount);
+    final createdDate = dateFormat.format(widget.lending.createdDate);
 
     String summary = "You ${isGiven ? 'gave' : 'took'} $amount "
         "${isGiven ? 'to' : 'from'} $personName on $createdDate.";
 
-    if (lending.status == LendingStatus.paid) {
+    if (widget.lending.status == LendingStatus.paid) {
       summary += " This amount has already been fully repaid.";
-    } else if (lending.dueDate != null) {
-      final dueDate = dateFormat.format(lending.dueDate!);
+    } else if (widget.lending.dueDate != null) {
+      final dueDate = dateFormat.format(widget.lending.dueDate!);
       summary += " Repayment is due by $dueDate.";
     } else {
       summary += " No repayment date has been set yet.";
@@ -47,20 +92,10 @@ class LendingDetailsScreen extends StatelessWidget {
                 color: AppColors.primaryTealDark),
             tooltip: 'Edit Lending',
             onPressed: () async {
-              final updatedLending = await Get.toNamed(
+              await context.pushNamed(
                 AppRoutes.updateLending,
-                arguments: lending,
+                extra: widget.lending,
               );
-              if (updatedLending != null) {
-                final success = await controller.updateLending(updatedLending);
-                if (success) {
-                  Get.snackbar(
-                    'Success',
-                    'Lending updated',
-                    snackPosition: SnackPosition.BOTTOM,
-                  );
-                }
-              }
             },
           ),
           IconButton(
@@ -68,27 +103,29 @@ class LendingDetailsScreen extends StatelessWidget {
                 color: AppColors.error),
             tooltip: 'Delete Lending',
             onPressed: () async {
-              final confirm = await Get.dialog<bool>(
-                AlertDialog(
+              final bool? confirm = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
                   title: const Text('Delete Lending'),
                   content: const Text(
                       'Are you sure you want to delete this lending record? This action cannot be undone.'),
                   actions: [
                     TextButton(
-                      onPressed: () => Get.back(result: false),
+                      onPressed: () => context.pop(false),
                       child: const Text('Cancel'),
                     ),
                     TextButton(
                       style: TextButton.styleFrom(
                           foregroundColor: AppColors.error),
-                      onPressed: () => Get.back(result: true),
+                      onPressed: () => context.pop(true),
                       child: const Text('Delete'),
                     ),
                   ],
                 ),
               );
+
               if (confirm == true) {
-                await controller.deleteLending(lending.id);
+                await _handleDeleteLending(context);
               }
             },
           ),
@@ -138,28 +175,33 @@ class LendingDetailsScreen extends StatelessWidget {
                     childAspectRatio: 3.2,
                   ),
                   children: [
-                    _buildGridItem('Amount', amount, Icons.currency_rupee,
-                        valueColor:
-                            AppColors.getColorForLendingType(lending.type)),
+                    _buildGridItem('', amount, Icons.call_made,
+                        valueColor: AppColors.getColorForLendingType(
+                            widget.lending.type)),
                     _buildGridItem(
-                        'Person', lending.person.name, Icons.person_outline),
+                        '',
+                        currencyFormat.format(calculatePaidAmount()),
+                        Icons.call_received),
                     _buildGridItem(
                         'Type',
-                        lending.type.name.capitalizeFirst ?? lending.type.name,
+                        widget.lending.type.name.capitalizeFirst ??
+                            widget.lending.type.name,
                         Icons.swap_horiz),
                     _buildGridItem(
                         'Status',
-                        lending.status.name.capitalizeFirst ??
-                            lending.status.name,
+                        widget.lending.status.name.capitalizeFirst ??
+                            widget.lending.status.name,
                         Icons.check_circle_outline,
-                        valueColor:
-                            AppColors.getColorForLendingStatus(lending.status)),
-                    _buildGridItem('', dateFormat.format(lending.createdDate),
+                        valueColor: AppColors.getColorForLendingStatus(
+                            widget.lending.status)),
+                    _buildGridItem(
+                        '',
+                        dateFormat.format(widget.lending.createdDate),
                         Icons.calendar_today_outlined),
                     _buildGridItem(
                         '',
-                        lending.dueDate != null
-                            ? dateFormat.format(lending.dueDate!)
+                        widget.lending.dueDate != null
+                            ? dateFormat.format(widget.lending.dueDate!)
                             : 'N/A',
                         Icons.event_busy_outlined),
                   ],
@@ -185,8 +227,8 @@ class LendingDetailsScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    lending.description?.isNotEmpty ?? false
-                        ? lending.description!
+                    widget.lending.description?.isNotEmpty ?? false
+                        ? widget.lending.description!
                         : 'No description provided.',
                     style: const TextStyle(fontSize: 14, height: 1.5),
                   ),
@@ -200,7 +242,7 @@ class LendingDetailsScreen extends StatelessWidget {
           Expanded(
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: RepaymentListWidget(lending: lending),
+              child: RepaymentListWidget(lending: widget.lending),
             ),
           ),
         ],

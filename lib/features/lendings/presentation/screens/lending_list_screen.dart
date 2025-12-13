@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:spendly/core/common/widgets/app_drawer.dart';
+import 'package:go_router/go_router.dart';
 import 'package:spendly/core/common/widgets/custom_app_bar.dart';
 import 'package:spendly/core/common/widgets/error_widget.dart';
 import 'package:spendly/core/common/widgets/loader_widget.dart';
 import 'package:spendly/core/common/widgets/no_data_widget.dart';
-import 'package:spendly/core/styles/app_colors.dart';
+import 'package:spendly/core/routes/app_router.dart';
 import 'package:spendly/features/lendings/presentation/controllers/lendings_controller.dart';
 import 'package:spendly/features/lendings/presentation/widgets/lending_list_item.dart';
+
+import '../../../expense/presentation/widgets/custom_fab.dart';
 
 class LendingListScreen extends GetView<LendingsController> {
   const LendingListScreen({super.key});
@@ -16,7 +18,7 @@ class LendingListScreen extends GetView<LendingsController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const CustomAppBar(title: 'Lendings'),
-      drawer: const AppDrawer(),
+      // drawer: const AppDrawer(),
       body: RefreshIndicator(
         onRefresh: controller.refreshLendings,
         child: Obx(() {
@@ -47,18 +49,12 @@ class LendingListScreen extends GetView<LendingsController> {
           );
         }),
       ),
-      floatingActionButton: Obx(() {
-        return FloatingActionButton(
-          backgroundColor:
-              controller.isLoading.value ? Colors.grey : AppColors.primaryTeal,
-          foregroundColor: Colors.white,
-          onPressed: controller.isLoading.value
-              ? null
-              : () => Get.toNamed('/addLending'),
-          tooltip: 'Add Lending',
-          child: const Icon(Icons.add),
-        );
-      }),
+
+      floatingActionButton: CustomFAB(
+        onPressed: () {
+          context.pushNamed(AppRoutes.addLending);
+        },
+      ),
     );
   }
 }

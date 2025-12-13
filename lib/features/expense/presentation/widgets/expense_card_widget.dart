@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:spendly/core/extensions/date_time_formatter.dart';
-import 'package:spendly/core/routes/app_routes.dart';
+
+import '../../../../core/routes/app_router.dart';
 
 class ExpenseCardWidget extends StatelessWidget {
   final dynamic expense;
@@ -66,14 +67,17 @@ class ExpenseCardWidget extends StatelessWidget {
       key: Key(expense.id.toString()),
       background: Container(color: Colors.red),
       confirmDismiss: (direction) async {
-        return await _showConfirmationDialog();
+        return await _showConfirmationDialog(context);
       },
       onDismissed: (direction) {
         onDismissed();
       },
       child: GestureDetector(
         onTap: () {
-          Get.toNamed(AppRoutes.expenseDetails, arguments: expense);
+          context.pushNamed(
+            AppRoutes.expenseDetails,
+            extra: expense,
+          );
         },
         child: Card(
           margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -154,17 +158,32 @@ class ExpenseCardWidget extends StatelessWidget {
     );
   }
 
-  Future<bool> _showConfirmationDialog() async {
-    return await Get.defaultDialog<bool>(
-          title: 'Delete Expense',
-          middleText: 'Are you sure you want to delete this expense?',
-          onConfirm: () {
-            Get.back(result: true);
-          },
-          onCancel: () {
-            Get.back(result: false);
-          },
-        ) ??
-        false;
+  Future<bool> _showConfirmationDialog(BuildContext context) async {
+    final bool? result = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext ctx) {
+        return AlertDialog(
+          title: const Text('Delete Expense'),
+          content: const Text('Are you sure you want to delete this expense?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                ctx.pop(false);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                ctx.pop(true);
+              },
+              child: const Text('Confirm'),
+            ),
+          ],
+        );
+      },
+    );
+
+    // 5. Return the result, defaulting to false if the dialog is dismissed externally
+    return result ?? false;
   }
 }

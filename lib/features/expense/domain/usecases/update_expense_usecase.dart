@@ -1,7 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-
-import '../../../../core/routes/app_routes.dart';
 import '../entities/expense_entity.dart';
 import '../repositories/expense_repository.dart';
 
@@ -15,14 +11,5 @@ class UpdateExpenseUseCase {
       throw Exception('Amount must be greater than zero');
     }
     await repository.updateExpense(expense);
-
-    Get.snackbar(
-      'Success',
-      'Expense updated successfully!',
-      backgroundColor: Colors.green,
-      snackPosition: SnackPosition.TOP,
-    );
-
-    Get.offNamed(AppRoutes.expenses);
   }
 }

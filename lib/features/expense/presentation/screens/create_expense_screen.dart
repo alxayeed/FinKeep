@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
+
 import '../../../../core/enums/expense_category.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../controllers/expense_controller.dart';
@@ -38,7 +40,7 @@ class _CreateExpenseScreenState extends State<CreateExpenseScreen> {
               selectedDate = date;
             });
           },
-          onSubmit: () {
+          onSubmit: () async {
             if (selectedCategory == null) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Please select a category.')),
@@ -54,8 +56,31 @@ class _CreateExpenseScreenState extends State<CreateExpenseScreen> {
               description: descriptionController.text,
               userId: 'dummy_user_id',
             );
-            controller.createExpense(newExpense);
-            Get.back();
+
+            await controller.createExpense(
+              newExpense,
+              onSuccess: () {
+                if (!context.mounted) return;
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Expense successfully recorded!'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+                context.pop();
+              },
+              onError: (e) {
+                if (!context.mounted) return;
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to save expense: ${e.toString()}'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              },
+            );
           },
           selectedCategory: selectedCategory,
           onCategorySelected: (category) {
