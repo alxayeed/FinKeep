@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:spendly/core/routes/app_routes.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../routes/app_router.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -32,19 +33,19 @@ class AppDrawer extends StatelessWidget {
               ),
             ),
             _createDrawerItem(
-              icon: Icons.calendar_today_outlined,
+              icon: Icons.monetization_on,
               text: 'Expenses',
               onTap: () {
-                Get.back();
-                Get.toNamed(AppRoutes.monthlyExpense);
+                context.pop();
+                context.go(AppRoutes.expenseReport);
               },
             ),
             _createDrawerItem(
-              icon: Icons.monetization_on,
+              icon: Icons.handshake_outlined,
               text: 'Lends',
               onTap: () async {
-                Get.back();
-                Get.toNamed(AppRoutes.lendingList);
+                context.pop();
+                context.go(AppRoutes.lendings);
 
                 // final ok = await authenticator.authenticate(
                 //   reason: 'Authenticate to access Lends',
@@ -65,8 +66,8 @@ class AppDrawer extends StatelessWidget {
               icon: Icons.bar_chart,
               text: 'Reports',
               onTap: () {
-                Get.back();
-                Get.toNamed(AppRoutes.expenseReport);
+                context.pop();
+                context.go(AppRoutes.expenseReport);
               },
             ),
           ],

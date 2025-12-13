@@ -1,8 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_navigation/src/root/get_material_app.dart';
-import 'package:spendly/core/routes/app_routes.dart';
+import 'package:spendly/core/routes/app_router.dart'; // <- updated import
 
 import 'core/config/app_config.dart';
 import 'dependency_injection.dart';
@@ -25,10 +24,13 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      initialRoute: AppRoutes.home,
-      getPages: AppRoutes.routes,
+      routerConfig: AppRouter.router,
+      title: 'Spendly',
+      theme: ThemeData(
+        primarySwatch: Colors.teal,
+      ),
     );
   }
 }
