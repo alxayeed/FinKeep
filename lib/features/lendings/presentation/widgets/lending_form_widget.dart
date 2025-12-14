@@ -30,6 +30,8 @@ class _LendingFormWidgetState extends State<LendingFormWidget> {
   final amountController = TextEditingController();
   final descriptionController = TextEditingController();
 
+  DateTime _transactionDate = DateTime.now();
+
   Future<void> _saveLending(BuildContext context) async {
     if (!(widget.formKey?.currentState?.validate() ?? false)) {
       return;
@@ -47,7 +49,7 @@ class _LendingFormWidgetState extends State<LendingFormWidget> {
 
     final lending = LendingEntity(
       id: '',
-      personId: "",
+      personId: '',
       userId: widget.controller.userId,
       person: LendingPersonEntity(
         id: '',
@@ -60,7 +62,7 @@ class _LendingFormWidgetState extends State<LendingFormWidget> {
       type: widget.controller.selectedTypeFilter.value!,
       status: widget.controller.selectedStatusFilter.value!,
       dueDate: widget.controller.selectedMonthFilter.value,
-      createdDate: DateTime.now(),
+      createdDate: _transactionDate, // ✅ Use selected transaction date
     );
 
     await widget.controller.addLending(
@@ -77,11 +79,9 @@ class _LendingFormWidgetState extends State<LendingFormWidget> {
       },
       onError: (e) {
         if (!context.mounted) return;
-
-        final errorMessage = e?.toString() ?? 'An unknown error occurred.';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to add lending: $errorMessage'),
+            content: Text('Failed to add lending: ${e ?? 'Unknown error'}'),
             backgroundColor: Colors.red,
           ),
         );
@@ -121,7 +121,7 @@ class _LendingFormWidgetState extends State<LendingFormWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // --- Person Name (manual for now) ---
+              // --- Person Name ---
               StyledTextFormField(
                 controller: personNameController,
                 labelText: 'Person Name',
@@ -131,14 +131,13 @@ class _LendingFormWidgetState extends State<LendingFormWidget> {
                     : null,
               ),
               const SizedBox(height: 15),
+
+              // --- Contact No (optional) ---
               StyledTextFormField(
                 controller: personContactController,
                 keyboardType: TextInputType.phone,
-                labelText: 'Contact No',
+                labelText: 'Contact No (Optional)',
                 prefixIcon: Icons.phone,
-                validator: (value) => (value == null || value.isEmpty)
-                    ? 'Please enter a phone no'
-                    : null,
               ),
               const SizedBox(height: 15),
 
@@ -153,8 +152,8 @@ class _LendingFormWidgetState extends State<LendingFormWidget> {
                   if (value == null || value.isEmpty) {
                     return 'Please enter an amount';
                   }
-                  if (double.tryParse(value) == null ||
-                      double.parse(value) <= 0) {
+                  final parsed = double.tryParse(value);
+                  if (parsed == null || parsed <= 0) {
                     return 'Please enter a valid positive amount';
                   }
                   return null;
@@ -167,10 +166,12 @@ class _LendingFormWidgetState extends State<LendingFormWidget> {
                 value: widget.controller.selectedTypeFilter.value,
                 labelText: 'Type',
                 items: LendingType.values
-                    .map((type) => DropdownMenuItem(
-                          value: type,
-                          child: Text(type.name.capitalizeFirst ?? type.name),
-                        ))
+                    .map(
+                      (type) => DropdownMenuItem(
+                        value: type,
+                        child: Text(type.name.capitalizeFirst ?? type.name),
+                      ),
+                    )
                     .toList(),
                 onChanged: (type) =>
                     widget.controller.selectedTypeFilter.value = type,
@@ -185,11 +186,12 @@ class _LendingFormWidgetState extends State<LendingFormWidget> {
                 value: widget.controller.selectedStatusFilter.value,
                 labelText: 'Status',
                 items: LendingStatus.values
-                    .map((status) => DropdownMenuItem(
-                          value: status,
-                          child:
-                              Text(status.name.capitalizeFirst ?? status.name),
-                        ))
+                    .map(
+                      (status) => DropdownMenuItem(
+                        value: status,
+                        child: Text(status.name.capitalizeFirst ?? status.name),
+                      ),
+                    )
                     .toList(),
                 onChanged: (status) =>
                     widget.controller.selectedStatusFilter.value = status,
@@ -198,6 +200,21 @@ class _LendingFormWidgetState extends State<LendingFormWidget> {
                     value == null ? 'Please select a status' : null,
               ),
               const SizedBox(height: 20),
+
+              // --- Transaction Date ---
+              StyledDatePickerButton(
+                labelText: 'Transaction Date',
+                selectedDate: _transactionDate,
+                onDateSelected: (date) {
+                  if (date != null) {
+                    setState(() => _transactionDate = date);
+                  }
+                },
+                firstDate:
+                    DateTime.now().subtract(const Duration(days: 365 * 5)),
+                lastDate: DateTime(2101),
+              ),
+              const SizedBox(height: 15),
 
               // --- Due Date ---
               StyledDatePickerButton(
@@ -218,11 +235,10 @@ class _LendingFormWidgetState extends State<LendingFormWidget> {
                 labelText: 'Description (Optional)',
                 maxLines: 3,
                 keyboardType: TextInputType.multiline,
-                prefixIcon: Icons.notes_rounded,
               ),
               const SizedBox(height: 25),
 
-              // --- Submit Button ---
+              // --- Submit ---
               StyledElevatedButton(
                 text: widget.buttonText,
                 onPressed: () => _saveLending(context),

@@ -4,6 +4,7 @@ import 'package:spendly/core/common/widgets/custom_divider.dart';
 import 'package:spendly/core/extensions/double_ext.dart';
 
 import '../../../features/expense/domain/entities/expense_entity.dart';
+import '../../styles/app_colors.dart';
 
 class ExpenseMonthlyAnalysis extends StatelessWidget {
   final List<ExpenseEntity> expenses;
@@ -173,7 +174,7 @@ class ExpenseMonthlyAnalysis extends StatelessWidget {
           _buildSummaryStatRow(
             'Lowest (${summary['lowestMonth']})',
             summary['lowestAmount'],
-            theme.colorScheme.tertiary,
+            AppColors.success,
           ),
           _buildSummaryStatRow(
             'Average',

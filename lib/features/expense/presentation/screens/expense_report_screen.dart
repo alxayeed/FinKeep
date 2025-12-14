@@ -22,8 +22,19 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
 
   @override
   void initState() {
-    controller.clearReportState();
     super.initState();
+
+    controller.clearReportState();
+
+    final now = DateTime.now();
+
+    controller.startDate.value = DateTime(now.year, 1, 1);
+    controller.endDate.value = DateTime(now.year, 12, 31, 23, 59, 59);
+
+    controller.fetchExpensesInRange(
+      controller.startDate.value!,
+      controller.endDate.value!,
+    );
   }
 
   Future<void> _selectDate(BuildContext context,
@@ -52,7 +63,9 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
                     selectedDayHighlightColor: AppColors.primaryTeal,
                   ),
                   onValueChanged: (dates) {
-                    selectedDate = dates.first;
+                    if (dates.isNotEmpty) {
+                      Navigator.pop(context, dates);
+                    }
                   },
                 ),
                 ActionChip(

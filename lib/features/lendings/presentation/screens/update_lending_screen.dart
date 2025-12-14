@@ -26,6 +26,8 @@ class _UpdateLendingScreenState extends State<UpdateLendingScreen> {
   late TextEditingController amountController;
   late TextEditingController descriptionController;
 
+  final selectedTransactionDate = Rx<DateTime?>(null);
+
   @override
   void initState() {
     super.initState();
@@ -41,6 +43,8 @@ class _UpdateLendingScreenState extends State<UpdateLendingScreen> {
     controller.selectedTypeFilter.value = l.type;
     controller.selectedStatusFilter.value = l.status;
     controller.selectedMonthFilter.value = l.dueDate;
+
+    selectedTransactionDate.value = l.createdDate;
   }
 
   @override
@@ -53,7 +57,9 @@ class _UpdateLendingScreenState extends State<UpdateLendingScreen> {
   }
 
   Future<void> _updateLending(
-      BuildContext context, GlobalKey<FormState> formKey) async {
+    BuildContext context,
+    GlobalKey<FormState> formKey,
+  ) async {
     if (!formKey.currentState!.validate()) {
       return;
     }
@@ -67,8 +73,8 @@ class _UpdateLendingScreenState extends State<UpdateLendingScreen> {
       description: descriptionController.text.trim(),
       type: controller.selectedTypeFilter.value!,
       status: controller.selectedStatusFilter.value!,
+      createdDate: selectedTransactionDate.value!,
       dueDate: controller.selectedMonthFilter.value,
-      createdDate: widget.lending.createdDate,
       repayments: widget.lending.repayments,
     );
 
@@ -76,6 +82,7 @@ class _UpdateLendingScreenState extends State<UpdateLendingScreen> {
       updated,
       onSuccess: () {
         if (!context.mounted) return;
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Lending updated successfully!'),
@@ -138,7 +145,7 @@ class _UpdateLendingScreenState extends State<UpdateLendingScreen> {
 
                   const SizedBox(height: 15),
 
-                  /// Contact
+                  /// Contact (optional)
                   StyledTextFormField(
                     readOnly: true,
                     controller: personContactController,
@@ -175,11 +182,14 @@ class _UpdateLendingScreenState extends State<UpdateLendingScreen> {
                     value: controller.selectedTypeFilter.value,
                     labelText: 'Type',
                     items: LendingType.values
-                        .map((type) => DropdownMenuItem(
-                              value: type,
-                              child:
-                                  Text(type.name.capitalizeFirst ?? type.name),
-                            ))
+                        .map(
+                          (type) => DropdownMenuItem(
+                            value: type,
+                            child: Text(
+                              type.name.capitalizeFirst ?? type.name,
+                            ),
+                          ),
+                        )
                         .toList(),
                     onChanged: (type) =>
                         controller.selectedTypeFilter.value = type,
@@ -195,11 +205,14 @@ class _UpdateLendingScreenState extends State<UpdateLendingScreen> {
                     value: controller.selectedStatusFilter.value,
                     labelText: 'Status',
                     items: LendingStatus.values
-                        .map((status) => DropdownMenuItem(
-                              value: status,
-                              child: Text(
-                                  status.name.capitalizeFirst ?? status.name),
-                            ))
+                        .map(
+                          (status) => DropdownMenuItem(
+                            value: status,
+                            child: Text(
+                              status.name.capitalizeFirst ?? status.name,
+                            ),
+                          ),
+                        )
                         .toList(),
                     onChanged: (status) =>
                         controller.selectedStatusFilter.value = status,
@@ -210,7 +223,20 @@ class _UpdateLendingScreenState extends State<UpdateLendingScreen> {
 
                   const SizedBox(height: 20),
 
-                  /// Due date
+                  /// Transaction Date
+                  StyledDatePickerButton(
+                    labelText: 'Transaction Date',
+                    selectedDate: selectedTransactionDate.value,
+                    onDateSelected: (date) =>
+                        selectedTransactionDate.value = date,
+                    firstDate:
+                        DateTime.now().subtract(const Duration(days: 365 * 10)),
+                    lastDate: DateTime.now(),
+                  ),
+
+                  const SizedBox(height: 15),
+
+                  /// Due Date
                   StyledDatePickerButton(
                     labelText: 'Due Date',
                     hintText: 'Select Due Date (Optional)',
@@ -231,7 +257,6 @@ class _UpdateLendingScreenState extends State<UpdateLendingScreen> {
                     labelText: 'Description (Optional)',
                     maxLines: 3,
                     keyboardType: TextInputType.multiline,
-                    // prefixIcon: Icons.notes_rounded,
                   ),
 
                   const SizedBox(height: 25),
