@@ -1,36 +1,15 @@
 import 'package:intl/intl.dart';
 
 extension DateTimeFormatter on DateTime {
+  String formatToReadableShort() {
+    final formattedDay = DateFormat('EEE, d MMMM').format(this);
+    return formattedDay;
+  }
+
   String formatToReadable() {
-    final dayWithSuffix = '$day${_getDaySuffix(day)}';
-    final formattedTime =
-        DateFormat('hh:mm a').format(this); // 12-hour time format with AM/PM
-    final formattedMonth = DateFormat('MMMM').format(this); // Month part
-    return '$formattedTime, $dayWithSuffix $formattedMonth'; // Final format: Time, DayWithSuffix Month
+    final formattedDay = DateFormat('EEE, d MMMM • hh:mm a').format(this);
+    return formattedDay;
   }
-
-  String _getDaySuffix(int day) {
-    if (day >= 11 && day <= 13) {
-      return 'th';
-    }
-    switch (day % 10) {
-      case 1:
-        return 'st';
-      case 2:
-        return 'nd';
-      case 3:
-        return 'rd';
-      default:
-        return 'th';
-    }
-  }
-
-  // String formatTime() {
-  //   final String hour = this.hour.toString().padLeft(2, '0');
-  //   final String minute = this.minute.toString().padLeft(2, '0');
-  //   final String period = this.hour >= 12 ? 'PM' : 'AM';
-  //   return '$hour:$minute $period';
-  // }
 
   String formatDate() {
     final day = this.day;

@@ -23,13 +23,11 @@ class LendingListItem extends StatelessWidget {
     }
   }
 
-  Color _getTypeColor(LendingType type) {
-    return AppColors.getColorForLendingType(type);
-  }
+  Color _getTypeColor(LendingType type) =>
+      AppColors.getColorForLendingType(type);
 
-  Color _getStatusColor(LendingStatus status) {
-    return AppColors.getColorForLendingStatus(status);
-  }
+  Color _getStatusColor(LendingStatus status) =>
+      AppColors.getColorForLendingStatus(status);
 
   @override
   Widget build(BuildContext context) {
@@ -39,77 +37,106 @@ class LendingListItem extends StatelessWidget {
     final currencyFormat = NumberFormat.currency(locale: 'en_IN', symbol: '৳');
     final dateFormat = DateFormat.yMd();
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-      elevation: 2.0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-      child: ListTile(
-        onTap: () {
-          context.pushNamed(AppRoutes.lendingDetails, extra: lending);
-        },
-        leading: CircleAvatar(
-          backgroundColor: typeColor.withValues(alpha: 0.5),
-          child: Icon(
-            _getTypeIcon(lending.type),
-            color: typeColor,
-            size: 24,
-          ),
+    return InkWell(
+      borderRadius: BorderRadius.circular(10),
+      onTap: () {
+        context.pushNamed(AppRoutes.lendingDetails, extra: lending);
+      },
+      child: Card(
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        elevation: 1.5,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
         ),
-        title: Text(
-          lending.person.name,
-          style: theme.textTheme.titleMedium
-              ?.copyWith(fontWeight: FontWeight.w600),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              margin: const EdgeInsets.only(top: 4.0, bottom: 4.0),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
-              decoration: BoxDecoration(
-                color: statusColor.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(4.0),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Row(
+            children: [
+              // Icon + status
+              Column(
+                children: [
+                  CircleAvatar(
+                    radius: 16,
+                    backgroundColor: typeColor.withValues(alpha: 0.15),
+                    child: Icon(
+                      _getTypeIcon(lending.type),
+                      size: 18,
+                      color: typeColor,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: statusColor.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      lending.status.name.toUpperCase(),
+                      style: TextStyle(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w600,
+                        color: statusColor,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              child: Text(
-                lending.status.name.toUpperCase(),
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: statusColor.withValues(alpha: 0.5),
+              const SizedBox(width: 12),
+
+              // Main content
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      lending.person.name,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    if (lending.description != null &&
+                        lending.description!.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          lending.description!,
+                          style: theme.textTheme.bodySmall
+                              ?.copyWith(fontStyle: FontStyle.italic),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    Text(
+                      'Date: ${dateFormat.format(lending.createdDate)}'
+                      '${lending.dueDate != null ? ' | Due: ${dateFormat.format(lending.dueDate!)}' : ''}',
+                      style: theme.textTheme.bodySmall
+                          ?.copyWith(color: Colors.grey),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(width: 8),
+
+              // Amount
+              Text(
+                currencyFormat.format(lending.amount),
+                style: theme.textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  letterSpacing: 0.5,
+                  color: typeColor,
                 ),
               ),
-            ),
-            Text(
-              'Date: ${dateFormat.format(lending.createdDate)}${lending.dueDate != null ? ' | Due: ${dateFormat.format(lending.dueDate!)}' : ''}',
-              style: theme.textTheme.bodySmall,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            if (lending.description != null && lending.description!.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 2.0),
-                child: Text(
-                  lending.description!,
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(fontStyle: FontStyle.italic),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-          ],
-        ),
-        trailing: Text(
-          currencyFormat.format(lending.amount),
-          style: theme.textTheme.titleMedium?.copyWith(
-            color: typeColor,
-            fontWeight: FontWeight.bold,
+            ],
           ),
         ),
-        dense: true,
       ),
     );
   }

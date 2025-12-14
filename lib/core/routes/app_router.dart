@@ -25,34 +25,10 @@ class AppRoutes {
   static const String lendingDetails = '/lendingDetails';
   static const String addLending = '/addLending';
   static const String updateLending = '/updateLending';
-
-  static const Duration _transitionDuration = Duration(milliseconds: 300);
-}
-
-CustomTransitionPage<T> buildPageWithTransition<T>({
-  required BuildContext context,
-  required GoRouterState state,
-  required Widget child,
-  // Add more transition types if needed (e.g., FadeTransition)
-}) {
-  return CustomTransitionPage<T>(
-    key: state.pageKey,
-    child: child,
-    transitionDuration: AppRoutes._transitionDuration,
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(1.0, 0.0), // Start from the right
-          end: Offset.zero,
-        ).animate(animation),
-        child: child,
-      );
-    },
-  );
 }
 
 // --------------------------------------------------------------------------
-// 3. UPDATED ROUTER IMPLEMENTATION
+// ROUTER IMPLEMENTATION (No Transitions)
 // --------------------------------------------------------------------------
 
 class AppRouter {
@@ -60,7 +36,7 @@ class AppRouter {
     initialLocation: AppRoutes.expenses,
     routes: [
       /// ----------------------------------------------------
-      /// 1. SHELL ROUTE (Routes with Bottom Nav - No Transitions)
+      /// 1. SHELL ROUTE (Routes with Bottom Nav)
       /// ----------------------------------------------------
       ShellRoute(
         builder: (context, state, child) => HomeScaffold(child: child),
@@ -74,7 +50,7 @@ class AppRouter {
             ),
           ),
 
-          // B. Lendings Tab (Standardized name to /lendings)
+          // B. Lendings Tab
           GoRoute(
             path: AppRoutes.lendings,
             name: AppRoutes.lendings,
@@ -83,7 +59,7 @@ class AppRouter {
             ),
           ),
 
-          // C. Reports Tab (Using the new name /expenseReport)
+          // C. Reports Tab
           GoRoute(
             path: AppRoutes.expenseReport,
             name: AppRoutes.expenseReport,
@@ -95,17 +71,15 @@ class AppRouter {
       ),
 
       /// ----------------------------------------------------
-      /// 2. TOP-LEVEL ROUTES (Routes without Bottom Nav - WITH Transition)
+      /// 2. TOP-LEVEL ROUTES (No Transition)
       /// ----------------------------------------------------
 
       // Expenses Detail/Add
       GoRoute(
         path: AppRoutes.addExpense,
         name: AppRoutes.addExpense,
-        pageBuilder: (context, state) => buildPageWithTransition(
-          context: context,
-          state: state,
-          child: const CreateExpenseScreen(),
+        pageBuilder: (context, state) => const NoTransitionPage(
+          child: CreateExpenseScreen(),
         ),
       ),
       GoRoute(
@@ -114,12 +88,11 @@ class AppRouter {
         pageBuilder: (context, state) {
           final extra = state.extra;
           if (extra is! ExpenseEntity) {
-            return MaterialPage(
-                child: const ErrorScreen(message: 'Invalid Expense data.'));
+            return const NoTransitionPage(
+              child: ErrorScreen(message: 'Invalid Expense data.'),
+            );
           }
-          return buildPageWithTransition(
-            context: context,
-            state: state,
+          return NoTransitionPage(
             child: ExpenseDetailsScreen(expense: extra),
           );
         },
@@ -129,10 +102,8 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.addLending,
         name: AppRoutes.addLending,
-        pageBuilder: (context, state) => buildPageWithTransition(
-          context: context,
-          state: state,
-          child: const AddLendingScreen(),
+        pageBuilder: (context, state) => const NoTransitionPage(
+          child: AddLendingScreen(),
         ),
       ),
       GoRoute(
@@ -141,12 +112,11 @@ class AppRouter {
         pageBuilder: (context, state) {
           final extra = state.extra;
           if (extra is! LendingEntity) {
-            return MaterialPage(
-                child: const ErrorScreen(message: 'Invalid Lending data.'));
+            return const NoTransitionPage(
+              child: ErrorScreen(message: 'Invalid Lending data.'),
+            );
           }
-          return buildPageWithTransition(
-            context: context,
-            state: state,
+          return NoTransitionPage(
             child: LendingDetailsScreen(lending: extra),
           );
         },
@@ -157,12 +127,11 @@ class AppRouter {
         pageBuilder: (context, state) {
           final extra = state.extra;
           if (extra is! LendingEntity) {
-            return MaterialPage(
-                child: const ErrorScreen(message: 'Invalid Lending data.'));
+            return const NoTransitionPage(
+              child: ErrorScreen(message: 'Invalid Lending data.'),
+            );
           }
-          return buildPageWithTransition(
-            context: context,
-            state: state,
+          return NoTransitionPage(
             child: UpdateLendingScreen(lending: extra),
           );
         },

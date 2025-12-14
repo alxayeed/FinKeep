@@ -30,125 +30,146 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
     controller.fetchRepayments(widget.lending.id);
   }
 
+  double calculatePaidAmount() {
+    return controller.repaymentsList.fold<double>(
+      0,
+      (sum, r) => sum + r.amount,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final currencyFormat = NumberFormat.currency(locale: 'en_IN', symbol: '৳');
     final dateFormat = DateFormat('dd MMM, yyyy');
 
-    double calculateDueAmount() {
-      final paid = controller.repaymentsList.fold<double>(
-        0,
-        (sum, r) => sum + r.amount,
-      );
-      return widget.lending.amount - paid;
-    }
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          color: AppColors.primaryTeal.withValues(alpha: 0.06),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: Obx(() {
+                final paid = calculatePaidAmount();
+                final total = widget.lending.amount;
+                final progress =
+                    total == 0 ? 0.0 : (paid / total).clamp(0.0, 1.0);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.primaryTeal.withValues(alpha: 0.06),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Column(
-              children: [
-                Row(
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Expanded(
-                      child: Text(
-                        'Repayment History',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                          color: AppColors.darkGrey,
+                    Row(
+                      children: [
+                        const Text(
+                          'Repayments',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          '${currencyFormat.format(paid)} / ${currencyFormat.format(total)}',
+                          style:
+                              const TextStyle(fontSize: 13, color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: LinearProgressIndicator(
+                        value: progress,
+                        minHeight: 6,
+                        backgroundColor: Colors.grey.shade300,
+                        valueColor: AlwaysStoppedAnimation(
+                          AppColors.getColorForLendingStatus(
+                              widget.lending.status),
                         ),
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.add_circle_outline,
-                          color: AppColors.primaryTealDark),
-                      onPressed: () => _showRepaymentForm(context),
-                    ),
+                    const SizedBox(height: 8),
                   ],
-                ),
-                Obx(() {
-                  final dueAmount = calculateDueAmount();
-                  return DueAmountBanner(
-                    dueAmount: dueAmount,
-                    currencyFormat: currencyFormat,
-                  );
-                }),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Obx(() {
-              if (controller.repaymentsList.isEmpty) {
-                return const Center(
-                  child: Text(
-                    'No repayments yet.',
-                    style: TextStyle(fontSize: 14, color: Colors.grey),
-                  ),
                 );
-              }
-
-              return ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: controller.repaymentsList.length,
-                itemBuilder: (context, index) {
-                  final repayment = controller.repaymentsList[index];
-                  return Dismissible(
-                    key: ValueKey(repayment.id),
-                    direction: DismissDirection.endToStart,
-                    background: Container(
-                      color: AppColors.error,
-                      alignment: Alignment.centerRight,
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: const Icon(Icons.delete, color: Colors.white),
-                    ),
-                    confirmDismiss: (direction) async {
-                      final confirm = await showDialog<bool>(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: const Text('Delete Repayment'),
-                          content: const Text(
-                              'Are you sure you want to delete this repayment?'),
-                          actions: [
-                            TextButton(
-                                onPressed: () => context.pop(false),
-                                child: const Text('Cancel')),
-                            TextButton(
-                              style: TextButton.styleFrom(
-                                  foregroundColor: AppColors.error),
-                              onPressed: () => context.pop(true),
-                              child: const Text('Delete'),
-                            ),
-                          ],
-                        ),
-                      );
-
-                      if (confirm == true) {
-                        await controller.deleteRepayment(repayment);
-                      }
-
-                      return confirm ?? false;
-                    },
-                    child: RepaymentItemWidget(
-                      repayment: repayment,
-                      onEdit: () =>
-                          _showRepaymentForm(context, repayment: repayment),
-                      currencyFormat: currencyFormat,
-                      dateFormat: dateFormat,
+              }),
+            ),
+            Expanded(
+              child: Obx(() {
+                if (controller.repaymentsList.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'No repayments yet.',
+                      style: TextStyle(fontSize: 14, color: Colors.grey),
                     ),
                   );
-                },
-              );
-            }),
-          ),
-        ],
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: controller.repaymentsList.length,
+                  itemBuilder: (context, index) {
+                    final repayment = controller.repaymentsList[index];
+                    return Dismissible(
+                      key: ValueKey(repayment.id),
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                        color: AppColors.error,
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: const Icon(Icons.delete, color: Colors.white),
+                      ),
+                      confirmDismiss: (direction) async {
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text('Delete Repayment'),
+                            content: const Text(
+                                'Are you sure you want to delete this repayment?'),
+                            actions: [
+                              TextButton(
+                                  onPressed: () => context.pop(false),
+                                  child: const Text('Cancel')),
+                              TextButton(
+                                style: TextButton.styleFrom(
+                                    foregroundColor: AppColors.error),
+                                onPressed: () => context.pop(true),
+                                child: const Text('Delete'),
+                              ),
+                            ],
+                          ),
+                        );
+
+                        if (confirm == true) {
+                          await controller.deleteRepayment(repayment);
+                        }
+
+                        return confirm ?? false;
+                      },
+                      child: RepaymentItemWidget(
+                        repayment: repayment,
+                        onEdit: () =>
+                            _showRepaymentForm(context, repayment: repayment),
+                        currencyFormat: currencyFormat,
+                        dateFormat: dateFormat,
+                      ),
+                    );
+                  },
+                );
+              }),
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        mini: true,
+        foregroundColor: AppColors.primaryTealDark,
+        backgroundColor: AppColors.white,
+        onPressed: () => _showRepaymentForm(context),
+        child: const Icon(Icons.add, size: 20),
       ),
     );
   }
@@ -297,43 +318,6 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
           ),
         );
       },
-    );
-  }
-}
-
-class DueAmountBanner extends StatelessWidget {
-  final double dueAmount;
-  final NumberFormat currencyFormat;
-
-  const DueAmountBanner({
-    super.key,
-    required this.dueAmount,
-    required this.currencyFormat,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    String text;
-    Color color;
-
-    if (dueAmount > 0) {
-      text = 'Due: ${currencyFormat.format(dueAmount)}';
-      color = AppColors.lendingGiven;
-    } else if (dueAmount < 0) {
-      text = 'Extra Paid: ${currencyFormat.format(dueAmount.abs())}';
-      color = Colors.green.shade600;
-    } else {
-      text = 'No due left';
-      color = Colors.grey.shade600;
-    }
-
-    return Text(
-      text,
-      style: TextStyle(
-        fontWeight: FontWeight.w600,
-        fontSize: 15,
-        color: color,
-      ),
     );
   }
 }

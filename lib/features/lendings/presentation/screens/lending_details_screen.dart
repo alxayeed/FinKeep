@@ -51,12 +51,10 @@ class _LendingDetailsScreenState extends State<LendingDetailsScreen> {
   }
 
   double calculatePaidAmount() {
-    final paid = controller.repaymentsList.fold<double>(
+    return controller.repaymentsList.fold<double>(
       0,
       (sum, r) => sum + r.amount,
     );
-
-    return paid;
   }
 
   @override
@@ -90,7 +88,6 @@ class _LendingDetailsScreenState extends State<LendingDetailsScreen> {
           IconButton(
             icon: const Icon(Icons.edit_note_rounded,
                 color: AppColors.primaryTealDark),
-            tooltip: 'Edit Lending',
             onPressed: () async {
               await context.pushNamed(
                 AppRoutes.updateLending,
@@ -101,25 +98,20 @@ class _LendingDetailsScreenState extends State<LendingDetailsScreen> {
           IconButton(
             icon: const Icon(Icons.delete_outline_rounded,
                 color: AppColors.error),
-            tooltip: 'Delete Lending',
             onPressed: () async {
-              final bool? confirm = await showDialog<bool>(
+              final confirm = await showDialog<bool>(
                 context: context,
                 builder: (ctx) => AlertDialog(
                   title: const Text('Delete Lending'),
                   content: const Text(
-                      'Are you sure you want to delete this lending record? This action cannot be undone.'),
+                      'Are you sure you want to delete this lending record?'),
                   actions: [
                     TextButton(
-                      onPressed: () => context.pop(false),
-                      child: const Text('Cancel'),
-                    ),
+                        onPressed: () => context.pop(false),
+                        child: const Text('Cancel')),
                     TextButton(
-                      style: TextButton.styleFrom(
-                          foregroundColor: AppColors.error),
-                      onPressed: () => context.pop(true),
-                      child: const Text('Delete'),
-                    ),
+                        onPressed: () => context.pop(true),
+                        child: const Text('Delete')),
                   ],
                 ),
               );
@@ -133,24 +125,23 @@ class _LendingDetailsScreenState extends State<LendingDetailsScreen> {
       ),
       body: Column(
         children: [
-          // --- Sticky Top Section ---
+          /// --- TOP SUMMARY SECTION ---
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: Column(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(16),
-                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.all(14),
+                  margin: const EdgeInsets.only(bottom: 10),
                   decoration: BoxDecoration(
                     color: AppColors.primaryTeal.withValues(alpha: 0.07),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Icon(Icons.info_outline_rounded,
                           color: AppColors.primaryTealDark),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 10),
                       Expanded(
                         child: Text(
                           summary,
@@ -172,16 +163,14 @@ class _LendingDetailsScreenState extends State<LendingDetailsScreen> {
                     crossAxisCount: 2,
                     mainAxisSpacing: 8,
                     crossAxisSpacing: 12,
-                    childAspectRatio: 3.2,
+                    childAspectRatio: 3.4,
                   ),
                   children: [
-                    _buildGridItem('', amount, Icons.call_made,
-                        valueColor: AppColors.getColorForLendingType(
-                            widget.lending.type)),
-                    _buildGridItem(
-                        '',
-                        currencyFormat.format(calculatePaidAmount()),
-                        Icons.call_received),
+                    // _buildGridItem('', amount, Icons.call_made),
+                    // _buildGridItem(
+                    //     '',
+                    //     currencyFormat.format(calculatePaidAmount()),
+                    //     Icons.call_received),
                     _buildGridItem(
                         'Type',
                         widget.lending.type.name.capitalizeFirst ??
@@ -206,43 +195,23 @@ class _LendingDetailsScreenState extends State<LendingDetailsScreen> {
                         Icons.event_busy_outlined),
                   ],
                 ),
-                const SizedBox(height: 20),
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Description',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                      color: AppColors.darkGrey,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: AppColors.subtleBackground,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    widget.lending.description?.isNotEmpty ?? false
-                        ? widget.lending.description!
-                        : 'No description provided.',
-                    style: const TextStyle(fontSize: 14, height: 1.5),
-                  ),
-                ),
-                const SizedBox(height: 16),
               ],
             ),
           ),
 
-          // --- Scrollable Repayment Section ---
+          /// --- REPAYMENT SECTION ---
           Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: RepaymentListWidget(lending: widget.lending),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+              child: Column(
+                children: [
+                  /// Progress header
+
+                  Expanded(
+                    child: RepaymentListWidget(lending: widget.lending),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -262,7 +231,7 @@ class _LendingDetailsScreenState extends State<LendingDetailsScreen> {
         children: [
           Icon(icon, size: 18, color: Colors.grey.shade600),
           const SizedBox(width: 6),
-          Flexible(
+          Expanded(
             child: Text(
               title.isNotEmpty ? '$title: $value' : value,
               style: TextStyle(

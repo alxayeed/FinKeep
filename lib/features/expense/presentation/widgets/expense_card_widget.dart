@@ -20,7 +20,6 @@ class ExpenseCardWidget extends StatelessWidget {
     Color categoryColor;
     IconData categoryIcon;
 
-    // Define colors and icons for different categories
     switch (expense.category.toLowerCase()) {
       case 'food':
         categoryColor = Colors.green;
@@ -54,104 +53,95 @@ class ExpenseCardWidget extends StatelessWidget {
         categoryColor = Colors.red;
         categoryIcon = Icons.electrical_services;
         break;
-      case 'other':
+      default:
         categoryColor = Colors.blueGrey;
         categoryIcon = Icons.category;
-        break;
-      default:
-        categoryColor = Colors.blueAccent;
-        categoryIcon = Icons.attach_money; // Default icon
     }
 
-    return Dismissible(
-      key: Key(expense.id.toString()),
-      background: Container(color: Colors.red),
-      confirmDismiss: (direction) async {
-        return await _showConfirmationDialog(context);
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: () {
+        context.pushNamed(
+          AppRoutes.expenseDetails,
+          extra: expense,
+        );
       },
-      onDismissed: (direction) {
-        onDismissed();
-      },
-      child: GestureDetector(
-        onTap: () {
-          context.pushNamed(
-            AppRoutes.expenseDetails,
-            extra: expense,
-          );
-        },
-        child: Card(
-          margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Category Circle Avatar
-                CircleAvatar(
-                  backgroundColor: categoryColor,
-                  child: Icon(
-                    categoryIcon,
-                    color: Colors.white,
+      child: Card(
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Row(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 18,
+                    backgroundColor: categoryColor,
+                    child: Icon(categoryIcon, size: 18, color: Colors.white),
                   ),
-                ),
-                const SizedBox(width: 16.0),
-                // Category, Description, and Amount
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        expense.category,
-                        style:
-                            const TextStyle(fontSize: 18, color: Colors.grey),
-                      ),
-                      const SizedBox(height: 8.0),
-                      Text(
-                        expense.description ?? "No description provided",
-                        style: const TextStyle(
-                          color: Colors.black,
-                        ),
-                      ),
-                      const SizedBox(height: 8.0),
-                      // Use the extension to format the date
-                      Text(
-                        (expense.date as DateTime).formatToReadable(),
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
+                  const SizedBox(height: 2),
+                  Text(
+                    expense.category,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      // fontWeight: FontWeight.w400,
+                    ),
                   ),
-                ),
-                // Amount Section
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                ],
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Row(
-                      children: [
-                        Text(
-                          '${expense.amount.toStringAsFixed(2)}',
+                    if (expense.description != null &&
+                        expense.description!.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          expense.description,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
+                            fontSize: 14,
                           ),
                         ),
-                        const Icon(
-                          FontAwesomeIcons.bangladeshiTakaSign,
-                          size: 16,
-                        )
-                      ],
+                      ),
+                    const SizedBox(height: 4),
+                    Text(
+                      (expense.date as DateTime).formatToReadableShort(),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey,
+                      ),
                     ),
-                    const SizedBox(height: 8.0),
                   ],
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 8),
+              Row(
+                children: [
+                  Text(
+                    expense.amount.toStringAsFixed(2),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(width: 2),
+                  const Icon(
+                    FontAwesomeIcons.bangladeshiTakaSign,
+                    size: 14,
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
@@ -159,31 +149,19 @@ class ExpenseCardWidget extends StatelessWidget {
   }
 
   Future<bool> _showConfirmationDialog(BuildContext context) async {
-    final bool? result = await showDialog<bool>(
+    final result = await showDialog<bool>(
       context: context,
-      builder: (BuildContext ctx) {
-        return AlertDialog(
-          title: const Text('Delete Expense'),
-          content: const Text('Are you sure you want to delete this expense?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                ctx.pop(false);
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                ctx.pop(true);
-              },
-              child: const Text('Confirm'),
-            ),
-          ],
-        );
-      },
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Expense'),
+        content: const Text('Are you sure you want to delete this expense?'),
+        actions: [
+          TextButton(
+              onPressed: () => ctx.pop(false), child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => ctx.pop(true), child: const Text('Confirm')),
+        ],
+      ),
     );
-
-    // 5. Return the result, defaulting to false if the dialog is dismissed externally
     return result ?? false;
   }
 }
