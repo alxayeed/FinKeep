@@ -1,7 +1,7 @@
-Release 24
-- Go router
-- Year start/end button added in report calender
-- some ui navigation issue fixed
+Release 25
+- Routing transition changed to no transition
+- Expense, Lend and repayment card UI compact design
+- Lending details updated
 
 
 
