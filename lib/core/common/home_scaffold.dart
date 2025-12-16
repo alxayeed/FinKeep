@@ -12,19 +12,16 @@ class HomeScaffold extends StatelessWidget {
   int _currentIndex(BuildContext context) {
     final currentRouteName = GoRouterState.of(context).matchedLocation;
 
-    // 2. Compare the current path string with the AppRoutes path constants
     if (currentRouteName.startsWith(AppRoutes.lendings)) return 1;
-    if (currentRouteName.startsWith(AppRoutes.expenseReport)) {
-      return 2; // Using the new report route name
-    }
-    return 0; // Default is /expenses
+    if (currentRouteName.startsWith(AppRoutes.expenseReport)) return 2;
+    if (currentRouteName.startsWith(AppRoutes.profile)) return 3;
+    return 0;
   }
 
   @override
   Widget build(BuildContext context) {
     final index = _currentIndex(context);
 
-    // Define colors (assuming AppColors are available)
     Color primaryColor = AppColors.primaryTeal;
     const Color accentColor = AppColors.white;
     const Color unselectedColor = Colors.grey;
@@ -37,20 +34,18 @@ class HomeScaffold extends StatelessWidget {
         selectedItemColor: accentColor,
         unselectedItemColor: unselectedColor,
         selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
-        // Fix: Use foreground color for unselected text style
-        unselectedLabelStyle:
-            const TextStyle(fontWeight: FontWeight.normal, color: accentColor),
+        unselectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.normal,
+          color: unselectedColor,
+        ),
         selectedFontSize: 14.0,
         unselectedFontSize: 12.0,
-
-        // Functionality
         currentIndex: index,
         onTap: (i) {
           if (i == 0) context.goNamed(AppRoutes.expenses);
           if (i == 1) context.goNamed(AppRoutes.lendings);
-          if (i == 2) {
-            context.goNamed(AppRoutes.expenseReport);
-          }
+          if (i == 2) context.goNamed(AppRoutes.expenseReport);
+          if (i == 3) context.goNamed(AppRoutes.profile);
         },
         items: const [
           BottomNavigationBarItem(
@@ -67,6 +62,11 @@ class HomeScaffold extends StatelessWidget {
             icon: Icon(Icons.bar_chart),
             activeIcon: Icon(Icons.bar_chart),
             label: 'Reports',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
+            label: 'Profile',
           ),
         ],
       ),
