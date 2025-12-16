@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/auth/presentation/screen/profile_screen.dart';
 import '../../features/expense/domain/entities/expense_entity.dart';
 import '../../features/expense/presentation/screens/expense_report_screen.dart';
 import '../../features/expense/presentation/screens/screens.dart';
@@ -9,6 +10,7 @@ import '../../features/lendings/presentation/screens/add_lending_screen.dart';
 import '../../features/lendings/presentation/screens/lending_details_screen.dart';
 import '../../features/lendings/presentation/screens/lending_list_screen.dart';
 import '../../features/lendings/presentation/screens/update_lending_screen.dart';
+import '../../main.dart';
 import '../common/home_scaffold.dart';
 
 class AppRoutes {
@@ -25,6 +27,9 @@ class AppRoutes {
   static const String lendingDetails = '/lendingDetails';
   static const String addLending = '/addLending';
   static const String updateLending = '/updateLending';
+
+  // Profile
+  static const String profile = '/profile';
 }
 
 // --------------------------------------------------------------------------
@@ -33,6 +38,7 @@ class AppRoutes {
 
 class AppRouter {
   static final GoRouter router = GoRouter(
+    navigatorKey: navigatorKey,
     initialLocation: AppRoutes.expenses,
     routes: [
       /// ----------------------------------------------------
@@ -65,6 +71,15 @@ class AppRouter {
             name: AppRoutes.expenseReport,
             pageBuilder: (context, state) => const NoTransitionPage(
               child: ExpenseReportScreen(),
+            ),
+          ),
+
+          // D. Profile Tab
+          GoRoute(
+            path: AppRoutes.profile,
+            name: AppRoutes.profile,
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: ProfileScreen(),
             ),
           ),
         ],
