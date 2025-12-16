@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -12,22 +13,20 @@ import 'expense_reminder_service.dart';
 
 class AndroidExpenseReminderService implements ExpenseReminderService {
   static const _notificationId = 1001;
+  static const _testNotificationId = 9999; // Separate ID for immediate test
 
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
 
-  // ------------------------------------------------
-  // PRIVATE HELPER: Request user to allow exact alarms
-  // ------------------------------------------------
   Future<void> _requestExactAlarmsPermission() async {
     try {
       final intent = AndroidIntent(
         action: 'android.settings.SCHEDULE_EXACT_ALARM',
       );
-      log("-----------------------------------------------------");
+      log("Opening SCHEDULE_EXACT_ALARM settings...");
       await intent.launch();
     } on PlatformException {
-      // ignore errors if user cannot open settings
+      log("Failed to open exact alarm settings");
     }
   }
 
@@ -35,11 +34,24 @@ class AndroidExpenseReminderService implements ExpenseReminderService {
   Future<void> init({required void Function(String?) onTap}) async {
     tz.initializeTimeZones();
 
+    try {
+      final TimezoneInfo timezoneInfo =
+          await FlutterTimezone.getLocalTimezone();
+      final String currentTimeZone = timezoneInfo.identifier;
+      tz.setLocalLocation(tz.getLocation(currentTimeZone));
+      log("Local timezone set to: $currentTimeZone");
+    } catch (e) {
+      log("Failed to get local timezone, falling back to UTC: $e");
+      tz.setLocalLocation(tz.UTC);
+    }
+
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
       'expense_reminder_channel',
       'Expense Reminder',
       description: 'Daily reminder to log expenses',
-      importance: Importance.high,
+      importance: Importance.max,
+      playSound: true,
+      enableVibration: true,
     );
 
     await _plugin
@@ -47,7 +59,7 @@ class AndroidExpenseReminderService implements ExpenseReminderService {
             AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
 
-    const androidSettings =
+    const AndroidInitializationSettings androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
     await _plugin.initialize(
@@ -56,69 +68,97 @@ class AndroidExpenseReminderService implements ExpenseReminderService {
         onTap(response.payload);
       },
     );
+
+    log("Flutter Local Notifications initialized successfully");
   }
 
   @override
-  Future<void> scheduleDailyReminder(
-      {required int hour, required int minute}) async {
-    final granted = await AppPermissionHandler.request(
-      Permission.notification,
-    );
-    if (!granted) return;
+  Future<void> scheduleDailyReminder({
+    required int hour,
+    required int minute,
+  }) async {
+    final granted = await AppPermissionHandler.request(Permission.notification);
+    if (!granted) {
+      log("Notification permission denied");
+      return;
+    }
 
-    // Prompt user to allow exact alarms (Android 12+)
     await _requestExactAlarmsPermission();
 
     final now = tz.TZDateTime.now(tz.local);
-    final scheduledTime = tz.TZDateTime(
+
+    tz.TZDateTime scheduledDate = tz.TZDateTime(
       tz.local,
       now.year,
       now.month,
       now.day,
       hour,
       minute,
-    ).isBefore(now)
-        ? tz.TZDateTime(
-            tz.local,
-            now.year,
-            now.month,
-            now.day,
-            hour,
-            minute,
-          ).add(const Duration(days: 1))
-        : tz.TZDateTime(
-            tz.local,
-            now.year,
-            now.month,
-            now.day,
-            hour,
-            minute,
-          );
+    );
 
-    log('📅 Scheduling expense reminder at: $scheduledTime');
+    if (scheduledDate.isBefore(now)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    }
+
+    log('📅 Scheduling daily expense reminder at: $scheduledDate (local time)');
 
     await _plugin.zonedSchedule(
       _notificationId,
       'Add today’s expense',
       'Don’t forget to log today’s expenses 💸',
-      scheduledTime,
+      scheduledDate,
       const NotificationDetails(
         android: AndroidNotificationDetails(
           'expense_reminder_channel',
           'Expense Reminder',
-          importance: Importance.high,
+          channelDescription: 'Daily reminder to log expenses',
+          importance: Importance.max,
           priority: Priority.high,
+          playSound: true,
+          enableVibration: true,
+          icon: '@mipmap/ic_launcher',
         ),
       ),
-      payload: 'add_expense',
-      matchDateTimeComponents: DateTimeComponents.time,
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      matchDateTimeComponents: DateTimeComponents.time,
+      payload: 'add_expense',
     );
+
+    log("Daily reminder scheduled successfully");
   }
 
   @override
   Future<void> cancelReminder() async {
     await _plugin.cancel(_notificationId);
     log('📌 Expense reminder canceled');
+  }
+
+  // ================================================
+  // NEW: Test method to show notification IMMEDIATELY
+  // ================================================
+  @override
+  Future<void> showTestNotificationNow() async {
+    log("🔥 Showing immediate test notification");
+
+    await _plugin.show(
+      _testNotificationId,
+      'TEST NOTIFICATION',
+      'If you see this, your notification setup is working perfectly! 🎉',
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'expense_reminder_channel',
+          'Expense Reminder',
+          channelDescription: 'Test immediate notification',
+          importance: Importance.max,
+          priority: Priority.high,
+          playSound: true,
+          enableVibration: true,
+          icon: '@mipmap/ic_launcher',
+        ),
+      ),
+      payload: 'add_expense',
+    );
+
+    log("Immediate test notification triggered");
   }
 }

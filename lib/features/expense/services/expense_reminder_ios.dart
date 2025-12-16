@@ -16,4 +16,10 @@ class IosExpenseReminderService implements ExpenseReminderService {
   Future<void> cancelReminder() async {
     // TODO: implement iOS cancellation
   }
+
+  @override
+  Future<void> showTestNotificationNow() {
+    // TODO: implement showTestNotificationNow
+    throw UnimplementedError();
+  }
 }

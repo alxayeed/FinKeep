@@ -5,10 +5,9 @@ import 'package:spendly/core/routes/app_router.dart';
 
 import 'core/config/app_config.dart';
 import 'core/styles/app_themes.dart';
+import 'core/styles/theme_provider.dart';
 import 'dependency_injection.dart';
 import 'firebase_options.dart';
-
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,26 +17,33 @@ void main() async {
   );
 
   DependencyInjection.initDependencies();
+  AppConfig.init(env: kReleaseMode ? AppEnvironment.prod : AppEnvironment.dev);
 
-  AppConfig.init(
-    env: kReleaseMode ? AppEnvironment.prod : AppEnvironment.dev,
-  );
+  // Get the singleton ThemeProvider instance
+  final themeProvider = ThemeProvider();
 
-  runApp(const MainApp());
+  runApp(MainApp(themeProvider: themeProvider));
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+  final ThemeProvider themeProvider;
+
+  const MainApp({required this.themeProvider, super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      routerConfig: AppRouter.router,
-      title: 'Spendly',
-      theme: AppThemes.lightTheme,
-      darkTheme: AppThemes.darkTheme,
-      themeMode: ThemeMode.system,
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: themeProvider,
+      builder: (context, themeMode, _) {
+        return MaterialApp.router(
+          debugShowCheckedModeBanner: false,
+          routerConfig: AppRouter.router,
+          title: 'Spendly',
+          theme: AppThemes.lightTheme,
+          darkTheme: AppThemes.darkTheme,
+          themeMode: themeMode,
+        );
+      },
     );
   }
 }

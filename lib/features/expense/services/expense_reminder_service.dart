@@ -9,6 +9,8 @@ abstract class ExpenseReminderService {
   Future<void> scheduleDailyReminder({required int hour, required int minute});
 
   Future<void> cancelReminder();
+
+  Future<void> showTestNotificationNow();
 }
 
 /// Factory method to create platform-specific implementation

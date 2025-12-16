@@ -10,7 +10,6 @@ import '../../features/lendings/presentation/screens/add_lending_screen.dart';
 import '../../features/lendings/presentation/screens/lending_details_screen.dart';
 import '../../features/lendings/presentation/screens/lending_list_screen.dart';
 import '../../features/lendings/presentation/screens/update_lending_screen.dart';
-import '../../main.dart';
 import '../common/home_scaffold.dart';
 
 class AppRoutes {
@@ -35,6 +34,8 @@ class AppRoutes {
 // --------------------------------------------------------------------------
 // ROUTER IMPLEMENTATION (No Transitions)
 // --------------------------------------------------------------------------
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class AppRouter {
   static final GoRouter router = GoRouter(
