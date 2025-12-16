@@ -1,8 +1,7 @@
-Release 26
-- Reports will show current year by default
-- Fix: clicking on date doesn't select start or end date in report
-- In lending, phone no is now optional, transaction field is added in add/edit
-- summery added in lending screen
+Release 27
+- Local notification for expense reminder
+- Profile Screen(Dummy)
+- Theme(In progress)
 
 
 
