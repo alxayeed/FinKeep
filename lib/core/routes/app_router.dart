@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:spendly/features/investments/domain/entities/investment.dart';
+import 'package:spendly/features/investments/presentation/screens/add_investment_screen.dart';
+import 'package:spendly/features/investments/presentation/screens/edit_investment_screen.dart';
+import 'package:spendly/features/investments/presentation/screens/investment_detail_screen.dart';
+import 'package:spendly/features/investments/presentation/screens/investment_list_screen.dart';
 
 import '../../features/auth/presentation/screen/profile_screen.dart';
 import '../../features/expense/domain/entities/expense_entity.dart';
 import '../../features/expense/presentation/screens/expense_report_screen.dart';
 import '../../features/expense/presentation/screens/screens.dart';
+import '../../features/investments/domain/entities/return_entry.dart';
 import '../../features/lendings/domain/entity/lending/lending_entity.dart';
 import '../../features/lendings/presentation/screens/add_lending_screen.dart';
 import '../../features/lendings/presentation/screens/lending_details_screen.dart';
@@ -26,6 +32,12 @@ class AppRoutes {
   static const String lendingDetails = '/lendingDetails';
   static const String addLending = '/addLending';
   static const String updateLending = '/updateLending';
+
+  // Investments Routes
+  static const String investments = '/investments';
+  static const String investmentDetails = '/investmentDetails';
+  static const String addInvestment = '/addInvestment';
+  static const String updateInvestment = '/updateInvestment';
 
   // Profile
   static const String profile = '/profile';
@@ -75,7 +87,16 @@ class AppRouter {
             ),
           ),
 
-          // D. Profile Tab
+          // D. Investment
+          GoRoute(
+            path: AppRoutes.investments,
+            name: AppRoutes.investments,
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: InvestmentListScreen(),
+            ),
+          ),
+
+          // E. Profile Tab
           GoRoute(
             path: AppRoutes.profile,
             name: AppRoutes.profile,
@@ -149,6 +170,61 @@ class AppRouter {
           }
           return NoTransitionPage(
             child: UpdateLendingScreen(lending: extra),
+          );
+        },
+      ),
+
+      // Investment Detail/Add/Update
+      // GoRoute(
+      //   path: AppRoutes.investments,
+      //   name: AppRoutes.investments,
+      //   pageBuilder: (context, state) => const NoTransitionPage(
+      //     child: InvestmentListScreen(),
+      //   ),
+      // ),
+      GoRoute(
+        path: AppRoutes.addInvestment,
+        name: AppRoutes.addInvestment,
+        pageBuilder: (context, state) => NoTransitionPage(
+          child: AddInvestmentScreen(
+            onSubmit: (p1) {},
+          ),
+        ),
+      ),
+      GoRoute(
+          path: AppRoutes.updateInvestment,
+          name: AppRoutes.updateInvestment,
+          pageBuilder: (context, state) {
+            final extra = state.extra;
+            if (extra is! Investment) {
+              return const NoTransitionPage(
+                child: ErrorScreen(message: 'Invalid Lending data.'),
+              );
+            }
+
+            return NoTransitionPage(
+              child: EditInvestmentScreen(
+                investment: extra,
+                onUpdate: (Investment p1) {},
+              ),
+            );
+          }),
+
+      GoRoute(
+        path: AppRoutes.investmentDetails,
+        name: AppRoutes.investmentDetails,
+        pageBuilder: (context, state) {
+          final extra = state.extra;
+          if (extra is! Investment) {
+            return const NoTransitionPage(
+              child: ErrorScreen(message: 'Invalid Lending data.'),
+            );
+          }
+          return NoTransitionPage(
+            child: InvestmentDetailScreen(
+              investment: extra,
+              onAddReturn: (String p1, ReturnEntry p2) {},
+            ),
           );
         },
       ),
