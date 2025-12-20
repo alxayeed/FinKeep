@@ -86,7 +86,8 @@ class InvestmentRepository {
         // Variable rate
         expectedROI: 15,
         notes: 'Long term growth fund',
-        docLinks: '',
+        docLinks:
+            'https://drive.google.com/file/d/15mOiSprPqVCF_E0VRm5c4d_F07Vu8FSC/view?usp=sharing',
         transactionId: 'TXN1002',
         transactionMedium: 'bKash',
         transactionDate: DateTime(2023, 5, 31),
@@ -131,7 +132,7 @@ class InvestmentRepository {
         // Variable
         expectedROI: 11,
         notes: 'Completed investment',
-        docLinks: '',
+        docLinks: 'https://github.com/alxayeed',
         transactionId: 'TXN1004',
         transactionMedium: 'Cash',
         transactionDate: DateTime(2022, 1, 31),

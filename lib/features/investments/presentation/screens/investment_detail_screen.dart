@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/common/widgets/custom_app_bar.dart';
 import '../../domain/entities/investment.dart';
 import '../../domain/entities/return_entry.dart';
-import '../widgets/investment_financials_card.dart';
+import '../widgets/ROI_details_card.dart';
 import '../widgets/investment_summary_card.dart';
 import '../widgets/return_entry_item.dart';
 import 'add_roi_bottom_sheet.dart';
@@ -54,7 +54,7 @@ class _InvestmentDetailScreenState extends State<InvestmentDetailScreen> {
             const SizedBox(height: 16),
 
             /// Financials (invested, returned, profit/remaining)
-            InvestmentFinancialsCard(investment: _investment),
+            ROIDetailsCard(investment: _investment),
             const SizedBox(height: 16),
 
             /// Transaction Info

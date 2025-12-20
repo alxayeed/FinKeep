@@ -28,6 +28,7 @@ class _AddInvestmentScreenState extends State<AddInvestmentScreen> {
   final _notesController = TextEditingController();
   final _docLinksController = TextEditingController();
   final _transactionIdController = TextEditingController();
+  final _transactionMediumController = TextEditingController();
   String? _transactionMedium;
   DateTime? _startDate;
   DateTime? _expectedEndDate;
@@ -159,16 +160,6 @@ class _AddInvestmentScreenState extends State<AddInvestmentScreen> {
             labelText: 'Expected ROI (%)',
             keyboardType: TextInputType.number,
           ),
-          const SizedBox(height: 16),
-          CustomTextFormField(
-            controller: _notesController,
-            labelText: 'Notes',
-          ),
-          const SizedBox(height: 16),
-          CustomTextFormField(
-            controller: _docLinksController,
-            labelText: 'Document Links (URL)',
-          ),
         ],
       ),
     );
@@ -180,6 +171,14 @@ class _AddInvestmentScreenState extends State<AddInvestmentScreen> {
       child: Column(
         children: [
           CustomTextFormField(
+            controller: _transactionMediumController,
+            labelText: 'Transaction Medium *',
+            validator: (value) => value == null || value.isEmpty
+                ? 'This field is required'
+                : null,
+          ),
+          const SizedBox(height: 16),
+          CustomTextFormField(
             controller: _transactionIdController,
             labelText: 'Transaction ID *',
             validator: (value) => value == null || value.isEmpty
@@ -187,27 +186,20 @@ class _AddInvestmentScreenState extends State<AddInvestmentScreen> {
                 : null,
           ),
           const SizedBox(height: 16),
-          DropdownButtonFormField<String>(
-            value: _transactionMedium,
-            decoration: const InputDecoration(
-              labelText: 'Transaction Medium *',
-              border: OutlineInputBorder(),
-            ),
-            items: ['Bank Transfer', 'bKash', 'MSF', 'Other']
-                .map((medium) => DropdownMenuItem(
-                      value: medium,
-                      child: Text(medium),
-                    ))
-                .toList(),
-            onChanged: (value) => setState(() => _transactionMedium = value),
-            validator: (value) =>
-                value == null ? 'Please select a method' : null,
-          ),
-          const SizedBox(height: 16),
           CustomDatePicker(
             labelText: 'Transaction Date *',
             selectedDate: _transactionDate,
             onDateSelected: (date) => setState(() => _transactionDate = date),
+          ),
+          const SizedBox(height: 16),
+          CustomTextFormField(
+            controller: _notesController,
+            labelText: 'Notes',
+          ),
+          const SizedBox(height: 16),
+          CustomTextFormField(
+            controller: _docLinksController,
+            labelText: 'Document Links (URL)',
           ),
         ],
       ),
@@ -246,7 +238,7 @@ class _AddInvestmentScreenState extends State<AddInvestmentScreen> {
         notes: _notesController.text,
         docLinks: _docLinksController.text,
         transactionId: _transactionIdController.text,
-        transactionMedium: _transactionMedium!,
+        transactionMedium: _transactionMediumController.text,
         transactionDate: _transactionDate!,
         status: InvestmentStatus.active,
         returns: [],

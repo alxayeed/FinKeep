@@ -68,7 +68,7 @@ class InvestmentSummaryCard extends StatelessWidget {
                     try {
                       final launched = await launchUrl(
                         uri,
-                        mode: LaunchMode.externalApplication,
+                        mode: LaunchMode.inAppWebView,
                       );
                       if (!launched) {
                         ScaffoldMessenger.of(context).showSnackBar(
