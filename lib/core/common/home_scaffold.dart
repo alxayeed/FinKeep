@@ -14,7 +14,8 @@ class HomeScaffold extends StatelessWidget {
 
     if (currentRouteName.startsWith(AppRoutes.lendings)) return 1;
     if (currentRouteName.startsWith(AppRoutes.expenseReport)) return 2;
-    if (currentRouteName.startsWith(AppRoutes.profile)) return 3;
+    if (currentRouteName.startsWith(AppRoutes.investments)) return 3;
+    if (currentRouteName.startsWith(AppRoutes.profile)) return 4;
     return 0;
   }
 
@@ -45,7 +46,8 @@ class HomeScaffold extends StatelessWidget {
           if (i == 0) context.goNamed(AppRoutes.expenses);
           if (i == 1) context.goNamed(AppRoutes.lendings);
           if (i == 2) context.goNamed(AppRoutes.expenseReport);
-          if (i == 3) context.goNamed(AppRoutes.profile);
+          if (i == 3) context.goNamed(AppRoutes.investments);
+          if (i == 4) context.goNamed(AppRoutes.profile);
         },
         items: const [
           BottomNavigationBarItem(
@@ -62,6 +64,11 @@ class HomeScaffold extends StatelessWidget {
             icon: Icon(Icons.bar_chart),
             activeIcon: Icon(Icons.bar_chart),
             label: 'Reports',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.monetization_on_outlined),
+            activeIcon: Icon(Icons.monetization_on),
+            label: 'Investments',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),

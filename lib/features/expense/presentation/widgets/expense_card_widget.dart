@@ -147,21 +147,4 @@ class ExpenseCardWidget extends StatelessWidget {
       ),
     );
   }
-
-  Future<bool> _showConfirmationDialog(BuildContext context) async {
-    final result = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Delete Expense'),
-        content: const Text('Are you sure you want to delete this expense?'),
-        actions: [
-          TextButton(
-              onPressed: () => ctx.pop(false), child: const Text('Cancel')),
-          TextButton(
-              onPressed: () => ctx.pop(true), child: const Text('Confirm')),
-        ],
-      ),
-    );
-    return result ?? false;
-  }
 }

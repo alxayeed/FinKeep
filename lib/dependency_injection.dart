@@ -13,6 +13,7 @@ import 'package:spendly/features/expense/domain/usecases/get_expense_usecase.dar
 import 'package:spendly/features/expense/domain/usecases/get_monthly_expense.dart';
 import 'package:spendly/features/expense/domain/usecases/update_expense_usecase.dart';
 import 'package:spendly/features/expense/presentation/controllers/expense_controller.dart';
+import 'package:spendly/features/investments/data/repositories/investment_repository.dart';
 // Lending Feature Dependencies
 import 'package:spendly/features/lendings/data/datasources/lending_data_source.dart';
 import 'package:spendly/features/lendings/data/datasources/lending_firestore_data_source.dart';
@@ -20,6 +21,13 @@ import 'package:spendly/features/lendings/data/repositories/lending_repository_i
 import 'package:spendly/features/lendings/domain/repositories/lending_repository.dart';
 
 import 'features/expense/domain/usecases/get_expenses_in_range_usecase.dart';
+import 'features/investments/data/datasources/investment_data_source.dart';
+import 'features/investments/data/datasources/investment_firestore_data_source.dart';
+import 'features/investments/domain/repositories/investment_repository.dart';
+import 'features/investments/domain/usecases/add_investment_usecase.dart';
+import 'features/investments/domain/usecases/get_investments_usecase.dart';
+import 'features/investments/domain/usecases/update_investment_usecase.dart';
+import 'features/investments/presentation/controller/investment_controller.dart';
 import 'features/lendings/domain/usecases/lending/add_lending_usecase.dart';
 import 'features/lendings/domain/usecases/lending/delete_lending_usecase.dart';
 import 'features/lendings/domain/usecases/lending/get_lendings_count_usecase.dart';
@@ -39,8 +47,10 @@ import 'features/lendings/presentation/controllers/lendings_controller.dart';
 
 class DependencyInjection {
   static void initDependencies() {
-    Get.lazyPut<FirebaseFirestore>(() => FirebaseFirestore.instance,
-        fenix: true);
+    Get.lazyPut<FirebaseFirestore>(
+      () => FirebaseFirestore.instance,
+      fenix: true,
+    );
     Get.lazyPut<ExceptionMapper>(() => ExceptionMapper());
 
     // --- Expense Feature ---
@@ -56,24 +66,28 @@ class DependencyInjection {
     Get.lazyPut(() => UpdateExpenseUseCase(Get.find()));
     Get.lazyPut(() => DeleteExpenseUseCase(Get.find()));
 
-    Get.lazyPut(() => ExpenseController(
-          getAllExpenses: Get.find(),
-          getMonthlyExpensesUseCase: Get.find(),
-          getExpensesInRangeUseCase: Get.find(),
-          getExpense: Get.find(),
-          addExpense: Get.find(),
-          updateExpense: Get.find(),
-          deleteExpense: Get.find(),
-        ));
+    Get.lazyPut(
+      () => ExpenseController(
+        getAllExpenses: Get.find(),
+        getMonthlyExpensesUseCase: Get.find(),
+        getExpensesInRangeUseCase: Get.find(),
+        getExpense: Get.find(),
+        addExpense: Get.find(),
+        updateExpense: Get.find(),
+        deleteExpense: Get.find(),
+      ),
+    );
 
     // --- Lending Feature ---
     Get.lazyPut<LendingDataSource>(
       () => LendingFirestoreDataSource(firestore: Get.find()),
     );
-    Get.lazyPut<LendingRepository>(() => LendingRepositoryImpl(
-          remoteDataSource: Get.find(),
-          exceptionMapper: Get.find(),
-        ));
+    Get.lazyPut<LendingRepository>(
+      () => LendingRepositoryImpl(
+        remoteDataSource: Get.find(),
+        exceptionMapper: Get.find(),
+      ),
+    );
 
     // Lending Use Cases
     Get.lazyPut(() => GetLendingsUseCase(repository: Get.find()));
@@ -98,19 +112,44 @@ class DependencyInjection {
 
     // Controllers
 
-    Get.lazyPut(() => LendingsController(
-          getLendingsUseCase: Get.find(),
-          deleteLendingUseCase: Get.find(),
-          updateLendingUseCase: Get.find(),
-          addLendingUseCase: Get.find(),
-          addPersonUseCase: Get.find(),
-          getUserPersonsUseCase: Get.find(),
-          updatePersonUseCase: Get.find(),
-          deletePersonUseCase: Get.find(),
-          addRepaymentUseCase: Get.find(),
-          getRepaymentsUseCase: Get.find(),
-          updateRepaymentUseCase: Get.find(),
-          deleteRepaymentUseCase: Get.find(),
-        ));
+    Get.lazyPut(
+      () => LendingsController(
+        getLendingsUseCase: Get.find(),
+        deleteLendingUseCase: Get.find(),
+        updateLendingUseCase: Get.find(),
+        addLendingUseCase: Get.find(),
+        addPersonUseCase: Get.find(),
+        getUserPersonsUseCase: Get.find(),
+        updatePersonUseCase: Get.find(),
+        deletePersonUseCase: Get.find(),
+        addRepaymentUseCase: Get.find(),
+        getRepaymentsUseCase: Get.find(),
+        updateRepaymentUseCase: Get.find(),
+        deleteRepaymentUseCase: Get.find(),
+      ),
+    );
+
+    // --- Investment Feature ---
+    Get.lazyPut<InvestmentDataSource>(
+      () => InvestmentFirestoreDataSource(firestore: Get.find()),
+    );
+
+    Get.lazyPut<InvestmentRepository>(
+      () => InvestmentRepositoryImpl(dataSource: Get.find()),
+    );
+
+    // Use Cases
+    Get.lazyPut(() => GetInvestmentsUseCase(Get.find()));
+    Get.lazyPut(() => AddInvestmentUseCase(Get.find()));
+    Get.lazyPut(() => UpdateInvestmentUseCase(Get.find()));
+
+    // Controller
+    Get.lazyPut(
+      () => InvestmentController(
+        getInvestmentsUseCase: Get.find(),
+        addInvestmentUseCase: Get.find(),
+        updateInvestmentUseCase: Get.find(),
+      ),
+    );
   }
 }
