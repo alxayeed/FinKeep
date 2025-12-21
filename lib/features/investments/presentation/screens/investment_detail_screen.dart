@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:spendly/core/routes/app_router.dart';
 
 import '../../../../core/common/widgets/custom_app_bar.dart';
 import '../../domain/entities/investment.dart';
 import '../../domain/entities/return_entry.dart';
 import '../widgets/investment_summary_card.dart';
+import '../widgets/return_details_card.dart';
 import '../widgets/return_entry_item.dart';
-import '../widgets/roi_details_card.dart';
 import 'add_roi_bottom_sheet.dart';
 
 class InvestmentDetailScreen extends StatefulWidget {
@@ -44,22 +46,34 @@ class _InvestmentDetailScreenState extends State<InvestmentDetailScreen> {
       appBar: CustomAppBar(
         title: _investment.title,
         showBackButton: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () {
+              context.pushNamed(AppRoutes.updateInvestment, extra: _investment);
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: () {
+              // TODO: Implement delete functionality
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
+          spacing: 2,
           children: [
             /// Summary (title, platform, dates, status)
             InvestmentSummaryCard(investment: _investment),
-            const SizedBox(height: 16),
 
             /// Financials (invested, returned, profit/remaining)
             ROIDetailsCard(investment: _investment),
-            const SizedBox(height: 16),
 
             /// Transaction Info
             _buildTransactionInfo(),
-            const SizedBox(height: 16),
 
             /// Returns
             _buildReturnEntries(),
@@ -81,6 +95,7 @@ class _InvestmentDetailScreenState extends State<InvestmentDetailScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 2,
           children: [
             const Text(
               'Transaction Details',
@@ -89,10 +104,7 @@ class _InvestmentDetailScreenState extends State<InvestmentDetailScreen> {
             const Divider(),
             _infoRow('Transaction ID', _investment.transactionId),
             _infoRow('Medium', _investment.transactionMedium),
-            _infoRow(
-              'Date',
-              _fmt(_investment.transactionDate),
-            ),
+            _infoRow('Date', _fmt(_investment.transactionDate)),
           ],
         ),
       ),
@@ -127,12 +139,12 @@ class _InvestmentDetailScreenState extends State<InvestmentDetailScreen> {
                       context: context,
                       isScrollControlled: true,
                       shape: const RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(16)),
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(16),
+                        ),
                       ),
-                      builder: (context) => AddReturnBottomSheet(
-                        onAddReturn: _handleAddReturn,
-                      ),
+                      builder: (context) =>
+                          AddReturnBottomSheet(onAddReturn: _handleAddReturn),
                     );
                   },
                 ),
@@ -166,24 +178,21 @@ class _InvestmentDetailScreenState extends State<InvestmentDetailScreen> {
   // --------------------------------------------------
 
   Widget _infoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+        ),
+        Flexible(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            style: const TextStyle(fontWeight: FontWeight.w500),
           ),
-          Flexible(
-            child: Text(
-              value,
-              textAlign: TextAlign.end,
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

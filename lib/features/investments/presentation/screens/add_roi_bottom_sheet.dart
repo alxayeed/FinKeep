@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:spendly/core/common/widgets/styled_date_picker_button.dart';
+import 'package:spendly/core/common/widgets/styled_text_form_field.dart';
 
+import '../../../../core/common/widgets/styled_dropdown_form_field.dart';
 import '../../domain/entities/return_entry.dart';
-import '../widgets/custom_date_picker.dart';
-import '../widgets/custom_text_form_field.dart';
 
 class AddReturnBottomSheet extends StatefulWidget {
   final Function(ReturnEntry) onAddReturn;
@@ -37,15 +38,14 @@ class _AddReturnBottomSheetState extends State<AddReturnBottomSheet> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
+              const Text(
                 'Add Return Entry',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
-              CustomTextFormField(
+
+              // Amount Received
+              StyledTextFormField(
                 controller: _amountController,
                 labelText: 'Amount Received *',
                 keyboardType: TextInputType.number,
@@ -61,7 +61,9 @@ class _AddReturnBottomSheetState extends State<AddReturnBottomSheet> {
                 },
               ),
               const SizedBox(height: 16),
-              CustomDatePicker(
+
+              // Date Picker
+              StyledDatePickerButton(
                 labelText: 'Date *',
                 selectedDate: _returnDate,
                 onDateSelected: (date) => setState(() => _returnDate = date),
@@ -69,7 +71,9 @@ class _AddReturnBottomSheetState extends State<AddReturnBottomSheet> {
                     value == null ? 'This field is required' : null,
               ),
               const SizedBox(height: 16),
-              CustomTextFormField(
+
+              // Transaction ID
+              StyledTextFormField(
                 controller: _transactionIdController,
                 labelText: 'Transaction ID *',
                 validator: (value) => value == null || value.isEmpty
@@ -77,25 +81,29 @@ class _AddReturnBottomSheetState extends State<AddReturnBottomSheet> {
                     : null,
               ),
               const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                initialValue: _medium,
-                decoration: const InputDecoration(
-                  labelText: 'Medium *',
-                  border: OutlineInputBorder(),
-                ),
+
+              StyledDropdownFormField<String>(
+                value: _medium,
+                labelText: 'Medium *',
                 items: ['Bank Transfer', 'bKash', 'MSF', 'Other']
                     .map((m) => DropdownMenuItem(value: m, child: Text(m)))
                     .toList(),
                 onChanged: (value) => setState(() => _medium = value),
                 validator: (value) =>
                     value == null ? 'Please select a method' : null,
+                prefixIcon: Icons.payment,
               ),
+
               const SizedBox(height: 16),
-              CustomTextFormField(
+
+              // Notes
+              StyledTextFormField(
                 controller: _notesController,
                 labelText: 'Notes',
               ),
               const SizedBox(height: 24),
+
+              // Action buttons
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [

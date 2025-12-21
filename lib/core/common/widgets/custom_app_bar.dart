@@ -4,20 +4,20 @@ import 'package:go_router/go_router.dart';
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final PreferredSizeWidget? bottom;
-
   final bool showBackButton;
+  final List<Widget>? actions;
 
   const CustomAppBar({
     super.key,
     this.title = "Spendly",
     this.bottom,
     this.showBackButton = false,
+    this.actions,
   });
 
   @override
-  Size get preferredSize => Size.fromHeight(
-        kToolbarHeight + (bottom?.preferredSize.height ?? 0),
-      );
+  Size get preferredSize =>
+      Size.fromHeight(kToolbarHeight + (bottom?.preferredSize.height ?? 0));
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +32,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               onPressed: () => context.pop(),
             )
           : null,
-      actions: const [],
+      actions: actions,
       bottom: bottom,
     );
   }

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:spendly/core/common/widgets/styled_date_picker_button.dart';
 
 import '../../../../core/common/widgets/styled_dropdown_form_field.dart';
 import '../../../../core/common/widgets/styled_text_form_field.dart';
 import '../../domain/entities/investment.dart';
 import '../../domain/enums/investment_status.dart';
 import '../controller/investment_controller.dart';
-import '../widgets/custom_date_picker.dart';
 
 class InvestmentStepperForm extends StatefulWidget {
   final Investment? initialInvestment;
@@ -172,14 +172,14 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
             validator: _requiredAmount,
           ),
           const SizedBox(height: 12),
-          CustomDatePicker(
+          StyledDatePickerButton(
             labelText: 'Start Date *',
             selectedDate: _startDate,
             onDateSelected: (d) => _startDate = d,
             validator: _requiredDate,
           ),
           const SizedBox(height: 12),
-          CustomDatePicker(
+          StyledDatePickerButton(
             labelText: 'Expected End Date *',
             selectedDate: _expectedEndDate,
             onDateSelected: (d) => _expectedEndDate = d,
@@ -227,11 +227,11 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
             validator: _required,
           ),
           const SizedBox(height: 12),
-          CustomDatePicker(
+          StyledDatePickerButton(
             labelText: 'Transaction Date *',
             selectedDate: _transactionDate,
             onDateSelected: (d) => _transactionDate = d,
-            validator: _requiredDate,
+            // validator: _requiredDate,
           ),
           const SizedBox(height: 12),
           StyledTextFormField(

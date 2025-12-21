@@ -32,6 +32,7 @@ class InvestmentController extends GetxController {
     try {
       isLoading.value = true;
       errorMessage.value = '';
+
       final result = await getInvestmentsUseCase();
       investments.assignAll(result);
     } catch (e) {
