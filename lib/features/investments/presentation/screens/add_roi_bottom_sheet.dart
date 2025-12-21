@@ -50,8 +50,9 @@ class _AddReturnBottomSheetState extends State<AddReturnBottomSheet> {
                 labelText: 'Amount Received *',
                 keyboardType: TextInputType.number,
                 validator: (value) {
-                  if (value == null || value.isEmpty)
+                  if (value == null || value.isEmpty) {
                     return 'This field is required';
+                  }
                   if (double.tryParse(value) == null ||
                       double.parse(value) <= 0) {
                     return 'Enter a valid amount';
@@ -77,7 +78,7 @@ class _AddReturnBottomSheetState extends State<AddReturnBottomSheet> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: _medium,
+                initialValue: _medium,
                 decoration: const InputDecoration(
                   labelText: 'Medium *',
                   border: OutlineInputBorder(),

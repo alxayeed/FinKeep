@@ -20,8 +20,6 @@ class InvestmentItem extends StatelessWidget {
       (sum, r) => sum + r.amountReceived,
     );
 
-    final profitLoss = totalReturns - investment.amountInvested;
-
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       elevation: 2,

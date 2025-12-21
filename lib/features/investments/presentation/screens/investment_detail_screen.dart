@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../../core/common/widgets/custom_app_bar.dart';
 import '../../domain/entities/investment.dart';
 import '../../domain/entities/return_entry.dart';
-import '../widgets/ROI_details_card.dart';
 import '../widgets/investment_summary_card.dart';
 import '../widgets/return_entry_item.dart';
+import '../widgets/roi_details_card.dart';
 import 'add_roi_bottom_sheet.dart';
 
 class InvestmentDetailScreen extends StatefulWidget {

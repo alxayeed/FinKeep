@@ -20,30 +20,11 @@ class CustomDatePicker extends StatefulWidget {
 
 class _CustomDatePickerState extends State<CustomDatePicker> {
   DateTime? _selectedDate;
-  String? _errorText;
 
   @override
   void initState() {
     super.initState();
     _selectedDate = widget.selectedDate;
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-        if (widget.validator != null) {
-          _errorText = widget.validator!(_selectedDate);
-        }
-      });
-      widget.onDateSelected(picked);
-    }
   }
 
   @override
