@@ -1,7 +1,8 @@
-Release 27
-- Local notification for expense reminder
-- Profile Screen(Dummy)
-- Theme(In progress)
+Release 29
+- Add investment
+- List and details
+- Update investment
+- Add ROI
 
 
 
