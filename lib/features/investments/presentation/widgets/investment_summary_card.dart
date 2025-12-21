@@ -87,7 +87,7 @@ class InvestmentSummaryCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => _previewDocument(context),
       child: Text(
-        investment.docLinks,
+        "Documents",
         style: TextStyle(
           color: Colors.blue.shade700,
           decoration: TextDecoration.underline,

@@ -19,4 +19,5 @@ class AppStrings {
   static const String lendingsCollection = 'lendings';
   static const String lendingPersonCollection = 'loan_parties';
   static const String repaymentsCollection = 'repayments';
+  static const String investmentsCollection = 'investments';
 }

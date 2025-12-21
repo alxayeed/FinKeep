@@ -1,32 +1,53 @@
-import '../domain/entities/investment.dart';
-import '../domain/entities/return_entry.dart';
-import '../domain/enums/investment_status.dart';
-import '../domain/repositories/investment_repository.dart';
+import '../../domain/entities/investment.dart';
+import '../../domain/entities/return_entry.dart';
+import '../../domain/enums/investment_status.dart';
+import '../../domain/repositories/investment_repository.dart';
+import '../datasources/investment_data_source.dart';
+import '../models/investment_model.dart';
+import '../models/return_entry_model.dart';
 
-/// Implementation of the domain's InvestmentRepository interface.
-/// Currently uses dummy data; later can be connected to a real data source.
+/// Repository Implementation connecting domain with data source.
+/// Currently uses dummy data, but methods are ready to interact with real data source.
 class InvestmentRepositoryImpl implements InvestmentRepository {
-  final List<Investment> _investments = [];
+  final InvestmentDataSource _dataSource;
+  final List<Investment> _dummyInvestments = [];
 
-  InvestmentRepositoryImpl() {
+  InvestmentRepositoryImpl({required InvestmentDataSource dataSource})
+    : _dataSource = dataSource {
     _seedDummyData();
   }
 
   @override
   Future<List<Investment>> getInvestments() async {
-    return List.from(_investments);
+    try {
+      final models = await _dataSource.getInvestments();
+      return models.map((m) => m).toList();
+    } catch (_) {
+      // fallback to dummy data
+      return List.from(_dummyInvestments);
+    }
   }
 
   @override
   Future<void> addInvestment(Investment investment) async {
-    _investments.add(investment);
+    final model = InvestmentModel.fromEntity(investment);
+    try {
+      await _dataSource.addInvestment(model);
+    } catch (_) {
+      // fallback to dummy data
+      _dummyInvestments.add(investment);
+    }
   }
 
   @override
   Future<void> updateInvestment(Investment investment) async {
-    final index = _investments.indexWhere((i) => i.id == investment.id);
-    if (index != -1) {
-      _investments[index] = investment;
+    final model = InvestmentModel.fromEntity(investment);
+    try {
+      await _dataSource.updateInvestment(model);
+    } catch (_) {
+      // fallback to dummy data
+      final index = _dummyInvestments.indexWhere((i) => i.id == investment.id);
+      if (index != -1) _dummyInvestments[index] = investment;
     }
   }
 
@@ -35,19 +56,23 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
     String investmentId,
     ReturnEntry returnEntry,
   ) async {
-    final index = _investments.indexWhere((i) => i.id == investmentId);
-    if (index != -1) {
-      _investments[index].returns.add(returnEntry);
+    final model = ReturnEntryModel.fromEntity(returnEntry);
+    try {
+      await _dataSource.addReturnEntry(investmentId, model);
+    } catch (_) {
+      // fallback to dummy data
+      final index = _dummyInvestments.indexWhere((i) => i.id == investmentId);
+      if (index != -1) _dummyInvestments[index].returns.add(returnEntry);
     }
   }
 
   // ------------------------------------------------
-  // Dummy Data
+  // Dummy Data (for offline/dev/testing)
   // ------------------------------------------------
   void _seedDummyData() {
-    if (_investments.isNotEmpty) return;
+    if (_dummyInvestments.isNotEmpty) return;
 
-    _investments.addAll([
+    _dummyInvestments.addAll([
       Investment(
         id: 'inv_001',
         title: 'Fixed Deposit – City Bank',
@@ -94,7 +119,7 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
         expectedROI: 15,
         notes: 'Long term growth fund',
         docLinks:
-            'https://drive.google.com/file/d/15mOiSprPqVCF_E0VRm5c4d_F07Vu8FSC/view?usp=sharing',
+            'https://drive.google.com/drive/folders/1-dK75DbFK2rzBCekDjk2uICqzJHyaqzQ?usp=sharing',
         transactionId: 'TXN1002',
         transactionMedium: 'bKash',
         transactionDate: DateTime(2023, 5, 31),

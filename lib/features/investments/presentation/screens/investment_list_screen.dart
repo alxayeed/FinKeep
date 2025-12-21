@@ -22,20 +22,25 @@ class InvestmentListScreen extends StatelessWidget {
           return const Center(child: Text('No investments yet. Add one!'));
         }
 
-        return ListView.builder(
-          itemCount: controller.investments.length,
-          itemBuilder: (context, index) {
-            final investment = controller.investments[index];
-            return InvestmentItem(
-              investment: investment,
-              onTap: () {
-                context.pushNamed(
-                  AppRoutes.investmentDetails,
-                  extra: investment,
-                );
-              },
-            );
+        return RefreshIndicator(
+          onRefresh: () async {
+            await controller.fetchInvestments();
           },
+          child: ListView.builder(
+            itemCount: controller.investments.length,
+            itemBuilder: (context, index) {
+              final investment = controller.investments[index];
+              return InvestmentItem(
+                investment: investment,
+                onTap: () {
+                  context.pushNamed(
+                    AppRoutes.investmentDetails,
+                    extra: investment,
+                  );
+                },
+              );
+            },
+          ),
         );
       }),
       floatingActionButton: FloatingActionButton(

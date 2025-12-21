@@ -13,7 +13,7 @@ import 'package:spendly/features/expense/domain/usecases/get_expense_usecase.dar
 import 'package:spendly/features/expense/domain/usecases/get_monthly_expense.dart';
 import 'package:spendly/features/expense/domain/usecases/update_expense_usecase.dart';
 import 'package:spendly/features/expense/presentation/controllers/expense_controller.dart';
-import 'package:spendly/features/investments/data/investment_repository.dart';
+import 'package:spendly/features/investments/data/repositories/investment_repository.dart';
 // Lending Feature Dependencies
 import 'package:spendly/features/lendings/data/datasources/lending_data_source.dart';
 import 'package:spendly/features/lendings/data/datasources/lending_firestore_data_source.dart';
@@ -21,6 +21,8 @@ import 'package:spendly/features/lendings/data/repositories/lending_repository_i
 import 'package:spendly/features/lendings/domain/repositories/lending_repository.dart';
 
 import 'features/expense/domain/usecases/get_expenses_in_range_usecase.dart';
+import 'features/investments/data/datasources/investment_data_source.dart';
+import 'features/investments/data/datasources/investment_firestore_data_source.dart';
 import 'features/investments/domain/repositories/investment_repository.dart';
 import 'features/investments/domain/usecases/add_investment_usecase.dart';
 import 'features/investments/domain/usecases/get_investments_usecase.dart';
@@ -128,7 +130,13 @@ class DependencyInjection {
     );
 
     // --- Investment Feature ---
-    Get.lazyPut<InvestmentRepository>(() => InvestmentRepositoryImpl());
+    Get.lazyPut<InvestmentDataSource>(
+      () => InvestmentFirestoreDataSource(firestore: Get.find()),
+    );
+
+    Get.lazyPut<InvestmentRepository>(
+      () => InvestmentRepositoryImpl(dataSource: Get.find()),
+    );
 
     // Use Cases
     Get.lazyPut(() => GetInvestmentsUseCase(Get.find()));
