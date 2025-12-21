@@ -1,30 +1,40 @@
 import '../domain/entities/investment.dart';
 import '../domain/entities/return_entry.dart';
 import '../domain/enums/investment_status.dart';
+import '../domain/repositories/investment_repository.dart';
 
-class InvestmentRepository {
+/// Implementation of the domain's InvestmentRepository interface.
+/// Currently uses dummy data; later can be connected to a real data source.
+class InvestmentRepositoryImpl implements InvestmentRepository {
   final List<Investment> _investments = [];
 
-  InvestmentRepository() {
+  InvestmentRepositoryImpl() {
     _seedDummyData();
   }
 
-  List<Investment> getInvestments() {
+  @override
+  Future<List<Investment>> getInvestments() async {
     return List.from(_investments);
   }
 
-  void addInvestment(Investment investment) {
+  @override
+  Future<void> addInvestment(Investment investment) async {
     _investments.add(investment);
   }
 
-  void updateInvestment(Investment investment) {
+  @override
+  Future<void> updateInvestment(Investment investment) async {
     final index = _investments.indexWhere((i) => i.id == investment.id);
     if (index != -1) {
       _investments[index] = investment;
     }
   }
 
-  void addReturnEntry(String investmentId, ReturnEntry returnEntry) {
+  @override
+  Future<void> addReturnEntry(
+    String investmentId,
+    ReturnEntry returnEntry,
+  ) async {
     final index = _investments.indexWhere((i) => i.id == investmentId);
     if (index != -1) {
       _investments[index].returns.add(returnEntry);
@@ -34,7 +44,6 @@ class InvestmentRepository {
   // ------------------------------------------------
   // Dummy Data
   // ------------------------------------------------
-
   void _seedDummyData() {
     if (_investments.isNotEmpty) return;
 
@@ -47,7 +56,6 @@ class InvestmentRepository {
         expectedEndDate: DateTime(2025, 1, 10),
         platformName: 'City Bank',
         profitRate: '8.5%',
-        // Fixed rate
         expectedROI: 8.5,
         notes: '1 year fixed deposit',
         docLinks:
@@ -83,7 +91,6 @@ class InvestmentRepository {
         expectedEndDate: DateTime(2026, 6, 1),
         platformName: 'ABC Asset Management',
         profitRate: '12-15%',
-        // Variable rate
         expectedROI: 15,
         notes: 'Long term growth fund',
         docLinks:
@@ -102,7 +109,6 @@ class InvestmentRepository {
         expectedEndDate: DateTime(2024, 3, 15),
         platformName: 'LendX',
         profitRate: '18%',
-        // Fixed
         expectedROI: 18,
         notes: 'High risk investment',
         docLinks: '',
@@ -129,7 +135,6 @@ class InvestmentRepository {
         expectedEndDate: DateTime(2023, 2, 1),
         platformName: 'GoldMart',
         profitRate: '10-11%',
-        // Variable
         expectedROI: 11,
         notes: 'Completed investment',
         docLinks: 'https://github.com/alxayeed',

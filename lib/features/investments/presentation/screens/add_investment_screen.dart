@@ -12,7 +12,7 @@ class AddInvestmentScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return InvestmentStepperForm(
       title: 'Add Investment',
-      onSubmit: onSubmit,
+      // onSubmit: onSubmit,
     );
   }
 }

@@ -18,8 +18,8 @@ class EditInvestmentScreen extends StatelessWidget {
     return InvestmentStepperForm(
       title: 'Edit Investment',
       initialInvestment: investment,
-      allowStatusEdit: true,
-      onSubmit: onUpdate,
+      // allowStatusEdit: true,
+      // onSubmit: onUpdate,
     );
   }
 }

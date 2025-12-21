@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../../core/common/widgets/styled_dropdown_form_field.dart';
 import '../../../../core/common/widgets/styled_text_form_field.dart';
 import '../../domain/entities/investment.dart';
 import '../../domain/enums/investment_status.dart';
+import '../controller/investment_controller.dart';
 import '../widgets/custom_date_picker.dart';
 
 class InvestmentStepperForm extends StatefulWidget {
   final Investment? initialInvestment;
-  final Function(Investment) onSubmit;
   final String title;
   final bool allowStatusEdit;
 
   const InvestmentStepperForm({
     super.key,
-    required this.onSubmit,
     required this.title,
     this.initialInvestment,
     this.allowStatusEdit = false,
@@ -46,6 +46,8 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
   InvestmentStatus _status = InvestmentStatus.active;
 
   bool get isEdit => widget.initialInvestment != null;
+
+  final InvestmentController _controller = Get.find();
 
   @override
   void initState() {
@@ -113,24 +115,19 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                // Cancel / Back
                 TextButton(
                   onPressed: () {
                     if (_currentStep == 0) {
-                      Navigator.pop(context); // Cancel closes form
+                      Navigator.pop(context);
                     } else {
-                      setState(
-                        () => _currentStep--,
-                      ); // Back goes to previous step
+                      setState(() => _currentStep--);
                     }
                   },
                   child: Text(_currentStep == 0 ? 'Cancel' : 'Back'),
                 ),
                 const SizedBox(width: 16),
-                // Next / Save
                 ElevatedButton(
                   onPressed: () {
-                    // Validate current step
                     final valid = _currentStep == 0
                         ? _formKeyStep1.currentState!.validate()
                         : _currentStep == 1
@@ -140,9 +137,9 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
                     if (!valid) return;
 
                     if (isLastStep) {
-                      _submit(); // Save on last step
+                      _submit();
                     } else {
-                      setState(() => _currentStep++); // Next step
+                      setState(() => _currentStep++);
                     }
                   },
                   child: Text(isLastStep ? 'Save' : 'Next'),
@@ -348,7 +345,12 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
       returns: widget.initialInvestment?.returns ?? [],
     );
 
-    widget.onSubmit(investment);
+    if (isEdit) {
+      _controller.updateInvestment(investment);
+    } else {
+      _controller.addInvestment(investment);
+    }
+
     Navigator.pop(context);
   }
 
