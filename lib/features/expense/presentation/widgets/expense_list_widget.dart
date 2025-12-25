@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
-import 'package:spendly/core/common/widgets/no_data_widget.dart';
-import 'package:spendly/core/extensions/double_ext.dart';
 
-import '../../../../core/common/widgets/loader_widget.dart';
-import '../../domain/entities/expense_entity.dart';
 import '../controllers/expense_controller.dart';
-import 'expense_card_widget.dart';
+import 'expenses_list.dart';
+import 'total_expenses_card.dart';
 
 class ExpenseListWidget extends StatelessWidget {
   final ExpenseController controller;
@@ -19,44 +15,13 @@ class ExpenseListWidget extends StatelessWidget {
     this.isReport = false,
   });
 
-  List<ExpenseEntity> get _dataList {
-    return isReport
-        ? controller.reportFilteredExpenses
-        : controller.filteredExpenses;
-  }
-
-  RxDouble get _totalExpense {
-    return isReport ? controller.reportTotalExpense : controller.totalExpense;
-  }
-
-  Widget _buildExpenseSummary() {
-    return Obx(() {
-      final amount = _totalExpense.value;
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        width: double.infinity,
-        decoration: BoxDecoration(
-            color: Colors.teal.shade400,
-            borderRadius: BorderRadius.circular(10)),
-        child: Center(
-          child: Text(
-            '${amount.toCurrency()} ৳',
-            style: const TextStyle(
-                fontSize: 18, fontWeight: FontWeight.w400, color: Colors.white),
-          ),
-        ),
-      );
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Container(
-          height: 50,
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          height: 40,
+          margin: const EdgeInsets.only(top: 8, left: 4, bottom: 8),
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: controller.categories.length,
@@ -68,52 +33,54 @@ class ExpenseListWidget extends StatelessWidget {
               return Obx(() {
                 final isSelected =
                     controller.selectedCategory.value == category;
-
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  child: ChoiceChip(
-                    label: Text(
-                      category,
-                      style: TextStyle(
-                        color: isSelected ? Colors.white : Colors.black,
+                return GestureDetector(
+                  onTap: () => controller.updateSelectedCategory(category),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20.0, vertical: 10.0),
+                    decoration: BoxDecoration(
+                      color: isSelected ? const Color(0xFF009688) : Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isSelected
+                            ? Colors.transparent
+                            : Colors.grey.shade300,
                       ),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color: const Color(0xFF009688).withOpacity(0.3),
+                                blurRadius: 5,
+                                offset: const Offset(0, 2),
+                              )
+                            ]
+                          : [],
                     ),
-                    selected: isSelected,
-                    selectedColor: Colors.teal,
-                    onSelected: (selected) {
-                      if (selected) {
-                        controller.updateSelectedCategory(category);
-                      }
-                    },
+                    child: Row(
+                      children: [
+                        if (isSelected && isAllCategory)
+                          const Icon(Icons.check, color: Colors.white, size: 16),
+                        if (isSelected && isAllCategory)
+                          const SizedBox(width: 4),
+                        Text(
+                          category,
+                          style: TextStyle(
+                            color: isSelected ? Colors.white : Colors.black,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               });
             },
           ),
         ),
-        _buildExpenseSummary(),
+        TotalExpensesCard(controller: controller, isReport: isReport),
         Expanded(
-          child: Obx(() {
-            final data = _dataList;
-
-            if (controller.isLoading.value) {
-              return const Center(child: LoaderWidget());
-            } else if (data.isEmpty) {
-              return const Center(child: NoDataWidget());
-            }
-            return ListView.builder(
-              itemCount: data.length,
-              itemBuilder: (context, index) {
-                final expense = data[index];
-                return ExpenseCardWidget(
-                  expense: expense,
-                  onDismissed: () {
-                    controller.removeExpense(expense.id);
-                  },
-                );
-              },
-            );
-          }),
+          child: ExpensesList(controller: controller, isReport: isReport),
         ),
       ],
     );
