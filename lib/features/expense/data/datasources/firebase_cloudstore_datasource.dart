@@ -53,12 +53,19 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
 
   @override
   Future<List<ExpenseModel>> getExpensesForMonth(
-      String userId, DateTime selectedMonth) async {
-    DateTime startOfMonth =
-        DateTime(selectedMonth.year, selectedMonth.month, 1);
-    DateTime endOfMonth =
-        DateTime(selectedMonth.year, selectedMonth.month + 1, 1)
-            .subtract(const Duration(seconds: 1));
+    String userId,
+    DateTime selectedMonth,
+  ) async {
+    DateTime startOfMonth = DateTime(
+      selectedMonth.year,
+      selectedMonth.month,
+      1,
+    );
+    DateTime endOfMonth = DateTime(
+      selectedMonth.year,
+      selectedMonth.month + 1,
+      1,
+    ).subtract(const Duration(seconds: 1));
 
     final querySnapshot = await fireStore
         .collection('expenses')
@@ -68,11 +75,44 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
         .orderBy("date", descending: true)
         .get();
 
-    final result = querySnapshot.docs
+    return querySnapshot.docs
         .map((doc) => ExpenseModel.fromJson(doc.data()..['id'] = doc.id))
         .toList();
+  }
 
-    return result;
+  @override
+  Future<double> getTotalExpensesForMonth(
+    String userId,
+    DateTime selectedMonth,
+  ) async {
+    DateTime startOfMonth = DateTime(
+      selectedMonth.year,
+      selectedMonth.month,
+      1,
+    );
+    DateTime endOfMonth = DateTime(
+      selectedMonth.year,
+      selectedMonth.month + 1,
+      1,
+    ).subtract(const Duration(seconds: 1));
+
+    final querySnapshot = await fireStore
+        .collection('expenses')
+        .where('userId', isEqualTo: userId)
+        .where('date', isGreaterThanOrEqualTo: startOfMonth)
+        .where('date', isLessThanOrEqualTo: endOfMonth)
+        .get();
+
+    double total = 0.0;
+    for (var doc in querySnapshot.docs) {
+      final data = doc.data();
+      final amount = data['amount'];
+      if (amount is num) {
+        total += amount.toDouble();
+      }
+    }
+
+    return total;
   }
 
   @override

@@ -6,6 +6,7 @@ import 'package:spendly/features/expense/domain/usecases/get_monthly_expense.dar
 
 import '../../../../core/enums/expense_category.dart';
 import '../../domain/entities/expense_entity.dart';
+import '../../domain/usecases/get_last_month_total_usecase.dart';
 import '../../domain/usecases/usecases.dart';
 
 class ExpenseController extends GetxController {
@@ -16,6 +17,9 @@ class ExpenseController extends GetxController {
   final AddExpenseUseCase addExpense;
   final UpdateExpenseUseCase updateExpense;
   final DeleteExpenseUseCase deleteExpense;
+
+  // ===== Last Month Usecase =====
+  final GetLastMonthTotalUseCase getLastMonthTotalUseCase;
 
   var expenses = <ExpenseEntity>[].obs;
   var isLoading = false.obs;
@@ -38,6 +42,11 @@ class ExpenseController extends GetxController {
   final Rx<DateTime?> startDate = Rx<DateTime?>(null);
   final Rx<DateTime?> endDate = Rx<DateTime?>(null);
 
+  // ===== Budget & Last Month Total =====
+  var monthlyBudget = 25000.0.obs;
+  var lastMonthTotal = 0.0.obs;
+  final String userId = "dummy_user_id";
+
   ExpenseController({
     required this.getAllExpenses,
     required this.getMonthlyExpensesUseCase,
@@ -46,6 +55,7 @@ class ExpenseController extends GetxController {
     required this.addExpense,
     required this.updateExpense,
     required this.deleteExpense,
+    required this.getLastMonthTotalUseCase,
   });
 
   @override
@@ -79,12 +89,26 @@ class ExpenseController extends GetxController {
     selectedCategory.value = 'All';
     isLoading.value = true;
     try {
-      expenses.value = await getMonthlyExpensesUseCase('userId', month);
+      expenses.value = await getMonthlyExpensesUseCase(userId, month);
       getTotalExpense();
       filterExpensesByCategory();
+
+      await fetchLastMonthTotal();
     } finally {
       isLoading.value = false;
       shouldRefresh = false;
+    }
+  }
+
+  Future<void> fetchLastMonthTotal() async {
+    try {
+      lastMonthTotal.value = await getLastMonthTotalUseCase(
+        userId,
+        currentMonth: selectedMonth.value,
+      );
+    } catch (e) {
+      log('Error fetching last month total: $e');
+      lastMonthTotal.value = 0.0;
     }
   }
 
@@ -98,7 +122,6 @@ class ExpenseController extends GetxController {
 
     try {
       reportExpenses.value = await getExpensesInRangeUseCase.call(start, end);
-
       updateReportTotalExpense();
       filterReportExpensesByCategory();
     } catch (e) {
@@ -122,11 +145,15 @@ class ExpenseController extends GetxController {
 
   void updateReportTotalExpense() {
     if (selectedCategory.value == 'All') {
-      reportTotalExpense.value =
-          reportExpenses.fold(0.0, (sum, item) => sum + item.amount);
+      reportTotalExpense.value = reportExpenses.fold(
+        0.0,
+        (sum, item) => sum + item.amount,
+      );
     } else {
-      reportTotalExpense.value =
-          reportFilteredExpenses.fold(0.0, (sum, item) => sum + item.amount);
+      reportTotalExpense.value = reportFilteredExpenses.fold(
+        0.0,
+        (sum, item) => sum + item.amount,
+      );
     }
   }
 
@@ -138,10 +165,8 @@ class ExpenseController extends GetxController {
     shouldRefresh = true;
     try {
       await addExpense.call(expense);
-
       onSuccess?.call();
-
-      fetchMonthlyExpenses();
+      fetchMonthlyExpenses(); // will also fetch last month total
     } catch (e) {
       onError?.call(e);
       log('Create Expense Error: $e');
@@ -156,10 +181,8 @@ class ExpenseController extends GetxController {
     shouldRefresh = true;
     try {
       await updateExpense.call(expense);
-
       onSuccess?.call();
-
-      fetchMonthlyExpenses();
+      fetchMonthlyExpenses(); // will also fetch last month total
     } catch (e) {
       onError?.call(e);
       log('Edit Expense Error: $e');
@@ -174,10 +197,8 @@ class ExpenseController extends GetxController {
     shouldRefresh = true;
     try {
       await deleteExpense.call(id);
-
       onSuccess?.call();
-
-      fetchMonthlyExpenses();
+      fetchMonthlyExpenses(); // will also fetch last month total
     } catch (e) {
       onError?.call(e);
       log('Remove Expense Error: $e');
@@ -210,17 +231,17 @@ class ExpenseController extends GetxController {
     if (selectedCategory.value == 'All') {
       totalExpense.value = expenses.fold(0.0, (sum, item) => sum + item.amount);
     } else {
-      totalExpense.value =
-          filteredExpenses.fold(0.0, (sum, item) => sum + item.amount);
+      totalExpense.value = filteredExpenses.fold(
+        0.0,
+        (sum, item) => sum + item.amount,
+      );
     }
   }
 
   bool _isCurrentMonthDataFetched(DateTime month) {
     if (expenses.isEmpty) return false;
-
     final currentMonth = month.month;
     final firstExpenseMonth = expenses.first.date.month;
-
     return currentMonth == firstExpenseMonth;
   }
 
@@ -228,6 +249,6 @@ class ExpenseController extends GetxController {
     selectedMonth.value = newMonth;
     clearReportState();
     shouldRefresh = true;
-    fetchMonthlyExpenses();
+    fetchMonthlyExpenses(); // will also fetch last month total
   }
 }

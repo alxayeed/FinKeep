@@ -12,11 +12,18 @@ abstract class ExpenseRepository {
   Future<ExpenseEntity?> getExpenseById(String id);
 
   Future<List<ExpenseEntity>> getExpensesForMonth(
-      String userId, DateTime selectedMonth);
+    String userId,
+    DateTime selectedMonth,
+  );
 
   Future<List<ExpenseEntity>> getExpensesInRange(
     String userId,
     DateTime start,
     DateTime end,
+  );
+
+  Future<double> getTotalExpensesForMonth(
+    String userId,
+    DateTime selectedMonth,
   );
 }

@@ -12,11 +12,18 @@ abstract class ExpenseRemoteDataSource {
   Future<void> deleteExpense(String id);
 
   Future<List<ExpenseModel>> getExpensesForMonth(
-      String userId, DateTime selectedMonth);
+    String userId,
+    DateTime selectedMonth,
+  );
 
   Future<List<ExpenseModel>> getExpensesInRange(
     String userId,
     DateTime start,
     DateTime end,
+  );
+
+  Future<double> getTotalExpensesForMonth(
+    String userId,
+    DateTime selectedMonth,
   );
 }

@@ -1,4 +1,3 @@
-
 import '../entities/expense_entity.dart';
 import '../repositories/expense_repository.dart';
 
@@ -11,6 +10,6 @@ class GetAllExpensesUseCase {
     if (userId.isEmpty) {
       throw Exception('User ID cannot be empty');
     }
-    return await repository.getExpenses("dummy_user_id");
+    return await repository.getExpenses(userId);
   }
 }

@@ -36,9 +36,13 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
 
   @override
   Future<List<ExpenseEntity>> getExpensesForMonth(
-      String userId, DateTime selectedMonth) async {
-    final models =
-        await remoteDataSource.getExpensesForMonth(userId, selectedMonth);
+    String userId,
+    DateTime selectedMonth,
+  ) async {
+    final models = await remoteDataSource.getExpensesForMonth(
+      userId,
+      selectedMonth,
+    );
     return models.map((model) => model.toEntity()).toList();
   }
 
@@ -55,5 +59,16 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
     );
 
     return models.map((model) => model.toEntity()).toList();
+  }
+
+  @override
+  Future<double> getTotalExpensesForMonth(
+    String userId,
+    DateTime selectedMonth,
+  ) async {
+    return await remoteDataSource.getTotalExpensesForMonth(
+      userId,
+      selectedMonth,
+    );
   }
 }

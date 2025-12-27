@@ -10,6 +10,7 @@ import 'package:spendly/features/expense/domain/usecases/add_expense_usecase.dar
 import 'package:spendly/features/expense/domain/usecases/delete_expense_usecase.dart';
 import 'package:spendly/features/expense/domain/usecases/get_all_expenses_usecase.dart';
 import 'package:spendly/features/expense/domain/usecases/get_expense_usecase.dart';
+import 'package:spendly/features/expense/domain/usecases/get_last_month_total_usecase.dart';
 import 'package:spendly/features/expense/domain/usecases/get_monthly_expense.dart';
 import 'package:spendly/features/expense/domain/usecases/update_expense_usecase.dart';
 import 'package:spendly/features/expense/presentation/controllers/expense_controller.dart';
@@ -60,6 +61,7 @@ class DependencyInjection {
     Get.lazyPut<ExpenseRepository>(() => ExpenseRepositoryImpl(Get.find()));
     Get.lazyPut(() => GetAllExpensesUseCase(Get.find()));
     Get.lazyPut(() => GetMonthlyExpensesUseCase(Get.find()));
+    Get.lazyPut(() => GetLastMonthTotalUseCase(Get.find()));
     Get.lazyPut(() => GetExpensesInRangeUseCase(Get.find()));
     Get.lazyPut(() => GetExpenseUseCase(Get.find()));
     Get.lazyPut(() => AddExpenseUseCase(Get.find()));
@@ -70,6 +72,7 @@ class DependencyInjection {
       () => ExpenseController(
         getAllExpenses: Get.find(),
         getMonthlyExpensesUseCase: Get.find(),
+        getLastMonthTotalUseCase: Get.find(),
         getExpensesInRangeUseCase: Get.find(),
         getExpense: Get.find(),
         addExpense: Get.find(),
