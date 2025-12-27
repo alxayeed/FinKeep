@@ -1,8 +1,5 @@
-Release 29
-- Add investment
-- List and details
-- Update investment
-- Add ROI
+Release 30
+- Total spent card with comparison
 
 
 
