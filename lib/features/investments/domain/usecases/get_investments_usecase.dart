@@ -6,7 +6,7 @@ class GetInvestmentsUseCase {
 
   GetInvestmentsUseCase(this.repository);
 
-  Future<List<Investment>> call() async {
-    return repository.getInvestments();
+  Future<List<Investment>> call({required String userId}) async {
+    return repository.getInvestments(userId);
   }
 }

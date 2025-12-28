@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:spendly/core/common/widgets/styled_date_picker_button.dart';
+import 'package:spendly/features/auth/presentation/controller/auth_controller.dart';
 
 import '../../../../core/common/widgets/styled_dropdown_form_field.dart';
 import '../../../../core/common/widgets/styled_text_form_field.dart';
@@ -327,6 +328,7 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
 
   // ---------------- Submit ----------------
   void _submit() {
+    final AuthController authController = Get.find();
     final investment = Investment(
       id: widget.initialInvestment?.id ?? DateTime.now().toIso8601String(),
       title: _titleController.text,
@@ -343,6 +345,7 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
       transactionDate: _transactionDate!,
       status: _status,
       returns: widget.initialInvestment?.returns ?? [],
+      userId: authController.user?.email ?? "unknown_user",
     );
 
     if (isEdit) {

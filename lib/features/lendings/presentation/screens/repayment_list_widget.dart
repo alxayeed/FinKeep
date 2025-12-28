@@ -7,6 +7,7 @@ import '../../../../core/common/widgets/styled_date_picker_button.dart';
 import '../../../../core/common/widgets/styled_elevated_button.dart';
 import '../../../../core/common/widgets/styled_text_form_field.dart';
 import '../../../../core/styles/app_colors.dart';
+import '../../../auth/presentation/controller/auth_controller.dart';
 import '../../domain/entity/lending/lending_entity.dart';
 import '../../domain/entity/repayment/repayment_entity.dart';
 import '../controllers/lendings_controller.dart';
@@ -56,8 +57,9 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
               child: Obx(() {
                 final paid = calculatePaidAmount();
                 final total = widget.lending.amount;
-                final progress =
-                    total == 0 ? 0.0 : (paid / total).clamp(0.0, 1.0);
+                final progress = total == 0
+                    ? 0.0
+                    : (paid / total).clamp(0.0, 1.0);
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,8 +76,10 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
                         const Spacer(),
                         Text(
                           '${currencyFormat.format(paid)} / ${currencyFormat.format(total)}',
-                          style:
-                              const TextStyle(fontSize: 13, color: Colors.grey),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey,
+                          ),
                         ),
                       ],
                     ),
@@ -88,7 +92,8 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
                         backgroundColor: Colors.grey.shade300,
                         valueColor: AlwaysStoppedAnimation(
                           AppColors.getColorForLendingStatus(
-                              widget.lending.status),
+                            widget.lending.status,
+                          ),
                         ),
                       ),
                     ),
@@ -128,14 +133,17 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
                           builder: (ctx) => AlertDialog(
                             title: const Text('Delete Repayment'),
                             content: const Text(
-                                'Are you sure you want to delete this repayment?'),
+                              'Are you sure you want to delete this repayment?',
+                            ),
                             actions: [
                               TextButton(
-                                  onPressed: () => context.pop(false),
-                                  child: const Text('Cancel')),
+                                onPressed: () => context.pop(false),
+                                child: const Text('Cancel'),
+                              ),
                               TextButton(
                                 style: TextButton.styleFrom(
-                                    foregroundColor: AppColors.error),
+                                  foregroundColor: AppColors.error,
+                                ),
                                 onPressed: () => context.pop(true),
                                 child: const Text('Delete'),
                               ),
@@ -176,8 +184,9 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
 
   void _showRepaymentForm(BuildContext context, {RepaymentEntity? repayment}) {
     final isEdit = repayment != null;
-    final amountController =
-        TextEditingController(text: repayment?.amount.toString() ?? '');
+    final amountController = TextEditingController(
+      text: repayment?.amount.toString() ?? '',
+    );
     final dateController = Rx<DateTime?>(repayment?.paidDate);
     final notesController = TextEditingController(text: repayment?.notes ?? '');
     final formKey = GlobalKey<FormState>();
@@ -188,7 +197,8 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
       builder: (modalContext) {
         return SingleChildScrollView(
           padding: EdgeInsets.only(
-              bottom: MediaQuery.of(modalContext).viewInsets.bottom + 16),
+            bottom: MediaQuery.of(modalContext).viewInsets.bottom + 16,
+          ),
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: const BoxDecoration(
@@ -202,8 +212,9 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
                   StyledTextFormField(
                     controller: amountController,
                     labelText: 'Amount',
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     validator: (val) {
                       if (val == null || val.isEmpty) return 'Enter amount';
                       if (double.tryParse(val) == null ||
@@ -232,14 +243,15 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
                     text: isEdit ? 'Update' : 'Add',
                     onPressed: () async {
                       if (formKey.currentState?.validate() ?? false) {
-                        final enteredAmount =
-                            double.parse(amountController.text);
+                        final enteredAmount = double.parse(
+                          amountController.text,
+                        );
                         final totalPaid = controller.repaymentsList
                             .fold<double>(
-                                0,
-                                (sum, r) =>
-                                    sum +
-                                    (r.id == repayment?.id ? 0 : r.amount));
+                              0,
+                              (sum, r) =>
+                                  sum + (r.id == repayment?.id ? 0 : r.amount),
+                            );
                         final dueAmount = widget.lending.amount - totalPaid;
 
                         if (!isEdit && dueAmount <= 0) {
@@ -248,11 +260,13 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
                             builder: (ctx) => AlertDialog(
                               title: const Text('No due left'),
                               content: const Text(
-                                  'This lending has already been fully repaid.'),
+                                'This lending has already been fully repaid.',
+                              ),
                               actions: [
                                 TextButton(
-                                    onPressed: () => modalContext.pop(),
-                                    child: const Text('OK')),
+                                  onPressed: () => modalContext.pop(),
+                                  child: const Text('OK'),
+                                ),
                               ],
                             ),
                           );
@@ -262,22 +276,25 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
 
                         bool allowProceed = true;
                         if (!isEdit && enteredAmount > dueAmount) {
-                          allowProceed = await showDialog<bool>(
+                          allowProceed =
+                              await showDialog<bool>(
                                 context: modalContext,
                                 builder: (ctx) => AlertDialog(
                                   title: const Text('Overpayment Warning'),
                                   content: Text(
-                                      'The due amount is ${NumberFormat.currency(locale: 'en_IN', symbol: '৳').format(dueAmount)}. '
-                                      'You are about to pay ${NumberFormat.currency(locale: 'en_IN', symbol: '৳').format(enteredAmount)}. '
-                                      'Do you want to proceed?'),
+                                    'The due amount is ${NumberFormat.currency(locale: 'en_IN', symbol: '৳').format(dueAmount)}. '
+                                    'You are about to pay ${NumberFormat.currency(locale: 'en_IN', symbol: '৳').format(enteredAmount)}. '
+                                    'Do you want to proceed?',
+                                  ),
                                   actions: [
                                     TextButton(
-                                        onPressed: () =>
-                                            modalContext.pop(false),
-                                        child: const Text('Cancel')),
+                                      onPressed: () => modalContext.pop(false),
+                                      child: const Text('Cancel'),
+                                    ),
                                     TextButton(
-                                        onPressed: () => modalContext.pop(true),
-                                        child: const Text('Proceed')),
+                                      onPressed: () => modalContext.pop(true),
+                                      child: const Text('Proceed'),
+                                    ),
                                   ],
                                 ),
                               ) ??
@@ -288,10 +305,12 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
 
                         if (!mounted) return;
 
+                        final AuthController authController = Get.find();
+
                         final newRepayment = RepaymentEntity(
                           id: repayment?.id ?? UniqueKey().toString(),
                           lendingId: widget.lending.id,
-                          userId: "dummy_user",
+                          userId: authController.user?.email ?? "unknown_user",
                           amount: enteredAmount,
                           paidDate: dateController.value ?? DateTime.now(),
                           notes: notesController.text.trim().isEmpty

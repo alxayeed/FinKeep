@@ -2,7 +2,7 @@ import '../entities/investment.dart';
 import '../entities/return_entry.dart';
 
 abstract class InvestmentRepository {
-  Future<List<Investment>> getInvestments();
+  Future<List<Investment>> getInvestments(String userId);
 
   Future<void> addInvestment(Investment investment);
 

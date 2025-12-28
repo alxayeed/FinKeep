@@ -54,7 +54,7 @@ class _CreateExpenseScreenState extends State<CreateExpenseScreen> {
               category: selectedCategory!.displayName,
               date: selectedDate ?? DateTime.now().toLocal(),
               description: descriptionController.text,
-              userId: 'dummy_user_id',
+              userId: controller.userId,
             );
 
             await controller.createExpense(

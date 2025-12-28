@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:spendly/features/lendings/domain/usecases/repayment/get_repayments_for_lending_usecase.dart';
 
+import '../../../auth/presentation/controller/auth_controller.dart';
 import '../../domain/entity/lending/lending_entity.dart';
 import '../../domain/entity/lending_person/lending_person_entity.dart';
 import '../../domain/entity/repayment/repayment_entity.dart';
@@ -58,10 +59,14 @@ class LendingsController extends GetxController {
   final selectedPersonFilter = Rx<String?>(null);
   final selectedMonthFilter = Rx<DateTime?>(null);
 
-  String get userId => "dummy_user";
+  final AuthController authController = Get.find();
+
+  late String userId;
 
   @override
   void onInit() {
+    userId = authController.user?.email ?? 'unknown_user';
+
     super.onInit();
     _setupFilterListeners();
     fetchLendings();
@@ -69,14 +74,26 @@ class LendingsController extends GetxController {
   }
 
   void _setupFilterListeners() {
-    debounce(selectedTypeFilter, (_) => fetchLendings(),
-        time: const Duration(milliseconds: 300));
-    debounce(selectedStatusFilter, (_) => fetchLendings(),
-        time: const Duration(milliseconds: 300));
-    debounce(selectedPersonFilter, (_) => fetchLendings(),
-        time: const Duration(milliseconds: 500));
-    debounce(selectedMonthFilter, (_) => fetchLendings(),
-        time: const Duration(milliseconds: 300));
+    debounce(
+      selectedTypeFilter,
+      (_) => fetchLendings(),
+      time: const Duration(milliseconds: 300),
+    );
+    debounce(
+      selectedStatusFilter,
+      (_) => fetchLendings(),
+      time: const Duration(milliseconds: 300),
+    );
+    debounce(
+      selectedPersonFilter,
+      (_) => fetchLendings(),
+      time: const Duration(milliseconds: 500),
+    );
+    debounce(
+      selectedMonthFilter,
+      (_) => fetchLendings(),
+      time: const Duration(milliseconds: 300),
+    );
   }
 
   // --- Filter Methods ---
@@ -115,13 +132,10 @@ class LendingsController extends GetxController {
 
     if (!showLoading && result.isRight()) lendingsList.clear();
 
-    result.fold(
-      (failure) {
-        errorMessage.value = failure.message;
-        if (showLoading) lendingsList.clear();
-      },
-      (lendings) => lendingsList.assignAll(lendings),
-    );
+    result.fold((failure) {
+      errorMessage.value = failure.message;
+      if (showLoading) lendingsList.clear();
+    }, (lendings) => lendingsList.assignAll(lendings));
 
     if (showLoading) isLoading.value = false;
   }

@@ -6,6 +6,7 @@ import 'return_entry_model.dart';
 class InvestmentModel extends Investment {
   InvestmentModel({
     required super.id,
+    required super.userId,
     required super.title,
     required super.amountInvested,
     required super.startDate,
@@ -25,6 +26,7 @@ class InvestmentModel extends Investment {
   factory InvestmentModel.fromJson(Map<String, dynamic> json) {
     return InvestmentModel(
       id: json['id'],
+      userId: json['userId'],
       title: json['title'],
       amountInvested: (json['amountInvested'] as num).toDouble(),
       startDate: DateTime.parse(json['startDate']),
@@ -72,6 +74,7 @@ class InvestmentModel extends Investment {
   factory InvestmentModel.fromEntity(Investment investment) {
     return InvestmentModel(
       id: investment.id,
+      userId: investment.userId,
       title: investment.title,
       amountInvested: investment.amountInvested,
       startDate: investment.startDate,

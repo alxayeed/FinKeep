@@ -10,6 +10,6 @@ class GetMonthlyExpensesUseCase {
     if (userId.isEmpty) {
       throw Exception('User ID cannot be empty');
     }
-    return await repository.getExpensesForMonth("dummy_user_id", month);
+    return await repository.getExpensesForMonth(userId, month);
   }
 }

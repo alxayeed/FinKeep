@@ -18,9 +18,9 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
   }
 
   @override
-  Future<List<Investment>> getInvestments() async {
+  Future<List<Investment>> getInvestments(String userId) async {
     try {
-      final models = await _dataSource.getInvestments();
+      final models = await _dataSource.getInvestments(userId);
       return models.map((m) => m).toList();
     } catch (_) {
       // fallback to dummy data
@@ -107,6 +107,7 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
             notes: 'Quarterly profit',
           ),
         ],
+        userId: 'unknown_user',
       ),
       Investment(
         id: 'inv_002',
@@ -125,6 +126,7 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
         transactionDate: DateTime(2023, 5, 31),
         status: InvestmentStatus.active,
         returns: [],
+        userId: 'unknown_user',
       ),
       Investment(
         id: 'inv_003',
@@ -151,6 +153,7 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
             notes: 'Partial recovery',
           ),
         ],
+        userId: '',
       ),
       Investment(
         id: 'inv_004',
@@ -177,6 +180,7 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
             notes: 'Final settlement',
           ),
         ],
+        userId: 'unknown_user',
       ),
     ]);
   }

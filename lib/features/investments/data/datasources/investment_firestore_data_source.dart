@@ -32,9 +32,10 @@ class InvestmentFirestoreDataSource implements InvestmentDataSource {
   }
 
   @override
-  Future<List<InvestmentModel>> getInvestments() async {
+  Future<List<InvestmentModel>> getInvestments(String userId) async {
     try {
       final snapshot = await _investmentsCollection
+          .where('userId', isEqualTo: userId)
           .orderBy('startDate', descending: true)
           .get();
 

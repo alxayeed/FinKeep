@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:spendly/features/expense/domain/usecases/get_monthly_expense.dart';
 
 import '../../../../core/enums/expense_category.dart';
+import '../../../auth/presentation/controller/auth_controller.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../../domain/usecases/get_last_month_total_usecase.dart';
 import '../../domain/usecases/usecases.dart';
@@ -45,7 +46,10 @@ class ExpenseController extends GetxController {
   // ===== Budget & Last Month Total =====
   var monthlyBudget = 25000.0.obs;
   var lastMonthTotal = 0.0.obs;
-  final String userId = "dummy_user_id";
+
+  final AuthController authController = Get.find();
+
+  late String userId;
 
   ExpenseController({
     required this.getAllExpenses,
@@ -60,6 +64,7 @@ class ExpenseController extends GetxController {
 
   @override
   void onInit() {
+    userId = authController.user?.email ?? 'unknown_user';
     fetchMonthlyExpenses();
     clearReportState();
     super.onInit();
@@ -121,7 +126,11 @@ class ExpenseController extends GetxController {
     isLoading.value = true;
 
     try {
-      reportExpenses.value = await getExpensesInRangeUseCase.call(start, end);
+      reportExpenses.value = await getExpensesInRangeUseCase.call(
+        userId,
+        start,
+        end,
+      );
       updateReportTotalExpense();
       filterReportExpensesByCategory();
     } catch (e) {
@@ -166,7 +175,7 @@ class ExpenseController extends GetxController {
     try {
       await addExpense.call(expense);
       onSuccess?.call();
-      fetchMonthlyExpenses(); // will also fetch last month total
+      fetchMonthlyExpenses();
     } catch (e) {
       onError?.call(e);
       log('Create Expense Error: $e');

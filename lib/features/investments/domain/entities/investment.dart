@@ -4,6 +4,7 @@ import '../enums/investment_status.dart';
 
 class Investment {
   final String id;
+  final String userId;
   final String title;
   final double amountInvested;
   final DateTime startDate;
@@ -21,6 +22,7 @@ class Investment {
 
   Investment({
     required this.id,
+    required this.userId,
     required this.title,
     required this.amountInvested,
     required this.startDate,
