@@ -1,5 +1,5 @@
-Release 35
-- FIX: Theme always dark at app reopen
+Release 36
+- Feature: email/pass authentication
 
 
 
