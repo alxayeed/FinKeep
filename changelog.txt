@@ -1,5 +1,5 @@
-Release 31
-- FIX: report total spent shows monthly data
+Release 35
+- FIX: Theme always dark at app reopen
 
 
 
