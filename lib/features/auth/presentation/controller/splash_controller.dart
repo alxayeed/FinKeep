@@ -1,18 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 
-class SplashController extends GetxController {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+class SplashScreen extends StatelessWidget {
+  const SplashScreen({super.key});
 
   @override
-  void onReady() {
-    super.onReady();
-    _auth.authStateChanges().listen((User? user) {
-      if (user == null) {
-        Get.offAllNamed('/login');
-      } else {
-        Get.offAllNamed('/');
-      }
-    });
+  Widget build(BuildContext context) {
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }

@@ -1,9 +1,10 @@
 import 'package:dartz/dartz.dart';
-import 'package:spendly/core/error/exception.dart';
 import 'package:spendly/core/error/failure.dart';
 import 'package:spendly/features/auth/data/datasource/auth_remote_data_source.dart';
 import 'package:spendly/features/auth/domain/entity/user_entity.dart';
 import 'package:spendly/features/auth/domain/repository/auth_repository.dart';
+
+import '../../../../core/error/exceptions.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
@@ -11,7 +12,10 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<Failure, UserEntity>> login(String email, String password) async {
+  Future<Either<Failure, UserEntity>> login(
+    String email,
+    String password,
+  ) async {
     try {
       final user = await remoteDataSource.login(email, password);
       return Right(user);
@@ -21,7 +25,10 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, UserEntity>> register(String email, String password) async {
+  Future<Either<Failure, UserEntity>> register(
+    String email,
+    String password,
+  ) async {
     try {
       final user = await remoteDataSource.register(email, password);
       return Right(user);

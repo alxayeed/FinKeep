@@ -2,7 +2,6 @@ import 'package:get/get.dart';
 import 'package:spendly/core/usecase/usecase.dart';
 import 'package:spendly/features/auth/domain/entity/user_entity.dart';
 import 'package:spendly/features/auth/domain/usecases/login_usecase.dart';
-import 'package:spendly/core/routes/app_router.dart';
 import 'package:spendly/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:spendly/features/auth/domain/usecases/register_usecase.dart';
 
@@ -18,6 +17,7 @@ class AuthController extends GetxController {
   });
 
   final Rx<UserEntity?> _user = Rx<UserEntity?>(null);
+
   UserEntity? get user => _user.value;
 
   final RxBool isLoading = false.obs;
@@ -26,15 +26,13 @@ class AuthController extends GetxController {
   Future<void> login(String email, String password) async {
     isLoading.value = true;
     errorMessage.value = '';
-    final result = await loginUseCase(LoginParams(email: email, password: password));
+    final result = await loginUseCase(
+      LoginParams(email: email, password: password),
+    );
     result.fold(
-      (failure) {
-        errorMessage.value = failure.message;
-      },
-      (userEntity) {
-        _user.value = userEntity;
-        Get.offAllNamed('/');
-      },
+      (failure) => errorMessage.value =
+          failure.message ?? 'Unknown error ${failure.message}',
+      (userEntity) => _user.value = userEntity,
     );
     isLoading.value = false;
   }
@@ -42,15 +40,13 @@ class AuthController extends GetxController {
   Future<void> register(String email, String password) async {
     isLoading.value = true;
     errorMessage.value = '';
-    final result = await registerUseCase(RegisterParams(email: email, password: password));
+    final result = await registerUseCase(
+      RegisterParams(email: email, password: password),
+    );
     result.fold(
-      (failure) {
-        errorMessage.value = failure.message;
-      },
-      (userEntity) {
-        _user.value = userEntity;
-        Get.offAllNamed('/');
-      },
+      (failure) => errorMessage.value =
+          failure.message ?? 'Unknown error ${failure.message}',
+      (userEntity) => _user.value = userEntity,
     );
     isLoading.value = false;
   }
@@ -60,13 +56,9 @@ class AuthController extends GetxController {
     errorMessage.value = '';
     final result = await logoutUseCase(NoParams());
     result.fold(
-      (failure) {
-        errorMessage.value = failure.message;
-      },
-      (_) {
-        _user.value = null;
-        Get.offAllNamed(AppRoutes.login);
-      },
+      (failure) => errorMessage.value =
+          failure.message ?? 'Unknown error ${failure.message}',
+      (_) => _user.value = null,
     );
     isLoading.value = false;
   }

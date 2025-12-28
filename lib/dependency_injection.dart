@@ -63,10 +63,7 @@ class DependencyInjection {
     Get.lazyPut<ExceptionMapper>(() => ExceptionMapper());
 
     // --- Auth Feature ---
-    Get.lazyPut<FirebaseAuth>(
-      () => FirebaseAuth.instance,
-      fenix: true,
-    );
+    Get.lazyPut<FirebaseAuth>(() => FirebaseAuth.instance, fenix: true);
     Get.lazyPut<AuthRemoteDataSource>(
       () => AuthRemoteDataSourceImpl(firebaseAuth: Get.find()),
     );
@@ -83,8 +80,7 @@ class DependencyInjection {
         logoutUseCase: Get.find(),
       ),
     );
-    Get.lazyPut(() => SplashController());
-
+    // Get.lazyPut(() => SplashController());
 
     // --- Expense Feature ---
     Get.lazyPut<ExpenseRemoteDataSource>(

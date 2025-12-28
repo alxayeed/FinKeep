@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
+import 'package:spendly/core/routes/app_router.dart';
 import 'package:spendly/features/auth/presentation/controller/auth_controller.dart';
 import 'package:spendly/features/auth/presentation/widgets/email_form_field.dart';
 import 'package:spendly/features/auth/presentation/widgets/password_form_field.dart';
-import 'package:spendly/core/routes/app_router.dart';
 
 class RegistrationScreen extends StatelessWidget {
   final AuthController authController = Get.find();
@@ -16,9 +17,7 @@ class RegistrationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Register'),
-      ),
+      appBar: AppBar(title: const Text('Register')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -52,7 +51,7 @@ class RegistrationScreen extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
-                  Get.toNamed(AppRouter.login);
+                  context.goNamed(AppRoutes.login);
                 },
                 child: const Text('Already have an account? Login'),
               ),

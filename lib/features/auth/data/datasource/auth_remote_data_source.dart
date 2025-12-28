@@ -1,10 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:spendly/core/error/exception.dart';
 import 'package:spendly/features/auth/data/model/user_model.dart';
+
+import '../../../../core/error/exceptions.dart';
 
 abstract class AuthRemoteDataSource {
   Future<UserModel> login(String email, String password);
+
   Future<UserModel> register(String email, String password);
+
   Future<void> logout();
 }
 

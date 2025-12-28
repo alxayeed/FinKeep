@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendly/features/investments/domain/entities/investment.dart';
@@ -6,7 +9,9 @@ import 'package:spendly/features/investments/presentation/screens/edit_investmen
 import 'package:spendly/features/investments/presentation/screens/investment_detail_screen.dart';
 import 'package:spendly/features/investments/presentation/screens/investment_list_screen.dart';
 
+import '../../features/auth/presentation/screen/login_screen.dart';
 import '../../features/auth/presentation/screen/profile_screen.dart';
+import '../../features/auth/presentation/screen/registration_screen.dart';
 import '../../features/expense/domain/entities/expense_entity.dart';
 import '../../features/expense/presentation/screens/expense_report_screen.dart';
 import '../../features/expense/presentation/screens/screens.dart';
@@ -15,9 +20,6 @@ import '../../features/lendings/domain/entity/lending/lending_entity.dart';
 import '../../features/lendings/presentation/screens/add_lending_screen.dart';
 import '../../features/lendings/presentation/screens/lending_details_screen.dart';
 import '../../features/lendings/presentation/screens/lending_list_screen.dart';
-import '../../features/auth/presentation/screen/login_screen.dart';
-import '../../features/auth/presentation/screen/registration_screen.dart';
-import '../../features/auth/presentation/screen/splash_screen.dart';
 import '../../features/lendings/presentation/screens/update_lending_screen.dart';
 import '../common/home_scaffold.dart';
 
@@ -48,84 +50,80 @@ class AppRoutes {
   // Auth
   static const String login = '/login';
   static const String register = '/register';
-  static const String splash = '/splash';
 }
 
-// --------------------------------------------------------------------------
-// ROUTER IMPLEMENTATION (No Transitions)
-// --------------------------------------------------------------------------
-
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+final List<String> authenticatedRoutes = [
+  AppRoutes.home,
+  AppRoutes.expenses,
+  AppRoutes.lendings,
+  AppRoutes.investments,
+  AppRoutes.profile,
+  AppRoutes.expenseReport,
+];
+
+final List<String> unauthenticatedRoutes = [
+  AppRoutes.login,
+  AppRoutes.register,
+];
 
 class AppRouter {
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
-    initialLocation: AppRoutes.splash,
+    initialLocation: AppRoutes.home,
+    refreshListenable: GoRouterRefreshStream(
+      FirebaseAuth.instance.authStateChanges(),
+    ),
     routes: [
-      /// ----------------------------------------------------
-      /// 1. SHELL ROUTE (Routes with Bottom Nav)
-      /// ----------------------------------------------------
       ShellRoute(
         builder: (context, state, child) => HomeScaffold(child: child),
         routes: [
-          // A. Expenses Tab
+          GoRoute(
+            path: AppRoutes.home,
+            name: AppRoutes.home,
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: MonthlyExpenseScreen()),
+          ),
           GoRoute(
             path: AppRoutes.expenses,
             name: AppRoutes.expenses,
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: MonthlyExpenseScreen(),
-            ),
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: MonthlyExpenseScreen()),
           ),
-
-          // B. Lendings Tab
           GoRoute(
             path: AppRoutes.lendings,
             name: AppRoutes.lendings,
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: LendingListScreen(),
-            ),
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: LendingListScreen()),
           ),
-
-          // C. Reports Tab
-          GoRoute(
-            path: AppRoutes.expenseReport,
-            name: AppRoutes.expenseReport,
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: ExpenseReportScreen(),
-            ),
-          ),
-
-          // D. Investment
           GoRoute(
             path: AppRoutes.investments,
             name: AppRoutes.investments,
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: InvestmentListScreen(),
-            ),
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: InvestmentListScreen()),
           ),
-
-          // E. Profile Tab
           GoRoute(
             path: AppRoutes.profile,
             name: AppRoutes.profile,
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: ProfileScreen(),
-            ),
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: ProfileScreen()),
+          ),
+          GoRoute(
+            path: AppRoutes.expenseReport,
+            name: AppRoutes.expenseReport,
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: ExpenseReportScreen()),
           ),
         ],
       ),
-
-      /// ----------------------------------------------------
-      /// 2. TOP-LEVEL ROUTES (No Transition)
-      /// ----------------------------------------------------
 
       // Expenses Detail/Add
       GoRoute(
         path: AppRoutes.addExpense,
         name: AppRoutes.addExpense,
-        pageBuilder: (context, state) => const NoTransitionPage(
-          child: CreateExpenseScreen(),
-        ),
+        pageBuilder: (context, state) =>
+            const NoTransitionPage(child: CreateExpenseScreen()),
       ),
       GoRoute(
         path: AppRoutes.expenseDetails,
@@ -137,9 +135,7 @@ class AppRouter {
               child: ErrorScreen(message: 'Invalid Expense data.'),
             );
           }
-          return NoTransitionPage(
-            child: ExpenseDetailsScreen(expense: extra),
-          );
+          return NoTransitionPage(child: ExpenseDetailsScreen(expense: extra));
         },
       ),
 
@@ -147,9 +143,8 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.addLending,
         name: AppRoutes.addLending,
-        pageBuilder: (context, state) => const NoTransitionPage(
-          child: AddLendingScreen(),
-        ),
+        pageBuilder: (context, state) =>
+            const NoTransitionPage(child: AddLendingScreen()),
       ),
       GoRoute(
         path: AppRoutes.lendingDetails,
@@ -161,9 +156,7 @@ class AppRouter {
               child: ErrorScreen(message: 'Invalid Lending data.'),
             );
           }
-          return NoTransitionPage(
-            child: LendingDetailsScreen(lending: extra),
-          );
+          return NoTransitionPage(child: LendingDetailsScreen(lending: extra));
         },
       ),
       GoRoute(
@@ -176,48 +169,35 @@ class AppRouter {
               child: ErrorScreen(message: 'Invalid Lending data.'),
             );
           }
-          return NoTransitionPage(
-            child: UpdateLendingScreen(lending: extra),
-          );
+          return NoTransitionPage(child: UpdateLendingScreen(lending: extra));
         },
       ),
 
       // Investment Detail/Add/Update
-      // GoRoute(
-      //   path: AppRoutes.investments,
-      //   name: AppRoutes.investments,
-      //   pageBuilder: (context, state) => const NoTransitionPage(
-      //     child: InvestmentListScreen(),
-      //   ),
-      // ),
       GoRoute(
         path: AppRoutes.addInvestment,
         name: AppRoutes.addInvestment,
-        pageBuilder: (context, state) => NoTransitionPage(
-          child: AddInvestmentScreen(
-            onSubmit: (p1) {},
-          ),
-        ),
+        pageBuilder: (context, state) =>
+            NoTransitionPage(child: AddInvestmentScreen(onSubmit: (p1) {})),
       ),
       GoRoute(
-          path: AppRoutes.updateInvestment,
-          name: AppRoutes.updateInvestment,
-          pageBuilder: (context, state) {
-            final extra = state.extra;
-            if (extra is! Investment) {
-              return const NoTransitionPage(
-                child: ErrorScreen(message: 'Invalid Lending data.'),
-              );
-            }
-
-            return NoTransitionPage(
-              child: EditInvestmentScreen(
-                investment: extra,
-                onUpdate: (Investment p1) {},
-              ),
+        path: AppRoutes.updateInvestment,
+        name: AppRoutes.updateInvestment,
+        pageBuilder: (context, state) {
+          final extra = state.extra;
+          if (extra is! Investment) {
+            return const NoTransitionPage(
+              child: ErrorScreen(message: 'Invalid Investment data.'),
             );
-          }),
-
+          }
+          return NoTransitionPage(
+            child: EditInvestmentScreen(
+              investment: extra,
+              onUpdate: (Investment p1) {},
+            ),
+          );
+        },
+      ),
       GoRoute(
         path: AppRoutes.investmentDetails,
         name: AppRoutes.investmentDetails,
@@ -225,7 +205,7 @@ class AppRouter {
           final extra = state.extra;
           if (extra is! Investment) {
             return const NoTransitionPage(
-              child: ErrorScreen(message: 'Invalid Lending data.'),
+              child: ErrorScreen(message: 'Invalid Investment data.'),
             );
           }
           return NoTransitionPage(
@@ -237,29 +217,33 @@ class AppRouter {
         },
       ),
 
-      // Auth
+      // Auth Routes
       GoRoute(
         path: AppRoutes.login,
         name: AppRoutes.login,
-        pageBuilder: (context, state) => NoTransitionPage(
-          child: LoginScreen(),
-        ),
+        builder: (context, state) => LoginScreen(),
       ),
       GoRoute(
         path: AppRoutes.register,
         name: AppRoutes.register,
-        pageBuilder: (context, state) => NoTransitionPage(
-          child: RegistrationScreen(),
-        ),
-      ),
-      GoRoute(
-        path: AppRoutes.splash,
-        name: AppRoutes.splash,
-        pageBuilder: (context, state) => NoTransitionPage(
-          child: SplashScreen(),
-        ),
+        builder: (context, state) => RegistrationScreen(),
       ),
     ],
+
+    redirect: (context, state) {
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user == null && authenticatedRoutes.contains(state.matchedLocation)) {
+        return AppRoutes.login;
+      }
+
+      if (user != null &&
+          unauthenticatedRoutes.contains(state.matchedLocation)) {
+        return AppRoutes.home;
+      }
+
+      return null;
+    },
   );
 }
 
@@ -275,5 +259,23 @@ class ErrorScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Error')),
       body: Center(child: Text(message)),
     );
+  }
+}
+
+/// Helper to refresh GoRouter when FirebaseAuth state changes
+class GoRouterRefreshStream extends ChangeNotifier {
+  GoRouterRefreshStream(Stream<User?> stream) {
+    notifyListeners();
+    _subscription = stream.listen((event) {
+      notifyListeners();
+    });
+  }
+
+  late final StreamSubscription<User?> _subscription;
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
   }
 }
