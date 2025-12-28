@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:spendly/core/usecase/usecase.dart';
 import 'package:spendly/features/auth/domain/entity/user_entity.dart';
@@ -22,6 +23,19 @@ class AuthController extends GetxController {
 
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _loadUserFromFirebase();
+  }
+
+  void _loadUserFromFirebase() {
+    final firebaseUser = FirebaseAuth.instance.currentUser;
+    if (firebaseUser != null) {
+      _user.value = UserEntity(email: firebaseUser.email, id: firebaseUser.uid);
+    }
+  }
 
   Future<void> login(String email, String password) async {
     isLoading.value = true;
