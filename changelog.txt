@@ -1,5 +1,5 @@
-Release 30
-- Total spent card with comparison
+Release 31
+- FIX: report total spent shows monthly data
 
 
 
