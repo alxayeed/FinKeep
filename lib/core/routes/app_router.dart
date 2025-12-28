@@ -15,6 +15,9 @@ import '../../features/lendings/domain/entity/lending/lending_entity.dart';
 import '../../features/lendings/presentation/screens/add_lending_screen.dart';
 import '../../features/lendings/presentation/screens/lending_details_screen.dart';
 import '../../features/lendings/presentation/screens/lending_list_screen.dart';
+import '../../features/auth/presentation/screen/login_screen.dart';
+import '../../features/auth/presentation/screen/registration_screen.dart';
+import '../../features/auth/presentation/screen/splash_screen.dart';
 import '../../features/lendings/presentation/screens/update_lending_screen.dart';
 import '../common/home_scaffold.dart';
 
@@ -41,6 +44,11 @@ class AppRoutes {
 
   // Profile
   static const String profile = '/profile';
+
+  // Auth
+  static const String login = '/login';
+  static const String register = '/register';
+  static const String splash = '/splash';
 }
 
 // --------------------------------------------------------------------------
@@ -52,7 +60,7 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 class AppRouter {
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
-    initialLocation: AppRoutes.expenses,
+    initialLocation: AppRoutes.splash,
     routes: [
       /// ----------------------------------------------------
       /// 1. SHELL ROUTE (Routes with Bottom Nav)
@@ -227,6 +235,29 @@ class AppRouter {
             ),
           );
         },
+      ),
+
+      // Auth
+      GoRoute(
+        path: AppRoutes.login,
+        name: AppRoutes.login,
+        pageBuilder: (context, state) => NoTransitionPage(
+          child: LoginScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.register,
+        name: AppRoutes.register,
+        pageBuilder: (context, state) => NoTransitionPage(
+          child: RegistrationScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.splash,
+        name: AppRoutes.splash,
+        pageBuilder: (context, state) => NoTransitionPage(
+          child: SplashScreen(),
+        ),
       ),
     ],
   );

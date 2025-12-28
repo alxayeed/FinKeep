@@ -6,6 +6,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/styles/app_themes.dart';
 import '../../../../core/styles/theme_provider.dart';
 import '../../../expense/services/expense_reminder_service.dart';
+import 'package:get/get.dart';
+import 'package:spendly/features/auth/presentation/controller/auth_controller.dart';
+
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -19,6 +22,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   TimeOfDay? _selectedTime;
   final ExpenseReminderService _reminderService =
       createExpenseReminderService();
+  final AuthController authController = Get.find();
 
   final ThemeProvider _themeProvider = ThemeProvider(); // singleton instance
 
@@ -242,6 +246,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 24),
                 _buildSectionTitle('Account & More'),
+                Obx(
+                  () => authController.user != null
+                      ? Card(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                          elevation: 2,
+                          child: Column(
+                            children: [
+                              ListTile(
+                                leading: const Icon(Icons.email),
+                                title: const Text('Email'),
+                                subtitle: Text(authController.user!.email ?? ''),
+                              ),
+                              Divider(color: Theme.of(context).dividerColor),
+                              ListTile(
+                                leading: const Icon(Icons.logout),
+                                title: const Text('Logout'),
+                                onTap: () {
+                                  authController.logout();
+                                },
+                              ),
+                            ],
+                          ),
+                        )
+                      : Card(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                          elevation: 2,
+                          child: ListTile(
+                            leading: const Icon(Icons.login),
+                            title: const Text('Login'),
+                            onTap: () {
+                              Get.toNamed('/login');
+                            },
+                          ),
+                        ),
+                ),
+                const SizedBox(height: 24),
                 Card(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),

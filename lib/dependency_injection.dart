@@ -1,6 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:spendly/core/error/exception_mapper.dart';
+import 'package:spendly/features/auth/data/datasource/auth_remote_data_source.dart';
+import 'package:spendly/features/auth/data/repository/auth_repository_impl.dart';
+import 'package:spendly/features/auth/domain/repository/auth_repository.dart';
+import 'package:spendly/features/auth/domain/usecases/login_usecase.dart';
+import 'package:spendly/features/auth/domain/usecases/logout_usecase.dart';
+import 'package:spendly/features/auth/domain/usecases/register_usecase.dart';
+import 'package:spendly/features/auth/presentation/controller/auth_controller.dart';
 // Expense Feature Dependencies
 import 'package:spendly/features/expense/data/datasources/expense_remote_datasource.dart';
 import 'package:spendly/features/expense/data/datasources/firebase_cloudstore_datasource.dart';
@@ -53,6 +61,30 @@ class DependencyInjection {
       fenix: true,
     );
     Get.lazyPut<ExceptionMapper>(() => ExceptionMapper());
+
+    // --- Auth Feature ---
+    Get.lazyPut<FirebaseAuth>(
+      () => FirebaseAuth.instance,
+      fenix: true,
+    );
+    Get.lazyPut<AuthRemoteDataSource>(
+      () => AuthRemoteDataSourceImpl(firebaseAuth: Get.find()),
+    );
+    Get.lazyPut<AuthRepository>(
+      () => AuthRepositoryImpl(remoteDataSource: Get.find()),
+    );
+    Get.lazyPut(() => LoginUseCase(Get.find()));
+    Get.lazyPut(() => RegisterUseCase(Get.find()));
+    Get.lazyPut(() => LogoutUseCase(Get.find()));
+    Get.lazyPut(
+      () => AuthController(
+        loginUseCase: Get.find(),
+        registerUseCase: Get.find(),
+        logoutUseCase: Get.find(),
+      ),
+    );
+    Get.lazyPut(() => SplashController());
+
 
     // --- Expense Feature ---
     Get.lazyPut<ExpenseRemoteDataSource>(
