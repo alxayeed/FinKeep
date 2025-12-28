@@ -2,7 +2,9 @@
 
 #example file name - upload_apk.sh
 
-flutter build apk --release --split-per-abi --build-name=1.0.0+1 --build-number=13
+flutter build apk --release --split-per-abi
+
+
 
 APK_PATH="build/app/outputs/flutter-apk/app-arm64-v8a-release.apk"
 APP_ID="1:638261628234:android:d036c748cea24a1f0e85b3"

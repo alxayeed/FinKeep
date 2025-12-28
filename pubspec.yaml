@@ -1,7 +1,8 @@
 name: spendly
 description: "A new Flutter project."
 publish_to: 'none'
-version: 0.1.0
+version: 0.1.0+34
+
 
 environment:
   sdk: '>=3.9.0 <4.0.0'
