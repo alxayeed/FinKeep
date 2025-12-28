@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:spendly/core/routes/app_router.dart';
 
 import 'core/config/app_config.dart';
+import 'core/responsive/responsive.dart';
 import 'core/styles/app_themes.dart';
 import 'core/styles/theme_provider.dart';
 import 'dependency_injection.dart';
@@ -12,9 +13,7 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   DependencyInjection.initDependencies();
   AppConfig.init(env: kReleaseMode ? AppEnvironment.prod : AppEnvironment.dev);
@@ -33,6 +32,12 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Responsive.init(
+      context,
+      refHeight: 924, // Pixel 9 height in dp
+      refWidth: 412, // Pixel 9 width in dp
+    );
+
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: themeProvider,
       builder: (context, themeMode, _) {
