@@ -21,6 +21,7 @@ void main() async {
 
   // Get the singleton ThemeProvider instance
   final themeProvider = ThemeProvider();
+  await themeProvider.loadTheme();
 
   runApp(MainApp(themeProvider: themeProvider));
 }
