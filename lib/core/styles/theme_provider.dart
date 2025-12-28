@@ -16,7 +16,7 @@ class ThemeProvider extends ValueNotifier<ThemeMode> {
   /// Load theme from SharedPreferences
   Future<void> loadTheme() async {
     final prefs = await SharedPreferences.getInstance();
-    final themeStr = prefs.getString(_key) ?? 'light';
+    final themeStr = prefs.getString(_key) ?? 'system';
     switch (themeStr) {
       case 'light':
         value = ThemeMode.light;
