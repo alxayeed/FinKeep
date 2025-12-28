@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spendly/features/auth/presentation/controller/auth_controller.dart';
 
+import '../../../../core/common/migration_screen.dart';
 import '../../../../core/common/widgets/styled_elevated_button.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/styles/app_colors.dart';
@@ -306,7 +307,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           style: TextStyle(fontSize: 16.sp),
                         ),
                         trailing: Icon(Icons.chevron_right, size: 22.r),
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const MigrationScreen(),
+                            ),
+                          );
+                        },
                       ),
                       Divider(color: Theme.of(context).dividerColor),
                       ListTile(
