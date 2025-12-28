@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:spendly/core/error/exception_mapper.dart';
+import 'package:spendly/features/auth/data/auth_repository.dart';
 // Expense Feature Dependencies
 import 'package:spendly/features/expense/data/datasources/expense_remote_datasource.dart';
 import 'package:spendly/features/expense/data/datasources/firebase_cloudstore_datasource.dart';
@@ -52,6 +53,9 @@ class DependencyInjection {
       fenix: true,
     );
     Get.lazyPut<ExceptionMapper>(() => ExceptionMapper());
+
+    // --- Auth Feature ---
+    Get.lazyPut<AuthRepository>(() => AuthRepository());
 
     // --- Expense Feature ---
     Get.lazyPut<ExpenseRemoteDataSource>(

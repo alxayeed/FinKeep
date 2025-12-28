@@ -1,5 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:spendly/features/auth/presentation/screen/login_screen.dart';
+import 'package:spendly/features/auth/presentation/screen/registration_screen.dart';
 import 'package:spendly/features/investments/domain/entities/investment.dart';
 import 'package:spendly/features/investments/presentation/screens/add_investment_screen.dart';
 import 'package:spendly/features/investments/presentation/screens/edit_investment_screen.dart';
@@ -20,6 +23,10 @@ import '../common/home_scaffold.dart';
 
 class AppRoutes {
   static const String home = '/';
+
+  // Auth
+  static const String login = '/login';
+  static const String registration = '/registration';
 
   // Expenses
   static const String expenses = '/expenses';
@@ -110,6 +117,22 @@ class AppRouter {
       /// ----------------------------------------------------
       /// 2. TOP-LEVEL ROUTES (No Transition)
       /// ----------------------------------------------------
+
+      // Auth
+      GoRoute(
+        path: AppRoutes.login,
+        name: AppRoutes.login,
+        pageBuilder: (context, state) => const NoTransitionPage(
+          child: LoginScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.registration,
+        name: AppRoutes.registration,
+        pageBuilder: (context, state) => const NoTransitionPage(
+          child: RegistrationScreen(),
+        ),
+      ),
 
       // Expenses Detail/Add
       GoRoute(
@@ -229,6 +252,21 @@ class AppRouter {
         },
       ),
     ],
+    redirect: (context, state) {
+      final loggedIn = FirebaseAuth.instance.currentUser != null;
+      final loggingIn = state.matchedLocation == AppRoutes.login;
+      final registering = state.matchedLocation == AppRoutes.registration;
+
+      if (!loggedIn) {
+        return loggingIn || registering ? null : AppRoutes.login;
+      }
+
+      if (loggingIn || registering) {
+        return AppRoutes.expenses;
+      }
+
+      return null;
+    },
   );
 }
 

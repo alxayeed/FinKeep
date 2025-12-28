@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
+import 'package:spendly/core/routes/app_router.dart';
 
 import '../controllers/expense_controller.dart';
 import '../widgets/expense_list_widget.dart';
@@ -21,6 +23,23 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
     setState(() {
       _selectedIndex = index;
     });
+    switch (index) {
+      case 0:
+        GoRouter.of(context).go(AppRoutes.expenses);
+        break;
+      case 1:
+        GoRouter.of(context).go(AppRoutes.lendings);
+        break;
+      case 2:
+        GoRouter.of(context).go(AppRoutes.expenseReport);
+        break;
+      case 3:
+        GoRouter.of(context).go(AppRoutes.investments);
+        break;
+      case 4:
+        GoRouter.of(context).go(AppRoutes.profile);
+        break;
+    }
   }
 
   @override
