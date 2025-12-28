@@ -6,9 +6,14 @@ import '../widgets/summary_by_category_widget.dart';
 import '../widgets/total_spent_card.dart';
 
 class ExpenseSummery extends StatelessWidget {
-  const ExpenseSummery({super.key, required this.expenses});
+  const ExpenseSummery({
+    super.key,
+    required this.expenses,
+    this.isReport = false,
+  });
 
   final List<ExpenseEntity> expenses;
+  final bool isReport;
 
   double _calculateTotalSpending() {
     return expenses.fold(0.0, (sum, e) => sum + e.amount);
@@ -31,7 +36,7 @@ class ExpenseSummery extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // 💳 Total Spent Card (new)
-          TotalSpentCard(),
+          TotalSpentCard(isReport: isReport),
 
           const SizedBox(height: 16),
 

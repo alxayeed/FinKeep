@@ -5,9 +5,14 @@ import 'package:spendly/core/extensions/double_ext.dart';
 import '../controllers/expense_controller.dart';
 
 class TotalSpentCard extends StatelessWidget {
-  const TotalSpentCard({super.key, this.compact = false});
+  const TotalSpentCard({
+    super.key,
+    this.compact = false,
+    this.isReport = false,
+  });
 
   final bool compact;
+  final bool isReport;
 
   String _budgetHealthLabel(double spent, double budget) {
     if (spent <= budget * 0.85) return "Healthy";
@@ -27,21 +32,30 @@ class TotalSpentCard extends StatelessWidget {
     final controller = Get.find<ExpenseController>();
 
     return Obx(() {
+      final double totalSpent = isReport
+          ? controller.reportExpenses.fold(0.0, (sum, e) => sum + e.amount)
+          : controller.totalExpense.value;
+
       final double budget = controller.monthlyBudget.value;
-      final double totalSpent = controller.totalExpense.value;
       final bool isOverBudget = totalSpent > budget;
       final double remaining = (budget - totalSpent).clamp(0.0, budget);
       final double overAmount = isOverBudget ? (totalSpent - budget) : 0;
-      final Color totalSpentColor = isOverBudget
+
+      final Color totalSpentColor = isReport
+          ? theme.colorScheme.primary
+          : isOverBudget
           ? Colors.red.shade600
           : Colors.green.shade600;
+
       final Color remainingColor = isOverBudget
           ? Colors.red.shade600
           : Colors.orange.shade700;
+
       final double lastMonthTotal = controller.lastMonthTotal.value;
       final double percentChange = lastMonthTotal == 0
           ? 0.0
           : ((totalSpent - lastMonthTotal) / lastMonthTotal) * 100;
+
       final String healthLabel = _budgetHealthLabel(totalSpent, budget);
       final Color healthColor = _budgetHealthColor(totalSpent, budget);
 
@@ -73,11 +87,12 @@ class TotalSpentCard extends StatelessWidget {
                     letterSpacing: 1.1,
                   ),
                 ),
-                _VsLastMonthChip(
-                  percentChange: percentChange,
-                  lastMonthTotal: lastMonthTotal,
-                  compact: compact,
-                ),
+                if (!isReport)
+                  _VsLastMonthChip(
+                    percentChange: percentChange,
+                    lastMonthTotal: lastMonthTotal,
+                    compact: compact,
+                  ),
               ],
             ),
             SizedBox(height: compact ? 8 : 12),
@@ -95,53 +110,56 @@ class TotalSpentCard extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                 ),
-                Row(
-                  children: [
-                    Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(
-                        color: healthColor,
-                        shape: BoxShape.circle,
+                if (!isReport)
+                  Row(
+                    children: [
+                      Container(
+                        width: 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: healthColor,
+                          shape: BoxShape.circle,
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 6),
-                    Text(
-                      healthLabel,
-                      style: theme.textTheme.bodyMedium!.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: healthColor,
+                      const SizedBox(width: 6),
+                      Text(
+                        healthLabel,
+                        style: theme.textTheme.bodyMedium!.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: healthColor,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            SizedBox(height: compact ? 10 : 14),
-            BudgetProgressBar(
-              budget: budget,
-              expense: totalSpent,
-              height: compact ? 6 : 8,
-            ),
-            SizedBox(height: compact ? 8 : 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Budget: ${budget.toCurrency()} ৳",
-                  style: theme.textTheme.bodyMedium,
-                ),
-                Text(
-                  isOverBudget
-                      ? "Over budget: ${overAmount.toCurrency()} ৳"
-                      : "Remaining: ${remaining.toCurrency()} ৳",
-                  style: theme.textTheme.bodyMedium!.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: remainingColor,
+                    ],
                   ),
-                ),
               ],
             ),
+            if (!isReport) ...[
+              SizedBox(height: compact ? 10 : 14),
+              BudgetProgressBar(
+                budget: budget,
+                expense: totalSpent,
+                height: compact ? 6 : 8,
+              ),
+              SizedBox(height: compact ? 8 : 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Budget: ${budget.toCurrency()} ৳",
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                  Text(
+                    isOverBudget
+                        ? "Over budget: ${overAmount.toCurrency()} ৳"
+                        : "Remaining: ${remaining.toCurrency()} ৳",
+                    style: theme.textTheme.bodyMedium!.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: remainingColor,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ],
         ),
       );
@@ -167,6 +185,7 @@ class BudgetProgressBar extends StatelessWidget {
     final double spentWithinBudget = expense <= budget ? expense : budget;
     final double remainingBudget = expense < budget ? budget - expense : 0;
     final double overBudget = expense > budget ? expense - budget : 0;
+
     final double greenFrac = spentWithinBudget / total;
     final double yellowFrac = remainingBudget / total;
     final double redFrac = overBudget / total;
@@ -214,11 +233,13 @@ class _VsLastMonthChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool isIncrease = percentChange > 0;
     final bool isSame = percentChange == 0;
+
     final Color color = isSame
         ? Colors.grey.shade600
         : isIncrease
         ? Colors.red.shade600
         : Colors.green.shade600;
+
     final String label = isSame
         ? "No change vs last month"
         : isIncrease

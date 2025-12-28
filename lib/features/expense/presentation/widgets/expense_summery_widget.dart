@@ -10,8 +10,11 @@ import 'expense_summery.dart';
 import 'widgets.dart';
 
 class ExpenseSummeryWidget extends StatelessWidget {
-  const ExpenseSummeryWidget(
-      {super.key, required this.controller, this.isReport = false});
+  const ExpenseSummeryWidget({
+    super.key,
+    required this.controller,
+    this.isReport = false,
+  });
 
   final ExpenseController controller;
   final bool isReport;
@@ -35,7 +38,7 @@ class ExpenseSummeryWidget extends StatelessWidget {
           return SingleChildScrollView(
             child: Column(
               children: [
-                ExpenseSummery(expenses: data),
+                ExpenseSummery(expenses: data, isReport: isReport),
                 if (isReport) ...[
                   const SizedBox(height: 16),
                   ExpenseMonthlyAnalysis(expenses: data),
@@ -45,7 +48,7 @@ class ExpenseSummeryWidget extends StatelessWidget {
                     height: MediaQuery.of(context).size.height * 0.35,
                     child: ExpenseBarChart(expenses: data),
                   ),
-                ]
+                ],
               ],
             ),
           );
