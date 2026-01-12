@@ -16,6 +16,8 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   DependencyInjection.initDependencies();
+  // AppConfig.init(env: AppEnvironment.prod);
+
   AppConfig.init(env: kReleaseMode ? AppEnvironment.prod : AppEnvironment.dev);
 
   // Get the singleton ThemeProvider instance

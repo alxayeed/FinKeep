@@ -53,6 +53,7 @@ class InvestmentModel extends Investment {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'userId': userId,
       'title': title,
       'amountInvested': amountInvested,
       'startDate': startDate.toIso8601String(),
