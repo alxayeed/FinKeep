@@ -31,7 +31,9 @@ class AndroidExpenseReminderService implements ExpenseReminderService {
   }
 
   @override
-  Future<void> init({required void Function(String?) onTap}) async {
+  Future<void> init(
+      {required void Function(String?) onTap,
+      void Function(NotificationResponse)? onDidReceiveBackgroundNotificationResponse}) async {
     tz.initializeTimeZones();
 
     try {
@@ -67,6 +69,7 @@ class AndroidExpenseReminderService implements ExpenseReminderService {
       onDidReceiveNotificationResponse: (response) {
         onTap(response.payload);
       },
+      onDidReceiveBackgroundNotificationResponse: onDidReceiveBackgroundNotificationResponse,
     );
 
     log("Flutter Local Notifications initialized successfully");
@@ -119,7 +122,7 @@ class AndroidExpenseReminderService implements ExpenseReminderService {
           icon: '@mipmap/ic_launcher',
         ),
       ),
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time,
       payload: 'add_expense',
     );

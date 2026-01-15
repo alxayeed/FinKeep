@@ -1,7 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:spendly/core/routes/app_router.dart';
+import 'package:spendly/features/expense/services/expense_reminder_android.dart';
 
 import 'core/config/app_config.dart';
 import 'core/responsive/responsive.dart';
@@ -9,6 +11,15 @@ import 'core/styles/app_themes.dart';
 import 'core/styles/theme_provider.dart';
 import 'dependency_injection.dart';
 import 'firebase_options.dart';
+
+@pragma('vm:entry-point')
+void notificationTapBackground(NotificationResponse notificationResponse) {
+  if (notificationResponse.payload == 'add_expense') {
+    // Using a separate router instance for background navigation
+    final router = AppRouter.router;
+    router.go(AppRoutes.addExpense);
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +34,17 @@ void main() async {
   // Get the singleton ThemeProvider instance
   final themeProvider = ThemeProvider();
   await themeProvider.loadTheme();
+
+  final notificationService = AndroidExpenseReminderService();
+  await notificationService.init(
+    onTap: (payload) {
+      if (payload == 'add_expense') {
+        // Use the main app's router for foreground navigation
+        AppRouter.router.go(AppRoutes.addExpense);
+      }
+    },
+    onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
+  );
 
   runApp(MainApp(themeProvider: themeProvider));
 }
