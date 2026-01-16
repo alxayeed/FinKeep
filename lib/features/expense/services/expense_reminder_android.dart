@@ -18,17 +18,6 @@ class AndroidExpenseReminderService implements ExpenseReminderService {
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
 
-  Future<void> _requestExactAlarmsPermission() async {
-    try {
-      final intent = AndroidIntent(
-        action: 'android.settings.SCHEDULE_EXACT_ALARM',
-      );
-      log("Opening SCHEDULE_EXACT_ALARM settings...");
-      await intent.launch();
-    } on PlatformException {
-      log("Failed to open exact alarm settings");
-    }
-  }
 
   @override
   Future<void> init(
@@ -86,7 +75,17 @@ class AndroidExpenseReminderService implements ExpenseReminderService {
       return;
     }
 
-    await _requestExactAlarmsPermission();
+    // NEW: Check for SCHEDULE_EXACT_ALARM permission
+    final bool isExactAlarmAllowed =
+        await Permission.scheduleExactAlarm.isGranted;
+    if (!isExactAlarmAllowed) {
+      log("SCHEDULE_EXACT_ALARM permission not granted, requesting...");
+      final status = await Permission.scheduleExactAlarm.request();
+      if (status != PermissionStatus.granted) {
+        log("SCHEDULE_EXACT_ALARM permission denied after request.");
+        return; // Exit if permission is not granted
+      }
+    }
 
     final now = tz.TZDateTime.now(tz.local);
 
