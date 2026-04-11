@@ -1,5 +1,8 @@
-Release 39
-- FIX: Investment not saving userId
+Release 40
+- UPDATE: Expenses grouped by date
+- UPDATE: Total expense will be shown in month selector, only in list
+- UPDATE: Expense summary updated in report screen
+- UPDATE: Lending summary updated
 
 
 

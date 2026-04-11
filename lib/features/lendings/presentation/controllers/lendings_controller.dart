@@ -299,4 +299,25 @@ class LendingsController extends GetxController {
       },
     );
   }
+
+  // inside LendingsController
+  double get totalGivenDue {
+    return lendingsList.where((l) => l.type == LendingType.given).fold(0.0, (
+      sum,
+      l,
+    ) {
+      final repaid = l.repayments?.fold(0.0, (s, r) => s! + r.amount) ?? 0.0;
+      return sum + (l.amount - repaid);
+    });
+  }
+
+  double get totalReceivedDue {
+    return lendingsList.where((l) => l.type == LendingType.taken).fold(0.0, (
+      sum,
+      l,
+    ) {
+      final repaid = l.repayments?.fold(0.0, (s, r) => s! + r.amount) ?? 0.0;
+      return sum + (l.amount - repaid);
+    });
+  }
 }

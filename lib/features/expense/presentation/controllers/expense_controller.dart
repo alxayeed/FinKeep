@@ -258,6 +258,45 @@ class ExpenseController extends GetxController {
     selectedMonth.value = newMonth;
     clearReportState();
     shouldRefresh = true;
-    fetchMonthlyExpenses(); // will also fetch last month total
+    fetchMonthlyExpenses();
+  }
+
+  List<Object> get groupedExpenses {
+    final List<ExpenseEntity> source = filteredExpenses;
+
+    if (source.isEmpty) return [];
+
+    final Map<DateTime, List<ExpenseEntity>> groupedMap = {};
+    final Map<DateTime, double> dailyTotals = {};
+
+    for (var expense in source) {
+      final dateKey = DateTime(
+        expense.date.year,
+        expense.date.month,
+        expense.date.day,
+      );
+
+      if (groupedMap[dateKey] == null) {
+        groupedMap[dateKey] = [];
+        dailyTotals[dateKey] = 0.0;
+      }
+
+      groupedMap[dateKey]!.add(expense);
+      dailyTotals[dateKey] = dailyTotals[dateKey]! + expense.amount;
+    }
+
+    final List<Object> flattened = [];
+    final sortedDates = groupedMap.keys.toList()
+      ..sort((a, b) => b.compareTo(a));
+
+    for (var date in sortedDates) {
+      flattened.add({'date': date, 'total': dailyTotals[date]});
+
+      final dayExpenses = groupedMap[date]!
+        ..sort((a, b) => b.date.compareTo(a.date));
+      flattened.addAll(dayExpenses);
+    }
+
+    return flattened;
   }
 }

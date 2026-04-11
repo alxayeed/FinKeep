@@ -62,7 +62,7 @@ class TotalSpentCard extends StatelessWidget {
       return Container(
         padding: EdgeInsets.all(compact ? 12 : 16),
         decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
+          color: theme.colorScheme.primary.withValues(alpha: 0.25),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: theme.dividerColor.withValues(alpha: 0.4)),
           boxShadow: compact
@@ -243,8 +243,8 @@ class _VsLastMonthChip extends StatelessWidget {
     final String label = isSame
         ? "No change vs last month"
         : isIncrease
-        ? "Spent ↑ ${percentChange.toStringAsFixed(0)}% vs last month"
-        : "Spent ↓ ${percentChange.abs().toStringAsFixed(0)}% vs last month";
+        ? " ↑ ${percentChange.toStringAsFixed(0)}% "
+        : " ↓ ${percentChange.abs().toStringAsFixed(0)}% ";
 
     return Tooltip(
       message: "Last month total: ${lastMonthTotal.toCurrency()} ৳",

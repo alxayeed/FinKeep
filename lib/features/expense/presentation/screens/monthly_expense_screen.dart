@@ -22,9 +22,7 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        appBar: const CustomAppBar(
-          bottom: CustomTabBar(),
-        ),
+        appBar: const CustomAppBar(bottom: CustomTabBar()),
         // drawer: AppDrawer(),
         floatingActionButton: CustomFAB(
           onPressed: () {
@@ -39,13 +37,15 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
         ),
         body: Column(
           children: [
-            Obx(() => MonthSelector(
-                  onMonthChanged: (selectedMonth) {
-                    controller.selectedMonth.value = selectedMonth;
-                    controller.fetchMonthlyExpenses();
-                  },
-                  totalExpense: controller.totalExpense.value,
-                )),
+            Obx(
+              () => MonthSelector(
+                onMonthChanged: (selectedMonth) {
+                  controller.selectedMonth.value = selectedMonth;
+                  controller.fetchMonthlyExpenses();
+                },
+                totalExpense: controller.totalExpense.value,
+              ),
+            ),
             Expanded(
               child: TabBarView(
                 children: [

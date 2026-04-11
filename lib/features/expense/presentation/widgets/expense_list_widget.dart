@@ -5,6 +5,7 @@ import 'package:spendly/core/common/widgets/no_data_widget.dart';
 import 'package:spendly/core/extensions/double_ext.dart';
 
 import '../../../../core/common/widgets/loader_widget.dart';
+import '../../../../core/extensions/date_time_formatter.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../controllers/expense_controller.dart';
 import 'expense_card_widget.dart';
@@ -19,14 +20,37 @@ class ExpenseListWidget extends StatelessWidget {
     this.isReport = false,
   });
 
-  List<ExpenseEntity> get _dataList {
-    return isReport
-        ? controller.reportFilteredExpenses
-        : controller.filteredExpenses;
-  }
-
   RxDouble get _totalExpense {
     return isReport ? controller.reportTotalExpense : controller.totalExpense;
+  }
+
+  Widget _buildDateHeader(DateTime date, double dailyTotal) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+      color: Colors.grey.shade50,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            date.formatDate(),
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey.shade600,
+            ),
+          ),
+          Text(
+            '${dailyTotal.toCurrency()} ৳',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: Colors.teal.shade700,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildExpenseSummary() {
@@ -37,13 +61,17 @@ class ExpenseListWidget extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         width: double.infinity,
         decoration: BoxDecoration(
-            color: Colors.teal.shade400,
-            borderRadius: BorderRadius.circular(10)),
+          color: Colors.teal.shade400,
+          borderRadius: BorderRadius.circular(10),
+        ),
         child: Center(
           child: Text(
             '${amount.toCurrency()} ৳',
             style: const TextStyle(
-                fontSize: 18, fontWeight: FontWeight.w400, color: Colors.white),
+              fontSize: 18,
+              fontWeight: FontWeight.w400,
+              color: Colors.white,
+            ),
           ),
         ),
       );
@@ -62,8 +90,9 @@ class ExpenseListWidget extends StatelessWidget {
             itemCount: controller.categories.length,
             itemBuilder: (context, index) {
               final isAllCategory = index == 0;
-              final category =
-                  isAllCategory ? 'All' : controller.categories[index];
+              final category = isAllCategory
+                  ? 'All'
+                  : controller.categories[index];
 
               return Obx(() {
                 final isSelected =
@@ -91,20 +120,27 @@ class ExpenseListWidget extends StatelessWidget {
             },
           ),
         ),
-        _buildExpenseSummary(),
+        // _buildExpenseSummary(),
         Expanded(
           child: Obx(() {
-            final data = _dataList;
+            final items = controller.groupedExpenses;
 
             if (controller.isLoading.value) {
               return const Center(child: LoaderWidget());
-            } else if (data.isEmpty) {
+            } else if (items.isEmpty) {
               return const Center(child: NoDataWidget());
             }
+
             return ListView.builder(
-              itemCount: data.length,
+              itemCount: items.length,
               itemBuilder: (context, index) {
-                final expense = data[index];
+                final item = items[index];
+
+                if (item is Map<String, dynamic>) {
+                  return _buildDateHeader(item['date'], item['total']);
+                }
+
+                final expense = item as ExpenseEntity;
                 return ExpenseCardWidget(
                   expense: expense,
                   onDismissed: () {
