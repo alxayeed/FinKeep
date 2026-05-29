@@ -1,9 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:spendly/core/routes/app_router.dart';
 
-import 'core/config/app_config.dart';
 import 'core/responsive/responsive.dart';
 import 'core/styles/app_themes.dart';
 import 'core/styles/theme_provider.dart';
@@ -16,9 +14,6 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   DependencyInjection.initDependencies();
-  // AppConfig.init(env: AppEnvironment.prod);
-
-  AppConfig.init(env: kReleaseMode ? AppEnvironment.prod : AppEnvironment.dev);
 
   // Get the singleton ThemeProvider instance
   final themeProvider = ThemeProvider();

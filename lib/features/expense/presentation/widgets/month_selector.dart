@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
-import '../../../../core/extensions/double_ext.dart';
+import '../../../../core/responsive/responsive.dart';
 
 class MonthSelector extends StatefulWidget {
   final ValueChanged<DateTime> onMonthChanged;
-  final double? totalExpense;
+  final VoidCallback? onSearchPressed;
+  final VoidCallback? onFilterPressed;
 
   const MonthSelector({
     super.key,
     required this.onMonthChanged,
-    this.totalExpense,
+    this.onSearchPressed,
+    this.onFilterPressed,
   });
 
   @override
@@ -21,9 +22,8 @@ class _MonthSelectorState extends State<MonthSelector> {
   DateTime _selectedMonth = DateTime.now();
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Use addPostFrameCallback instead of Future.delayed for cleaner initialization
+  void initState() {
+    super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.onMonthChanged(_selectedMonth);
     });
@@ -32,9 +32,7 @@ class _MonthSelectorState extends State<MonthSelector> {
   void _previousMonth() {
     setState(() {
       _selectedMonth = DateTime(
-        _selectedMonth.month == 1
-            ? _selectedMonth.year - 1
-            : _selectedMonth.year,
+        _selectedMonth.month == 1 ? _selectedMonth.year - 1 : _selectedMonth.year,
         _selectedMonth.month == 1 ? 12 : _selectedMonth.month - 1,
       );
       widget.onMonthChanged(_selectedMonth);
@@ -44,82 +42,168 @@ class _MonthSelectorState extends State<MonthSelector> {
   void _nextMonth() {
     setState(() {
       _selectedMonth = DateTime(
-        _selectedMonth.month == 12
-            ? _selectedMonth.year + 1
-            : _selectedMonth.year,
+        _selectedMonth.month == 12 ? _selectedMonth.year + 1 : _selectedMonth.year,
         _selectedMonth.month == 12 ? 1 : _selectedMonth.month + 1,
       );
       widget.onMonthChanged(_selectedMonth);
     });
   }
 
+  Future<void> _selectMonth(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedMonth,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+      initialDatePickerMode: DatePickerMode.year,
+      helpText: 'Select Month',
+    );
+    if (picked != null && picked != _selectedMonth) {
+      setState(() {
+        _selectedMonth = DateTime(picked.year, picked.month);
+        widget.onMonthChanged(_selectedMonth);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final tabController = DefaultTabController.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // AnimatedBuilder listens to the tabController's changes
-    return AnimatedBuilder(
-      animation: tabController,
-      builder: (context, child) {
-        // The index updates here automatically as the user swipes
-        final bool isListTab = tabController.index == 1;
-
-        return Row(
-          children: [
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: _previousMonth,
-                  ),
-                  Text(
-                    DateFormat.yMMMM().format(_selectedMonth),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.arrow_forward),
-                    onPressed: _nextMonth,
-                  ),
-                ],
-              ),
-            ),
-            if (isListTab && widget.totalExpense != null)
-              Expanded(
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Left switching cluster
+          Row(
+            children: [
+              // Left Chevron
+              GestureDetector(
+                onTap: _previousMonth,
+                behavior: HitTestBehavior.opaque,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 16.0,
-                    vertical: 8.0,
-                  ),
-                  height: 45,
-                  // Fixed height to keep Row balanced
+                  width: 36.r,
+                  height: 36.r,
                   decoration: BoxDecoration(
-                    color: Colors.teal.shade400,
-                    borderRadius: BorderRadius.circular(10),
+                    shape: BoxShape.circle,
+                    color: isDark ? const Color(0xFF1E293B) : Colors.transparent,
                   ),
-                  child: Center(
-                    child: Text(
-                      '${widget.totalExpense!.toCurrency()} ৳',
-                      style: const TextStyle(
-                        fontSize: 16, // Slightly smaller to fit layout
-                        fontWeight: FontWeight.w400,
-                        color: Colors.white,
-                      ),
-                    ),
+                  child: Icon(
+                    Icons.chevron_left,
+                    size: 24.sp,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
                   ),
                 ),
-              )
-            else
-              const SizedBox.shrink(),
-            // Keeps the month title centered when total is hidden
-          ],
-        );
-      },
+              ),
+              SizedBox(width: 4.w),
+              // Dropdown Button Pill
+              GestureDetector(
+                onTap: () => _selectMonth(context),
+                child: Container(
+                  height: 36.h,
+                  padding: EdgeInsets.symmetric(horizontal: 12.w),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9),
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.circular(9999.r),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.02),
+                        blurRadius: 2.r,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        DateFormat('MMMM yyyy').format(_selectedMonth),
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontFamily: 'Manrope',
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                        ),
+                      ),
+                      SizedBox(width: 6.w),
+                      Icon(
+                        Icons.keyboard_arrow_down,
+                        size: 16.sp,
+                        color: isDark ? Colors.white60 : const Color(0xFF94A3B8),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(width: 4.w),
+              // Right Chevron
+              GestureDetector(
+                onTap: _nextMonth,
+                behavior: HitTestBehavior.opaque,
+                child: Container(
+                  width: 36.r,
+                  height: 36.r,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isDark ? const Color(0xFF1E293B) : Colors.transparent,
+                  ),
+                  child: Icon(
+                    Icons.chevron_right,
+                    size: 24.sp,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          // Right search & filter cluster
+          Row(
+            children: [
+              // Search Button
+              GestureDetector(
+                onTap: widget.onSearchPressed,
+                child: Container(
+                  width: 36.r,
+                  height: 36.r,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isDark ? const Color(0xFF1E293B) : Colors.transparent,
+                  ),
+                  child: Icon(
+                    Icons.search_rounded,
+                    size: 22.sp,
+                    color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                  ),
+                ),
+              ),
+              SizedBox(width: 4.w),
+              // Filter Button
+              GestureDetector(
+                onTap: widget.onFilterPressed,
+                child: Container(
+                  width: 36.r,
+                  height: 36.r,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isDark ? const Color(0xFF1E293B) : Colors.transparent,
+                  ),
+                  child: Icon(
+                    Icons.tune_rounded,
+                    size: 22.sp,
+                    color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
