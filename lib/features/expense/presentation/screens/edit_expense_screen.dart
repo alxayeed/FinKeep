@@ -621,7 +621,7 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
           ),
         );
         widget.onSave?.call(updatedExpense);
-        context.pop();
+        context.pop(updatedExpense);
       },
       onError: (e) {
         if (!mounted) return;

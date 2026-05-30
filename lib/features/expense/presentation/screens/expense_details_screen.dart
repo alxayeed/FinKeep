@@ -111,22 +111,16 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (BuildContext context) {
-                  return EditExpenseScreen(
-                    expense: _currentExpense,
-                    onSave: (updated) {
-                      setState(() {
-                        _currentExpense = updated;
-                      });
-                    },
-                  );
-                },
+            onPressed: () async {
+              final updated = await context.pushNamed<ExpenseEntity>(
+                AppRoutes.editExpense,
+                extra: _currentExpense,
               );
+              if (updated != null && mounted) {
+                setState(() {
+                  _currentExpense = updated;
+                });
+              }
             },
             child: Text(
               'Edit',

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
+import 'package:spendly/core/routes/app_router.dart';
 
 import '../../../../core/enums/expense_category.dart';
 import '../../../../core/responsive/responsive.dart';
@@ -118,14 +120,7 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            builder: (BuildContext context) {
-              return const CreateExpenseScreen();
-            },
-          );
+          context.pushNamed(AppRoutes.addExpense);
         },
         backgroundColor: const Color(0xFF0F172A),
         foregroundColor: Colors.white,

@@ -30,6 +30,7 @@ class AppRoutes {
   static const String expenses = '/expenses';
   static const String addExpense = '/addExpense';
   static const String expenseDetails = '/expenseDetails';
+  static const String editExpense = '/editExpense';
   static const String expenseReport = '/expenseReport';
 
   // Lending Routes
@@ -118,7 +119,6 @@ class AppRouter {
         ],
       ),
 
-      // Expenses Detail/Add
       GoRoute(
         path: AppRoutes.addExpense,
         name: AppRoutes.addExpense,
@@ -136,6 +136,21 @@ class AppRouter {
             );
           }
           return NoTransitionPage(child: ExpenseDetailsScreen(expense: extra));
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.editExpense,
+        name: AppRoutes.editExpense,
+        pageBuilder: (context, state) {
+          final extra = state.extra;
+          if (extra is! ExpenseEntity) {
+            return const NoTransitionPage(
+              child: ErrorScreen(message: 'Invalid Expense data for editing.'),
+            );
+          }
+          return NoTransitionPage(
+            child: EditExpenseScreen(expense: extra),
+          );
         },
       ),
 

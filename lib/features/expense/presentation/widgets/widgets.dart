@@ -5,7 +5,6 @@ export 'custom_tab_bar.dart';
 export 'donut_chart.dart';
 export 'expense_bar_chart.dart';
 export 'expense_card_widget.dart';
-export 'expense_form_widget.dart';
 export 'expense_summery_widget.dart';
 export 'segmented_tab_bar.dart';
 export 'month_selector.dart';
