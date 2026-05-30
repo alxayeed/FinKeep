@@ -68,6 +68,7 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
             children: [
               // 1. Month Selector Header
               MonthSelector(
+                showSearchButton: _selectedTab == 1,
                 onMonthChanged: (selectedMonth) {
                   controller.updateSelectedMonth(selectedMonth);
                 },
@@ -93,11 +94,28 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
               // 3. Tab Contents
               Expanded(
                 child: controller.isLoading.value
-                    ? const Center(
-                        child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryTeal),
-                        ),
-                      )
+                    ? (_selectedTab == 0
+                        ? const MonthlyExpenseShimmer(selectedTab: 0)
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // Category Horizontal Filter Pills - only shown in Details UI
+                              Padding(
+                                padding: EdgeInsets.only(bottom: 8.h),
+                                child: CategoryFilterPills(
+                                  selectedCategory: controller.selectedCategory.value == 'All'
+                                      ? null
+                                      : ExpenseCategoryExtension.fromString(controller.selectedCategory.value),
+                                  onCategorySelected: (cat) {
+                                    controller.updateSelectedCategory(cat?.displayName ?? 'All');
+                                  },
+                                ),
+                              ),
+                              const Expanded(
+                                child: MonthlyExpenseShimmer(selectedTab: 1),
+                              ),
+                            ],
+                          ))
                     : _selectedTab == 0
                         ? _buildSummaryTab(spentByCategory, budgetsByCategory)
                         : Column(

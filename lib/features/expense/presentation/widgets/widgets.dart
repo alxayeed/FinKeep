@@ -11,3 +11,4 @@ export 'category_filter_pills.dart';
 export 'budget_progress_card.dart';
 export 'category_spending_list.dart';
 export 'smart_insight_banner.dart';
+export 'monthly_expense_shimmer.dart';

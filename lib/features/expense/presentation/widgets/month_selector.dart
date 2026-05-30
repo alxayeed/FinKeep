@@ -6,12 +6,14 @@ class MonthSelector extends StatefulWidget {
   final ValueChanged<DateTime> onMonthChanged;
   final VoidCallback? onSearchPressed;
   final VoidCallback? onFilterPressed;
+  final bool showSearchButton;
 
   const MonthSelector({
     super.key,
     required this.onMonthChanged,
     this.onSearchPressed,
     this.onFilterPressed,
+    this.showSearchButton = true,
   });
 
   @override
@@ -166,23 +168,25 @@ class _MonthSelectorState extends State<MonthSelector> {
           Row(
             children: [
               // Search Button
-              GestureDetector(
-                onTap: widget.onSearchPressed,
-                child: Container(
-                  width: 36.r,
-                  height: 36.r,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isDark ? const Color(0xFF1E293B) : Colors.transparent,
-                  ),
-                  child: Icon(
-                    Icons.search_rounded,
-                    size: 22.sp,
-                    color: isDark ? Colors.white70 : const Color(0xFF64748B),
+              if (widget.showSearchButton) ...[
+                GestureDetector(
+                  onTap: widget.onSearchPressed,
+                  child: Container(
+                    width: 36.r,
+                    height: 36.r,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isDark ? const Color(0xFF1E293B) : Colors.transparent,
+                    ),
+                    child: Icon(
+                      Icons.search_rounded,
+                      size: 22.sp,
+                      color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(width: 4.w),
+                SizedBox(width: 4.w),
+              ],
               // Filter Button
               GestureDetector(
                 onTap: widget.onFilterPressed,
