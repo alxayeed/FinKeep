@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import 'package:spendly/core/extensions/double_ext.dart';
+import 'package:spendly/core/responsive/responsive.dart';
 import 'package:spendly/core/styles/app_colors.dart';
+import 'package:spendly/core/styles/app_text_styles.dart';
+import 'package:spendly/core/routes/app_router.dart';
+import 'package:intl/intl.dart';
 
-import '../../../../core/routes/app_router.dart';
 import '../../domain/entity/lending/lending_entity.dart';
 
 class LendingListItem extends StatelessWidget {
@@ -14,125 +17,248 @@ class LendingListItem extends StatelessWidget {
     required this.lending,
   });
 
-  IconData _getTypeIcon(LendingType type) {
-    switch (type) {
-      case LendingType.given:
-        return Icons.arrow_upward_rounded;
-      case LendingType.taken:
-        return Icons.arrow_downward_rounded;
+  /// Generate initials from name
+  String _initials(String name) {
+    final parts = name.trim().split(RegExp(r'\s+'));
+    if (parts.length >= 2) {
+      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    }
+    return name.substring(0, name.length.clamp(0, 2)).toUpperCase();
+  }
+
+  /// Avatar background color based on name hash
+  Color _avatarColor(String name, LendingStatus status, bool isDark) {
+    switch (status) {
+      case LendingStatus.overdue:
+        return isDark ? const Color(0xFF3B1515) : const Color(0xFFFFE4E4);
+      case LendingStatus.partial:
+        return isDark ? const Color(0xFF1E293B) : const Color(0xFFE0EAFF);
+      case LendingStatus.due:
+        return isDark ? const Color(0xFF2D2008) : const Color(0xFFFFF8E1);
+      case LendingStatus.paid:
+        return isDark ? const Color(0xFF022C22) : const Color(0xFFECFDF5);
     }
   }
 
-  Color _getTypeColor(LendingType type) =>
-      AppColors.getColorForLendingType(type);
+  Color _avatarTextColor(LendingStatus status) {
+    switch (status) {
+      case LendingStatus.overdue:
+        return const Color(0xFFEF4444);
+      case LendingStatus.partial:
+        return const Color(0xFF3B82F6);
+      case LendingStatus.due:
+        return const Color(0xFFF59E0B);
+      case LendingStatus.paid:
+        return const Color(0xFF059669);
+    }
+  }
 
-  Color _getStatusColor(LendingStatus status) =>
-      AppColors.getColorForLendingStatus(status);
+  (String label, Color color, Color bgColor) _statusChip(
+      LendingStatus status, bool isDark) {
+    switch (status) {
+      case LendingStatus.overdue:
+        return (
+          'OVERDUE',
+          const Color(0xFFEF4444),
+          isDark ? const Color(0xFF3B0F0F) : const Color(0xFFFFEEEE),
+        );
+      case LendingStatus.partial:
+        return (
+          'PARTIAL',
+          const Color(0xFF3B82F6),
+          isDark ? const Color(0xFF1E2D4D) : const Color(0xFFEFF6FF),
+        );
+      case LendingStatus.due:
+        return (
+          'DUE',
+          const Color(0xFFF59E0B),
+          isDark ? const Color(0xFF2D1F05) : const Color(0xFFFFFBEB),
+        );
+      case LendingStatus.paid:
+        return (
+          'CLEARED',
+          const Color(0xFF059669),
+          isDark ? const Color(0xFF022C22) : const Color(0xFFECFDF5),
+        );
+    }
+  }
+
+  String _formatDueDate(DateTime? dueDate) {
+    if (dueDate == null) return '';
+    final now = DateTime.now();
+    final diff = dueDate.difference(DateTime(now.year, now.month, now.day));
+    if (diff.inDays == 0) return 'Today';
+    if (diff.inDays == 1) return 'Tomorrow';
+    if (diff.inDays == -1) return 'Yesterday';
+    return DateFormat('MMM dd, yyyy').format(dueDate);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final typeColor = _getTypeColor(lending.type);
-    final statusColor = _getStatusColor(lending.status);
-    final currencyFormat = NumberFormat.currency(locale: 'en_IN', symbol: '৳');
-    final dateFormat = DateFormat.yMd();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final status = lending.smartStatus;
+    final (chipLabel, chipColor, chipBg) = _statusChip(status, isDark);
+    final avatarBg = _avatarColor(lending.person.name, status, isDark);
+    final avatarFg = _avatarTextColor(status);
+    final isPaid = status == LendingStatus.paid;
+    final dateText = lending.dueDate != null
+        ? _formatDueDate(lending.dueDate)
+        : DateFormat('MMM dd, yyyy').format(lending.createdDate);
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(10),
-      onTap: () {
-        context.pushNamed(AppRoutes.lendingDetails, extra: lending);
-      },
-      child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        elevation: 1.5,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    // Paid/cleared cards use muted colours and a strikethrough across name + amount
+    final Color cardBg = isPaid
+        ? (isDark ? const Color(0xFF111C2B) : const Color(0xFFF8FAFC))
+        : (isDark ? AppColors.cardDark : AppColors.cardLight);
+    final Color cardBorder = isPaid
+        ? (isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0))
+        : (isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9));
+
+    return GestureDetector(
+      onTap: () => context.pushNamed(AppRoutes.lendingDetails, extra: lending),
+      child: Opacity(
+        opacity: isPaid ? 0.65 : 1.0,
+        child: Container(
+          margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 5.h),
+          padding: EdgeInsets.all(14.r),
+          decoration: BoxDecoration(
+            color: cardBg,
+            borderRadius: BorderRadius.circular(18.r),
+            border: Border.all(color: cardBorder, width: 1),
+            boxShadow: isPaid
+                ? []
+                : [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.03),
+                      blurRadius: 8.r,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+          ),
           child: Row(
             children: [
-              // Icon + status
-              Column(
+              // Avatar with initials
+              Stack(
+                clipBehavior: Clip.none,
                 children: [
-                  CircleAvatar(
-                    radius: 16,
-                    backgroundColor: typeColor.withValues(alpha: 0.15),
-                    child: Icon(
-                      _getTypeIcon(lending.type),
-                      size: 18,
-                      color: typeColor,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    width: 46.r,
+                    height: 46.r,
                     decoration: BoxDecoration(
-                      color: statusColor.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(6),
+                      color: avatarBg,
+                      borderRadius: BorderRadius.circular(14.r),
                     ),
+                    alignment: Alignment.center,
                     child: Text(
-                      lending.status.name.toUpperCase(),
+                      _initials(lending.person.name),
                       style: TextStyle(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w600,
-                        color: statusColor,
+                        fontSize: 14.sp,
+                        fontFamily: 'Manrope',
+                        fontWeight: FontWeight.bold,
+                        color: avatarFg,
                       ),
                     ),
                   ),
+                  // Overdue indicator dot
+                  if (status == LendingStatus.overdue)
+                    Positioned(
+                      top: -2,
+                      right: -2,
+                      child: Container(
+                        width: 10.r,
+                        height: 10.r,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFEF4444),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
                 ],
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 13.w),
 
-              // Main content
+              // Name + status chip + date
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       lending.person.name,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.cardTitle(context).copyWith(
+                        decoration: isPaid
+                            ? TextDecoration.lineThrough
+                            : TextDecoration.none,
+                        decorationColor: isDark
+                            ? Colors.white54
+                            : const Color(0xFF94A3B8),
+                        decorationThickness: 1.5,
+                      ),
                     ),
-                    const SizedBox(height: 2),
-                    if (lending.description != null &&
-                        lending.description!.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 2),
-                        child: Text(
-                          lending.description!,
-                          style: theme.textTheme.bodySmall
-                              ?.copyWith(fontStyle: FontStyle.italic),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                    SizedBox(height: 5.h),
+                    Row(
+                      children: [
+                        // Status chip
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 7.w, vertical: 2.h),
+                          decoration: BoxDecoration(
+                            color: chipBg,
+                            borderRadius: BorderRadius.circular(6.r),
+                          ),
+                          child: Text(
+                            chipLabel,
+                            style: TextStyle(
+                              fontSize: 9.sp,
+                              fontFamily: 'Manrope',
+                              fontWeight: FontWeight.bold,
+                              color: chipColor,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
                         ),
-                      ),
-                    Text(
-                      'Date: ${dateFormat.format(lending.createdDate)}'
-                      '${lending.dueDate != null ? ' | Due: ${dateFormat.format(lending.dueDate!)}' : ''}',
-                      style: theme.textTheme.bodySmall
-                          ?.copyWith(color: Colors.grey),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                        SizedBox(width: 6.w),
+                        // Date
+                        if (dateText.isNotEmpty)
+                          Text(
+                            dateText,
+                            style: AppTextStyles.cardSubtitle(context),
+                          ),
+                      ],
                     ),
                   ],
                 ),
               ),
 
-              const SizedBox(width: 8),
+              SizedBox(width: 10.w),
 
-              // Amount
-              Text(
-                currencyFormat.format(lending.amount),
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: typeColor,
-                ),
+              // Amount + chevron/check
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    '${lending.amount.toCurrency()} ৳',
+                    style: AppTextStyles.cardAmount(context).copyWith(
+                      decoration: isPaid
+                          ? TextDecoration.lineThrough
+                          : TextDecoration.none,
+                      decorationColor: isDark
+                          ? Colors.white54
+                          : const Color(0xFF94A3B8),
+                      decorationThickness: 1.5,
+                    ),
+                  ),
+                  SizedBox(height: 4.h),
+                  Icon(
+                    isPaid
+                        ? Icons.check_circle_outline_rounded
+                        : Icons.chevron_right_rounded,
+                    size: 16.sp,
+                    color: isPaid
+                        ? const Color(0xFF059669)
+                        : (isDark ? Colors.white24 : const Color(0xFFCBD5E1)),
+                  ),
+                ],
               ),
             ],
           ),

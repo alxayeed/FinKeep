@@ -1,143 +1,150 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:spendly/core/extensions/date_time_formatter.dart';
-
+import 'package:intl/intl.dart';
+import 'package:spendly/core/extensions/double_ext.dart';
+import '../../../../core/responsive/responsive.dart';
 import '../../../../core/routes/app_router.dart';
+import '../../../../core/styles/app_colors.dart';
+import '../../../../core/styles/app_text_styles.dart';
+import '../../domain/entities/expense_entity.dart';
 
 class ExpenseCardWidget extends StatelessWidget {
-  final dynamic expense;
-  final VoidCallback onDismissed;
+  final ExpenseEntity expense;
+  final VoidCallback? onDismissed;
 
   const ExpenseCardWidget({
     super.key,
     required this.expense,
-    required this.onDismissed,
+    this.onDismissed,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     Color categoryColor;
     IconData categoryIcon;
 
     switch (expense.category.toLowerCase()) {
       case 'food':
-        categoryColor = Colors.green;
-        categoryIcon = Icons.restaurant;
+        categoryColor = Colors.orange.shade600;
+        categoryIcon = Icons.restaurant_rounded;
         break;
       case 'transport':
-        categoryColor = Colors.orange;
-        categoryIcon = Icons.directions_car;
+        categoryColor = const Color(0xFF059669);
+        categoryIcon = Icons.directions_car_rounded;
         break;
       case 'family':
-        categoryColor = Colors.purple;
-        categoryIcon = Icons.family_restroom;
+        categoryColor = Colors.blue.shade600;
+        categoryIcon = Icons.family_restroom_rounded;
         break;
       case 'personal':
-        categoryColor = Colors.pink;
-        categoryIcon = Icons.person;
+        categoryColor = Colors.purple.shade600;
+        categoryIcon = Icons.person_rounded;
         break;
       case 'lend':
-        categoryColor = Colors.teal;
-        categoryIcon = Icons.attach_money;
+        categoryColor = Colors.teal.shade600;
+        categoryIcon = Icons.handshake_rounded;
         break;
       case 'clothing':
-        categoryColor = Colors.brown;
-        categoryIcon = Icons.checkroom;
+        categoryColor = Colors.pink.shade600;
+        categoryIcon = Icons.shopping_bag_rounded;
         break;
-      case 'bill':
-        categoryColor = Colors.indigo;
-        categoryIcon = Icons.receipt;
+      case 'hangout':
+        categoryColor = Colors.amber.shade700;
+        categoryIcon = Icons.local_activity_rounded;
         break;
       case 'utilities':
-        categoryColor = Colors.red;
-        categoryIcon = Icons.electrical_services;
+        categoryColor = Colors.indigo.shade600;
+        categoryIcon = Icons.bolt_rounded;
         break;
       default:
-        categoryColor = Colors.blueGrey;
-        categoryIcon = Icons.category;
+        categoryColor = const Color(0xFF475569);
+        categoryIcon = Icons.category_rounded;
     }
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: () {
-        context.pushNamed(
-          AppRoutes.expenseDetails,
-          extra: expense,
-        );
-      },
-      child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+    final formattedTime = DateFormat('hh:mm a').format(expense.date);
+    final String label = expense.description.isNotEmpty
+        ? expense.description
+        : expense.category;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+      child: GestureDetector(
+        onTap: () {
+          context.pushNamed(
+            AppRoutes.expenseDetails,
+            extra: expense,
+          );
+        },
+        child: Container(
+          padding: EdgeInsets.all(12.r),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.cardDark : AppColors.cardLight,
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(
+              color: isDark ? const Color(0xFF334155) : const Color(0xFFF8FAFC),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.01),
+                blurRadius: 4.r,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
           child: Row(
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  CircleAvatar(
-                    radius: 18,
-                    backgroundColor: categoryColor,
-                    child: Icon(categoryIcon, size: 18, color: Colors.white),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    expense.category,
-                    style: const TextStyle(
-                      fontSize: 10,
-                      // fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ],
+              // Beautiful mockup container for icon
+              Container(
+                width: 40.r,
+                height: 40.r,
+                decoration: BoxDecoration(
+                  color: categoryColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Icon(
+                  categoryIcon,
+                  color: categoryColor,
+                  size: 20.sp,
+                ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 14.w),
+              // Name and Time/Subtitles
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (expense.description != null &&
-                        expense.description!.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 2),
-                        child: Text(
-                          expense.description,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                    const SizedBox(height: 4),
                     Text(
-                      (expense.date as DateTime).formatToReadableShort(),
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey,
-                      ),
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.cardTitle(context),
+                    ),
+                    SizedBox(height: 2.h),
+                    Text(
+                      '${expense.category} • $formattedTime',
+                      style: AppTextStyles.cardSubtitle(context),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8.w),
+              // Transaction amount
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    expense.amount.toStringAsFixed(2),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
+                    expense.amount.toCurrency(),
+                    style: AppTextStyles.cardAmount(context),
                   ),
-                  const SizedBox(width: 2),
-                  const Icon(
+                  SizedBox(width: 2.w),
+                  FaIcon(
                     FontAwesomeIcons.bangladeshiTakaSign,
-                    size: 14,
+                    size: 11.sp,
+                    color: isDark ? Colors.white70 : const Color(0xFF0F172A),
                   ),
                 ],
               ),

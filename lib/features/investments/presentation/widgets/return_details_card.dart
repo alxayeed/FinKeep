@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:spendly/core/responsive/responsive.dart';
+import 'package:spendly/core/styles/app_colors.dart';
 
 import '../../domain/entities/investment.dart';
 import '../../domain/enums/investment_status.dart';
@@ -10,6 +12,11 @@ class ROIDetailsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final Color labelColor = isDark ? Colors.white60 : const Color(0xFF64748B);
+    final Color cardBg = isDark ? AppColors.cardDark : Colors.white;
+
     final totalReturns = investment.returns.fold<double>(
       0,
       (sum, r) => sum + r.amountReceived,
@@ -19,80 +26,103 @@ class ROIDetailsCard extends StatelessWidget {
 
     // Determine label and color based on status
     String label;
-    Color labelColor;
+    Color statusColor;
     if (investment.status == InvestmentStatus.loss) {
       label = 'Loss';
-      labelColor = Colors.red;
+      statusColor = AppColors.error;
     } else if (profitLoss > 0) {
       label = 'Profit';
-      labelColor = Colors.green;
+      statusColor = AppColors.success;
     } else {
       label = 'Remaining';
-      labelColor = Colors.orange;
+      statusColor = AppColors.warning;
     }
 
     // Progress as fraction of invested amount
     final progress = (totalReturns / investment.amountInvested).clamp(0.0, 1.0);
 
     return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
-        child: Stack(
-          children: [
-            // Background progress
-            Positioned.fill(
-              child: FractionallySizedBox(
-                alignment: Alignment.centerLeft,
-                widthFactor: progress,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: labelColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(12),
+      elevation: 0,
+      color: cardBg,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16.r),
+        side: BorderSide(
+          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+          width: 1,
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16.r),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+          child: Stack(
+            children: [
+              // Background progress
+              Positioned.fill(
+                child: FractionallySizedBox(
+                  alignment: Alignment.centerLeft,
+                  widthFactor: progress,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: statusColor.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
                   ),
                 ),
               ),
-            ),
-            // Foreground content
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 4,
-              children: [
-                // Amounts row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _amountColumn(
-                      label: 'Invested',
-                      amount: investment.amountInvested,
-                    ),
-                    _amountColumn(label: 'Returned', amount: totalReturns),
-                    _amountColumn(
-                      label: label,
-                      amount: profitLoss.abs(),
-                      amountColor: labelColor,
-                    ),
-                  ],
-                ),
-                // Profit rate & expected ROI
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _stringColumn(
-                      label: 'Profit Rate',
-                      value: investment.profitRate.toString(),
-                    ),
-                    _amountColumn(
-                      label: 'Expected ROI',
-                      amount: investment.expectedROI,
-                      isPercentage: true,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
+              // Foreground content
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Amounts row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _amountColumn(
+                        label: 'Invested',
+                        amount: investment.amountInvested,
+                        textColor: textColor,
+                        labelColor: labelColor,
+                      ),
+                      _amountColumn(
+                        label: 'Returned',
+                        amount: totalReturns,
+                        textColor: textColor,
+                        labelColor: labelColor,
+                      ),
+                      _amountColumn(
+                        label: label,
+                        amount: profitLoss.abs(),
+                        amountColor: statusColor,
+                        textColor: textColor,
+                        labelColor: labelColor,
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16.h),
+                  // Profit rate & expected ROI
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _stringColumn(
+                        label: 'Profit Rate',
+                        value: investment.profitRate.toString(),
+                        textColor: textColor,
+                        labelColor: labelColor,
+                      ),
+                      _amountColumn(
+                        label: 'Expected ROI',
+                        amount: investment.expectedROI,
+                        isPercentage: true,
+                        textColor: textColor,
+                        labelColor: labelColor,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -103,45 +133,69 @@ class ROIDetailsCard extends StatelessWidget {
     required double amount,
     Color? amountColor,
     bool isPercentage = false,
+    required Color textColor,
+    required Color labelColor,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+          style: TextStyle(
+            fontSize: 10.sp,
+            fontFamily: 'Manrope',
+            fontWeight: FontWeight.bold,
+            letterSpacing: 0.5,
+            color: labelColor,
+          ),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: 4.h),
         Text(
           isPercentage
-              ? '${amount.toStringAsFixed(2)}%'
+              ? '${amount.toStringAsFixed(0)}%'
               : '৳${amount.toStringAsFixed(0)}',
           style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: amountColor ?? Colors.black,
+            fontSize: 15.sp,
+            fontFamily: 'Manrope',
+            fontWeight: FontWeight.bold,
+            color: amountColor ?? textColor,
           ),
         ),
       ],
     );
   }
 
-  Widget _stringColumn({required String label, required String value}) {
+  Widget _stringColumn({
+    required String label,
+    required String value,
+    required Color textColor,
+    required Color labelColor,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+          style: TextStyle(
+            fontSize: 10.sp,
+            fontFamily: 'Manrope',
+            fontWeight: FontWeight.bold,
+            letterSpacing: 0.5,
+            color: labelColor,
+          ),
         ),
-        const SizedBox(height: 2),
+        SizedBox(height: 4.h),
         Text(
           value,
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            color: Colors.black,
+          style: TextStyle(
+            fontSize: 15.sp,
+            fontFamily: 'Manrope',
+            fontWeight: FontWeight.bold,
+            color: textColor,
           ),
         ),
       ],
     );
   }
 }
+

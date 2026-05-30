@@ -2,12 +2,11 @@ import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:spendly/core/common/widgets/loader_widget.dart';
+import 'package:spendly/core/responsive/responsive.dart';
 
 import '../../../../core/common/widgets/date_selector_button.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../controllers/expense_controller.dart';
-import '../widgets/expense_list_widget.dart';
 import '../widgets/widgets.dart';
 
 class ExpenseReportScreen extends StatefulWidget {
@@ -19,6 +18,7 @@ class ExpenseReportScreen extends StatefulWidget {
 
 class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
   final ExpenseController controller = Get.find<ExpenseController>();
+  int _selectedTab = 0; // 0 for Summary, 1 for Details
 
   @override
   void initState() {
@@ -47,11 +47,16 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
     final results = await showDialog<List<DateTime?>>(
       context: context,
       builder: (context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
         return Dialog(
-          insetPadding: const EdgeInsets.symmetric(horizontal: 16),
+          backgroundColor: isDark ? AppColors.cardDark : AppColors.cardLight,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.r),
+          ),
+          insetPadding: EdgeInsets.symmetric(horizontal: 16.w),
           child: SizedBox(
-            width: 360,
-            height: 460,
+            width: 360.w,
+            height: 480.h,
             child: Column(
               children: [
                 CalendarDatePicker2(
@@ -61,6 +66,15 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
                     firstDate: DateTime(now.year - 5),
                     lastDate: DateTime(now.year + 1, 12, 31),
                     selectedDayHighlightColor: AppColors.primaryTeal,
+                    dayTextStyle: TextStyle(
+                      fontFamily: 'Manrope',
+                      color: isDark ? Colors.white70 : Colors.black87,
+                    ),
+                    selectedDayTextStyle: const TextStyle(
+                      fontFamily: 'Manrope',
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   onValueChanged: (dates) {
                     if (dates.isNotEmpty) {
@@ -68,14 +82,17 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
                     }
                   },
                 ),
+                SizedBox(height: 8.h),
                 ActionChip(
                   label: Text(
                     isStartDate ? 'YEAR START' : 'YEAR END',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: AppColors.primaryTeal,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.6,
-                        ),
+                    style: TextStyle(
+                      fontSize: 10.sp,
+                      fontFamily: 'Manrope',
+                      color: AppColors.primaryTeal,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.6,
+                    ),
                   ),
                   backgroundColor:
                       AppColors.primaryTeal.withValues(alpha: 0.08),
@@ -84,9 +101,9 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
                       color: AppColors.primaryTeal.withValues(alpha: 0.4),
                     ),
                   ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12.w,
+                    vertical: 8.h,
                   ),
                   onPressed: () {
                     Navigator.pop(
@@ -143,60 +160,71 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: const CustomAppBar(
-          title: 'Expense Report',
-          bottom: CustomTabBar(),
-        ),
-        // drawer: AppDrawer(),
-        body: Obx(() {
-          final startDate = controller.startDate.value;
-          final endDate = controller.endDate.value;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-          return Column(
-            children: [
-              _ReportHeader(
-                startDate: startDate,
-                endDate: endDate,
-                totalExpense: controller.totalExpense.value,
-                onStartDateSelect: () =>
-                    _selectDate(context, isStartDate: true),
-                onEndDateSelect: () => _selectDate(context, isStartDate: false),
-              ),
-              Expanded(
-                child: controller.isLoading.value
-                    ? const Center(child: LoaderWidget())
-                    : startDate == null || endDate == null
-                        ? const Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(32.0),
-                              child: Text(
-                                'Tap on the start and end dates above to select a custom range and generate your report.',
-                                textAlign: TextAlign.center,
-                                style:
-                                    TextStyle(fontSize: 16, color: Colors.grey),
+    return Scaffold(
+      backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
+      appBar: const CustomAppBar(
+        title: 'Expense Report',
+      ),
+      body: Obx(() {
+        final startDate = controller.startDate.value;
+        final endDate = controller.endDate.value;
+
+        return Column(
+          children: [
+            // 1. Modern date selector header
+            _ReportHeader(
+              startDate: startDate,
+              endDate: endDate,
+              totalExpense: controller.totalExpense.value,
+              onStartDateSelect: () =>
+                  _selectDate(context, isStartDate: true),
+              onEndDateSelect: () => _selectDate(context, isStartDate: false),
+            ),
+
+            // 2. Sliding Segmented Tab Switcher (Summary & Details) identical to Expense UI
+            SegmentedTabBar(
+              selectedIndex: _selectedTab,
+              onTabChanged: (index) {
+                setState(() {
+                  _selectedTab = index;
+                });
+              },
+            ),
+
+            // 3. Tab Contents
+            Expanded(
+              child: controller.isLoading.value
+                  ? MonthlyExpenseShimmer(selectedTab: _selectedTab)
+                  : startDate == null || endDate == null
+                      ? Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(32.r),
+                            child: Text(
+                              'Tap on the start and end dates above to select a custom range and generate your report.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 13.sp,
+                                fontFamily: 'Manrope',
+                                color: Colors.grey,
                               ),
                             ),
-                          )
-                        : TabBarView(
-                            children: [
-                              ExpenseSummeryWidget(
-                                controller: controller,
-                                isReport: true,
-                              ),
-                              ExpenseListWidget(
-                                controller: controller,
-                                isReport: true,
-                              ),
-                            ],
                           ),
-              ),
-            ],
-          );
-        }),
-      ),
+                        )
+                      : (_selectedTab == 0
+                          ? ExpenseSummeryWidget(
+                              controller: controller,
+                              isReport: true,
+                            )
+                          : ExpenseListWidget(
+                              controller: controller,
+                              isReport: true,
+                            )),
+            ),
+          ],
+        );
+      }),
     );
   }
 }
@@ -229,11 +257,19 @@ class _ReportHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      padding: const EdgeInsets.all(8.0),
-      color: theme.colorScheme.surfaceContainerHigh,
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.cardDark : AppColors.cardLight,
+        border: Border(
+          bottom: BorderSide(
+            color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+            width: 1,
+          ),
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -245,7 +281,10 @@ class _ReportHeader extends StatelessWidget {
                 dateText: _formatDate(startDate, isFrom: true),
                 onTap: onStartDateSelect,
               ),
-              const Icon(Icons.arrow_right_alt, color: Colors.grey),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8.w),
+                child: const Icon(Icons.arrow_right_alt, color: Colors.grey),
+              ),
               DateSelectorButton(
                 title: 'END DATE',
                 dateText: _formatDate(endDate, isFrom: false),

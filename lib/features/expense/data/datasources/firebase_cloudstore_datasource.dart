@@ -1,24 +1,29 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../../../core/config/app_config.dart';
 import '../models/expense_model.dart';
 import 'expense_remote_datasource.dart';
 
 class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
   final FirebaseFirestore fireStore;
+  late final CollectionReference<Map<String, dynamic>> _expensesCollection;
 
-  FirebaseCloudStoreDataSource({required this.fireStore});
+  FirebaseCloudStoreDataSource({required this.fireStore}) {
+    _expensesCollection = fireStore.collection(
+      AppConfig.isProd ? 'expenses' : 'expenses_dev',
+    );
+  }
 
   @override
   Future<void> createExpense(ExpenseModel expense) async {
-    await fireStore
-        .collection('expenses')
+    await _expensesCollection
         .doc(expense.id)
         .set(expense.toJson());
   }
 
   @override
   Future<ExpenseModel?> getExpenseById(String id) async {
-    final snapshot = await fireStore.collection('expenses').doc(id).get();
+    final snapshot = await _expensesCollection.doc(id).get();
     if (snapshot.exists) {
       return ExpenseModel.fromJson(snapshot.data()!);
     }
@@ -27,28 +32,29 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
 
   @override
   Future<List<ExpenseModel>> getExpenses(String userId) async {
-    final querySnapshot = await fireStore
-        .collection('expenses')
+    final querySnapshot = await _expensesCollection
         .where('userId', isEqualTo: userId)
-        .orderBy("date", descending: true)
         .get();
 
-    return querySnapshot.docs
+    final list = querySnapshot.docs
         .map((doc) => ExpenseModel.fromJson(doc.data()..['id'] = doc.id))
         .toList();
+
+    // Sort in-memory to avoid needing composite indexes in Firestore
+    list.sort((a, b) => b.date.compareTo(a.date));
+    return list;
   }
 
   @override
   Future<void> updateExpense(ExpenseModel expense) async {
-    await fireStore
-        .collection('expenses')
+    await _expensesCollection
         .doc(expense.id)
         .update(expense.toJson());
   }
 
   @override
   Future<void> deleteExpense(String id) async {
-    await fireStore.collection('expenses').doc(id).delete();
+    await _expensesCollection.doc(id).delete();
   }
 
   @override
@@ -67,17 +73,19 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
       1,
     ).subtract(const Duration(seconds: 1));
 
-    final querySnapshot = await fireStore
-        .collection('expenses')
+    final querySnapshot = await _expensesCollection
         .where('userId', isEqualTo: userId)
         .where('date', isGreaterThanOrEqualTo: startOfMonth)
         .where('date', isLessThanOrEqualTo: endOfMonth)
-        .orderBy("date", descending: true)
         .get();
 
-    return querySnapshot.docs
+    final list = querySnapshot.docs
         .map((doc) => ExpenseModel.fromJson(doc.data()..['id'] = doc.id))
         .toList();
+
+    // Sort in-memory to avoid needing composite indexes in Firestore
+    list.sort((a, b) => b.date.compareTo(a.date));
+    return list;
   }
 
   @override
@@ -96,8 +104,7 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
       1,
     ).subtract(const Duration(seconds: 1));
 
-    final querySnapshot = await fireStore
-        .collection('expenses')
+    final querySnapshot = await _expensesCollection
         .where('userId', isEqualTo: userId)
         .where('date', isGreaterThanOrEqualTo: startOfMonth)
         .where('date', isLessThanOrEqualTo: endOfMonth)
@@ -121,16 +128,18 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
     DateTime start,
     DateTime end,
   ) async {
-    final querySnapshot = await fireStore
-        .collection('expenses')
+    final querySnapshot = await _expensesCollection
         .where('userId', isEqualTo: userId)
         .where('date', isGreaterThanOrEqualTo: start)
         .where('date', isLessThanOrEqualTo: end)
-        .orderBy('date', descending: true)
         .get();
 
-    return querySnapshot.docs
+    final list = querySnapshot.docs
         .map((doc) => ExpenseModel.fromJson(doc.data()..['id'] = doc.id))
         .toList();
+
+    // Sort in-memory to avoid needing composite indexes in Firestore
+    list.sort((a, b) => b.date.compareTo(a.date));
+    return list;
   }
 }

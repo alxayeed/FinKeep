@@ -2,7 +2,7 @@
 
 #example file name - upload_apk.sh
 
-flutter build apk --release --split-per-abi
+flutter build apk --release --split-per-abi --dart-define=FLAVOR=prod
 
 
 

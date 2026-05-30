@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:spendly/core/responsive/responsive.dart';
 import 'package:spendly/core/styles/app_colors.dart';
 
 class StyledDropdownFormField<T> extends StatelessWidget {
@@ -27,83 +28,85 @@ class StyledDropdownFormField<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint("Current selected value: $value");
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color inputBg = isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9);
+    final Color labelColor = isDark ? Colors.white60 : const Color(0xFF64748B);
+    final Color textColor = isDark ? Colors.white : const Color(0xFF334155);
+    final Color iconColor = isDark ? Colors.white38 : const Color(0xFF94A3B8);
 
-    return DropdownButtonFormField<T>(
-      initialValue: value,
+    final border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16.r),
+      borderSide: BorderSide.none,
+    );
 
-      decoration: InputDecoration(
-        labelText: labelText,
-        labelStyle: const TextStyle(color: AppColors.primaryTealDark),
-
-        prefixIcon: prefixIcon != null
-            ? Icon(
-                prefixIcon,
-                color: readOnly
-                    ? AppColors.darkGrey.withValues(alpha: .6)
-                    : AppColors.iconColor,
-              )
-            : (readOnly
-                ? const Icon(
-                    Icons.lock_outline,
-                    size: 18,
-                    color: AppColors.darkGrey,
-                  )
-                : null),
-
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: const BorderSide(color: AppColors.borderColor),
-        ),
-
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: const BorderSide(color: AppColors.enabledBorderColor),
-        ),
-
-        // Prevent focus-looking effect when readOnly
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide(
-            color: readOnly
-                ? AppColors.enabledBorderColor
-                : AppColors.focusedBorderColor,
-            width: readOnly ? 1.0 : 2.0,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(left: 4.w, bottom: 6.h),
+          child: Text(
+            labelText,
+            style: TextStyle(
+              fontSize: 11.sp,
+              fontFamily: 'Manrope',
+              fontWeight: FontWeight.bold,
+              color: labelColor,
+            ),
           ),
         ),
-
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: const BorderSide(color: AppColors.error, width: 1.5),
+        DropdownButtonFormField<T>(
+          value: value,
+          decoration: InputDecoration(
+            prefixIcon: prefixIcon != null
+                ? Icon(
+                    prefixIcon,
+                    color: iconColor,
+                    size: 18.sp,
+                  )
+                : null,
+            border: border,
+            enabledBorder: border,
+            focusedBorder: readOnly
+                ? border
+                : OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16.r),
+                    borderSide: const BorderSide(
+                      color: AppColors.focusedBorderColor,
+                      width: 1.5,
+                    ),
+                  ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16.r),
+              borderSide: const BorderSide(color: AppColors.error, width: 1.0),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16.r),
+              borderSide: const BorderSide(color: AppColors.error, width: 1.5),
+            ),
+            filled: true,
+            fillColor: readOnly ? inputBg.withValues(alpha: 0.6) : inputBg,
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: 14.w,
+              vertical: 14.h,
+            ),
+          ),
+          items: items,
+          onChanged: readOnly ? null : onChanged,
+          validator: validator,
+          iconEnabledColor: iconColor,
+          iconDisabledColor: iconColor.withValues(alpha: 0.5),
+          dropdownColor: dropdownColor ?? (isDark ? const Color(0xFF1E293B) : Colors.white),
+          menuMaxHeight: 300,
+          borderRadius: BorderRadius.circular(16.r),
+          style: TextStyle(
+            fontSize: 13.sp,
+            fontFamily: 'Manrope',
+            fontWeight: FontWeight.w600,
+            color: textColor,
+          ),
         ),
-
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: const BorderSide(color: AppColors.error, width: 2.0),
-        ),
-
-        filled: true,
-        fillColor: readOnly
-            ? AppColors.subtleBackground.withValues(alpha: .7)
-            : AppColors.subtleBackground,
-      ),
-
-      items: items,
-
-      // Disable interaction
-      onChanged: readOnly ? null : onChanged,
-
-      validator: validator,
-
-      iconEnabledColor: readOnly
-          ? AppColors.darkGrey.withValues(alpha: .6)
-          : AppColors.primaryTealDark,
-
-      focusColor: Colors.transparent,
-      itemHeight: itemHeight,
-      dropdownColor: dropdownColor ?? AppColors.white,
-      menuMaxHeight: 300,
-      borderRadius: BorderRadius.circular(10.0),
+      ],
     );
   }
 }
+

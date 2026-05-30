@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
@@ -15,20 +14,10 @@ class AndroidExpenseReminderService implements ExpenseReminderService {
   static const _notificationId = 1001;
   static const _testNotificationId = 9999; // Separate ID for immediate test
 
-  final FlutterLocalNotificationsPlugin _plugin =
-      FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _plugin;
 
-  Future<void> _requestExactAlarmsPermission() async {
-    try {
-      final intent = AndroidIntent(
-        action: 'android.settings.SCHEDULE_EXACT_ALARM',
-      );
-      log("Opening SCHEDULE_EXACT_ALARM settings...");
-      await intent.launch();
-    } on PlatformException {
-      log("Failed to open exact alarm settings");
-    }
-  }
+  AndroidExpenseReminderService({FlutterLocalNotificationsPlugin? plugin})
+      : _plugin = plugin ?? FlutterLocalNotificationsPlugin();
 
   @override
   Future<void> init({required void Function(String?) onTap}) async {
@@ -63,7 +52,7 @@ class AndroidExpenseReminderService implements ExpenseReminderService {
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
     await _plugin.initialize(
-      const InitializationSettings(android: androidSettings),
+      settings: const InitializationSettings(android: androidSettings),
       onDidReceiveNotificationResponse: (response) {
         onTap(response.payload);
       },
@@ -83,8 +72,6 @@ class AndroidExpenseReminderService implements ExpenseReminderService {
       return;
     }
 
-    await _requestExactAlarmsPermission();
-
     final now = tz.TZDateTime.now(tz.local);
 
     tz.TZDateTime scheduledDate = tz.TZDateTime(
@@ -103,11 +90,11 @@ class AndroidExpenseReminderService implements ExpenseReminderService {
     log('📅 Scheduling daily expense reminder at: $scheduledDate (local time)');
 
     await _plugin.zonedSchedule(
-      _notificationId,
-      'Add today’s expense',
-      'Don’t forget to log today’s expenses 💸',
-      scheduledDate,
-      const NotificationDetails(
+      id: _notificationId,
+      title: 'Add today’s expense',
+      body: 'Don’t forget to log today’s expenses 💸',
+      scheduledDate: scheduledDate,
+      notificationDetails: const NotificationDetails(
         android: AndroidNotificationDetails(
           'expense_reminder_channel',
           'Expense Reminder',
@@ -129,7 +116,7 @@ class AndroidExpenseReminderService implements ExpenseReminderService {
 
   @override
   Future<void> cancelReminder() async {
-    await _plugin.cancel(_notificationId);
+    await _plugin.cancel(id: _notificationId);
     log('📌 Expense reminder canceled');
   }
 
@@ -141,10 +128,10 @@ class AndroidExpenseReminderService implements ExpenseReminderService {
     log("🔥 Showing immediate test notification");
 
     await _plugin.show(
-      _testNotificationId,
-      'TEST NOTIFICATION',
-      'If you see this, your notification setup is working perfectly! 🎉',
-      const NotificationDetails(
+      id: _testNotificationId,
+      title: 'TEST NOTIFICATION',
+      body: 'If you see this, your notification setup is working perfectly! 🎉',
+      notificationDetails: const NotificationDetails(
         android: AndroidNotificationDetails(
           'expense_reminder_channel',
           'Expense Reminder',

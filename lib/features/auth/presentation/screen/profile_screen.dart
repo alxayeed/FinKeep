@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spendly/features/auth/presentation/controller/auth_controller.dart';
 
 import '../../../../core/common/migration_screen.dart';
-import '../../../../core/common/widgets/styled_elevated_button.dart';
+import '../../../../core/common/widgets/custom_app_bar.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../../../../core/styles/app_themes.dart';
@@ -64,9 +64,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final prefs = await SharedPreferences.getInstance();
     if (value) {
       final now = TimeOfDay.now();
+      if (!mounted) return;
       final pickedTime = await showTimePicker(
         context: context,
         initialTime: _selectedTime ?? now,
+        builder: (context, child) {
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+          return Theme(
+            data: isDark
+                ? ThemeData.dark().copyWith(
+                    colorScheme: const ColorScheme.dark(
+                      primary: AppColors.primaryTeal,
+                      onPrimary: Colors.white,
+                      surface: AppColors.cardDark,
+                      onSurface: Colors.white,
+                    ),
+                  )
+                : ThemeData.light().copyWith(
+                    colorScheme: const ColorScheme.light(
+                      primary: AppColors.primaryTeal,
+                      onPrimary: Colors.white,
+                      surface: Colors.white,
+                      onSurface: Color(0xFF0F172A),
+                    ),
+                  ),
+            child: child!,
+          );
+        },
       );
       if (pickedTime != null) {
         setState(() {
@@ -80,11 +104,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         await prefs.setBool('reminder_enabled', true);
         await prefs.setInt('reminder_hour', pickedTime.hour);
         await prefs.setInt('reminder_minute', pickedTime.minute);
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
               'Reminder scheduled at ${pickedTime.format(context)}',
             ),
+            backgroundColor: AppColors.success,
           ),
         );
       }
@@ -104,22 +130,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _showTestNotificationNow() async {
     await _reminderService.showTestNotificationNow();
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Test notification sent! Tap it to navigate.'),
+        backgroundColor: AppColors.primaryTeal,
       ),
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionTitle(String title, bool isDark) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 8.w),
+      padding: EdgeInsets.only(left: 8.w, bottom: 8.h, top: 16.h),
       child: Text(
         title,
         style: TextStyle(
-          fontSize: 16.sp,
+          fontSize: 11.sp,
+          fontFamily: 'Manrope',
           fontWeight: FontWeight.bold,
-          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+          letterSpacing: 1.2,
+          color: isDark ? Colors.white54 : const Color(0xFF64748B),
         ),
       ),
     );
@@ -130,24 +160,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: _themeProvider,
       builder: (context, mode, _) {
+        final isDark = mode == ThemeMode.dark;
+        final Color cardBg = isDark ? AppColors.cardDark : Colors.white;
+        final Color textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+        final Color subtitleColor = isDark ? Colors.white60 : const Color(0xFF64748B);
+
         return Theme(
-          data: mode == ThemeMode.light
-              ? AppThemes.lightTheme
-              : AppThemes.darkTheme,
+          data: isDark ? AppThemes.darkTheme : AppThemes.lightTheme,
           child: Scaffold(
-            appBar: AppBar(
-              title: Text(
-                'Profile',
-                style: TextStyle(fontSize: 20.sp, color: Colors.white),
-              ),
-              backgroundColor: Colors.teal,
-              elevation: 0,
-              centerTitle: true,
+            backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
+            appBar: CustomAppBar(
+              title: 'Profile',
+              showBackButton: false,
               actions: [
                 IconButton(
-                  icon: const Icon(
-                    Icons.notifications_active,
-                    color: Colors.white,
+                  icon: Icon(
+                    Icons.notifications_active_outlined,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    size: 20.sp,
                   ),
                   tooltip: 'Send Test Notification',
                   onPressed: _showTestNotificationNow,
@@ -155,23 +185,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
             body: ListView(
-              padding: EdgeInsets.all(16.w),
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
               children: [
-                Center(
+                // Header profile card
+                Container(
+                  padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 16.w),
+                  decoration: BoxDecoration(
+                    color: cardBg,
+                    borderRadius: BorderRadius.circular(24.r),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                      width: 1,
+                    ),
+                  ),
                   child: Column(
                     children: [
-                      CircleAvatar(
-                        radius: 50.r,
-                        backgroundImage: const NetworkImage(
-                          'https://www.placecats.com/neo_banana/300/200',
+                      // Premium circular avatar ring
+                      Container(
+                        padding: EdgeInsets.all(4.r),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: const LinearGradient(
+                            colors: [AppColors.primaryTeal, AppColors.primaryTealLight],
+                          ),
+                        ),
+                        child: CircleAvatar(
+                          radius: 46.r,
+                          backgroundColor: cardBg,
+                          child: CircleAvatar(
+                            radius: 42.r,
+                            backgroundImage: const NetworkImage(
+                              'https://www.placecats.com/neo_banana/300/200',
+                            ),
+                          ),
                         ),
                       ),
-                      SizedBox(height: 4.h),
+                      SizedBox(height: 12.h),
                       Text(
                         'Mr. Mew',
                         style: TextStyle(
-                          fontSize: 22.sp,
+                          fontSize: 20.sp,
+                          fontFamily: 'Manrope',
                           fontWeight: FontWeight.bold,
+                          color: textColor,
                         ),
                       ),
                       SizedBox(height: 4.h),
@@ -181,14 +238,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Icon(
                             Icons.email_outlined,
                             color: AppColors.primaryTeal,
-                            size: 18.r,
+                            size: 14.sp,
                           ),
-                          SizedBox(width: 4.w),
+                          SizedBox(width: 6.w),
                           Text(
                             authController.user?.email ?? 'Unknown user',
                             style: TextStyle(
-                              fontSize: 16.sp,
-                              color: Colors.grey,
+                              fontSize: 13.sp,
+                              fontFamily: 'Manrope',
+                              fontWeight: FontWeight.w500,
+                              color: subtitleColor,
                             ),
                           ),
                         ],
@@ -196,117 +255,136 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                 ),
-                SizedBox(height: 24.h),
-                _buildSectionTitle('App Settings'),
-                Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r),
+
+                SizedBox(height: 12.h),
+
+                // Settings section 1
+                _buildSectionTitle('APP SETTINGS', isDark),
+                Container(
+                  decoration: BoxDecoration(
+                    color: cardBg,
+                    borderRadius: BorderRadius.circular(20.r),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                      width: 1,
+                    ),
                   ),
-                  elevation: 2,
                   child: Column(
                     children: [
                       ListTile(
-                        leading: Icon(Icons.brightness_6, size: 22.r),
-                        title: Text('Theme', style: TextStyle(fontSize: 16.sp)),
+                        leading: Icon(Icons.brightness_6_outlined, size: 20.sp, color: AppColors.primaryTeal),
+                        title: Text(
+                          'Theme Mode',
+                          style: TextStyle(fontSize: 13.sp, fontFamily: 'Manrope', fontWeight: FontWeight.w600, color: textColor),
+                        ),
                         subtitle: Text(
-                          mode == ThemeMode.light ? 'Light' : 'Dark',
-                          style: TextStyle(fontSize: 14.sp),
+                          isDark ? 'Dark Mode' : 'Light Mode',
+                          style: TextStyle(fontSize: 11.sp, fontFamily: 'Manrope', color: subtitleColor),
                         ),
                         trailing: Switch(
-                          value: mode == ThemeMode.dark,
+                          value: isDark,
                           onChanged: (_) => _toggleTheme(),
-                          activeThumbColor: Colors.teal,
+                          activeColor: AppColors.primaryTeal,
+                          activeTrackColor: AppColors.primaryTeal.withValues(alpha: 0.3),
                         ),
                       ),
-                      Divider(color: Theme.of(context).dividerColor),
+                      Divider(height: 1, color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
                       ListTile(
-                        leading: Icon(Icons.language, size: 22.r),
+                        leading: Icon(Icons.language_outlined, size: 20.sp, color: AppColors.primaryTeal),
                         title: Text(
                           'Language',
-                          style: TextStyle(fontSize: 16.sp),
+                          style: TextStyle(fontSize: 13.sp, fontFamily: 'Manrope', fontWeight: FontWeight.w600, color: textColor),
                         ),
                         subtitle: Text(
                           'English',
-                          style: TextStyle(fontSize: 14.sp),
+                          style: TextStyle(fontSize: 11.sp, fontFamily: 'Manrope', color: subtitleColor),
                         ),
-                        trailing: Icon(Icons.chevron_right, size: 22.r),
+                        trailing: Icon(Icons.chevron_right, size: 20.sp, color: subtitleColor),
                         onTap: () {},
                       ),
-                      Divider(color: Theme.of(context).dividerColor),
+                      Divider(height: 1, color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
                       ListTile(
-                        leading: Text(
-                          '৳',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 24.sp,
-                          ),
-                        ),
+                        leading: Icon(Icons.payments_outlined, size: 20.sp, color: AppColors.primaryTeal),
                         title: Text(
                           'Currency',
-                          style: TextStyle(fontSize: 16.sp),
+                          style: TextStyle(fontSize: 13.sp, fontFamily: 'Manrope', fontWeight: FontWeight.w600, color: textColor),
                         ),
                         subtitle: Text(
-                          'BDT',
-                          style: TextStyle(fontSize: 14.sp),
+                          'BDT (৳)',
+                          style: TextStyle(fontSize: 11.sp, fontFamily: 'Manrope', color: subtitleColor),
                         ),
-                        trailing: Icon(Icons.chevron_right, size: 22.r),
+                        trailing: Icon(Icons.chevron_right, size: 20.sp, color: subtitleColor),
                         onTap: () {},
                       ),
-                      Divider(color: Theme.of(context).dividerColor),
-                      SwitchListTile(
+                      Divider(height: 1, color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+                      ListTile(
+                        leading: Icon(Icons.alarm_outlined, size: 20.sp, color: AppColors.primaryTeal),
                         title: Text(
-                          'Enable Expense Reminder',
-                          style: TextStyle(fontSize: 16.sp),
+                          'Daily Expense Reminder',
+                          style: TextStyle(fontSize: 13.sp, fontFamily: 'Manrope', fontWeight: FontWeight.w600, color: textColor),
                         ),
                         subtitle: _reminderEnabled && _selectedTime != null
                             ? Text(
-                                'Reminder at ${_selectedTime!.format(context)}',
-                                style: TextStyle(fontSize: 14.sp),
+                                'Scheduled at ${_selectedTime!.format(context)}',
+                                style: TextStyle(fontSize: 11.sp, fontFamily: 'Manrope', color: subtitleColor),
                               )
-                            : null,
-                        secondary: Icon(Icons.alarm, size: 22.r),
-                        value: _reminderEnabled,
-                        onChanged: _toggleReminder,
+                            : Text(
+                                'Not scheduled',
+                                style: TextStyle(fontSize: 11.sp, fontFamily: 'Manrope', color: subtitleColor),
+                              ),
+                        trailing: Switch(
+                          value: _reminderEnabled,
+                          onChanged: _toggleReminder,
+                          activeColor: AppColors.primaryTeal,
+                          activeTrackColor: AppColors.primaryTeal.withValues(alpha: 0.3),
+                        ),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: 24.h),
-                Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r),
+
+                SizedBox(height: 12.h),
+
+                // Settings section 2
+                _buildSectionTitle('ACCOUNT & UTILITIES', isDark),
+                Container(
+                  decoration: BoxDecoration(
+                    color: cardBg,
+                    borderRadius: BorderRadius.circular(20.r),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                      width: 1,
+                    ),
                   ),
-                  elevation: 2,
                   child: Column(
                     children: [
                       ListTile(
-                        leading: Icon(Icons.edit, size: 22.r),
+                        leading: Icon(Icons.edit_outlined, size: 20.sp, color: AppColors.primaryTeal),
                         title: Text(
                           'Edit Profile',
-                          style: TextStyle(fontSize: 16.sp),
+                          style: TextStyle(fontSize: 13.sp, fontFamily: 'Manrope', fontWeight: FontWeight.w600, color: textColor),
                         ),
-                        trailing: Icon(Icons.chevron_right, size: 22.r),
+                        trailing: Icon(Icons.chevron_right, size: 20.sp, color: subtitleColor),
                         onTap: () {},
                       ),
-                      Divider(color: Theme.of(context).dividerColor),
+                      Divider(height: 1, color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
                       ListTile(
-                        leading: Icon(Icons.lock, size: 22.r),
+                        leading: Icon(Icons.lock_outline_rounded, size: 20.sp, color: AppColors.primaryTeal),
                         title: Text(
                           'Change Password',
-                          style: TextStyle(fontSize: 16.sp),
+                          style: TextStyle(fontSize: 13.sp, fontFamily: 'Manrope', fontWeight: FontWeight.w600, color: textColor),
                         ),
-                        trailing: Icon(Icons.chevron_right, size: 22.r),
+                        trailing: Icon(Icons.chevron_right, size: 20.sp, color: subtitleColor),
                         onTap: () {},
                       ),
-                      Divider(color: Theme.of(context).dividerColor),
+                      Divider(height: 1, color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
                       ListTile(
-                        leading: Icon(Icons.backup, size: 22.r),
+                        leading: Icon(Icons.cloud_upload_outlined, size: 20.sp, color: AppColors.primaryTeal),
                         title: Text(
                           'Backup & Restore',
-                          style: TextStyle(fontSize: 16.sp),
+                          style: TextStyle(fontSize: 13.sp, fontFamily: 'Manrope', fontWeight: FontWeight.w600, color: textColor),
                         ),
-                        trailing: Icon(Icons.chevron_right, size: 22.r),
+                        trailing: Icon(Icons.chevron_right, size: 20.sp, color: subtitleColor),
                         onTap: () {
                           Navigator.push(
                             context,
@@ -316,26 +394,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           );
                         },
                       ),
-                      Divider(color: Theme.of(context).dividerColor),
+                      Divider(height: 1, color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
                       ListTile(
-                        leading: Icon(Icons.info_outline, size: 22.r),
+                        leading: Icon(Icons.info_outline, size: 20.sp, color: AppColors.primaryTeal),
                         title: Text(
                           'About & Version',
-                          style: TextStyle(fontSize: 16.sp),
+                          style: TextStyle(fontSize: 13.sp, fontFamily: 'Manrope', fontWeight: FontWeight.w600, color: textColor),
                         ),
-                        trailing: Icon(Icons.chevron_right, size: 22.r),
+                        trailing: Icon(Icons.chevron_right, size: 20.sp, color: subtitleColor),
                         onTap: () {},
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: 24.h),
+
+                SizedBox(height: 32.h),
+
+                // Logout Button
                 Center(
                   child: SizedBox(
-                    width: 280.w,
-                    child: StyledElevatedButton(
-                      text: 'Logout',
+                    width: double.infinity,
+                    height: 50.h,
+                    child: OutlinedButton(
                       onPressed: () => authController.logout(),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: AppColors.error, width: 1.5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.logout_rounded, color: AppColors.error, size: 18.sp),
+                          SizedBox(width: 8.w),
+                          Text(
+                            'Logout',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontFamily: 'Manrope',
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.error,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

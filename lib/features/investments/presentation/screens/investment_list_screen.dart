@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendly/core/common/widgets/no_data_widget.dart';
+import 'package:spendly/core/responsive/responsive.dart';
 import 'package:spendly/core/routes/app_router.dart';
+import 'package:spendly/core/styles/app_colors.dart';
 
 import '../../../../core/common/widgets/custom_app_bar.dart';
+import '../../../../core/common/widgets/custom_fab.dart';
 import '../../../../core/common/widgets/error_widget.dart';
 import '../controller/investment_controller.dart';
 import '../widgets/investment_item.dart';
@@ -25,36 +28,53 @@ class InvestmentListScreen extends StatelessWidget {
           return const InvestmentShimmerList();
         }
 
-        if (controller.errorMessage.isNotEmpty) {
-          return Center(
-            child: ErrorIndicatorWidget(
-              errorMessage: controller.errorMessage.value,
-              onRetry: () async {
-                await controller.fetchInvestments();
-              },
-            ),
-          );
-        }
-
-        if (controller.investments.isEmpty) {
-          return const Center(child: NoDataWidget());
-        }
-
         return RefreshIndicator(
+          color: AppColors.primaryTeal,
           onRefresh: () async {
             await controller.fetchInvestments();
           },
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            itemCount: controller.investments.length,
-            itemBuilder: (context, index) {
-              final investment = controller.investments[index];
-              return InvestmentItem(
-                investment: investment,
-                onTap: () {
-                  context.pushNamed(
-                    AppRoutes.investmentDetails,
-                    extra: investment,
+          child: Builder(
+            builder: (context) {
+              if (controller.errorMessage.isNotEmpty) {
+                return ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: [
+                    SizedBox(height: 120.h),
+                    Center(
+                      child: ErrorIndicatorWidget(
+                        errorMessage: controller.errorMessage.value,
+                        onRetry: () async {
+                          await controller.fetchInvestments();
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              }
+
+              if (controller.investments.isEmpty) {
+                return ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: [
+                    SizedBox(height: 150.h),
+                    const Center(child: NoDataWidget()),
+                  ],
+                );
+              }
+
+              return ListView.builder(
+                padding: EdgeInsets.symmetric(vertical: 8.h),
+                itemCount: controller.investments.length,
+                itemBuilder: (context, index) {
+                  final investment = controller.investments[index];
+                  return InvestmentItem(
+                    investment: investment,
+                    onTap: () {
+                      context.pushNamed(
+                        AppRoutes.investmentDetails,
+                        extra: investment,
+                      );
+                    },
                   );
                 },
               );
@@ -62,7 +82,7 @@ class InvestmentListScreen extends StatelessWidget {
           ),
         );
       }),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: CustomFAB(
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(
@@ -74,7 +94,6 @@ class InvestmentListScreen extends StatelessWidget {
             ),
           );
         },
-        child: const Icon(Icons.add),
       ),
     );
   }
