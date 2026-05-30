@@ -37,18 +37,54 @@ class MonthlyExpenseShimmer extends StatelessWidget {
       children: [
         // 1. BudgetProgressCard Skeleton
         Container(
-          height: 180.h,
+          height: 102.h,
+          margin: EdgeInsets.symmetric(vertical: 8.h),
           decoration: BoxDecoration(
             color: itemBg,
-            borderRadius: BorderRadius.circular(24.r),
+            borderRadius: BorderRadius.circular(16.r),
           ),
           padding: EdgeInsets.all(16.r),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(width: 80.w, height: 12.h, color: Colors.white),
-              SizedBox(height: 12.h),
-              Container(width: 140.w, height: 24.h, color: Colors.white),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 4,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(width: 80.w, height: 10.h, color: Colors.white),
+                        SizedBox(height: 4.h),
+                        Container(width: 110.w, height: 16.h, color: Colors.white),
+                      ],
+                    ),
+                  ),
+                  Container(width: 1.w, height: 28.h, color: Colors.white24),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    flex: 3,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(width: 60.w, height: 10.h, color: Colors.white),
+                        SizedBox(height: 4.h),
+                        Container(width: 50.w, height: 16.h, color: Colors.white),
+                      ],
+                    ),
+                  ),
+                  Container(width: 1.w, height: 28.h, color: Colors.white24),
+                  SizedBox(width: 12.w),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Container(width: 30.w, height: 10.h, color: Colors.white),
+                      SizedBox(height: 4.h),
+                      Container(width: 24.w, height: 14.h, color: Colors.white),
+                    ],
+                  ),
+                ],
+              ),
               const Spacer(),
               // Mimic slider progress indicator
               Container(
@@ -56,38 +92,32 @@ class MonthlyExpenseShimmer extends StatelessWidget {
                 height: 8.h,
                 color: Colors.white,
               ),
-              SizedBox(height: 12.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(width: 70.w, height: 10.h, color: Colors.white),
-                  Container(width: 50.w, height: 10.h, color: Colors.white),
-                ],
-              ),
             ],
           ),
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: 4.h),
 
         // 2. SmartInsightBanner Skeleton
         Container(
-          height: 68.h,
+          height: 64.h,
+          margin: EdgeInsets.symmetric(vertical: 8.h),
           decoration: BoxDecoration(
             color: itemBg,
             borderRadius: BorderRadius.circular(16.r),
           ),
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(width: 32.r, height: 32.r, color: Colors.white),
+              Container(width: 30.r, height: 30.r, color: Colors.white),
               SizedBox(width: 12.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(width: 100.w, height: 10.h, color: Colors.white),
-                    SizedBox(height: 6.h),
+                    Container(width: 80.w, height: 10.h, color: Colors.white),
+                    SizedBox(height: 4.h),
                     Container(
                       width: double.infinity,
                       height: 8.h,
@@ -99,30 +129,40 @@ class MonthlyExpenseShimmer extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(height: 20.h),
+        SizedBox(height: 8.h),
 
         // 3. CategorySpendingList Checklist Skeletons
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(width: 120.w, height: 16.h, color: Colors.white),
-            Container(width: 60.w, height: 12.h, color: Colors.white),
-          ],
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 8.h),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(width: 130.w, height: 14.h, color: Colors.white),
+              Container(width: 70.w, height: 10.h, color: Colors.white),
+            ],
+          ),
         ),
-        SizedBox(height: 12.h),
-        ...List.generate(4, (index) {
+        SizedBox(height: 4.h),
+        ...List.generate(5, (index) {
           return Padding(
-            padding: EdgeInsets.symmetric(vertical: 8.h),
+            padding: EdgeInsets.symmetric(vertical: 4.h),
             child: Container(
-              height: 68.h,
+              height: 58.h,
               decoration: BoxDecoration(
                 color: itemBg,
-                borderRadius: BorderRadius.circular(16.r),
+                borderRadius: BorderRadius.circular(12.r),
               ),
-              padding: EdgeInsets.all(12.r),
+              padding: EdgeInsets.all(10.r),
               child: Row(
                 children: [
-                  Container(width: 36.r, height: 36.r, color: Colors.white),
+                  Container(
+                    width: 36.r,
+                    height: 36.r,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                  ),
                   SizedBox(width: 12.w),
                   Expanded(
                     child: Column(
@@ -133,22 +173,33 @@ class MonthlyExpenseShimmer extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Container(
-                              width: 80.w,
+                              width: 70.w,
                               height: 12.h,
                               color: Colors.white,
                             ),
                             Container(
-                              width: 50.w,
+                              width: 80.w,
                               height: 12.h,
                               color: Colors.white,
                             ),
                           ],
                         ),
-                        SizedBox(height: 8.h),
-                        Container(
-                          width: double.infinity,
-                          height: 6.h,
-                          color: Colors.white,
+                        SizedBox(height: 6.h),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                height: 5.h,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(width: 8.w),
+                            Container(
+                              width: 22.w,
+                              height: 9.h,
+                              color: Colors.white,
+                            ),
+                          ],
                         ),
                       ],
                     ),

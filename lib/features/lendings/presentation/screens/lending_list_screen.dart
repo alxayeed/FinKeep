@@ -10,6 +10,7 @@ import 'package:spendly/core/common/widgets/custom_app_bar.dart';
 import 'package:spendly/core/common/widgets/custom_fab.dart';
 import 'package:spendly/features/lendings/presentation/controllers/lendings_controller.dart';
 import 'package:spendly/features/lendings/presentation/widgets/lending_list_item.dart';
+import 'package:spendly/features/lendings/presentation/widgets/lending_shimmer_list.dart';
 
 import '../../domain/entity/lending/lending_entity.dart';
 
@@ -77,13 +78,7 @@ class _LendingListScreenState extends State<LendingListScreen> {
               children: [
                 _buildHeader(isDark),
                 const Expanded(
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColors.primaryTeal),
-                      strokeWidth: 3,
-                    ),
-                  ),
+                  child: LendingShimmerList(),
                 ),
               ],
             );

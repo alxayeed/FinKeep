@@ -162,31 +162,38 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
       return _buildEmptyState();
     }
 
-    return ListView(
-      physics: const BouncingScrollPhysics(),
-      children: [
-        // Total budget vs spent slider card
-        BudgetProgressCard(
-          spent: totalSpent,
-          budget: totalBudget,
-        ),
-        // Smart dynamic insights banner
-        Obx(() => SmartInsightBanner(
-          customText: controller.getDynamicInsight(),
-        )),
-        // Category spending checklist
-        CategorySpendingList(
-          spentByCategory: spentByCategory,
-          budgetsByCategory: budgetsByCategory,
-          onCategoryTap: (category) {
-            setState(() {
-              _selectedTab = 1; // Switch to Details tab
-            });
-            controller.updateSelectedCategory(category.displayName);
-          },
-        ),
-        SizedBox(height: 100.h), // Safe spacing for bottom navigation overlap
-      ],
+    return RefreshIndicator(
+      onRefresh: () async {
+        controller.shouldRefresh = true;
+        await controller.fetchMonthlyExpenses();
+      },
+      color: AppColors.primaryTeal,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: [
+          // Total budget vs spent slider card
+          BudgetProgressCard(
+            spent: totalSpent,
+            budget: totalBudget,
+          ),
+          // Smart dynamic insights banner
+          Obx(() => SmartInsightBanner(
+            customText: controller.getDynamicInsight(),
+          )),
+          // Category spending checklist
+          CategorySpendingList(
+            spentByCategory: spentByCategory,
+            budgetsByCategory: budgetsByCategory,
+            onCategoryTap: (category) {
+              setState(() {
+                _selectedTab = 1; // Switch to Details tab
+              });
+              controller.updateSelectedCategory(category.displayName);
+            },
+          ),
+          SizedBox(height: 100.h), // Safe spacing for bottom navigation overlap
+        ],
+      ),
     );
   }
 
@@ -200,85 +207,105 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return ListView.builder(
-      physics: const BouncingScrollPhysics(),
-      padding: EdgeInsets.only(bottom: 100.h),
-      itemCount: groupedList.length,
-      itemBuilder: (context, index) {
-        final item = groupedList[index];
+    return RefreshIndicator(
+      onRefresh: () async {
+        controller.shouldRefresh = true;
+        await controller.fetchMonthlyExpenses();
+      },
+      color: AppColors.primaryTeal,
+      child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.only(bottom: 100.h),
+        itemCount: groupedList.length,
+        itemBuilder: (context, index) {
+          final item = groupedList[index];
 
-        if (item is Map<String, dynamic>) {
-          // This is a daily header item
-          final DateTime date = item['date'] as DateTime;
-          final double dailyTotal = item['total'] as double;
-          final formattedDate = DateFormat('EEEE, MMM dd').format(date);
+          if (item is Map<String, dynamic>) {
+            // This is a daily header item
+            final DateTime date = item['date'] as DateTime;
+            final double dailyTotal = item['total'] as double;
+            final formattedDate = DateFormat('EEEE, MMM dd').format(date);
 
-          return Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  formattedDate,
-                  style: TextStyle(
-                    fontSize: 10.sp,
-                    fontFamily: 'Manrope',
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white30 : const Color(0xFF94A3B8),
-                    letterSpacing: 0.5,
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    formattedDate,
+                    style: TextStyle(
+                      fontSize: 10.sp,
+                      fontFamily: 'Manrope',
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white30 : const Color(0xFF94A3B8),
+                      letterSpacing: 0.5,
+                    ),
                   ),
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      dailyTotal.toCurrency(),
-                      style: TextStyle(
-                        fontSize: 10.sp,
-                        fontFamily: 'Manrope',
-                        fontWeight: FontWeight.bold,
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        dailyTotal.toCurrency(),
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          fontFamily: 'Manrope',
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white30 : const Color(0xFF64748B),
+                        ),
+                      ),
+                      SizedBox(width: 2.w),
+                      FaIcon(
+                        FontAwesomeIcons.bangladeshiTakaSign,
+                        size: 8.sp,
                         color: isDark ? Colors.white30 : const Color(0xFF64748B),
                       ),
-                    ),
-                    SizedBox(width: 2.w),
-                    FaIcon(
-                      FontAwesomeIcons.bangladeshiTakaSign,
-                      size: 8.sp,
-                      color: isDark ? Colors.white30 : const Color(0xFF64748B),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          );
-        } else {
-          // This is a transaction card item
-          return ExpenseCardWidget(expense: item as dynamic);
-        }
-      },
+                    ],
+                  ),
+                ],
+              ),
+            );
+          } else {
+            // This is a transaction card item
+            return ExpenseCardWidget(expense: item as dynamic);
+          }
+        },
+      ),
     );
   }
 
   // --- Premium empty state helper ---
   Widget _buildEmptyState() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+    return RefreshIndicator(
+      onRefresh: () async {
+        controller.shouldRefresh = true;
+        await controller.fetchMonthlyExpenses();
+      },
+      color: AppColors.primaryTeal,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
         children: [
-          Icon(
-            Icons.receipt_long_rounded,
-            size: 64.sp,
-            color: isDark ? Colors.white10 : Colors.black12,
-          ),
-          SizedBox(height: 16.h),
-          Text(
-            'No Expenses Registered',
-            style: TextStyle(
-              fontSize: 14.sp,
-              fontFamily: 'Manrope',
-              fontWeight: FontWeight.bold,
-              color: isDark ? Colors.white38 : const Color(0xFF64748B),
+          SizedBox(height: 150.h),
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.receipt_long_rounded,
+                  size: 64.sp,
+                  color: isDark ? Colors.white10 : Colors.black12,
+                ),
+                SizedBox(height: 16.h),
+                Text(
+                  'No Expenses Registered',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontFamily: 'Manrope',
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white38 : const Color(0xFF64748B),
+                  ),
+                ),
+              ],
             ),
           ),
         ],

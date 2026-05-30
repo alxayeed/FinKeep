@@ -254,14 +254,7 @@ class ExpenseController extends GetxController {
   }
 
   void updateTotalExpense() {
-    if (selectedCategory.value == 'All') {
-      totalExpense.value = expenses.fold(0.0, (sum, item) => sum + item.amount);
-    } else {
-      totalExpense.value = filteredExpenses.fold(
-        0.0,
-        (sum, item) => sum + item.amount,
-      );
-    }
+    totalExpense.value = expenses.fold(0.0, (sum, item) => sum + item.amount);
   }
 
   bool _isCurrentMonthDataFetched(DateTime month) {
