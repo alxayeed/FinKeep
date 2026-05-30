@@ -34,12 +34,15 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
   Future<List<ExpenseModel>> getExpenses(String userId) async {
     final querySnapshot = await _expensesCollection
         .where('userId', isEqualTo: userId)
-        .orderBy("date", descending: true)
         .get();
 
-    return querySnapshot.docs
+    final list = querySnapshot.docs
         .map((doc) => ExpenseModel.fromJson(doc.data()..['id'] = doc.id))
         .toList();
+
+    // Sort in-memory to avoid needing composite indexes in Firestore
+    list.sort((a, b) => b.date.compareTo(a.date));
+    return list;
   }
 
   @override
@@ -74,12 +77,15 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
         .where('userId', isEqualTo: userId)
         .where('date', isGreaterThanOrEqualTo: startOfMonth)
         .where('date', isLessThanOrEqualTo: endOfMonth)
-        .orderBy("date", descending: true)
         .get();
 
-    return querySnapshot.docs
+    final list = querySnapshot.docs
         .map((doc) => ExpenseModel.fromJson(doc.data()..['id'] = doc.id))
         .toList();
+
+    // Sort in-memory to avoid needing composite indexes in Firestore
+    list.sort((a, b) => b.date.compareTo(a.date));
+    return list;
   }
 
   @override
@@ -126,11 +132,14 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
         .where('userId', isEqualTo: userId)
         .where('date', isGreaterThanOrEqualTo: start)
         .where('date', isLessThanOrEqualTo: end)
-        .orderBy('date', descending: true)
         .get();
 
-    return querySnapshot.docs
+    final list = querySnapshot.docs
         .map((doc) => ExpenseModel.fromJson(doc.data()..['id'] = doc.id))
         .toList();
+
+    // Sort in-memory to avoid needing composite indexes in Firestore
+    list.sort((a, b) => b.date.compareTo(a.date));
+    return list;
   }
 }

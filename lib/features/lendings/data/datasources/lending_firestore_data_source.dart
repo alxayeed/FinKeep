@@ -101,8 +101,6 @@ class LendingFirestoreDataSource implements LendingDataSource {
             .where('createdDate', isLessThanOrEqualTo: endOfMonth);
       }
 
-      query = query.orderBy('createdDate', descending: true);
-
       final snapshot = await query.get();
 
       // If no docs, return empty
@@ -122,6 +120,9 @@ class LendingFirestoreDataSource implements LendingDataSource {
 
         lendings.add(LendingModel.fromJson(data));
       }
+
+      // Sort in-memory to avoid needing composite indexes in Firestore
+      lendings.sort((a, b) => b.createdDate.compareTo(a.createdDate));
 
       return lendings;
     } catch (e) {
@@ -300,13 +301,16 @@ class LendingFirestoreDataSource implements LendingDataSource {
     try {
       final snapshot = await _repaymentsCollection
           .where('lendingId', isEqualTo: lendingId)
-          .orderBy('paidDate', descending: true)
           .get();
-      return snapshot.docs.map((doc) {
+      final list = snapshot.docs.map((doc) {
         final data = doc.data();
         data['id'] = doc.id;
         return RepaymentModel.fromJson(data);
       }).toList();
+
+      // Sort in-memory to avoid needing composite indexes in Firestore
+      list.sort((a, b) => b.paidDate.compareTo(a.paidDate));
+      return list;
     } catch (e) {
       throw ServerException(message: '${AppStrings.fetchFailed}: $e');
     }

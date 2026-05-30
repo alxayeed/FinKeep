@@ -36,16 +36,19 @@ class InvestmentFirestoreDataSource implements InvestmentDataSource {
     try {
       final snapshot = await _investmentsCollection
           .where('userId', isEqualTo: userId)
-          .orderBy('startDate', descending: true)
           .get();
 
       if (snapshot.docs.isEmpty) return [];
 
-      return snapshot.docs.map((doc) {
+      final list = snapshot.docs.map((doc) {
         final data = doc.data();
         data['id'] = doc.id;
         return InvestmentModel.fromJson(data);
       }).toList();
+
+      // Sort in-memory to avoid needing composite indexes in Firestore
+      list.sort((a, b) => b.startDate.compareTo(a.startDate));
+      return list;
     } catch (e) {
       throw ServerException(message: '${AppStrings.fetchFailed}: $e');
     }
