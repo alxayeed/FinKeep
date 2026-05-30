@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:spendly/core/styles/app_colors.dart';
+import 'package:spendly/core/common/widgets/custom_bottom_nav_bar.dart';
 
 import '../routes/app_router.dart';
 
@@ -23,25 +23,41 @@ class HomeScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final index = _currentIndex(context);
 
-    Color primaryColor = AppColors.primaryTeal;
-    const Color accentColor = AppColors.white;
-    const Color unselectedColor = Colors.grey;
+    final navItems = const [
+      CustomNavBarItem(
+        icon: Icons.monetization_on_outlined,
+        activeIcon: Icons.monetization_on,
+        label: 'Expenses',
+      ),
+      CustomNavBarItem(
+        icon: Icons.handshake_outlined,
+        activeIcon: Icons.handshake,
+        label: 'Lendings',
+      ),
+      CustomNavBarItem(
+        icon: Icons.bar_chart_outlined,
+        activeIcon: Icons.bar_chart,
+        label: 'Reports',
+      ),
+      CustomNavBarItem(
+        icon: Icons.trending_up_outlined,
+        activeIcon: Icons.trending_up,
+        label: 'Investments',
+      ),
+      CustomNavBarItem(
+        icon: Icons.person_outline,
+        activeIcon: Icons.person,
+        label: 'Profile',
+      ),
+    ];
 
     return Scaffold(
       body: child,
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: primaryColor,
-        selectedItemColor: accentColor,
-        unselectedItemColor: unselectedColor,
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
-        unselectedLabelStyle: const TextStyle(
-          fontWeight: FontWeight.normal,
-          color: unselectedColor,
-        ),
-        selectedFontSize: 14.0,
-        unselectedFontSize: 12.0,
+      // Let's use the floatingPill variation first as requested
+      bottomNavigationBar: CustomBottomNavBar(
         currentIndex: index,
+        style: CustomNavBarStyle.floatingPill,
+        items: navItems,
         onTap: (i) {
           if (i == 0) context.goNamed(AppRoutes.expenses);
           if (i == 1) context.goNamed(AppRoutes.lendings);
@@ -49,33 +65,6 @@ class HomeScaffold extends StatelessWidget {
           if (i == 3) context.goNamed(AppRoutes.investments);
           if (i == 4) context.goNamed(AppRoutes.profile);
         },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.monetization_on_outlined),
-            activeIcon: Icon(Icons.monetization_on),
-            label: 'Expenses',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.handshake_outlined),
-            activeIcon: Icon(Icons.handshake),
-            label: 'Lendings',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
-            activeIcon: Icon(Icons.bar_chart),
-            label: 'Reports',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.monetization_on_outlined),
-            activeIcon: Icon(Icons.monetization_on),
-            label: 'Investments',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
       ),
     );
   }
