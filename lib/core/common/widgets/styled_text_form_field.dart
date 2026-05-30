@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:spendly/core/responsive/responsive.dart';
 
 import '../../styles/app_colors.dart';
 
@@ -13,6 +14,7 @@ class StyledTextFormField extends StatelessWidget {
   final bool obscureText;
   final IconData? prefixIcon;
   final bool readOnly;
+  final String? hintText;
 
   const StyledTextFormField({
     super.key,
@@ -25,65 +27,97 @@ class StyledTextFormField extends StatelessWidget {
     this.obscureText = false,
     this.prefixIcon,
     this.readOnly = false,
+    this.hintText,
   });
 
   @override
   Widget build(BuildContext context) {
-    final defaultBorder = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(10.0),
-      borderSide: const BorderSide(color: AppColors.enabledBorderColor),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color inputBg = isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9);
+    final Color labelColor = isDark ? Colors.white60 : const Color(0xFF64748B);
+    final Color textColor = isDark ? Colors.white : const Color(0xFF334155);
+    final Color iconColor = isDark ? Colors.white38 : const Color(0xFF94A3B8);
+
+    final border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16.r),
+      borderSide: BorderSide.none,
     );
 
-    return TextFormField(
-      controller: controller,
-      readOnly: readOnly,
-      enableInteractiveSelection: !readOnly,
-      showCursor: !readOnly,
-      decoration: InputDecoration(
-        labelText: labelText,
-        labelStyle: TextStyle(
-          color: readOnly ? AppColors.darkGrey : AppColors.primaryTealDark,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(left: 4.w, bottom: 6.h),
+          child: Text(
+            labelText,
+            style: TextStyle(
+              fontSize: 11.sp,
+              fontFamily: 'Manrope',
+              fontWeight: FontWeight.bold,
+              color: labelColor,
+            ),
+          ),
         ),
-        prefixIcon: prefixIcon != null
-            ? Icon(
-                prefixIcon,
-                color: readOnly ? AppColors.darkGrey : AppColors.iconColor,
-              )
-            : null,
-
-        // Same border for all states when readonly
-        border: defaultBorder,
-        enabledBorder: defaultBorder,
-        focusedBorder: readOnly
-            ? defaultBorder
-            : OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
-                borderSide: const BorderSide(
-                  color: AppColors.focusedBorderColor,
-                  width: 2.0,
-                ),
-              ),
-
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: const BorderSide(color: AppColors.error, width: 1.5),
+        TextFormField(
+          controller: controller,
+          readOnly: readOnly,
+          enableInteractiveSelection: !readOnly,
+          showCursor: !readOnly,
+          style: TextStyle(
+            fontSize: 13.sp,
+            fontFamily: 'Manrope',
+            fontWeight: FontWeight.w600,
+            color: textColor,
+          ),
+          decoration: InputDecoration(
+            hintText: hintText,
+            hintStyle: TextStyle(
+              color: isDark ? Colors.white24 : const Color(0xFFCBD5E1),
+              fontSize: 13.sp,
+              fontFamily: 'Manrope',
+            ),
+            prefixIcon: prefixIcon != null
+                ? Icon(
+                    prefixIcon,
+                    color: iconColor,
+                    size: 18.sp,
+                  )
+                : null,
+            border: border,
+            enabledBorder: border,
+            focusedBorder: readOnly
+                ? border
+                : OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16.r),
+                    borderSide: const BorderSide(
+                      color: AppColors.primaryTeal,
+                      width: 1.5,
+                    ),
+                  ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16.r),
+              borderSide: const BorderSide(color: AppColors.error, width: 1.0),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16.r),
+              borderSide: const BorderSide(color: AppColors.error, width: 1.5),
+            ),
+            filled: true,
+            fillColor: readOnly ? inputBg.withValues(alpha: 0.6) : inputBg,
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: 14.w,
+              vertical: maxLines > 1 ? 12.h : 14.h,
+            ),
+          ),
+          keyboardType: keyboardType,
+          maxLines: maxLines,
+          validator: validator,
+          inputFormatters: inputFormatters,
+          obscureText: obscureText,
+          cursorColor: readOnly ? Colors.transparent : AppColors.primaryTeal,
         ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: const BorderSide(color: AppColors.error, width: 2.0),
-        ),
-
-        filled: true,
-        fillColor: readOnly
-            ? AppColors.subtleBackground.withValues(alpha: 0.5)
-            : AppColors.subtleBackground,
-      ),
-      keyboardType: keyboardType,
-      maxLines: maxLines,
-      validator: validator,
-      inputFormatters: inputFormatters,
-      obscureText: obscureText,
-      cursorColor: readOnly ? Colors.transparent : AppColors.primaryTealDark,
+      ],
     );
   }
 }
+

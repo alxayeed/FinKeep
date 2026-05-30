@@ -9,6 +9,7 @@ import 'package:spendly/core/extensions/double_ext.dart';
 import '../../../../core/enums/expense_category.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/styles/app_colors.dart';
+import '../../../../core/common/widgets/custom_fab.dart';
 import '../controllers/expense_controller.dart';
 import '../widgets/widgets.dart';
 import 'create_expense_screen.dart';
@@ -141,15 +142,10 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
           );
         }),
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: CustomFAB(
         onPressed: () {
           context.pushNamed(AppRoutes.addExpense);
         },
-        backgroundColor: const Color(0xFF0F172A),
-        foregroundColor: Colors.white,
-        shape: const CircleBorder(),
-        elevation: 6,
-        child: Icon(Icons.add, size: 28.sp),
       ),
     );
   }

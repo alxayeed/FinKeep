@@ -6,6 +6,8 @@ import 'package:spendly/core/extensions/double_ext.dart';
 import 'package:spendly/core/responsive/responsive.dart';
 import 'package:spendly/core/routes/app_router.dart';
 import 'package:spendly/core/styles/app_colors.dart';
+import 'package:spendly/core/common/widgets/custom_app_bar.dart';
+import 'package:spendly/core/common/widgets/custom_fab.dart';
 import 'package:spendly/features/lendings/presentation/controllers/lendings_controller.dart';
 import 'package:spendly/features/lendings/presentation/widgets/lending_list_item.dart';
 
@@ -67,6 +69,7 @@ class _LendingListScreenState extends State<LendingListScreen> {
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
+      appBar: const CustomAppBar(title: 'Lend Management'),
       body: SafeArea(
         child: Obx(() {
           if (controller.isLoading.value && controller.lendingsList.isEmpty) {
@@ -133,15 +136,8 @@ class _LendingListScreenState extends State<LendingListScreen> {
       ),
 
       // ── FAB ──
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: CustomFAB(
         onPressed: () => context.pushNamed(AppRoutes.addLending),
-        backgroundColor: AppColors.primaryTeal,
-        foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18.r),
-        ),
-        elevation: 6,
-        child: Icon(Icons.add, size: 28.sp),
       ),
     );
   }
@@ -151,27 +147,10 @@ class _LendingListScreenState extends State<LendingListScreen> {
   // ─────────────────────────────────────────────────────────────
   Widget _buildHeader(bool isDark) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 0),
+      padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Title row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Lend Management',
-                style: TextStyle(
-                  fontSize: 20.sp,
-                  fontFamily: 'Manrope',
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : const Color(0xFF0F172A),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 14.h),
-
           // Given / Taken tab switcher
           Container(
             height: 44.h,

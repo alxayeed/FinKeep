@@ -5,6 +5,7 @@ import 'package:spendly/core/common/widgets/no_data_widget.dart';
 import 'package:spendly/core/routes/app_router.dart';
 
 import '../../../../core/common/widgets/custom_app_bar.dart';
+import '../../../../core/common/widgets/custom_fab.dart';
 import '../../../../core/common/widgets/error_widget.dart';
 import '../controller/investment_controller.dart';
 import '../widgets/investment_item.dart';
@@ -62,7 +63,7 @@ class InvestmentListScreen extends StatelessWidget {
           ),
         );
       }),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: CustomFAB(
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(
@@ -74,7 +75,6 @@ class InvestmentListScreen extends StatelessWidget {
             ),
           );
         },
-        child: const Icon(Icons.add),
       ),
     );
   }

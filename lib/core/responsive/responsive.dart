@@ -65,13 +65,34 @@ class Responsive {
 
 extension ResponsiveSize on num {
   /// Scales a number relative to the device screen width.
-  double get w => (this / Responsive.referenceWidth) * Responsive.screenWidth;
+  double get w {
+    final scale = Responsive.screenWidth / Responsive.referenceWidth;
+    if (Responsive.isMobile()) {
+      final adjustedScale = scale < 1.0 ? (1.0 + (scale - 1.0) * 0.3) : scale;
+      return this * adjustedScale;
+    }
+    return this * scale;
+  }
 
   /// Scales a number relative to the device screen height.
-  double get h => (this / Responsive.referenceHeight) * Responsive.screenHeight;
+  double get h {
+    final scale = Responsive.screenHeight / Responsive.referenceHeight;
+    if (Responsive.isMobile()) {
+      final adjustedScale = scale < 1.0 ? (1.0 + (scale - 1.0) * 0.3) : scale;
+      return this * adjustedScale;
+    }
+    return this * scale;
+  }
 
   /// Scales a number relative to screen width for radius, square dimensions, or icon sizes.
-  double get r => (this / Responsive.referenceWidth) * Responsive.screenWidth;
+  double get r {
+    final scale = Responsive.screenWidth / Responsive.referenceWidth;
+    if (Responsive.isMobile()) {
+      final adjustedScale = scale < 1.0 ? (1.0 + (scale - 1.0) * 0.3) : scale;
+      return this * adjustedScale;
+    }
+    return this * scale;
+  }
 
   /// Scales height with optional min/max clamps for safe component sizing.
   double hc({double? min, double? max}) {
@@ -86,7 +107,14 @@ extension ResponsiveSize on num {
   }
 
   /// Responsive font size (scaled based on screen width)
-  double get sp => (this / Responsive.referenceWidth) * Responsive.screenWidth;
+  double get sp {
+    final scale = Responsive.screenWidth / Responsive.referenceWidth;
+    if (Responsive.isMobile()) {
+      final adjustedScale = scale < 1.0 ? (1.0 + (scale - 1.0) * 0.2) : scale;
+      return this * adjustedScale;
+    }
+    return this * scale;
+  }
 
   /// Responsive font size with optional min/max clamp
   double fsc({double? min, double? max}) {

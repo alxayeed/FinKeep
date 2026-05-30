@@ -6,6 +6,7 @@ import 'package:spendly/core/extensions/double_ext.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/routes/app_router.dart';
 import '../../../../core/styles/app_colors.dart';
+import '../../../../core/styles/app_text_styles.dart';
 import '../../domain/entities/expense_entity.dart';
 
 class ExpenseCardWidget extends StatelessWidget {
@@ -120,22 +121,12 @@ class ExpenseCardWidget extends StatelessWidget {
                       label,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        fontFamily: 'Manrope',
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : const Color(0xFF0F172A),
-                      ),
+                      style: AppTextStyles.cardTitle(context),
                     ),
                     SizedBox(height: 2.h),
                     Text(
                       '${expense.category} • $formattedTime',
-                      style: TextStyle(
-                        fontSize: 10.sp,
-                        fontFamily: 'Manrope',
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
-                      ),
+                      style: AppTextStyles.cardSubtitle(context),
                     ),
                   ],
                 ),
@@ -147,12 +138,7 @@ class ExpenseCardWidget extends StatelessWidget {
                 children: [
                   Text(
                     expense.amount.toCurrency(),
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontFamily: 'Manrope',
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : const Color(0xFF0F172A),
-                    ),
+                    style: AppTextStyles.cardAmount(context),
                   ),
                   SizedBox(width: 2.w),
                   FaIcon(

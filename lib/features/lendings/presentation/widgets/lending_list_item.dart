@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:spendly/core/extensions/double_ext.dart';
 import 'package:spendly/core/responsive/responsive.dart';
 import 'package:spendly/core/styles/app_colors.dart';
+import 'package:spendly/core/styles/app_text_styles.dart';
 import 'package:spendly/core/routes/app_router.dart';
 import 'package:intl/intl.dart';
 
@@ -184,11 +185,7 @@ class LendingListItem extends StatelessWidget {
                       lending.person.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontFamily: 'Manrope',
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      style: AppTextStyles.cardTitle(context).copyWith(
                         decoration: isPaid
                             ? TextDecoration.lineThrough
                             : TextDecoration.none,
@@ -225,14 +222,7 @@ class LendingListItem extends StatelessWidget {
                         if (dateText.isNotEmpty)
                           Text(
                             dateText,
-                            style: TextStyle(
-                              fontSize: 10.sp,
-                              fontFamily: 'Manrope',
-                              fontWeight: FontWeight.w500,
-                              color: isDark
-                                  ? Colors.white38
-                                  : const Color(0xFF94A3B8),
-                            ),
+                            style: AppTextStyles.cardSubtitle(context),
                           ),
                       ],
                     ),
@@ -248,11 +238,7 @@ class LendingListItem extends StatelessWidget {
                 children: [
                   Text(
                     '${lending.amount.toCurrency()} ৳',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontFamily: 'Manrope',
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    style: AppTextStyles.cardAmount(context).copyWith(
                       decoration: isPaid
                           ? TextDecoration.lineThrough
                           : TextDecoration.none,

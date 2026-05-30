@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../../../core/responsive/responsive.dart';
+import '../../../../core/styles/app_colors.dart';
+import '../../../../core/styles/app_text_styles.dart';
 
 import '../../domain/entities/investment.dart';
 import '../../domain/enums/investment_status.dart';
@@ -15,31 +18,45 @@ class InvestmentItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final totalReturns = investment.returns.fold<double>(
       0,
       (sum, r) => sum + r.amountReceived,
     );
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.cardDark : AppColors.cardLight,
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(
+          color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 8.r,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _header(),
-              const SizedBox(height: 8),
-              _metaInfo(),
-              const SizedBox(height: 12),
-              _amountRow(totalReturns),
-            ],
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16.r),
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: EdgeInsets.all(16.r),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _header(context),
+                SizedBox(height: 8.h),
+                _metaInfo(context),
+                SizedBox(height: 12.h),
+                _amountRow(context, totalReturns),
+              ],
+            ),
           ),
         ),
       ),
@@ -50,16 +67,13 @@ class InvestmentItem extends StatelessWidget {
   // Header
   // --------------------------------------------------
 
-  Widget _header() {
+  Widget _header(BuildContext context) {
     return Row(
       children: [
         Expanded(
           child: Text(
             investment.title,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
+            style: AppTextStyles.cardTitle(context),
           ),
         ),
         _statusChip(),
@@ -71,23 +85,25 @@ class InvestmentItem extends StatelessWidget {
   // Platform + Dates
   // --------------------------------------------------
 
-  Widget _metaInfo() {
+  Widget _metaInfo(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Row(
       children: [
-        Icon(Icons.account_balance, size: 16, color: Colors.grey.shade600),
-        const SizedBox(width: 4),
+        Icon(
+          Icons.account_balance,
+          size: 14.sp,
+          color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+        ),
+        SizedBox(width: 4.w),
         Expanded(
           child: Text(
             investment.platformName,
-            style: TextStyle(color: Colors.grey.shade700),
+            style: AppTextStyles.cardSubtitle(context),
           ),
         ),
         Text(
           _formatDateRange(),
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey.shade600,
-          ),
+          style: AppTextStyles.cardSubtitle(context),
         ),
       ],
     );
@@ -97,7 +113,7 @@ class InvestmentItem extends StatelessWidget {
   // Amounts
   // --------------------------------------------------
 
-  Widget _amountRow(double totalReturns) {
+  Widget _amountRow(BuildContext context, double totalReturns) {
     final invested = investment.amountInvested;
 
     late String thirdLabel;
@@ -130,14 +146,17 @@ class InvestmentItem extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         _amountColumn(
+          context: context,
           label: 'Invested',
           amount: invested,
         ),
         _amountColumn(
+          context: context,
           label: 'Returned',
           amount: totalReturns,
         ),
         _amountColumn(
+          context: context,
           label: thirdLabel,
           amount: thirdAmount,
           amountColor: thirdColor,
@@ -147,26 +166,24 @@ class InvestmentItem extends StatelessWidget {
   }
 
   Widget _amountColumn({
+    required BuildContext context,
     required String label,
     required double amount,
     Color? amountColor,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey.shade600,
-          ),
+          style: AppTextStyles.cardSubtitle(context),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: 4.h),
         Text(
           '৳${amount.toStringAsFixed(0)}',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: amountColor ?? Colors.black,
+          style: AppTextStyles.cardTitle(context).copyWith(
+            color: amountColor ?? (isDark ? Colors.white : const Color(0xFF0F172A)),
           ),
         ),
       ],
@@ -181,16 +198,17 @@ class InvestmentItem extends StatelessWidget {
     final statusData = _statusConfig(investment.status);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
       decoration: BoxDecoration(
-        color: statusData.color.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(8),
+        color: statusData.color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(8.r),
       ),
       child: Text(
         statusData.label,
         style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
+          fontSize: 10.sp,
+          fontFamily: 'Manrope',
+          fontWeight: FontWeight.bold,
           color: statusData.color,
         ),
       ),

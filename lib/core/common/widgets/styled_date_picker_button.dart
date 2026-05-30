@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:spendly/core/responsive/responsive.dart';
 import 'package:spendly/core/styles/app_colors.dart';
 
 class StyledDatePickerButton extends StatelessWidget {
@@ -64,6 +65,17 @@ class StyledDatePickerButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color inputBg = isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9);
+    final Color labelColor = isDark ? Colors.white60 : const Color(0xFF64748B);
+    final Color textColor = isDark ? Colors.white : const Color(0xFF334155);
+    final Color iconColor = isDark ? Colors.white38 : const Color(0xFF94A3B8);
+
+    final border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16.r),
+      borderSide: BorderSide.none,
+    );
+
     return FormField<DateTime>(
       initialValue: selectedDate,
       validator: validator,
@@ -73,92 +85,87 @@ class StyledDatePickerButton extends StatelessWidget {
             ? DateFormat('d MMM, yyyy').format(state.value!)
             : hintText;
 
-        return InkWell(
-          onTap: readOnly ? null : () => _pickDate(context, state),
-          borderRadius: BorderRadius.circular(10.0),
-          child: InputDecorator(
-            decoration: InputDecoration(
-              labelText: labelText,
-              labelStyle: TextStyle(
-                color: readOnly
-                    ? AppColors.darkGrey
-                    : AppColors.primaryTealDark,
-              ),
-              prefixIcon: Icon(
-                Icons.calendar_today_outlined,
-                color: readOnly
-                    ? AppColors.darkGrey.withValues(alpha: 0.6)
-                    : AppColors.iconColor,
-              ),
-              suffixIcon: (isOptional && hasValue && !readOnly)
-                  ? IconButton(
-                      icon: const Icon(Icons.clear, size: 20),
-                      color: AppColors.darkGrey,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                      onPressed: () {
-                        state.didChange(null);
-                        onDateSelected(null);
-                      },
-                    )
-                  : null,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
-                borderSide: const BorderSide(color: AppColors.borderColor),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
-                borderSide: const BorderSide(
-                  color: AppColors.enabledBorderColor,
-                ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
-                borderSide: BorderSide(
-                  color: readOnly
-                      ? AppColors.enabledBorderColor
-                      : AppColors.focusedBorderColor,
-                  width: readOnly ? 1.0 : 2.0,
-                ),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
-                borderSide: const BorderSide(
-                  color: AppColors.error,
-                  width: 1.5,
-                ),
-              ),
-              focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
-                borderSide: const BorderSide(
-                  color: AppColors.error,
-                  width: 2.0,
-                ),
-              ),
-              filled: true,
-              fillColor: readOnly
-                  ? AppColors.subtleBackground.withValues(alpha: 0.7)
-                  : AppColors.subtleBackground,
-              errorText: state.errorText,
-              contentPadding: const EdgeInsets.fromLTRB(0, 15, 10, 15),
-            ),
-            child: Padding(
-              padding: const EdgeInsetsDirectional.only(start: 12.0),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 4.w, bottom: 6.h),
               child: Text(
-                displayText,
+                labelText,
                 style: TextStyle(
-                  fontSize: 16,
-                  color: readOnly
-                      ? AppColors.darkGrey
-                      : (hasValue
-                            ? AppColors.primaryTealDark
-                            : AppColors.hintText),
+                  fontSize: 11.sp,
+                  fontFamily: 'Manrope',
+                  fontWeight: FontWeight.bold,
+                  color: labelColor,
                 ),
               ),
             ),
-          ),
+            InkWell(
+              onTap: readOnly ? null : () => _pickDate(context, state),
+              borderRadius: BorderRadius.circular(16.r),
+              child: InputDecorator(
+                decoration: InputDecoration(
+                  prefixIcon: Icon(
+                    Icons.calendar_today_outlined,
+                    color: iconColor,
+                    size: 18.sp,
+                  ),
+                  suffixIcon: (isOptional && hasValue && !readOnly)
+                      ? IconButton(
+                          icon: Icon(Icons.clear, size: 18.sp),
+                          color: labelColor,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          onPressed: () {
+                            state.didChange(null);
+                            onDateSelected(null);
+                          },
+                        )
+                      : null,
+                  border: border,
+                  enabledBorder: border,
+                  focusedBorder: readOnly
+                      ? border
+                      : OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: const BorderSide(
+                            color: AppColors.primaryTeal,
+                            width: 1.5,
+                          ),
+                        ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16.r),
+                    borderSide: const BorderSide(color: AppColors.error, width: 1.0),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16.r),
+                    borderSide: const BorderSide(color: AppColors.error, width: 1.5),
+                  ),
+                  filled: true,
+                  fillColor: readOnly ? inputBg.withValues(alpha: 0.6) : inputBg,
+                  errorText: state.errorText,
+                  contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.only(left: 4.w),
+                  child: Text(
+                    displayText,
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      fontFamily: 'Manrope',
+                      fontWeight: FontWeight.w600,
+                      color: hasValue
+                          ? textColor
+                          : (isDark ? Colors.white24 : const Color(0xFFCBD5E1)),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         );
       },
     );
   }
 }
+

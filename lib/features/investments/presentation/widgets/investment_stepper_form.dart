@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:spendly/core/common/widgets/styled_date_picker_button.dart';
+import 'package:spendly/core/common/widgets/styled_dropdown_form_field.dart';
+import 'package:spendly/core/common/widgets/styled_text_form_field.dart';
+import 'package:spendly/core/responsive/responsive.dart';
+import 'package:spendly/core/styles/app_colors.dart';
 import 'package:spendly/features/auth/presentation/controller/auth_controller.dart';
 
-import '../../../../core/common/widgets/styled_dropdown_form_field.dart';
-import '../../../../core/common/widgets/styled_text_form_field.dart';
 import '../../domain/entities/investment.dart';
 import '../../domain/enums/investment_status.dart';
 import '../controller/investment_controller.dart';
@@ -26,10 +29,7 @@ class InvestmentStepperForm extends StatefulWidget {
 }
 
 class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
-  int _currentStep = 0;
-
-  final _formKeyStep1 = GlobalKey<FormState>();
-  final _formKeyStep2 = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
 
   late final TextEditingController _titleController;
   late final TextEditingController _amountController;
@@ -57,12 +57,12 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
 
     _titleController = TextEditingController(text: inv?.title ?? '');
     _amountController = TextEditingController(
-      text: inv?.amountInvested.toString() ?? '',
+      text: inv?.amountInvested != null ? inv!.amountInvested.toStringAsFixed(0) : '',
     );
     _platformController = TextEditingController(text: inv?.platformName ?? '');
     _profitRateController = TextEditingController(text: inv?.profitRate ?? '');
     _expectedROIController = TextEditingController(
-      text: inv?.expectedROI.toString() ?? '',
+      text: inv?.expectedROI != null && inv!.expectedROI > 0 ? inv.expectedROI.toStringAsFixed(0) : '',
     );
     _notesController = TextEditingController(text: inv?.notes ?? '');
     _docLinksController = TextEditingController(text: inv?.docLinks ?? '');
@@ -73,275 +73,54 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
       text: inv?.transactionMedium ?? '',
     );
 
-    _startDate = inv?.startDate;
-    _expectedEndDate = inv?.expectedEndDate;
-    _transactionDate = inv?.transactionDate;
+    _startDate = inv?.startDate ?? DateTime.now();
+    _expectedEndDate = inv?.expectedEndDate ?? DateTime.now().add(const Duration(days: 365));
+    _transactionDate = inv?.transactionDate ?? DateTime.now();
     _status = inv?.status ?? InvestmentStatus.active;
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: Stepper(
-        type: StepperType.horizontal,
-        currentStep: _currentStep,
-        steps: [
-          Step(
-            title: const Text('Investment'),
-            content: _stepInvestment(),
-            isActive: _currentStep >= 0,
-          ),
-          Step(
-            title: const Text('Transaction'),
-            content: _stepTransaction(),
-            isActive: _currentStep >= 1,
-          ),
-          Step(
-            title: const Text('Review'),
-            content: _stepReview(),
-            isActive: _currentStep >= 2,
-          ),
-        ],
-        controlsBuilder: (context, details) {
-          final isLastStep = _currentStep == 2;
-          return Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    if (_currentStep == 0) {
-                      Navigator.pop(context);
-                    } else {
-                      setState(() => _currentStep--);
-                    }
-                  },
-                  child: Text(_currentStep == 0 ? 'Cancel' : 'Back'),
-                ),
-                const SizedBox(width: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    final valid = _currentStep == 0
-                        ? _formKeyStep1.currentState!.validate()
-                        : _currentStep == 1
-                        ? _formKeyStep2.currentState!.validate()
-                        : true;
-
-                    if (!valid) return;
-
-                    if (isLastStep) {
-                      _submit();
-                    } else {
-                      setState(() => _currentStep++);
-                    }
-                  },
-                  child: Text(isLastStep ? 'Save' : 'Next'),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
+  void dispose() {
+    _titleController.dispose();
+    _amountController.dispose();
+    _platformController.dispose();
+    _profitRateController.dispose();
+    _expectedROIController.dispose();
+    _notesController.dispose();
+    _docLinksController.dispose();
+    _transactionIdController.dispose();
+    _transactionMediumController.dispose();
+    super.dispose();
   }
 
-  // ---------------- Step 1 ----------------
-  Widget _stepInvestment() {
-    return Form(
-      key: _formKeyStep1,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          StyledTextFormField(
-            controller: _titleController,
-            labelText: 'Investment Title *',
-            validator: _required,
-          ),
-          const SizedBox(height: 12),
-          StyledTextFormField(
-            controller: _amountController,
-            labelText: 'Amount Invested *',
-            keyboardType: TextInputType.number,
-            validator: _requiredAmount,
-          ),
-          const SizedBox(height: 12),
-          StyledDatePickerButton(
-            labelText: 'Start Date *',
-            selectedDate: _startDate,
-            onDateSelected: (d) => _startDate = d,
-            validator: _requiredDate,
-          ),
-          const SizedBox(height: 12),
-          StyledDatePickerButton(
-            labelText: 'Expected End Date *',
-            selectedDate: _expectedEndDate,
-            onDateSelected: (d) => _expectedEndDate = d,
-            validator: _requiredDate,
-          ),
-          const SizedBox(height: 12),
-          StyledTextFormField(
-            controller: _platformController,
-            labelText: 'Platform Name *',
-            validator: _required,
-          ),
-          const SizedBox(height: 12),
-          StyledTextFormField(
-            controller: _profitRateController,
-            labelText: 'Profit Rate (e.g. 15% / 15–17%) *',
-            validator: _required,
-          ),
-          const SizedBox(height: 12),
-          StyledTextFormField(
-            controller: _expectedROIController,
-            labelText: 'Expected ROI (%)',
-            keyboardType: TextInputType.number,
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ---------------- Step 2 ----------------
-  Widget _stepTransaction() {
-    return Form(
-      key: _formKeyStep2,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          StyledTextFormField(
-            controller: _transactionMediumController,
-            labelText: 'Transaction Medium *',
-            validator: _required,
-          ),
-          const SizedBox(height: 12),
-          StyledTextFormField(
-            controller: _transactionIdController,
-            labelText: 'Transaction ID *',
-            validator: _required,
-          ),
-          const SizedBox(height: 12),
-          StyledDatePickerButton(
-            labelText: 'Transaction Date *',
-            selectedDate: _transactionDate,
-            onDateSelected: (d) => _transactionDate = d,
-            // validator: _requiredDate,
-          ),
-          const SizedBox(height: 12),
-          StyledTextFormField(
-            controller: _notesController,
-            labelText: 'Notes',
-            maxLines: 2,
-          ),
-          const SizedBox(height: 12),
-          StyledTextFormField(
-            controller: _docLinksController,
-            labelText: 'Document Link',
-            keyboardType: TextInputType.url,
-          ),
-          const SizedBox(height: 12),
-          if (widget.allowStatusEdit)
-            StyledDropdownFormField<InvestmentStatus>(
-              value: _status,
-              labelText: 'Investment Status',
-              items: InvestmentStatus.values
-                  .map((s) => DropdownMenuItem(value: s, child: Text(s.name)))
-                  .toList(),
-              onChanged: (v) => setState(() => _status = v!),
-            ),
-        ],
-      ),
-    );
-  }
-
-  // ---------------- Step 3 ----------------
-  Widget _stepReview() {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _reviewSection(
-            title: 'Investment Details',
-            children: [
-              _reviewRow('Title', _titleController.text),
-              _reviewRow('Amount Invested', '৳${_amountController.text}'),
-              _reviewRow(
-                'Start Date',
-                _startDate != null ? _formatDate(_startDate!) : '-',
-              ),
-              _reviewRow(
-                'Expected End Date',
-                _expectedEndDate != null ? _formatDate(_expectedEndDate!) : '-',
-              ),
-              _reviewRow('Platform Name', _platformController.text),
-              _reviewRow('Profit Rate', _profitRateController.text),
-              _reviewRow(
-                'Expected ROI',
-                _expectedROIController.text.isNotEmpty
-                    ? '${_expectedROIController.text}%'
-                    : '-',
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          _reviewSection(
-            title: 'Transaction Details',
-            children: [
-              _reviewRow(
-                'Transaction Medium',
-                _transactionMediumController.text,
-              ),
-              _reviewRow('Transaction ID', _transactionIdController.text),
-              _reviewRow(
-                'Transaction Date',
-                _transactionDate != null ? _formatDate(_transactionDate!) : '-',
-              ),
-              _reviewRow(
-                'Notes',
-                _notesController.text.isNotEmpty ? _notesController.text : '-',
-              ),
-              _reviewRow(
-                'Document Link',
-                _docLinksController.text.isNotEmpty
-                    ? _docLinksController.text
-                    : '-',
-              ),
-              if (widget.allowStatusEdit) _reviewRow('Status', _status.name),
-            ],
-          ),
-          const SizedBox(height: 20),
-          const Text(
-            'Please review all details carefully before submitting.',
-            style: TextStyle(fontWeight: FontWeight.w500),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ---------------- Submit ----------------
   void _submit() {
+    if (!_formKey.currentState!.validate()) return;
+    
+    final double? amount = double.tryParse(_amountController.text);
+    if (amount == null || amount <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a valid amount'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
     final AuthController authController = Get.find();
     final investment = Investment(
       id: widget.initialInvestment?.id ?? DateTime.now().toIso8601String(),
-      title: _titleController.text,
-      amountInvested: double.parse(_amountController.text),
+      title: _titleController.text.trim(),
+      amountInvested: amount,
       startDate: _startDate!,
       expectedEndDate: _expectedEndDate!,
-      platformName: _platformController.text,
-      profitRate: _profitRateController.text,
+      platformName: _platformController.text.trim(),
+      profitRate: _profitRateController.text.trim(),
       expectedROI: double.tryParse(_expectedROIController.text) ?? 0,
-      notes: _notesController.text,
-      docLinks: _docLinksController.text,
-      transactionId: _transactionIdController.text,
-      transactionMedium: _transactionMediumController.text,
+      notes: _notesController.text.trim(),
+      docLinks: _docLinksController.text.trim(),
+      transactionId: _transactionIdController.text.trim(),
+      transactionMedium: _transactionMediumController.text.trim(),
       transactionDate: _transactionDate!,
       status: _status,
       returns: widget.initialInvestment?.returns ?? [],
@@ -357,62 +136,341 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
     Navigator.pop(context);
   }
 
-  // ---------------- Validators ----------------
-  String? _required(String? val) =>
-      val == null || val.isEmpty ? 'Required' : null;
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color labelColor = isDark ? Colors.white60 : const Color(0xFF64748B);
 
-  String? _requiredAmount(String? val) {
-    if (val == null || val.isEmpty) return 'Required';
-    return double.tryParse(val) == null ? 'Invalid amount' : null;
-  }
-
-  String? _requiredDate(DateTime? val) => val == null ? 'Required' : null;
-
-  // ---------------- Review Helpers ----------------
-  Widget _reviewSection({
-    required String title,
-    required List<Widget> children,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 8),
-        ...children,
-      ],
-    );
-  }
-
-  Widget _reviewRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 140,
-            child: Text(
-              label,
-              style: TextStyle(
-                color: Colors.grey.shade600,
-                fontWeight: FontWeight.w500,
+    return Scaffold(
+      backgroundColor: isDark ? AppColors.bgDark : Colors.white,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Drag handle / Notch (premium feel)
+            Center(
+              child: Container(
+                width: 38.w,
+                height: 4.h,
+                margin: EdgeInsets.only(top: 10.h, bottom: 8.h),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                  borderRadius: BorderRadius.circular(2.r),
+                ),
               ),
             ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(fontWeight: FontWeight.w500),
+
+            // Premium top custom header
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Row(
+                      children: [
+                        Icon(Icons.chevron_left, size: 22.sp, color: AppColors.primaryTeal),
+                        Text(
+                          'Back',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontFamily: 'Manrope',
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primaryTeal,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    widget.title,
+                    style: TextStyle(
+                      fontSize: 15.sp,
+                      fontFamily: 'Manrope',
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    ),
+                  ),
+                  SizedBox(width: 60.w),
+                ],
+              ),
             ),
-          ),
-        ],
+
+            // Scrollable Form Body
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.symmetric(horizontal: 24.w),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 24.h),
+
+                      // Large Amount invested at top matching Spendly standard
+                      Center(
+                        child: Text(
+                          'AMOUNT INVESTED',
+                          style: TextStyle(
+                            fontSize: 10.sp,
+                            fontFamily: 'Manrope',
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.5,
+                            color: labelColor,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 4.h),
+                            child: FaIcon(
+                              FontAwesomeIcons.bangladeshiTakaSign,
+                              size: 26.sp,
+                              color: isDark ? Colors.white30 : const Color(0xFFCBD5E1),
+                            ),
+                          ),
+                          SizedBox(width: 6.w),
+                          IntrinsicWidth(
+                            child: TextFormField(
+                              controller: _amountController,
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              textAlign: TextAlign.center,
+                              autofocus: !isEdit,
+                              style: TextStyle(
+                                fontSize: 42.sp,
+                                fontFamily: 'Manrope',
+                                fontWeight: FontWeight.bold,
+                                color: isDark ? Colors.white : const Color(0xFF0F172A),
+                              ),
+                              validator: (val) {
+                                if (val == null || val.isEmpty) return 'Required';
+                                if (double.tryParse(val) == null) return 'Invalid amount';
+                                return null;
+                              },
+                              decoration: InputDecoration(
+                                hintText: '0.00',
+                                hintStyle: TextStyle(
+                                  color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
+                                  fontSize: 42.sp,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      SizedBox(height: 28.h),
+
+                      // Investment Title
+                      StyledTextFormField(
+                        controller: _titleController,
+                        labelText: 'Investment Title *',
+                        hintText: 'e.g. Sanchayapatra, Stock Purchase, Startup Fund',
+                        prefixIcon: Icons.business_center_outlined,
+                        validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                      ),
+                      SizedBox(height: 16.h),
+
+                      // Platform Name
+                      StyledTextFormField(
+                        controller: _platformController,
+                        labelText: 'Platform Name *',
+                        hintText: 'e.g. Bangladesh Bank, LankaBangla, IDLC',
+                        prefixIcon: Icons.account_balance_outlined,
+                        validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                      ),
+                      SizedBox(height: 16.h),
+
+                      // Profit Rate & Expected ROI row
+                      Row(
+                        children: [
+                          Expanded(
+                            child: StyledTextFormField(
+                              controller: _profitRateController,
+                              labelText: 'Profit Rate *',
+                              hintText: 'e.g. 11.04% or 12–15%',
+                              prefixIcon: Icons.trending_up,
+                              validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                            ),
+                          ),
+                          SizedBox(width: 12.w),
+                          Expanded(
+                            child: StyledTextFormField(
+                              controller: _expectedROIController,
+                              labelText: 'Expected ROI (%)',
+                              hintText: 'e.g. 12',
+                              prefixIcon: Icons.percent_rounded,
+                              keyboardType: TextInputType.number,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 16.h),
+
+                      // Dates Row
+                      Row(
+                        children: [
+                          Expanded(
+                            child: StyledDatePickerButton(
+                              labelText: 'Start Date *',
+                              selectedDate: _startDate,
+                              onDateSelected: (d) => setState(() => _startDate = d),
+                              validator: (d) => d == null ? 'Required' : null,
+                            ),
+                          ),
+                          SizedBox(width: 12.w),
+                          Expanded(
+                            child: StyledDatePickerButton(
+                              labelText: 'Expected End Date *',
+                              selectedDate: _expectedEndDate,
+                              onDateSelected: (d) => setState(() => _expectedEndDate = d),
+                              validator: (d) => d == null ? 'Required' : null,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 24.h),
+
+                      // Section Title
+                      Text(
+                        'TRANSACTION DETAILS',
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          fontFamily: 'Manrope',
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.5,
+                          color: labelColor,
+                        ),
+                      ),
+                      const Divider(height: 16),
+                      SizedBox(height: 8.h),
+
+                      // Transaction Medium & ID
+                      Row(
+                        children: [
+                          Expanded(
+                            child: StyledTextFormField(
+                              controller: _transactionMediumController,
+                              labelText: 'Transaction Medium *',
+                              hintText: 'e.g. Bank, bKash, Cash',
+                              prefixIcon: Icons.payment_outlined,
+                              validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                            ),
+                          ),
+                          SizedBox(width: 12.w),
+                          Expanded(
+                            child: StyledTextFormField(
+                              controller: _transactionIdController,
+                              labelText: 'Transaction ID *',
+                              hintText: 'e.g. TXN10023455',
+                              prefixIcon: Icons.vpn_key_outlined,
+                              validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 16.h),
+
+                      // Transaction Date
+                      StyledDatePickerButton(
+                        labelText: 'Transaction Date *',
+                        selectedDate: _transactionDate,
+                        onDateSelected: (d) => setState(() => _transactionDate = d),
+                        validator: (d) => d == null ? 'Required' : null,
+                      ),
+                      SizedBox(height: 16.h),
+
+                      // Notes & Document Links
+                      StyledTextFormField(
+                        controller: _notesController,
+                        labelText: 'Notes (Optional)',
+                        hintText: 'Additional details or reminders...',
+                        prefixIcon: Icons.notes_outlined,
+                        maxLines: 2,
+                      ),
+                      SizedBox(height: 16.h),
+
+                      StyledTextFormField(
+                        controller: _docLinksController,
+                        labelText: 'Document Link (Optional)',
+                        hintText: 'e.g. drive.google.com/...',
+                        prefixIcon: Icons.link_rounded,
+                      ),
+                      SizedBox(height: 16.h),
+
+                      // Investment Status (if allowed/edit)
+                      if (widget.allowStatusEdit || isEdit) ...[
+                        StyledDropdownFormField<InvestmentStatus>(
+                          value: _status,
+                          labelText: 'Investment Status',
+                          prefixIcon: Icons.info_outline,
+                          items: InvestmentStatus.values
+                              .map((s) => DropdownMenuItem(
+                                    value: s,
+                                    child: Text(s.name.capitalizeFirst ?? s.name),
+                                  ))
+                              .toList(),
+                          onChanged: (v) => setState(() => _status = v!),
+                        ),
+                        SizedBox(height: 24.h),
+                      ],
+
+                      // Premium Emerald Action Button
+                      Obx(() => ElevatedButton(
+                            onPressed: _controller.isLoading.value ? null : _submit,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primaryTeal,
+                              foregroundColor: Colors.white,
+                              minimumSize: Size(double.infinity, 54.h),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16.r),
+                              ),
+                              elevation: 2,
+                              shadowColor: AppColors.primaryTeal.withValues(alpha: 0.2),
+                            ),
+                            child: _controller.isLoading.value
+                                ? SizedBox(
+                                    height: 20.r,
+                                    width: 20.r,
+                                    child: const CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.save_alt_rounded, size: 18.sp),
+                                      SizedBox(width: 8.w),
+                                      Text(
+                                        isEdit ? 'Update Investment' : 'Save Investment',
+                                        style: TextStyle(
+                                          fontSize: 14.sp,
+                                          fontFamily: 'Manrope',
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                          )),
+                      SizedBox(height: 40.h),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
-
-  String _formatDate(DateTime date) =>
-      '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 }

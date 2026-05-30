@@ -1,11 +1,13 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:spendly/core/common/widgets/loader_widget.dart';
 import 'package:spendly/core/common/widgets/no_data_widget.dart';
 import 'package:spendly/core/common/widgets/expense_monthly_analysis.dart';
 import 'package:spendly/core/common/widgets/custom_divider.dart';
 import 'package:spendly/core/extensions/double_ext.dart';
+import 'package:spendly/core/responsive/responsive.dart';
+import 'package:spendly/core/styles/app_colors.dart';
 
 import '../../domain/entities/expense_entity.dart';
 import '../controllers/expense_controller.dart';
@@ -31,7 +33,7 @@ class ExpenseSummeryWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       child: Obx(() {
         final data = _dataList;
 
@@ -41,11 +43,12 @@ class ExpenseSummeryWidget extends StatelessWidget {
           return const Center(child: NoDataWidget());
         } else {
           return SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
             child: Column(
               children: [
                 ExpenseSummery(expenses: data, isReport: isReport),
                 if (isReport) ...[
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
                   ExpenseMonthlyAnalysis(expenses: data),
                 ],
                 if (!isReport) ...[
@@ -54,6 +57,7 @@ class ExpenseSummeryWidget extends StatelessWidget {
                     child: ExpenseBarChart(expenses: data),
                   ),
                 ],
+                SizedBox(height: 30.h),
               ],
             ),
           );
@@ -85,29 +89,35 @@ class ExpenseSummery extends StatelessWidget {
     final double totalSpending = _calculateTotalSpending();
 
     if (expenses.isEmpty || totalSpending == 0) {
-      return const Padding(
-        padding: EdgeInsets.all(16),
-        child: Center(child: Text("No expenses recorded.")),
+      return Padding(
+        padding: EdgeInsets.all(16.r),
+        child: Center(
+          child: Text(
+            "No expenses recorded.",
+            style: TextStyle(
+              fontSize: 13.sp,
+              fontFamily: 'Manrope',
+              color: Colors.grey,
+            ),
+          ),
+        ),
       );
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // 💳 Total Spent Card
-          TotalSpentCard(isReport: isReport),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // 💳 Total Spent Card
+        TotalSpentCard(isReport: isReport),
 
-          const SizedBox(height: 16),
+        SizedBox(height: 16.h),
 
-          // 📊 Summary by Category
-          SummaryByCategoryWidget(expenses: expenses),
+        // 📊 Summary by Category
+        SummaryByCategoryWidget(expenses: expenses),
 
-          const SizedBox(height: 8),
-          const CustomDivider(),
-        ],
-      ),
+        SizedBox(height: 12.h),
+        const CustomDivider(),
+      ],
     );
   }
 }
@@ -140,6 +150,7 @@ class TotalSpentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final controller = Get.find<ExpenseController>();
 
     return Obx(() {
@@ -152,11 +163,7 @@ class TotalSpentCard extends StatelessWidget {
       final double remaining = (budget - totalSpent).clamp(0.0, budget);
       final double overAmount = isOverBudget ? (totalSpent - budget) : 0;
 
-      final Color totalSpentColor = isReport
-          ? theme.colorScheme.primary
-          : isOverBudget
-              ? Colors.red.shade600
-              : Colors.green.shade600;
+      final Color totalSpentColor = isDark ? Colors.white : const Color(0xFF0F172A);
 
       final Color remainingColor = isOverBudget
           ? Colors.red.shade600
@@ -171,20 +178,21 @@ class TotalSpentCard extends StatelessWidget {
       final Color healthColor = _budgetHealthColor(totalSpent, budget);
 
       return Container(
-        padding: EdgeInsets.all(compact ? 12 : 16),
+        padding: EdgeInsets.all(compact ? 12.r : 16.r),
         decoration: BoxDecoration(
-          color: theme.colorScheme.primary.withValues(alpha: 0.25),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: theme.dividerColor.withValues(alpha: 0.4)),
-          boxShadow: compact
-              ? []
-              : [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+          color: isDark ? AppColors.cardDark : AppColors.cardLight,
+          borderRadius: BorderRadius.circular(20.r),
+          border: Border.all(
+            color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 10.r,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -194,7 +202,11 @@ class TotalSpentCard extends StatelessWidget {
               children: [
                 Text(
                   "TOTAL SPENT",
-                  style: theme.textTheme.labelLarge!.copyWith(
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontFamily: 'Manrope',
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white38 : const Color(0xFF64748B),
                     letterSpacing: 1.1,
                   ),
                 ),
@@ -206,35 +218,48 @@ class TotalSpentCard extends StatelessWidget {
                   ),
               ],
             ),
-            SizedBox(height: compact ? 8 : 12),
+            SizedBox(height: compact ? 8.h : 12.h),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  "${totalSpent.toCurrency()} ৳",
-                  style: (compact
-                          ? theme.textTheme.titleLarge
-                          : theme.textTheme.displaySmall)!
-                      .copyWith(
-                        color: totalSpentColor,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(
+                      totalSpent.toCurrency(),
+                      style: TextStyle(
+                        fontSize: compact ? 18 : 28,
+                        fontFamily: 'Manrope',
                         fontWeight: FontWeight.bold,
+                        color: totalSpentColor,
                       ),
+                    ),
+                    SizedBox(width: 3.w),
+                    FaIcon(
+                      FontAwesomeIcons.bangladeshiTakaSign,
+                      size: compact ? 12 : 18,
+                      color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+                    ),
+                  ],
                 ),
                 if (!isReport)
                   Row(
                     children: [
                       Container(
-                        width: 10,
-                        height: 10,
+                        width: 8.r,
+                        height: 8.r,
                         decoration: BoxDecoration(
                           color: healthColor,
                           shape: BoxShape.circle,
                         ),
                       ),
-                      const SizedBox(width: 6),
+                      SizedBox(width: 6.w),
                       Text(
                         healthLabel,
-                        style: theme.textTheme.bodyMedium!.copyWith(
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontFamily: 'Manrope',
                           fontWeight: FontWeight.w600,
                           color: healthColor,
                         ),
@@ -244,25 +269,31 @@ class TotalSpentCard extends StatelessWidget {
               ],
             ),
             if (!isReport) ...[
-              SizedBox(height: compact ? 10 : 14),
+              SizedBox(height: compact ? 10.h : 14.h),
               BudgetProgressBar(
                 budget: budget,
                 expense: totalSpent,
-                height: compact ? 6 : 8,
+                height: compact ? 6.h : 8.h,
               ),
-              SizedBox(height: compact ? 8 : 12),
+              SizedBox(height: compact ? 8.h : 12.h),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     "Budget: ${budget.toCurrency()} ৳",
-                    style: theme.textTheme.bodyMedium,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontFamily: 'Manrope',
+                      color: isDark ? Colors.white54 : const Color(0xFF64748B),
+                    ),
                   ),
                   Text(
                     isOverBudget
                         ? "Over budget: ${overAmount.toCurrency()} ৳"
                         : "Remaining: ${remaining.toCurrency()} ৳",
-                    style: theme.textTheme.bodyMedium!.copyWith(
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontFamily: 'Manrope',
                       fontWeight: FontWeight.w600,
                       color: remainingColor,
                     ),
@@ -304,7 +335,7 @@ class BudgetProgressBar extends StatelessWidget {
     final double redFrac = overBudget / total;
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(6),
+      borderRadius: BorderRadius.circular(6.r),
       child: SizedBox(
         height: height,
         child: Row(
@@ -366,12 +397,12 @@ class _VsLastMonthChip extends StatelessWidget {
       message: "Last month total: ${lastMonthTotal.toCurrency()} ৳",
       child: Container(
         padding: EdgeInsets.symmetric(
-          horizontal: compact ? 8 : 10,
-          vertical: compact ? 4 : 6,
+          horizontal: compact ? 8.w : 10.w,
+          vertical: compact ? 4.h : 6.h,
         ),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(20.r),
           border: Border.all(color: color.withValues(alpha: 0.4)),
         ),
         child: Text(
@@ -379,7 +410,7 @@ class _VsLastMonthChip extends StatelessWidget {
           style: TextStyle(
             color: color,
             fontWeight: FontWeight.w600,
-            fontSize: compact ? 11 : 12,
+            fontSize: compact ? 10.sp : 11.sp,
           ),
         ),
       ),
@@ -410,35 +441,15 @@ class SummaryByCategoryWidget extends StatelessWidget {
     return spending;
   }
 
-  // Category → color mapping
-  Color _categoryColor(String category) {
-    switch (category.toLowerCase()) {
-      case 'family':
-        return const Color(0xFF3B82F6); // Blue
-      case 'other':
-        return const Color(0xFF9CA3AF); // Gray
-      case 'transport':
-        return const Color(0xFF8B5CF6); // Purple
-      case 'food':
-        return const Color(0xFFF59E0B); // Orange
-      case 'personal':
-        return const Color(0xFF10B981); // Green
-      case 'utilities':
-        return const Color(0xFF6366F1); // Indigo
-      default:
-        return Colors.grey;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final categorySpending = _calculateCategorySpending();
 
     if (categorySpending.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.all(16),
-        child: Center(child: Text("No expenses recorded.")),
+      return Padding(
+        padding: EdgeInsets.all(16.r),
+        child: const Center(child: Text("No expenses recorded.")),
       );
     }
 
@@ -450,27 +461,39 @@ class SummaryByCategoryWidget extends StatelessWidget {
     final sortedEntries = categorySpending.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Summary by Category",
-          style: theme.textTheme.titleMedium!.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+    return Container(
+      padding: EdgeInsets.all(16.r),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.cardDark : AppColors.cardLight,
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(
+          color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+          width: 1,
         ),
-        const SizedBox(height: 12),
-        ...sortedEntries.map((entry) {
-          final percent = totalSpending == 0 ? 0 : (entry.value / totalSpending) * 100;
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Summary by Category",
+            style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                ),
+          ),
+          SizedBox(height: 12.h),
+          ...sortedEntries.map((entry) {
+            final percent = totalSpending == 0 ? 0 : (entry.value / totalSpending) * 100;
 
-          return _CategorySummaryRow(
-            color: _categoryColor(entry.key),
-            category: entry.key,
-            percentage: percent.toDouble(),
-            amount: entry.value,
-          );
-        }),
-      ],
+            return _CategorySummaryRow(
+              color: AppColors.getColorForCategory(entry.key),
+              category: entry.key,
+              percentage: percent.toDouble(),
+              amount: entry.value,
+            );
+          }),
+        ],
+      ),
     );
   }
 }
@@ -493,36 +516,53 @@ class _CategorySummaryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: EdgeInsets.symmetric(vertical: 8.h),
       child: Row(
         children: [
           // ● Colored dot
           Container(
-            width: 8,
-            height: 8,
+            width: 8.r,
+            height: 8.r,
             decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 10.w),
 
           // Category name + percentage
           Expanded(
             child: Text(
               "$category (${percentage.toStringAsFixed(0)}%)",
-              style: theme.textTheme.bodyMedium!.copyWith(
+              style: TextStyle(
+                fontSize: 14,
+                fontFamily: 'Manrope',
                 fontWeight: FontWeight.w500,
+                color: isDark ? Colors.white70 : const Color(0xFF334155),
               ),
             ),
           ),
 
           // Amount
-          Text(
-            "${amount.toCurrency()} ৳",
-            style: theme.textTheme.bodyMedium!.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                amount.toCurrency(),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontFamily: 'Manrope',
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                ),
+              ),
+              SizedBox(width: 2.w),
+              FaIcon(
+                FontAwesomeIcons.bangladeshiTakaSign,
+                size: 11,
+                color: isDark ? Colors.white54 : const Color(0xFF64748B),
+              ),
+            ],
           ),
         ],
       ),

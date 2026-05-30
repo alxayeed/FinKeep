@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../responsive/responsive.dart';
+import '../../styles/app_colors.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -21,14 +23,31 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return AppBar(
       centerTitle: true,
-      title: Text(title),
-      foregroundColor: Colors.white,
-      backgroundColor: Colors.teal,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      title: Text(
+        title,
+        style: TextStyle(
+          fontFamily: 'Manrope',
+          fontWeight: FontWeight.bold,
+          fontSize: 16.sp,
+          color: isDark ? Colors.white : const Color(0xFF0F172A),
+          letterSpacing: 0.2,
+        ),
+      ),
+      backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
+      foregroundColor: isDark ? Colors.white : const Color(0xFF0F172A),
       leading: showBackButton
           ? IconButton(
-              icon: const Icon(Icons.arrow_back),
+              icon: Icon(
+                Icons.chevron_left_rounded,
+                size: 26.sp,
+                color: isDark ? Colors.white : const Color(0xFF0F172A),
+              ),
               onPressed: () => context.pop(),
             )
           : null,
