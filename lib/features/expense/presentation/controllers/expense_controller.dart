@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:get/get.dart';
 import 'package:spendly/features/expense/domain/usecases/get_monthly_expense.dart';
+import 'package:spendly/core/extensions/double_ext.dart';
 
 import '../../../../core/enums/expense_category.dart';
 import '../../../auth/presentation/controller/auth_controller.dart';
@@ -46,6 +47,7 @@ class ExpenseController extends GetxController {
   // ===== Budget & Last Month Total =====
   var monthlyBudget = 25000.0.obs;
   var lastMonthTotal = 0.0.obs;
+  var lastMonthExpenses = <ExpenseEntity>[].obs;
 
   final AuthController authController = Get.find();
 
@@ -99,6 +101,7 @@ class ExpenseController extends GetxController {
       filterExpensesByCategory();
 
       await fetchLastMonthTotal();
+      await fetchLastMonthExpenses();
     } finally {
       isLoading.value = false;
       shouldRefresh = false;
@@ -114,6 +117,20 @@ class ExpenseController extends GetxController {
     } catch (e) {
       log('Error fetching last month total: $e');
       lastMonthTotal.value = 0.0;
+    }
+  }
+
+  Future<void> fetchLastMonthExpenses() async {
+    try {
+      final prevMonth = DateTime(
+        selectedMonth.value.month == 1 ? selectedMonth.value.year - 1 : selectedMonth.value.year,
+        selectedMonth.value.month == 1 ? 12 : selectedMonth.value.month - 1,
+        1,
+      );
+      lastMonthExpenses.value = await getMonthlyExpensesUseCase(userId, prevMonth);
+    } catch (e) {
+      log('Error fetching last month expenses: $e');
+      lastMonthExpenses.value = [];
     }
   }
 
@@ -298,5 +315,104 @@ class ExpenseController extends GetxController {
     }
 
     return flattened;
+  }
+
+  String getDynamicInsight() {
+    if (expenses.isEmpty) {
+      return "Start adding expenses to get smart insights on your spending habits!";
+    }
+
+    final double totalCurrent = totalExpense.value;
+    final double totalLast = lastMonthTotal.value;
+
+    // 1. Overall comparison
+    String overallInsight = "";
+    if (totalLast > 0) {
+      final double diff = totalCurrent - totalLast;
+      final double percent = (diff / totalLast * 100).abs();
+      if (diff > 0) {
+        overallInsight = "Your total spending is ${percent.toStringAsFixed(0)}% higher than last month (increased by ${diff.toCurrency()} ৳). ";
+      } else if (diff < 0) {
+        overallInsight = "Great job! Your total spending is ${percent.toStringAsFixed(0)}% lower than last month (saved ${diff.abs().toCurrency()} ৳). ";
+      } else {
+        overallInsight = "Your total spending is exactly the same as last month. ";
+      }
+    } else {
+      overallInsight = "You spent a total of ${totalCurrent.toCurrency()} ৳ this month. ";
+    }
+
+    // 2. Dynamic significant category comparison
+    String categoryInsight = "";
+    if (lastMonthExpenses.isNotEmpty) {
+      // Calculate category spending for this month
+      final Map<String, double> currentCategoryTotals = {};
+      for (var e in expenses) {
+        currentCategoryTotals[e.category] = (currentCategoryTotals[e.category] ?? 0.0) + e.amount;
+      }
+
+      // Calculate category spending for last month
+      final Map<String, double> lastCategoryTotals = {};
+      for (var e in lastMonthExpenses) {
+        lastCategoryTotals[e.category] = (lastCategoryTotals[e.category] ?? 0.0) + e.amount;
+      }
+
+      // Find the category with the highest absolute difference (change) between the two months
+      String? significantCategory;
+      double maxAbsoluteChange = -1.0;
+      double chosenChange = 0.0;
+      double currentAmount = 0.0;
+      double lastAmount = 0.0;
+
+      // Check all unique categories from both months
+      final allCategories = {...currentCategoryTotals.keys, ...lastCategoryTotals.keys};
+      for (var cat in allCategories) {
+        final double currVal = currentCategoryTotals[cat] ?? 0.0;
+        final double lastVal = lastCategoryTotals[cat] ?? 0.0;
+        final double change = currVal - lastVal;
+        final double absChange = change.abs();
+
+        if (absChange > maxAbsoluteChange) {
+          maxAbsoluteChange = absChange;
+          chosenChange = change;
+          significantCategory = cat;
+          currentAmount = currVal;
+          lastAmount = lastVal;
+        }
+      }
+
+      if (significantCategory != null && maxAbsoluteChange > 0) {
+        if (chosenChange > 0) {
+          final double percent = lastAmount > 0 ? (chosenChange / lastAmount * 100) : 100.0;
+          categoryInsight = "Watch out for $significantCategory: you spent ${currentAmount.toCurrency()} ৳, which is ${percent.toStringAsFixed(0)}% higher than last month (an increase of ${chosenChange.toCurrency()} ৳).";
+        } else {
+          final double savings = chosenChange.abs();
+          final double percent = lastAmount > 0 ? (savings / lastAmount * 100) : 100.0;
+          categoryInsight = "Superb control on $significantCategory! You spent ${currentAmount.toCurrency()} ৳, which is ${percent.toStringAsFixed(0)}% lower than last month (saved ${savings.toCurrency()} ৳).";
+        }
+      } else {
+        categoryInsight = "Your category spending remains very stable compared to last month.";
+      }
+    } else {
+      // Fallback if no last month expenses list is loaded yet
+      // Find the highest spending category this month
+      String? highestCategory;
+      double maxCategorySpent = 0.0;
+      final Map<String, double> categoryTotals = {};
+      for (var e in expenses) {
+        categoryTotals[e.category] = (categoryTotals[e.category] ?? 0.0) + e.amount;
+      }
+      categoryTotals.forEach((cat, amount) {
+        if (amount > maxCategorySpent) {
+          maxCategorySpent = amount;
+          highestCategory = cat;
+        }
+      });
+
+      if (highestCategory != null) {
+        categoryInsight = "Your highest spending category this month is $highestCategory, totaling ${maxCategorySpent.toCurrency()} ৳.";
+      }
+    }
+
+    return "$overallInsight$categoryInsight";
   }
 }

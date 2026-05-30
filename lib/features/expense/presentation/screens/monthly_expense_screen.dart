@@ -157,7 +157,9 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
           budget: totalBudget,
         ),
         // Smart dynamic insights banner
-        const SmartInsightBanner(),
+        Obx(() => SmartInsightBanner(
+          customText: controller.getDynamicInsight(),
+        )),
         // Category spending checklist
         CategorySpendingList(
           spentByCategory: spentByCategory,
