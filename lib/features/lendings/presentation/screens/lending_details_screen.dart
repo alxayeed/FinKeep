@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:spendly/core/extensions/double_ext.dart';
+import 'package:spendly/core/responsive/responsive.dart';
 import 'package:spendly/core/styles/app_colors.dart';
 import 'package:spendly/features/lendings/presentation/controllers/lendings_controller.dart';
 import 'package:spendly/features/lendings/presentation/screens/repayment_list_widget.dart';
@@ -21,197 +24,628 @@ class LendingDetailsScreen extends StatefulWidget {
 class _LendingDetailsScreenState extends State<LendingDetailsScreen> {
   final LendingsController controller = Get.find<LendingsController>();
 
-  Future<void> _handleDeleteLending(BuildContext context) async {
+  @override
+  void initState() {
+    super.initState();
+    controller.fetchRepayments(widget.lending.id);
+  }
+
+  Future<void> _confirmDelete() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) {
+        final isDark = Theme.of(ctx).brightness == Brightness.dark;
+        return AlertDialog(
+          backgroundColor: isDark ? AppColors.cardDark : Colors.white,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.r)),
+          title: Text(
+            'Delete Record?',
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontFamily: 'Manrope',
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : const Color(0xFF0F172A),
+            ),
+          ),
+          content: Text(
+            'This will permanently remove the lending record for ${widget.lending.person.name}.',
+            style: TextStyle(
+              fontSize: 13.sp,
+              fontFamily: 'Manrope',
+              color: isDark ? Colors.white60 : const Color(0xFF64748B),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text('Cancel',
+                  style: TextStyle(
+                      color: isDark ? Colors.white54 : const Color(0xFF64748B),
+                      fontFamily: 'Manrope')),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text('Delete',
+                  style: TextStyle(
+                      color: AppColors.error,
+                      fontFamily: 'Manrope',
+                      fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirmed != true || !mounted) return;
+
     await controller.deleteLending(
       widget.lending.id,
       onSuccess: () {
-        if (!context.mounted) return;
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Lending record successfully deleted!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Lending record deleted.'),
+          backgroundColor: AppColors.success,
+        ));
         context.pop();
       },
       onError: (e) {
-        if (!context.mounted) return;
-
-        final errorMessage = e?.toString() ?? 'An unknown error occurred.';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to delete lending: $errorMessage'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Failed to delete: $e'),
+          backgroundColor: AppColors.error,
+        ));
       },
     );
   }
 
-  double calculatePaidAmount() {
-    return controller.repaymentsList.fold<double>(
-      0,
-      (sum, r) => sum + r.amount,
-    );
+  String _initials(String name) {
+    final parts = name.trim().split(RegExp(r'\s+'));
+    if (parts.length >= 2) {
+      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    }
+    return name.substring(0, name.length.clamp(0, 2)).toUpperCase();
   }
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(locale: 'en_IN', symbol: '৳');
-    final dateFormat = DateFormat('dd MMM, yyyy');
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lending = widget.lending;
+    final status = lending.smartStatus;
+    final isGiven = lending.type == LendingType.given;
+    final isPaid = status == LendingStatus.paid;
 
-    controller.fetchRepayments(widget.lending.id);
+    // Status appearance
+    final (statusLabel, statusColor, statusBg) = _statusAppearance(status, isDark);
 
-    final isGiven = widget.lending.type == LendingType.given;
-    final personName = widget.lending.person.name;
-    final amount = currencyFormat.format(widget.lending.amount);
-    final createdDate = dateFormat.format(widget.lending.createdDate);
-
-    String summary = "You ${isGiven ? 'gave' : 'took'} $amount "
-        "${isGiven ? 'to' : 'from'} $personName on $createdDate.";
-
-    if (widget.lending.status == LendingStatus.paid) {
-      summary += " This amount has already been fully repaid.";
-    } else if (widget.lending.dueDate != null) {
-      final dueDate = dateFormat.format(widget.lending.dueDate!);
-      summary += " Repayment is due by $dueDate.";
-    } else {
-      summary += " No repayment date has been set yet.";
-    }
+    // Avatar colour
+    final avatarBg = _avatarBg(status, isDark);
+    final avatarFg = _avatarFg(status);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Lending Details'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit_note_rounded,
-                color: AppColors.primaryTealDark),
-            onPressed: () async {
-              await context.pushNamed(
-                AppRoutes.updateLending,
-                extra: widget.lending,
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete_outline_rounded,
-                color: AppColors.error),
-            onPressed: () async {
-              final confirm = await showDialog<bool>(
-                context: context,
-                builder: (ctx) => AlertDialog(
-                  title: const Text('Delete Lending'),
-                  content: const Text(
-                      'Are you sure you want to delete this lending record?'),
-                  actions: [
-                    TextButton(
-                        onPressed: () => context.pop(false),
-                        child: const Text('Cancel')),
-                    TextButton(
-                        onPressed: () => context.pop(true),
-                        child: const Text('Delete')),
-                  ],
-                ),
-              );
-
-              if (confirm == true) {
-                await _handleDeleteLending(context);
-              }
-            },
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          /// --- TOP SUMMARY SECTION ---
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  margin: const EdgeInsets.only(bottom: 10),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryTeal.withValues(alpha: 0.07),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.info_outline_rounded,
-                          color: AppColors.primaryTealDark),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          summary,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            height: 1.4,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                GridView(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  padding: EdgeInsets.zero,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 8,
-                    crossAxisSpacing: 12,
-                    childAspectRatio: 3.4,
-                  ),
-                  children: [
-                    // _buildGridItem('', amount, Icons.call_made),
-                    // _buildGridItem(
-                    //     '',
-                    //     currencyFormat.format(calculatePaidAmount()),
-                    //     Icons.call_received),
-                    _buildGridItem(
-                        'Type',
-                        widget.lending.type.name.capitalizeFirst ??
-                            widget.lending.type.name,
-                        Icons.swap_horiz),
-                    _buildGridItem(
-                        'Status',
-                        widget.lending.status.name.capitalizeFirst ??
-                            widget.lending.status.name,
-                        Icons.check_circle_outline,
-                        valueColor: AppColors.getColorForLendingStatus(
-                            widget.lending.status)),
-                    _buildGridItem(
-                        '',
-                        dateFormat.format(widget.lending.createdDate),
-                        Icons.calendar_today_outlined),
-                    _buildGridItem(
-                        '',
-                        widget.lending.dueDate != null
-                            ? dateFormat.format(widget.lending.dueDate!)
-                            : 'N/A',
-                        Icons.event_busy_outlined),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          /// --- REPAYMENT SECTION ---
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
-              child: Column(
+      backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // ── App bar ──────────────────────────────────────────
+            Padding(
+              padding: EdgeInsets.fromLTRB(8.w, 4.h, 8.w, 0),
+              child: Row(
                 children: [
-                  /// Progress header
-
-                  Expanded(
-                    child: RepaymentListWidget(lending: widget.lending),
+                  IconButton(
+                    icon: Icon(Icons.chevron_left,
+                        size: 26.sp,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A)),
+                    onPressed: () => context.pop(),
+                  ),
+                  const Spacer(),
+                  Text(
+                    'Lending Details',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontFamily: 'Manrope',
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    ),
+                  ),
+                  const Spacer(),
+                  // Edit button
+                  IconButton(
+                    icon: Icon(Icons.edit_rounded,
+                        size: 20.sp, color: AppColors.primaryTeal),
+                    onPressed: () => context.pushNamed(
+                      AppRoutes.updateLending,
+                      extra: lending,
+                    ),
+                  ),
+                  // Delete button
+                  IconButton(
+                    icon: Icon(Icons.delete_outline_rounded,
+                        size: 20.sp, color: AppColors.error),
+                    onPressed: _confirmDelete,
                   ),
                 ],
               ),
+            ),
+
+            // ── Scrollable body ───────────────────────────────────
+            Expanded(
+              child: CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: Column(
+                      children: [
+                        SizedBox(height: 20.h),
+
+                        // ── Avatar + name + status badge ──────────
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Container(
+                              width: 72.r,
+                              height: 72.r,
+                              decoration: BoxDecoration(
+                                color: avatarBg,
+                                borderRadius: BorderRadius.circular(22.r),
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                _initials(lending.person.name),
+                                style: TextStyle(
+                                  fontSize: 24.sp,
+                                  fontFamily: 'Manrope',
+                                  fontWeight: FontWeight.bold,
+                                  color: avatarFg,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 12.h),
+                        Text(
+                          lending.person.name,
+                          style: TextStyle(
+                            fontSize: 20.sp,
+                            fontFamily: 'Manrope',
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          ),
+                        ),
+                        SizedBox(height: 6.h),
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 12.w, vertical: 4.h),
+                          decoration: BoxDecoration(
+                            color: statusBg,
+                            borderRadius: BorderRadius.circular(20.r),
+                          ),
+                          child: Text(
+                            statusLabel,
+                            style: TextStyle(
+                              fontSize: 10.sp,
+                              fontFamily: 'Manrope',
+                              fontWeight: FontWeight.bold,
+                              color: statusColor,
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(height: 24.h),
+
+                        // ── Amount card with repayment progress ───
+                        Obx(() {
+                          final paid = controller.repaymentsList
+                              .fold<double>(0, (s, r) => s + r.amount);
+                          final total = lending.amount;
+                          final remaining = (total - paid).clamp(0.0, total);
+                          final progress =
+                              total == 0 ? 0.0 : (paid / total).clamp(0.0, 1.0);
+
+                          return Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                            child: Container(
+                              padding: EdgeInsets.all(20.r),
+                              decoration: BoxDecoration(
+                                color: isDark
+                                    ? AppColors.cardDark
+                                    : AppColors.cardLight,
+                                borderRadius: BorderRadius.circular(20.r),
+                                border: Border.all(
+                                  color: isDark
+                                      ? const Color(0xFF334155)
+                                      : const Color(0xFFE2E8F0),
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.04),
+                                    blurRadius: 12.r,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Type chip
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 8.w, vertical: 3.h),
+                                        decoration: BoxDecoration(
+                                          color: isGiven
+                                              ? const Color(0xFFFFEEEE)
+                                              : const Color(0xFFECFDF5),
+                                          borderRadius:
+                                              BorderRadius.circular(6.r),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              isGiven
+                                                  ? Icons.arrow_upward_rounded
+                                                  : Icons.arrow_downward_rounded,
+                                              size: 11.sp,
+                                              color: isGiven
+                                                  ? AppColors.error
+                                                  : AppColors.success,
+                                            ),
+                                            SizedBox(width: 3.w),
+                                            Text(
+                                              isGiven ? 'GIVEN' : 'TAKEN',
+                                              style: TextStyle(
+                                                fontSize: 9.sp,
+                                                fontFamily: 'Manrope',
+                                                fontWeight: FontWeight.bold,
+                                                color: isGiven
+                                                    ? AppColors.error
+                                                    : AppColors.success,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 10.h),
+
+                                  // Total amount lent label
+                                  Text(
+                                    'Total Amount ${isGiven ? 'Lent' : 'Borrowed'}',
+                                    style: TextStyle(
+                                      fontSize: 11.sp,
+                                      fontFamily: 'Manrope',
+                                      fontWeight: FontWeight.w500,
+                                      color: isDark
+                                          ? Colors.white38
+                                          : const Color(0xFF94A3B8),
+                                    ),
+                                  ),
+                                  SizedBox(height: 4.h),
+
+                                  // Big amount
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.end,
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.only(bottom: 3.h),
+                                        child: FaIcon(
+                                          FontAwesomeIcons.bangladeshiTakaSign,
+                                          size: 18.sp,
+                                          color: isDark
+                                              ? Colors.white38
+                                              : const Color(0xFF94A3B8),
+                                        ),
+                                      ),
+                                      SizedBox(width: 4.w),
+                                      Text(
+                                        total.toCurrency(),
+                                        style: TextStyle(
+                                          fontSize: 32.sp,
+                                          fontFamily: 'Manrope',
+                                          fontWeight: FontWeight.bold,
+                                          color: isDark
+                                              ? Colors.white
+                                              : const Color(0xFF0F172A),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+
+                                  SizedBox(height: 18.h),
+
+                                  // Progress label row
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Repayment Progress',
+                                        style: TextStyle(
+                                          fontSize: 11.sp,
+                                          fontFamily: 'Manrope',
+                                          fontWeight: FontWeight.w500,
+                                          color: isDark
+                                              ? Colors.white54
+                                              : const Color(0xFF64748B),
+                                        ),
+                                      ),
+                                      Text(
+                                        '${(progress * 100).toStringAsFixed(0)}%',
+                                        style: TextStyle(
+                                          fontSize: 12.sp,
+                                          fontFamily: 'Manrope',
+                                          fontWeight: FontWeight.bold,
+                                          color: isDark
+                                              ? Colors.white
+                                              : const Color(0xFF0F172A),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 8.h),
+
+                                  // Progress bar
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8.r),
+                                    child: LinearProgressIndicator(
+                                      value: progress,
+                                      minHeight: 8.h,
+                                      backgroundColor: isDark
+                                          ? const Color(0xFF334155)
+                                          : const Color(0xFFE2E8F0),
+                                      valueColor:
+                                          AlwaysStoppedAnimation(statusColor),
+                                    ),
+                                  ),
+
+                                  SizedBox(height: 16.h),
+
+                                  // Received / Remaining row
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              isGiven
+                                                  ? 'RECEIVED'
+                                                  : 'PAID BACK',
+                                              style: TextStyle(
+                                                fontSize: 9.sp,
+                                                fontFamily: 'Manrope',
+                                                fontWeight: FontWeight.bold,
+                                                letterSpacing: 0.8,
+                                                color: isDark
+                                                    ? Colors.white38
+                                                    : const Color(0xFF94A3B8),
+                                              ),
+                                            ),
+                                            SizedBox(height: 3.h),
+                                            Text(
+                                              '${paid.toCurrency()} ৳',
+                                              style: TextStyle(
+                                                fontSize: 16.sp,
+                                                fontFamily: 'Manrope',
+                                                fontWeight: FontWeight.bold,
+                                                color: AppColors.primaryTeal,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        width: 1,
+                                        height: 36.h,
+                                        color: isDark
+                                            ? const Color(0xFF334155)
+                                            : const Color(0xFFE2E8F0),
+                                      ),
+                                      Expanded(
+                                        child: Padding(
+                                          padding:
+                                              EdgeInsets.only(left: 16.w),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'REMAINING',
+                                                style: TextStyle(
+                                                  fontSize: 9.sp,
+                                                  fontFamily: 'Manrope',
+                                                  fontWeight: FontWeight.bold,
+                                                  letterSpacing: 0.8,
+                                                  color: isDark
+                                                      ? Colors.white38
+                                                      : const Color(
+                                                          0xFF94A3B8),
+                                                ),
+                                              ),
+                                              SizedBox(height: 3.h),
+                                              Text(
+                                                '${remaining.toCurrency()} ৳',
+                                                style: TextStyle(
+                                                  fontSize: 16.sp,
+                                                  fontFamily: 'Manrope',
+                                                  fontWeight: FontWeight.bold,
+                                                  color: isPaid
+                                                      ? AppColors.success
+                                                      : (isDark
+                                                          ? Colors.white
+                                                          : const Color(
+                                                              0xFF0F172A)),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }),
+
+                        SizedBox(height: 20.h),
+
+                        // ── Meta info row ─────────────────────────
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: _metaTile(
+                                  isDark: isDark,
+                                  icon: Icons.calendar_today_rounded,
+                                  label: 'Created',
+                                  value: DateFormat('MMM dd, yyyy')
+                                      .format(lending.createdDate),
+                                ),
+                              ),
+                              SizedBox(width: 10.w),
+                              Expanded(
+                                child: _metaTile(
+                                  isDark: isDark,
+                                  icon: Icons.event_rounded,
+                                  label: 'Due Date',
+                                  value: lending.dueDate != null
+                                      ? DateFormat('MMM dd, yyyy')
+                                          .format(lending.dueDate!)
+                                      : 'Not set',
+                                  valueColor: lending.dueDate != null &&
+                                          DateTime.now()
+                                              .isAfter(lending.dueDate!) &&
+                                          !isPaid
+                                      ? AppColors.error
+                                      : null,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        if (lending.description != null &&
+                            lending.description!.isNotEmpty) ...[
+                          SizedBox(height: 10.h),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                            child: Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.all(14.r),
+                              decoration: BoxDecoration(
+                                color: isDark
+                                    ? const Color(0xFF1E293B)
+                                    : const Color(0xFFF8FAFC),
+                                borderRadius: BorderRadius.circular(14.r),
+                                border: Border.all(
+                                  color: isDark
+                                      ? const Color(0xFF334155)
+                                      : const Color(0xFFE2E8F0),
+                                ),
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(Icons.description_outlined,
+                                      size: 16.sp,
+                                      color: isDark
+                                          ? Colors.white38
+                                          : const Color(0xFF94A3B8)),
+                                  SizedBox(width: 8.w),
+                                  Expanded(
+                                    child: Text(
+                                      lending.description!,
+                                      style: TextStyle(
+                                        fontSize: 12.sp,
+                                        fontFamily: 'Manrope',
+                                        fontStyle: FontStyle.italic,
+                                        color: isDark
+                                            ? Colors.white60
+                                            : const Color(0xFF64748B),
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+
+                        SizedBox(height: 8.h),
+                      ],
+                    ),
+                  ),
+
+                  // ── Repayment history section ─────────────────
+                  SliverFillRemaining(
+                    hasScrollBody: true,
+                    child: RepaymentListWidget(lending: lending),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Helpers ──────────────────────────────────────────────────
+
+  Widget _metaTile({
+    required bool isDark,
+    required IconData icon,
+    required String label,
+    required String value,
+    Color? valueColor,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(14.r),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.cardDark : AppColors.cardLight,
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(
+          color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon,
+                  size: 14.sp,
+                  color: isDark ? Colors.white38 : const Color(0xFF94A3B8)),
+              SizedBox(width: 5.w),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 10.sp,
+                  fontFamily: 'Manrope',
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 4.h),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 12.sp,
+              fontFamily: 'Manrope',
+              fontWeight: FontWeight.bold,
+              color: valueColor ??
+                  (isDark ? Colors.white : const Color(0xFF0F172A)),
             ),
           ),
         ],
@@ -219,32 +653,59 @@ class _LendingDetailsScreenState extends State<LendingDetailsScreen> {
     );
   }
 
-  Widget _buildGridItem(String title, String value, IconData icon,
-      {Color? valueColor}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: AppColors.subtleBackground,
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 18, color: Colors.grey.shade600),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              title.isNotEmpty ? '$title: $value' : value,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight:
-                    valueColor != null ? FontWeight.w600 : FontWeight.w400,
-                color: valueColor ?? const Color(0xFF212121),
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
+  (String label, Color color, Color bgColor) _statusAppearance(
+      LendingStatus status, bool isDark) {
+    switch (status) {
+      case LendingStatus.overdue:
+        return (
+          'OVERDUE',
+          const Color(0xFFEF4444),
+          isDark ? const Color(0xFF3B0F0F) : const Color(0xFFFFEEEE),
+        );
+      case LendingStatus.partial:
+        return (
+          'PARTIAL PAYMENT',
+          const Color(0xFF3B82F6),
+          isDark ? const Color(0xFF1E2D4D) : const Color(0xFFEFF6FF),
+        );
+      case LendingStatus.due:
+        return (
+          'ACTIVE STATUS',
+          AppColors.primaryTeal,
+          isDark ? const Color(0xFF022C22) : const Color(0xFFECFDF5),
+        );
+      case LendingStatus.paid:
+        return (
+          'FULLY CLEARED',
+          const Color(0xFF059669),
+          isDark ? const Color(0xFF022C22) : const Color(0xFFECFDF5),
+        );
+    }
+  }
+
+  Color _avatarBg(LendingStatus status, bool isDark) {
+    switch (status) {
+      case LendingStatus.overdue:
+        return isDark ? const Color(0xFF3B1515) : const Color(0xFFFFE4E4);
+      case LendingStatus.partial:
+        return isDark ? const Color(0xFF1E293B) : const Color(0xFFE0EAFF);
+      case LendingStatus.due:
+        return isDark ? const Color(0xFF022C22) : const Color(0xFFECFDF5);
+      case LendingStatus.paid:
+        return isDark ? const Color(0xFF022C22) : const Color(0xFFECFDF5);
+    }
+  }
+
+  Color _avatarFg(LendingStatus status) {
+    switch (status) {
+      case LendingStatus.overdue:
+        return const Color(0xFFEF4444);
+      case LendingStatus.partial:
+        return const Color(0xFF3B82F6);
+      case LendingStatus.due:
+        return AppColors.primaryTeal;
+      case LendingStatus.paid:
+        return const Color(0xFF059669);
+    }
   }
 }
