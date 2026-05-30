@@ -90,20 +90,7 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
                 },
               ),
 
-              // 3. Category Horizontal Filter Pills
-              Padding(
-                padding: EdgeInsets.only(bottom: 8.h),
-                child: CategoryFilterPills(
-                  selectedCategory: controller.selectedCategory.value == 'All'
-                      ? null
-                      : ExpenseCategoryExtension.fromString(controller.selectedCategory.value),
-                  onCategorySelected: (cat) {
-                    controller.updateSelectedCategory(cat?.displayName ?? 'All');
-                  },
-                ),
-              ),
-
-              // 4. Tab Contents
+              // 3. Tab Contents
               Expanded(
                 child: controller.isLoading.value
                     ? const Center(
@@ -113,7 +100,24 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
                       )
                     : _selectedTab == 0
                         ? _buildSummaryTab(spentByCategory, budgetsByCategory)
-                        : _buildDetailsTab(),
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // Category Horizontal Filter Pills - only shown in Details UI
+                              Padding(
+                                padding: EdgeInsets.only(bottom: 8.h),
+                                child: CategoryFilterPills(
+                                  selectedCategory: controller.selectedCategory.value == 'All'
+                                      ? null
+                                      : ExpenseCategoryExtension.fromString(controller.selectedCategory.value),
+                                  onCategorySelected: (cat) {
+                                    controller.updateSelectedCategory(cat?.displayName ?? 'All');
+                                  },
+                                ),
+                              ),
+                              Expanded(child: _buildDetailsTab()),
+                            ],
+                          ),
               ),
             ],
           );
@@ -158,6 +162,12 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
         CategorySpendingList(
           spentByCategory: spentByCategory,
           budgetsByCategory: budgetsByCategory,
+          onCategoryTap: (category) {
+            setState(() {
+              _selectedTab = 1; // Switch to Details tab
+            });
+            controller.updateSelectedCategory(category.displayName);
+          },
         ),
         SizedBox(height: 100.h), // Safe spacing for bottom navigation overlap
       ],

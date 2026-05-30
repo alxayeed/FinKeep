@@ -8,11 +8,13 @@ import 'package:spendly/core/extensions/double_ext.dart';
 class CategorySpendingList extends StatelessWidget {
   final Map<ExpenseCategory, double> spentByCategory;
   final Map<ExpenseCategory, double> budgetsByCategory;
+  final ValueChanged<ExpenseCategory>? onCategoryTap;
 
   const CategorySpendingList({
     super.key,
     required this.spentByCategory,
     required this.budgetsByCategory,
+    this.onCategoryTap,
   });
 
   @override
@@ -68,122 +70,126 @@ class CategorySpendingList extends StatelessWidget {
               final iconData = _getIconForCategory(category);
               final itemColor = _getColorForCategory(category);
 
-              return Container(
-                padding: EdgeInsets.all(10.r),
-                decoration: BoxDecoration(
-                  color: isDark ? AppColors.cardDark : AppColors.cardLight,
-                  borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(
-                    color: isDark ? const Color(0xFF334155) : const Color(0xFFF8FAFC),
-                    width: 1,
+              return GestureDetector(
+                onTap: () => onCategoryTap?.call(category),
+                behavior: HitTestBehavior.opaque,
+                child: Container(
+                  padding: EdgeInsets.all(10.r),
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.cardDark : AppColors.cardLight,
+                    borderRadius: BorderRadius.circular(12.r),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF334155) : const Color(0xFFF8FAFC),
+                      width: 1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.01),
+                        blurRadius: 4.r,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.01),
-                      blurRadius: 4.r,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    // Icon Container
-                    Container(
-                      width: 36.r,
-                      height: 36.r,
-                      decoration: BoxDecoration(
-                        color: itemColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8.r),
+                  child: Row(
+                    children: [
+                      // Icon Container
+                      Container(
+                        width: 36.r,
+                        height: 36.r,
+                        decoration: BoxDecoration(
+                          color: itemColor.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                        child: Icon(
+                          iconData,
+                          color: itemColor,
+                          size: 18.sp,
+                        ),
                       ),
-                      child: Icon(
-                        iconData,
-                        color: itemColor,
-                        size: 18.sp,
-                      ),
-                    ),
-                    SizedBox(width: 12.w),
-                    // Content
-                    Expanded(
-                      child: Column(
-                        children: [
-                          // Header line (Label & Amount)
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                category.displayName,
-                                style: TextStyle(
-                                  fontSize: 12.sp,
-                                  fontFamily: 'Manrope',
-                                  fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.white.withValues(alpha: 0.9) : const Color(0xFF334155),
+                      SizedBox(width: 12.w),
+                      // Content
+                      Expanded(
+                        child: Column(
+                          children: [
+                            // Header line (Label & Amount)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  category.displayName,
+                                  style: TextStyle(
+                                    fontSize: 12.sp,
+                                    fontFamily: 'Manrope',
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark ? Colors.white.withValues(alpha: 0.9) : const Color(0xFF334155),
+                                  ),
                                 ),
-                              ),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.baseline,
-                                textBaseline: TextBaseline.alphabetic,
-                                children: [
-                                  Text(
-                                    '${spent.toCurrency()} ৳',
-                                    style: TextStyle(
-                                      fontSize: 12.sp,
-                                      fontFamily: 'Manrope',
-                                      fontWeight: FontWeight.bold,
-                                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                                  textBaseline: TextBaseline.alphabetic,
+                                  children: [
+                                    Text(
+                                      '${spent.toCurrency()} ৳',
+                                      style: TextStyle(
+                                        fontSize: 12.sp,
+                                        fontFamily: 'Manrope',
+                                        fontWeight: FontWeight.bold,
+                                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                      ),
+                                    ),
+                                    Text(
+                                      ' / ${budget.toCurrency()} ৳',
+                                      style: TextStyle(
+                                        fontSize: 9.sp,
+                                        fontFamily: 'Manrope',
+                                        fontWeight: FontWeight.w600,
+                                        color: isDark ? Colors.white30 : const Color(0xFF94A3B8),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 6.h),
+                            // Progress Bar & Percentage
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(9999.r),
+                                    child: SizedBox(
+                                      height: 5.h,
+                                      child: LinearProgressIndicator(
+                                        value: percent,
+                                        backgroundColor: isDark
+                                            ? const Color(0xFF1E293B)
+                                            : const Color(0xFFF1F5F9),
+                                        valueColor: AlwaysStoppedAnimation<Color>(itemColor),
+                                      ),
                                     ),
                                   ),
-                                  Text(
-                                    ' / ${budget.toCurrency()} ৳',
+                                ),
+                                SizedBox(width: 8.w),
+                                SizedBox(
+                                  width: 26.w,
+                                  child: Text(
+                                    percentText,
+                                    textAlign: TextAlign.right,
                                     style: TextStyle(
                                       fontSize: 9.sp,
                                       fontFamily: 'Manrope',
-                                      fontWeight: FontWeight.w600,
-                                      color: isDark ? Colors.white30 : const Color(0xFF94A3B8),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 6.h),
-                          // Progress Bar & Percentage
-                          Row(
-                            children: [
-                              Expanded(
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(9999.r),
-                                  child: SizedBox(
-                                    height: 5.h,
-                                    child: LinearProgressIndicator(
-                                      value: percent,
-                                      backgroundColor: isDark
-                                          ? const Color(0xFF1E293B)
-                                          : const Color(0xFFF1F5F9),
-                                      valueColor: AlwaysStoppedAnimation<Color>(itemColor),
+                                      fontWeight: FontWeight.bold,
+                                      color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
                                     ),
                                   ),
                                 ),
-                              ),
-                              SizedBox(width: 8.w),
-                              SizedBox(
-                                width: 26.w,
-                                child: Text(
-                                  percentText,
-                                  textAlign: TextAlign.right,
-                                  style: TextStyle(
-                                    fontSize: 9.sp,
-                                    fontFamily: 'Manrope',
-                                    fontWeight: FontWeight.bold,
-                                    color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             },
