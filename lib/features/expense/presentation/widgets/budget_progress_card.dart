@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../../../../core/utils/app_localizations.dart';
+import 'package:spendly/core/extensions/double_ext.dart';
 
 class BudgetProgressCard extends StatelessWidget {
   final double spent;
@@ -66,7 +67,7 @@ class BudgetProgressCard extends StatelessWidget {
                       textBaseline: TextBaseline.alphabetic,
                       children: [
                         Text(
-                          '${spent.toStringAsFixed(0)} ৳',
+                          '${spent.toCurrency()} ৳',
                           style: TextStyle(
                             fontSize: 18.sp,
                             fontFamily: 'Manrope',
@@ -76,7 +77,7 @@ class BudgetProgressCard extends StatelessWidget {
                         ),
                         SizedBox(width: 4.w),
                         Text(
-                          '${AppLocalizations.translate('of')} ${budget.toStringAsFixed(0)} ৳',
+                          '${AppLocalizations.translate('of')} ${budget.toCurrency()} ৳',
                           style: TextStyle(
                             fontSize: 11.sp,
                             fontFamily: 'Manrope',
@@ -120,7 +121,7 @@ class BudgetProgressCard extends StatelessWidget {
                       textBaseline: TextBaseline.alphabetic,
                       children: [
                         Text(
-                          '${remaining.toStringAsFixed(0)} ৳',
+                          '${remaining.toCurrency()} ৳',
                           style: TextStyle(
                             fontSize: 18.sp,
                             fontFamily: 'Manrope',

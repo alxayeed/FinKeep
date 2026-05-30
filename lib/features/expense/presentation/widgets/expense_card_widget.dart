@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:spendly/core/extensions/double_ext.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/routes/app_router.dart';
 import '../../../../core/styles/app_colors.dart';
@@ -145,7 +146,7 @@ class ExpenseCardWidget extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    '-${expense.amount.toStringAsFixed(0)}',
+                    expense.amount.toCurrency(),
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontFamily: 'Manrope',

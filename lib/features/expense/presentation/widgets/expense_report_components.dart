@@ -1,9 +1,120 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:spendly/core/common/widgets/loader_widget.dart';
+import 'package:spendly/core/common/widgets/no_data_widget.dart';
+import 'package:spendly/core/common/widgets/expense_monthly_analysis.dart';
+import 'package:spendly/core/common/widgets/custom_divider.dart';
 import 'package:spendly/core/extensions/double_ext.dart';
 
+import '../../domain/entities/expense_entity.dart';
 import '../controllers/expense_controller.dart';
+import 'expense_bar_chart.dart';
 
+// ==========================================
+// 1. Unified Main Summary Widget Container
+// ==========================================
+class ExpenseSummeryWidget extends StatelessWidget {
+  const ExpenseSummeryWidget({
+    super.key,
+    required this.controller,
+    this.isReport = false,
+  });
+
+  final ExpenseController controller;
+  final bool isReport;
+
+  List<ExpenseEntity> get _dataList {
+    return isReport ? controller.reportExpenses : controller.expenses;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Obx(() {
+        final data = _dataList;
+
+        if (controller.isLoading.value) {
+          return const Center(child: LoaderWidget());
+        } else if (data.isEmpty) {
+          return const Center(child: NoDataWidget());
+        } else {
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                ExpenseSummery(expenses: data, isReport: isReport),
+                if (isReport) ...[
+                  const SizedBox(height: 16),
+                  ExpenseMonthlyAnalysis(expenses: data),
+                ],
+                if (!isReport) ...[
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.35,
+                    child: ExpenseBarChart(expenses: data),
+                  ),
+                ],
+              ],
+            ),
+          );
+        }
+      }),
+    );
+  }
+}
+
+// ==========================================
+// 2. Cohesive Expense Report Layout Sheet
+// ==========================================
+class ExpenseSummery extends StatelessWidget {
+  const ExpenseSummery({
+    super.key,
+    required this.expenses,
+    this.isReport = false,
+  });
+
+  final List<ExpenseEntity> expenses;
+  final bool isReport;
+
+  double _calculateTotalSpending() {
+    return expenses.fold(0.0, (sum, e) => sum + e.amount);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final double totalSpending = _calculateTotalSpending();
+
+    if (expenses.isEmpty || totalSpending == 0) {
+      return const Padding(
+        padding: EdgeInsets.all(16),
+        child: Center(child: Text("No expenses recorded.")),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // 💳 Total Spent Card
+          TotalSpentCard(isReport: isReport),
+
+          const SizedBox(height: 16),
+
+          // 📊 Summary by Category
+          SummaryByCategoryWidget(expenses: expenses),
+
+          const SizedBox(height: 8),
+          const CustomDivider(),
+        ],
+      ),
+    );
+  }
+}
+
+// ==========================================
+// 3. Premium Interactive Balance/Spent Card
+// ==========================================
 class TotalSpentCard extends StatelessWidget {
   const TotalSpentCard({
     super.key,
@@ -44,8 +155,8 @@ class TotalSpentCard extends StatelessWidget {
       final Color totalSpentColor = isReport
           ? theme.colorScheme.primary
           : isOverBudget
-          ? Colors.red.shade600
-          : Colors.green.shade600;
+              ? Colors.red.shade600
+              : Colors.green.shade600;
 
       final Color remainingColor = isOverBudget
           ? Colors.red.shade600
@@ -101,14 +212,13 @@ class TotalSpentCard extends StatelessWidget {
               children: [
                 Text(
                   "${totalSpent.toCurrency()} ৳",
-                  style:
-                      (compact
-                              ? theme.textTheme.titleLarge
-                              : theme.textTheme.displaySmall)!
-                          .copyWith(
-                            color: totalSpentColor,
-                            fontWeight: FontWeight.bold,
-                          ),
+                  style: (compact
+                          ? theme.textTheme.titleLarge
+                          : theme.textTheme.displaySmall)!
+                      .copyWith(
+                        color: totalSpentColor,
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
                 if (!isReport)
                   Row(
@@ -167,6 +277,9 @@ class TotalSpentCard extends StatelessWidget {
   }
 }
 
+// ==========================================
+// 4. Progress Bar helper for Budgets
+// ==========================================
 class BudgetProgressBar extends StatelessWidget {
   const BudgetProgressBar({
     super.key,
@@ -218,6 +331,9 @@ class BudgetProgressBar extends StatelessWidget {
   }
 }
 
+// ==========================================
+// 5. vs Last Month comparative pill chip
+// ==========================================
 class _VsLastMonthChip extends StatelessWidget {
   const _VsLastMonthChip({
     required this.percentChange,
@@ -237,14 +353,14 @@ class _VsLastMonthChip extends StatelessWidget {
     final Color color = isSame
         ? Colors.grey.shade600
         : isIncrease
-        ? Colors.red.shade600
-        : Colors.green.shade600;
+            ? Colors.red.shade600
+            : Colors.green.shade600;
 
     final String label = isSame
         ? "No change vs last month"
         : isIncrease
-        ? " ↑ ${percentChange.toStringAsFixed(0)}% "
-        : " ↓ ${percentChange.abs().toStringAsFixed(0)}% ";
+            ? " ↑ ${percentChange.toStringAsFixed(0)}% "
+            : " ↓ ${percentChange.abs().toStringAsFixed(0)}% ";
 
     return Tooltip(
       message: "Last month total: ${lastMonthTotal.toCurrency()} ৳",
@@ -266,6 +382,149 @@ class _VsLastMonthChip extends StatelessWidget {
             fontSize: compact ? 11 : 12,
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ==========================================
+// 6. Category breakdown Summary Card
+// ==========================================
+class SummaryByCategoryWidget extends StatelessWidget {
+  const SummaryByCategoryWidget({super.key, required this.expenses});
+
+  final List<ExpenseEntity> expenses;
+
+  // Calculate total spending per category
+  Map<String, double> _calculateCategorySpending() {
+    final Map<String, double> spending = {};
+
+    for (final expense in expenses) {
+      spending.update(
+        expense.category,
+        (value) => value + expense.amount,
+        ifAbsent: () => expense.amount,
+      );
+    }
+
+    return spending;
+  }
+
+  // Category → color mapping
+  Color _categoryColor(String category) {
+    switch (category.toLowerCase()) {
+      case 'family':
+        return const Color(0xFF3B82F6); // Blue
+      case 'other':
+        return const Color(0xFF9CA3AF); // Gray
+      case 'transport':
+        return const Color(0xFF8B5CF6); // Purple
+      case 'food':
+        return const Color(0xFFF59E0B); // Orange
+      case 'personal':
+        return const Color(0xFF10B981); // Green
+      case 'utilities':
+        return const Color(0xFF6366F1); // Indigo
+      default:
+        return Colors.grey;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final categorySpending = _calculateCategorySpending();
+
+    if (categorySpending.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(16),
+        child: Center(child: Text("No expenses recorded.")),
+      );
+    }
+
+    final double totalSpending = categorySpending.values.fold(
+      0.0,
+      (sum, e) => sum + e,
+    );
+
+    final sortedEntries = categorySpending.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Summary by Category",
+          style: theme.textTheme.titleMedium!.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 12),
+        ...sortedEntries.map((entry) {
+          final percent = totalSpending == 0 ? 0 : (entry.value / totalSpending) * 100;
+
+          return _CategorySummaryRow(
+            color: _categoryColor(entry.key),
+            category: entry.key,
+            percentage: percent.toDouble(),
+            amount: entry.value,
+          );
+        }),
+      ],
+    );
+  }
+}
+
+// ==========================================
+// 7. Internal category breakdown row item
+// ==========================================
+class _CategorySummaryRow extends StatelessWidget {
+  const _CategorySummaryRow({
+    required this.color,
+    required this.category,
+    required this.percentage,
+    required this.amount,
+  });
+
+  final Color color;
+  final String category;
+  final double percentage;
+  final double amount;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          // ● Colored dot
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 10),
+
+          // Category name + percentage
+          Expanded(
+            child: Text(
+              "$category (${percentage.toStringAsFixed(0)}%)",
+              style: theme.textTheme.bodyMedium!.copyWith(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+
+          // Amount
+          Text(
+            "${amount.toCurrency()} ৳",
+            style: theme.textTheme.bodyMedium!.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }

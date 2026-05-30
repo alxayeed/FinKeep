@@ -3,6 +3,7 @@ import '../../../../core/enums/expense_category.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../../../../core/utils/app_localizations.dart';
+import 'package:spendly/core/extensions/double_ext.dart';
 
 class CategorySpendingList extends StatelessWidget {
   final Map<ExpenseCategory, double> spentByCategory;
@@ -123,7 +124,7 @@ class CategorySpendingList extends StatelessWidget {
                                 textBaseline: TextBaseline.alphabetic,
                                 children: [
                                   Text(
-                                    '${spent.toStringAsFixed(0)} ৳',
+                                    '${spent.toCurrency()} ৳',
                                     style: TextStyle(
                                       fontSize: 12.sp,
                                       fontFamily: 'Manrope',
@@ -132,7 +133,7 @@ class CategorySpendingList extends StatelessWidget {
                                     ),
                                   ),
                                   Text(
-                                    ' / ${budget.toStringAsFixed(0)} ৳',
+                                    ' / ${budget.toCurrency()} ৳',
                                     style: TextStyle(
                                       fontSize: 9.sp,
                                       fontFamily: 'Manrope',

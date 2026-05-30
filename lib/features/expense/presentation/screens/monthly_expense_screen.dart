@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendly/core/routes/app_router.dart';
+import 'package:spendly/core/extensions/double_ext.dart';
 
 import '../../../../core/enums/expense_category.dart';
 import '../../../../core/responsive/responsive.dart';
@@ -205,7 +206,7 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      '-${dailyTotal.toStringAsFixed(0)}',
+                      dailyTotal.toCurrency(),
                       style: TextStyle(
                         fontSize: 10.sp,
                         fontFamily: 'Manrope',

@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/routes/app_router.dart';
 import '../../../../core/styles/app_colors.dart';
+import 'package:spendly/core/extensions/double_ext.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../controllers/expense_controller.dart';
 import 'edit_expense_screen.dart';
@@ -178,7 +179,7 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
                     textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text(
-                        _currentExpense.amount.toStringAsFixed(0),
+                        _currentExpense.amount.toCurrency(),
                         style: TextStyle(
                           fontSize: 40.sp,
                           fontFamily: 'Manrope',

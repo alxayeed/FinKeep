@@ -10,7 +10,7 @@ import 'package:spendly/core/routes/app_router.dart';
 import 'package:spendly/features/lendings/presentation/controllers/lendings_controller.dart';
 import 'package:spendly/features/lendings/presentation/widgets/lending_list_item.dart';
 
-import '../../../expense/presentation/widgets/custom_fab.dart';
+import '../../../../core/common/widgets/custom_fab.dart';
 
 class LendingListScreen extends GetView<LendingsController> {
   const LendingListScreen({super.key});
