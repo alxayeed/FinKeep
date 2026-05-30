@@ -17,23 +17,30 @@ class BudgetProgressCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final remaining = (budget - spent).clamp(0.0, double.infinity);
-    final usagePercent = budget > 0 ? (spent / budget).clamp(0.0, 1.0) : 0.0;
+    final isOverspent = spent > budget;
+    final remainingVal = budget - spent;
+    final usagePercent = budget > 0 ? (spent / budget) : 0.0;
     final usageText = '${(usagePercent * 100).toStringAsFixed(0)}%';
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.cardDark : AppColors.cardLight,
+        color: isOverspent
+            ? (isDark ? const Color(0x1AFF4444) : const Color(0xFFFEF2F2))
+            : (isDark ? AppColors.cardDark : AppColors.cardLight),
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
-          color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
-          width: 1,
+          color: isOverspent
+              ? (isDark ? const Color(0xFF991B1B) : const Color(0xFFFCA5A5))
+              : (isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+          width: isOverspent ? 1.5 : 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: isOverspent
+                ? Colors.red.withOpacity(0.04)
+                : Colors.black.withOpacity(0.03),
             blurRadius: 10.r,
             offset: const Offset(0, 4),
           ),
@@ -99,19 +106,23 @@ class BudgetProgressCard extends StatelessWidget {
               ),
               SizedBox(width: 12.w),
 
-              // Col 2: Remaining
+              // Col 2: Remaining / Overspent
               Expanded(
                 flex: 3,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      AppLocalizations.translate('remaining').toUpperCase(),
+                      isOverspent 
+                          ? 'OVERSPENT' 
+                          : AppLocalizations.translate('remaining').toUpperCase(),
                       style: TextStyle(
                         fontSize: 9.sp,
                         fontFamily: 'Manrope',
                         fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white38 : const Color(0xFF64748B),
+                        color: isOverspent 
+                            ? AppColors.error 
+                            : (isDark ? Colors.white38 : const Color(0xFF64748B)),
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -121,22 +132,23 @@ class BudgetProgressCard extends StatelessWidget {
                       textBaseline: TextBaseline.alphabetic,
                       children: [
                         Text(
-                          '${remaining.toCurrency()} ৳',
+                          '${remainingVal.abs().toCurrency()} ৳',
                           style: TextStyle(
                             fontSize: 18.sp,
                             fontFamily: 'Manrope',
                             fontWeight: FontWeight.bold,
-                            color: AppColors.success,
+                            color: isOverspent ? AppColors.error : AppColors.success,
                           ),
                         ),
                         SizedBox(width: 4.w),
                         Text(
-                          AppLocalizations.translate('left'),
+                          isOverspent ? 'over' : AppLocalizations.translate('left'),
                           style: TextStyle(
                             fontSize: 10.sp,
                             fontFamily: 'Manrope',
                             fontWeight: FontWeight.bold,
-                            color: AppColors.success.withValues(alpha: 0.7),
+                            color: (isOverspent ? AppColors.error : AppColors.success)
+                                .withOpacity(0.7),
                           ),
                         ),
                       ],
@@ -174,7 +186,9 @@ class BudgetProgressCard extends StatelessWidget {
                       fontSize: 15.sp,
                       fontFamily: 'Manrope',
                       fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      color: isOverspent 
+                          ? AppColors.error 
+                          : (isDark ? Colors.white : const Color(0xFF0F172A)),
                     ),
                   ),
                 ],
@@ -191,9 +205,11 @@ class BudgetProgressCard extends StatelessWidget {
               height: 8.h,
               width: double.infinity,
               child: LinearProgressIndicator(
-                value: usagePercent,
+                value: usagePercent.clamp(0.0, 1.0),
                 backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
-                valueColor: const AlwaysStoppedAnimation<Color>(AppColors.success),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  isOverspent ? AppColors.error : AppColors.success,
+                ),
               ),
             ),
           ),
