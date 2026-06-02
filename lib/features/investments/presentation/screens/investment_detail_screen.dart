@@ -35,9 +35,9 @@ class _InvestmentDetailScreenState extends State<InvestmentDetailScreen> {
 
   void _handleAddReturn(ReturnEntry returnEntry) {
     widget.onAddReturn(_investment.id, returnEntry);
-    setState(() {
-      _investment.returns.add(returnEntry);
-    });
+    // setState(() {
+    //   _investment.returns.add(returnEntry);
+    // });
   }
 
   @override

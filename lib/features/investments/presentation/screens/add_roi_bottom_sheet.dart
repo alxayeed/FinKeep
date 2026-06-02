@@ -65,7 +65,9 @@ class _AddReturnBottomSheetState extends State<AddReturnBottomSheet> {
                   height: 4.h,
                   margin: EdgeInsets.only(bottom: 16.h),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                    color: isDark
+                        ? const Color(0xFF334155)
+                        : const Color(0xFFE2E8F0),
                     borderRadius: BorderRadius.circular(2.r),
                   ),
                 ),
@@ -91,12 +93,15 @@ class _AddReturnBottomSheetState extends State<AddReturnBottomSheet> {
                 labelText: 'Amount Received *',
                 hintText: '0.00',
                 prefixIcon: Icons.attach_money_rounded,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'This field is required';
                   }
-                  if (double.tryParse(value) == null || double.parse(value) <= 0) {
+                  if (double.tryParse(value) == null ||
+                      double.parse(value) <= 0) {
                     return 'Enter a valid amount';
                   }
                   return null;
@@ -109,18 +114,19 @@ class _AddReturnBottomSheetState extends State<AddReturnBottomSheet> {
                 labelText: 'Date *',
                 selectedDate: _returnDate,
                 onDateSelected: (date) => setState(() => _returnDate = date),
-                validator: (value) => value == null ? 'This field is required' : null,
+                validator: (value) =>
+                    value == null ? 'This field is required' : null,
               ),
               SizedBox(height: 16.h),
 
               // Transaction ID
               StyledTextFormField(
                 controller: _transactionIdController,
-                labelText: 'Transaction ID *',
+                labelText: 'Transaction ID',
                 hintText: 'e.g. TXN102938',
                 prefixIcon: Icons.vpn_key_outlined,
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'This field is required' : null,
+                // validator: (value) =>
+                //     value == null || value.isEmpty ? 'This field is required' : null,
               ),
               SizedBox(height: 16.h),
 
@@ -131,7 +137,8 @@ class _AddReturnBottomSheetState extends State<AddReturnBottomSheet> {
                     .map((m) => DropdownMenuItem(value: m, child: Text(m)))
                     .toList(),
                 onChanged: (value) => setState(() => _medium = value),
-                validator: (value) => value == null ? 'Please select a method' : null,
+                validator: (value) =>
+                    value == null ? 'Please select a method' : null,
                 prefixIcon: Icons.payment,
               ),
               SizedBox(height: 16.h),
@@ -154,7 +161,9 @@ class _AddReturnBottomSheetState extends State<AddReturnBottomSheet> {
                       style: OutlinedButton.styleFrom(
                         padding: EdgeInsets.symmetric(vertical: 14.h),
                         side: BorderSide(
-                          color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                          color: isDark
+                              ? const Color(0xFF334155)
+                              : const Color(0xFFE2E8F0),
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16.r),
@@ -166,7 +175,9 @@ class _AddReturnBottomSheetState extends State<AddReturnBottomSheet> {
                           fontSize: 14.sp,
                           fontFamily: 'Manrope',
                           fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                          color: isDark
+                              ? Colors.white70
+                              : const Color(0xFF64748B),
                         ),
                       ),
                     ),
