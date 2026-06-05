@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:spendly/core/common/widgets/styled_date_picker_button.dart';
-import 'package:spendly/core/common/widgets/styled_text_form_field.dart';
+import 'package:get/get.dart';
+import 'package:spendly/core/common/widgets/widgets.dart';
 import 'package:spendly/core/responsive/responsive.dart';
 import 'package:spendly/core/styles/app_colors.dart';
-
-import '../../../../core/common/widgets/styled_dropdown_form_field.dart';
 import '../../domain/entities/return_entry.dart';
+import '../controller/investment_controller.dart';
 
 class AddReturnBottomSheet extends StatefulWidget {
-  final Function(ReturnEntry) onAddReturn;
+  final String investmentId;
+  final ReturnEntry? returnEntry;
 
-  const AddReturnBottomSheet({super.key, required this.onAddReturn});
+  const AddReturnBottomSheet({
+    super.key,
+    required this.investmentId,
+    this.returnEntry,
+  });
 
   @override
   State<AddReturnBottomSheet> createState() => _AddReturnBottomSheetState();
@@ -24,6 +28,18 @@ class _AddReturnBottomSheetState extends State<AddReturnBottomSheet> {
 
   DateTime? _returnDate = DateTime.now();
   String? _medium = 'Bank Transfer';
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.returnEntry != null) {
+      _amountController.text = widget.returnEntry!.amountReceived.toStringAsFixed(0);
+      _transactionIdController.text = widget.returnEntry!.transactionId;
+      _notesController.text = widget.returnEntry!.notes;
+      _returnDate = widget.returnEntry!.date;
+      _medium = widget.returnEntry!.medium;
+    }
+  }
 
   @override
   void dispose() {
@@ -75,7 +91,7 @@ class _AddReturnBottomSheetState extends State<AddReturnBottomSheet> {
 
               Center(
                 child: Text(
-                  'Add Return Entry',
+                  widget.returnEntry != null ? 'Edit Return Entry' : 'Add Return Entry',
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontFamily: 'Manrope',
@@ -87,18 +103,14 @@ class _AddReturnBottomSheetState extends State<AddReturnBottomSheet> {
               const Divider(height: 24),
               SizedBox(height: 8.h),
 
-              // Amount Received
-              StyledTextFormField(
+              // Large Centered Amount input
+              StyledAmountField(
                 controller: _amountController,
-                labelText: 'Amount Received *',
-                hintText: '0.00',
-                prefixIcon: Icons.attach_money_rounded,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
+                labelText: 'Amount Received',
+                autofocus: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'This field is required';
+                    return 'Required';
                   }
                   if (double.tryParse(value) == null ||
                       double.parse(value) <= 0) {
@@ -107,7 +119,6 @@ class _AddReturnBottomSheetState extends State<AddReturnBottomSheet> {
                   return null;
                 },
               ),
-              SizedBox(height: 16.h),
 
               // Date Picker
               StyledDatePickerButton(
@@ -186,20 +197,83 @@ class _AddReturnBottomSheetState extends State<AddReturnBottomSheet> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        if (!_formKey.currentState!.validate()) return;
-                        if (_returnDate == null || _medium == null) return;
+                        try {
+                          debugPrint('AddReturnBottomSheet: Save/Add clicked');
+                          final formState = _formKey.currentState;
+                          if (formState == null) {
+                            debugPrint('AddReturnBottomSheet: FormState is null!');
+                            return;
+                          }
+                          final isValid = formState.validate();
+                          debugPrint('AddReturnBottomSheet: Form isValid = $isValid');
+                          debugPrint('AddReturnBottomSheet: Date: $_returnDate, Medium: $_medium');
+                          if (!isValid) return;
+                          if (_returnDate == null || _medium == null) return;
 
-                        final newReturn = ReturnEntry(
-                          id: DateTime.now().toIso8601String(),
-                          amountReceived: double.parse(_amountController.text),
-                          date: _returnDate!,
-                          transactionId: _transactionIdController.text.trim(),
-                          medium: _medium!,
-                          notes: _notesController.text.trim(),
-                        );
+                          final isEdit = widget.returnEntry != null;
+                          final newReturn = ReturnEntry(
+                            id: widget.returnEntry?.id ?? DateTime.now().toIso8601String(),
+                            amountReceived: double.parse(_amountController.text),
+                            date: _returnDate!,
+                            transactionId: _transactionIdController.text.trim(),
+                            medium: _medium!,
+                            notes: _notesController.text.trim(),
+                          );
 
-                        widget.onAddReturn(newReturn);
-                        Navigator.of(context).pop();
+                          final controller = Get.find<InvestmentController>();
+                          if (isEdit) {
+                            controller.updateReturnEntry(
+                              widget.investmentId,
+                              newReturn,
+                              onSuccess: () {
+                                if (!mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Return entry updated successfully!'),
+                                    backgroundColor: AppColors.success,
+                                  ),
+                                );
+                                Navigator.of(context).pop();
+                              },
+                              onError: (err) {
+                                if (!mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Failed to update return: $err'),
+                                    backgroundColor: AppColors.error,
+                                  ),
+                                );
+                              },
+                            );
+                          } else {
+                            controller.addReturnEntry(
+                              widget.investmentId,
+                              newReturn,
+                              onSuccess: () {
+                                if (!mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Return entry added successfully!'),
+                                    backgroundColor: AppColors.success,
+                                  ),
+                                );
+                                Navigator.of(context).pop();
+                              },
+                              onError: (err) {
+                                if (!mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Failed to add return: $err'),
+                                    backgroundColor: AppColors.error,
+                                  ),
+                                );
+                              },
+                            );
+                          }
+                        } catch (e, stack) {
+                          debugPrint('AddReturnBottomSheet Error: $e');
+                          debugPrint(stack.toString());
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryTeal,
@@ -211,7 +285,7 @@ class _AddReturnBottomSheetState extends State<AddReturnBottomSheet> {
                         elevation: 0,
                       ),
                       child: Text(
-                        'Add Return',
+                        widget.returnEntry != null ? 'Save Return' : 'Add Return',
                         style: TextStyle(
                           fontSize: 14.sp,
                           fontFamily: 'Manrope',

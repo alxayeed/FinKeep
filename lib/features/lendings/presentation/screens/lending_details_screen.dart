@@ -586,8 +586,7 @@ class _LendingDetailsScreenState extends State<LendingDetailsScreen> {
                   ),
 
                   // ── Repayment history section ─────────────────
-                  SliverFillRemaining(
-                    hasScrollBody: true,
+                  SliverToBoxAdapter(
                     child: RepaymentListWidget(lending: lending),
                   ),
                 ],

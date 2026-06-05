@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import '../../domain/entities/investment.dart';
 import '../../domain/entities/return_entry.dart';
 import '../../domain/enums/investment_status.dart';
@@ -22,9 +23,9 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
     try {
       final models = await _dataSource.getInvestments(userId);
       return models.map((m) => m).toList();
-    } catch (_) {
-      // fallback to dummy data
-      return List.from(_dummyInvestments);
+    } catch (e, s) {
+      debugPrint('InvestmentRepositoryImpl.getInvestments error: $e\n$s');
+      rethrow;
     }
   }
 
@@ -33,9 +34,9 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
     final model = InvestmentModel.fromEntity(investment);
     try {
       await _dataSource.addInvestment(model);
-    } catch (_) {
-      // fallback to dummy data
-      _dummyInvestments.add(investment);
+    } catch (e, s) {
+      debugPrint('InvestmentRepositoryImpl.addInvestment error: $e\n$s');
+      rethrow;
     }
   }
 
@@ -44,10 +45,9 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
     final model = InvestmentModel.fromEntity(investment);
     try {
       await _dataSource.updateInvestment(model);
-    } catch (_) {
-      // fallback to dummy data
-      final index = _dummyInvestments.indexWhere((i) => i.id == investment.id);
-      if (index != -1) _dummyInvestments[index] = investment;
+    } catch (e, s) {
+      debugPrint('InvestmentRepositoryImpl.updateInvestment error: $e\n$s');
+      rethrow;
     }
   }
 
@@ -59,10 +59,9 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
     final model = ReturnEntryModel.fromEntity(returnEntry);
     try {
       await _dataSource.addReturnEntry(investmentId, model);
-    } catch (_) {
-      // fallback to dummy data
-      final index = _dummyInvestments.indexWhere((i) => i.id == investmentId);
-      if (index != -1) _dummyInvestments[index].returns.add(returnEntry);
+    } catch (e, s) {
+      debugPrint('InvestmentRepositoryImpl.addReturnEntry error: $e\n$s');
+      rethrow;
     }
   }
 

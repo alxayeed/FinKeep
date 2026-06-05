@@ -264,38 +264,56 @@ class LendingsController extends GetxController {
     );
   }
 
-  Future<void> addRepayment(RepaymentEntity repayment) async {
+  Future<void> addRepayment(
+    RepaymentEntity repayment, {
+    VoidCallback? onSuccess,
+    Function(String?)? onError,
+  }) async {
     final result = await addRepaymentUseCase(repayment);
     result.fold(
       (failure) {
         errorMessage.value = failure.message;
+        onError?.call(failure.message);
       },
       (_) async {
         await fetchRepayments(repayment.lendingId);
+        onSuccess?.call();
       },
     );
   }
 
-  Future<void> updateRepayment(RepaymentEntity repayment) async {
+  Future<void> updateRepayment(
+    RepaymentEntity repayment, {
+    VoidCallback? onSuccess,
+    Function(String?)? onError,
+  }) async {
     final result = await updateRepaymentUseCase(repayment);
     result.fold(
       (failure) {
         errorMessage.value = failure.message;
+        onError?.call(failure.message);
       },
       (_) async {
         await fetchRepayments(repayment.lendingId);
+        onSuccess?.call();
       },
     );
   }
 
-  Future<void> deleteRepayment(RepaymentEntity repayment) async {
+  Future<void> deleteRepayment(
+    RepaymentEntity repayment, {
+    VoidCallback? onSuccess,
+    Function(String?)? onError,
+  }) async {
     final result = await deleteRepaymentUseCase(repayment.id);
     result.fold(
       (failure) {
         errorMessage.value = failure.message;
+        onError?.call(failure.message);
       },
       (_) async {
         await fetchRepayments(repayment.lendingId);
+        onSuccess?.call();
       },
     );
   }

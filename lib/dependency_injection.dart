@@ -34,6 +34,7 @@ import 'features/investments/data/datasources/investment_data_source.dart';
 import 'features/investments/data/datasources/investment_firestore_data_source.dart';
 import 'features/investments/domain/repositories/investment_repository.dart';
 import 'features/investments/domain/usecases/add_investment_usecase.dart';
+import 'features/investments/domain/usecases/add_return_entry_usecase.dart';
 import 'features/investments/domain/usecases/get_investments_usecase.dart';
 import 'features/investments/domain/usecases/update_investment_usecase.dart';
 import 'features/investments/presentation/controller/investment_controller.dart';
@@ -173,6 +174,7 @@ class DependencyInjection {
     Get.lazyPut(() => GetInvestmentsUseCase(Get.find()));
     Get.lazyPut(() => AddInvestmentUseCase(Get.find()));
     Get.lazyPut(() => UpdateInvestmentUseCase(Get.find()));
+    Get.lazyPut(() => AddReturnEntryUseCase(Get.find()));
 
     // Controller
     Get.lazyPut(
@@ -180,6 +182,7 @@ class DependencyInjection {
         getInvestmentsUseCase: Get.find(),
         addInvestmentUseCase: Get.find(),
         updateInvestmentUseCase: Get.find(),
+        addReturnEntryUseCase: Get.find(),
       ),
     );
   }

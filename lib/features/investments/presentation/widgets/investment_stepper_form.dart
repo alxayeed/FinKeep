@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:spendly/core/common/widgets/styled_date_picker_button.dart';
-import 'package:spendly/core/common/widgets/styled_dropdown_form_field.dart';
-import 'package:spendly/core/common/widgets/styled_text_form_field.dart';
+import 'package:spendly/core/common/widgets/widgets.dart';
 import 'package:spendly/core/responsive/responsive.dart';
 import 'package:spendly/core/styles/app_colors.dart';
 import 'package:spendly/features/auth/presentation/controller/auth_controller.dart';
@@ -209,63 +206,15 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
                       SizedBox(height: 24.h),
 
                       // Large Amount invested at top matching Spendly standard
-                      Center(
-                        child: Text(
-                          'AMOUNT INVESTED',
-                          style: TextStyle(
-                            fontSize: 10.sp,
-                            fontFamily: 'Manrope',
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.5,
-                            color: labelColor,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 8.h),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                        textBaseline: TextBaseline.alphabetic,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.only(bottom: 4.h),
-                            child: FaIcon(
-                              FontAwesomeIcons.bangladeshiTakaSign,
-                              size: 26.sp,
-                              color: isDark ? Colors.white30 : const Color(0xFFCBD5E1),
-                            ),
-                          ),
-                          SizedBox(width: 6.w),
-                          IntrinsicWidth(
-                            child: TextFormField(
-                              controller: _amountController,
-                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                              textAlign: TextAlign.center,
-                              autofocus: !isEdit,
-                              style: TextStyle(
-                                fontSize: 42.sp,
-                                fontFamily: 'Manrope',
-                                fontWeight: FontWeight.bold,
-                                color: isDark ? Colors.white : const Color(0xFF0F172A),
-                              ),
-                              validator: (val) {
-                                if (val == null || val.isEmpty) return 'Required';
-                                if (double.tryParse(val) == null) return 'Invalid amount';
-                                return null;
-                              },
-                              decoration: InputDecoration(
-                                hintText: '0.00',
-                                hintStyle: TextStyle(
-                                  color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
-                                  fontSize: 42.sp,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.zero,
-                              ),
-                            ),
-                          ),
-                        ],
+                      StyledAmountField(
+                        controller: _amountController,
+                        labelText: 'Amount Invested',
+                        autofocus: !isEdit,
+                        validator: (val) {
+                          if (val == null || val.isEmpty) return 'Required';
+                          if (double.tryParse(val) == null) return 'Invalid amount';
+                          return null;
+                        },
                       ),
 
                       SizedBox(height: 28.h),

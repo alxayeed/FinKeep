@@ -38,4 +38,42 @@ class Investment {
     required this.status,
     required this.returns,
   });
+
+  Investment copyWith({
+    String? id,
+    String? userId,
+    String? title,
+    double? amountInvested,
+    DateTime? startDate,
+    DateTime? expectedEndDate,
+    String? platformName,
+    String? profitRate,
+    double? expectedROI,
+    String? notes,
+    String? docLinks,
+    String? transactionId,
+    String? transactionMedium,
+    DateTime? transactionDate,
+    InvestmentStatus? status,
+    List<ReturnEntry>? returns,
+  }) {
+    return Investment(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      title: title ?? this.title,
+      amountInvested: amountInvested ?? this.amountInvested,
+      startDate: startDate ?? this.startDate,
+      expectedEndDate: expectedEndDate ?? this.expectedEndDate,
+      platformName: platformName ?? this.platformName,
+      profitRate: profitRate ?? this.profitRate,
+      expectedROI: expectedROI ?? this.expectedROI,
+      notes: notes ?? this.notes,
+      docLinks: docLinks ?? this.docLinks,
+      transactionId: transactionId ?? this.transactionId,
+      transactionMedium: transactionMedium ?? this.transactionMedium,
+      transactionDate: transactionDate ?? this.transactionDate,
+      status: status ?? this.status,
+      returns: returns ?? this.returns,
+    );
+  }
 }
