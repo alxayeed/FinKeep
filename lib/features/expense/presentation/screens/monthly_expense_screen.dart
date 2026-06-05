@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:intl/intl.dart';
+import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
-import 'package:spendly/core/routes/app_router.dart';
+import 'package:intl/intl.dart';
 import 'package:spendly/core/extensions/double_ext.dart';
+import 'package:spendly/core/routes/app_router.dart';
 
+import '../../../../core/common/widgets/custom_fab.dart';
 import '../../../../core/enums/expense_category.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/styles/app_colors.dart';
-import '../../../../core/common/widgets/custom_fab.dart';
 import '../controllers/expense_controller.dart';
 import '../widgets/widgets.dart';
-import 'create_expense_screen.dart';
 
 class MonthlyExpenseScreen extends StatefulWidget {
   const MonthlyExpenseScreen({super.key});
@@ -41,7 +40,11 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
 
           for (var category in ExpenseCategory.values) {
             final spent = controller.expenses
-                .where((e) => e.category.toLowerCase() == category.displayName.toLowerCase())
+                .where(
+                  (e) =>
+                      e.category.toLowerCase() ==
+                      category.displayName.toLowerCase(),
+                )
                 .fold(0.0, (sum, item) => sum + item.amount);
             spentByCategory[category] = spent;
 
@@ -96,47 +99,58 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
               Expanded(
                 child: controller.isLoading.value
                     ? (_selectedTab == 0
-                        ? const MonthlyExpenseShimmer(selectedTab: 0)
-                        : Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              // Category Horizontal Filter Pills - only shown in Details UI
-                              Padding(
-                                padding: EdgeInsets.only(bottom: 8.h),
-                                child: CategoryFilterPills(
-                                  selectedCategory: controller.selectedCategory.value == 'All'
-                                      ? null
-                                      : ExpenseCategoryExtension.fromString(controller.selectedCategory.value),
-                                  onCategorySelected: (cat) {
-                                    controller.updateSelectedCategory(cat?.displayName ?? 'All');
-                                  },
+                          ? const MonthlyExpenseShimmer(selectedTab: 0)
+                          : Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                // Category Horizontal Filter Pills - only shown in Details UI
+                                Padding(
+                                  padding: EdgeInsets.only(bottom: 8.h),
+                                  child: CategoryFilterPills(
+                                    selectedCategory:
+                                        controller.selectedCategory.value ==
+                                            'All'
+                                        ? null
+                                        : ExpenseCategoryExtension.fromString(
+                                            controller.selectedCategory.value,
+                                          ),
+                                    onCategorySelected: (cat) {
+                                      controller.updateSelectedCategory(
+                                        cat?.displayName ?? 'All',
+                                      );
+                                    },
+                                  ),
                                 ),
-                              ),
-                              const Expanded(
-                                child: MonthlyExpenseShimmer(selectedTab: 1),
-                              ),
-                            ],
-                          ))
+                                const Expanded(
+                                  child: MonthlyExpenseShimmer(selectedTab: 1),
+                                ),
+                              ],
+                            ))
                     : _selectedTab == 0
-                        ? _buildSummaryTab(spentByCategory, budgetsByCategory)
-                        : Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              // Category Horizontal Filter Pills - only shown in Details UI
-                              Padding(
-                                padding: EdgeInsets.only(bottom: 8.h),
-                                child: CategoryFilterPills(
-                                  selectedCategory: controller.selectedCategory.value == 'All'
-                                      ? null
-                                      : ExpenseCategoryExtension.fromString(controller.selectedCategory.value),
-                                  onCategorySelected: (cat) {
-                                    controller.updateSelectedCategory(cat?.displayName ?? 'All');
-                                  },
-                                ),
-                              ),
-                              Expanded(child: _buildDetailsTab()),
-                            ],
+                    ? _buildSummaryTab(spentByCategory, budgetsByCategory)
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Category Horizontal Filter Pills - only shown in Details UI
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 8.h),
+                            child: CategoryFilterPills(
+                              selectedCategory:
+                                  controller.selectedCategory.value == 'All'
+                                  ? null
+                                  : ExpenseCategoryExtension.fromString(
+                                      controller.selectedCategory.value,
+                                    ),
+                              onCategorySelected: (cat) {
+                                controller.updateSelectedCategory(
+                                  cat?.displayName ?? 'All',
+                                );
+                              },
+                            ),
                           ),
+                          Expanded(child: _buildDetailsTab()),
+                        ],
+                      ),
               ),
             ],
           );
@@ -172,14 +186,11 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
         physics: const AlwaysScrollableScrollPhysics(),
         children: [
           // Total budget vs spent slider card
-          BudgetProgressCard(
-            spent: totalSpent,
-            budget: totalBudget,
-          ),
+          BudgetProgressCard(spent: totalSpent, budget: totalBudget),
           // Smart dynamic insights banner
-          Obx(() => SmartInsightBanner(
-            customText: controller.getDynamicInsight(),
-          )),
+          // Obx(() => SmartInsightBanner(
+          //   customText: controller.getDynamicInsight(),
+          // )),
           // Category spending checklist
           CategorySpendingList(
             spentByCategory: spentByCategory,
@@ -250,14 +261,18 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
                           fontSize: 10.sp,
                           fontFamily: 'Manrope',
                           fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white30 : const Color(0xFF64748B),
+                          color: isDark
+                              ? Colors.white30
+                              : const Color(0xFF64748B),
                         ),
                       ),
                       SizedBox(width: 2.w),
                       FaIcon(
                         FontAwesomeIcons.bangladeshiTakaSign,
                         size: 8.sp,
-                        color: isDark ? Colors.white30 : const Color(0xFF64748B),
+                        color: isDark
+                            ? Colors.white30
+                            : const Color(0xFF64748B),
                       ),
                     ],
                   ),
@@ -351,14 +366,21 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
                   ),
                   decoration: InputDecoration(
                     hintText: 'Type keyword...',
-                    hintStyle: TextStyle(color: isDark ? Colors.white30 : const Color(0xFF94A3B8)),
+                    hintStyle: TextStyle(
+                      color: isDark ? Colors.white30 : const Color(0xFF94A3B8),
+                    ),
                     filled: true,
-                    fillColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+                    fillColor: isDark
+                        ? const Color(0xFF0F172A)
+                        : const Color(0xFFF8FAFC),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.r),
                       borderSide: BorderSide.none,
                     ),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 14.w,
+                      vertical: 10.h,
+                    ),
                   ),
                 ),
                 SizedBox(height: 16.h),
@@ -374,10 +396,17 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
                         Navigator.pop(context);
                         // Filter dynamically
                         if (query.isNotEmpty) {
-                          controller.filteredExpenses.value = controller.expenses
-                              .where((e) =>
-                                  e.category.toLowerCase().contains(query.toLowerCase()) ||
-                                  e.description.toLowerCase().contains(query.toLowerCase()))
+                          controller.filteredExpenses.value = controller
+                              .expenses
+                              .where(
+                                (e) =>
+                                    e.category.toLowerCase().contains(
+                                      query.toLowerCase(),
+                                    ) ||
+                                    e.description.toLowerCase().contains(
+                                      query.toLowerCase(),
+                                    ),
+                              )
                               .toList();
                         } else {
                           controller.filterExpensesByCategory();
@@ -416,7 +445,9 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
                   width: 38.w,
                   height: 4.h,
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                    color: isDark
+                        ? const Color(0xFF334155)
+                        : const Color(0xFFE2E8F0),
                     borderRadius: BorderRadius.circular(2.r),
                   ),
                 ),

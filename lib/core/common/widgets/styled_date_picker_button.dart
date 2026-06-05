@@ -106,7 +106,7 @@ class StyledDatePickerButton extends StatelessWidget {
               child: InputDecorator(
                 decoration: InputDecoration(
                   prefixIcon: Icon(
-                    Icons.calendar_today_outlined,
+                    Icons.calendar_today_rounded,
                     color: iconColor,
                     size: 18.sp,
                   ),
@@ -124,15 +124,7 @@ class StyledDatePickerButton extends StatelessWidget {
                       : null,
                   border: border,
                   enabledBorder: border,
-                  focusedBorder: readOnly
-                      ? border
-                      : OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.r),
-                          borderSide: const BorderSide(
-                            color: AppColors.primaryTeal,
-                            width: 1.5,
-                          ),
-                        ),
+                  focusedBorder: border,
                   errorBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16.r),
                     borderSide: const BorderSide(color: AppColors.error, width: 1.0),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'app_colors.dart';
 
 class AppThemes {
@@ -38,6 +39,11 @@ class AppThemes {
         fontSize: 16,
         fontWeight: FontWeight.bold,
         color: AppColors.darkGrey,
+      ),
+      systemOverlayStyle: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
@@ -127,6 +133,11 @@ class AppThemes {
         fontSize: 16,
         fontWeight: FontWeight.bold,
         color: Colors.white,
+      ),
+      systemOverlayStyle: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(

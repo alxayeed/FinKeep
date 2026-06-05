@@ -15,7 +15,6 @@ import '../../features/auth/presentation/screen/registration_screen.dart';
 import '../../features/expense/domain/entities/expense_entity.dart';
 import '../../features/expense/presentation/screens/expense_report_screen.dart';
 import '../../features/expense/presentation/screens/screens.dart';
-import '../../features/investments/domain/entities/return_entry.dart';
 import '../../features/lendings/domain/entity/lending/lending_entity.dart';
 import '../../features/lendings/presentation/screens/add_lending_screen.dart';
 import '../../features/lendings/presentation/screens/lending_details_screen.dart';
@@ -226,7 +225,6 @@ class AppRouter {
           return NoTransitionPage(
             child: InvestmentDetailScreen(
               investment: extra,
-              onAddReturn: (String p1, ReturnEntry p2) {},
             ),
           );
         },

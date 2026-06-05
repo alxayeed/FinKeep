@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:spendly/core/extensions/double_ext.dart';
 import 'package:spendly/core/responsive/responsive.dart';
 import 'package:spendly/core/styles/app_colors.dart';
 
+
+import 'package:spendly/core/common/widgets/widgets.dart';
 
 import '../../../auth/presentation/controller/auth_controller.dart';
 import '../../domain/entity/lending/lending_entity.dart';
@@ -58,31 +59,30 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
         ),
 
         // ── List ────────────────────────────────────────────────
-        Expanded(
-          child: Obx(() {
-            if (controller.repaymentsList.isEmpty) {
-              return _buildEmptyState(isDark);
-            }
+        Obx(() {
+          if (controller.repaymentsList.isEmpty) {
+            return _buildEmptyState(isDark);
+          }
 
-            // Show origin record at bottom + repayments sorted newest first
-            final repayments = controller.repaymentsList.toList()
-              ..sort((a, b) => b.paidDate.compareTo(a.paidDate));
+          // Show origin record at bottom + repayments sorted newest first
+          final repayments = controller.repaymentsList.toList()
+            ..sort((a, b) => b.paidDate.compareTo(a.paidDate));
 
-            return ListView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              itemCount: repayments.length + 1, // +1 for origin row
-              itemBuilder: (context, index) {
-                // Last item = origin/created row
-                if (index == repayments.length) {
-                  return _buildOriginTile(isDark);
-                }
-                final repayment = repayments[index];
-                return _buildRepaymentTile(repayment, index, isDark);
-              },
-            );
-          }),
-        ),
+          return ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            itemCount: repayments.length + 1, // +1 for origin row
+            itemBuilder: (context, index) {
+              // Last item = origin/created row
+              if (index == repayments.length) {
+                return _buildOriginTile(isDark, repayments.length + 1);
+              }
+              final repayment = repayments[index];
+              return _buildRepaymentTile(repayment, index, repayments.length + 1, isDark);
+            },
+          );
+        }),
 
         SizedBox(height: 16.h),
 
@@ -158,17 +158,195 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
     );
   }
 
+  // ── Helper functions for Timeline ─────────────────────────────
+  String _ordinal(int number) {
+    if (number <= 0) return '';
+    final remainder10 = number % 10;
+    final remainder100 = number % 100;
+    if (remainder10 == 1 && remainder100 != 11) {
+      return '${number}st';
+    }
+    if (remainder10 == 2 && remainder100 != 12) {
+      return '${number}nd';
+    }
+    if (remainder10 == 3 && remainder100 != 13) {
+      return '${number}rd';
+    }
+    return '${number}th';
+  }
+
+  Widget _buildTimelineRow({
+    required int index,
+    required int totalItems,
+    required bool isDark,
+    required Widget indicator,
+    required Widget child,
+  }) {
+    final showTopLine = index > 0;
+    final showBottomLine = index < totalItems - 1;
+    final lineColor = isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0);
+
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Left timeline column
+          SizedBox(
+            width: 48.w,
+            child: Column(
+              children: [
+                // Top line
+                Expanded(
+                  child: Container(
+                    width: 2.w,
+                    color: showTopLine ? lineColor : Colors.transparent,
+                  ),
+                ),
+                // Indicator dot
+                indicator,
+                // Bottom line
+                Expanded(
+                  child: Container(
+                    width: 2.w,
+                    color: showBottomLine ? lineColor : Colors.transparent,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Right details card
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 12.h),
+              child: child,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // ── Individual repayment tile ─────────────────────────────────
   Widget _buildRepaymentTile(
-      RepaymentEntity repayment, int index, bool isDark) {
+      RepaymentEntity repayment, int index, int totalItems, bool isDark) {
     final dateText =
         DateFormat('MMM dd, yyyy').format(repayment.paidDate);
+
+    final tileContent = GestureDetector(
+      onTap: () => _showRepaymentSheet(context, repayment: repayment),
+      child: Container(
+        padding: EdgeInsets.all(14.r),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.cardDark : AppColors.cardLight,
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(
+            color: isDark
+                ? const Color(0xFF334155)
+                : const Color(0xFFF1F5F9),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 6.r,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    repayment.notes?.isNotEmpty == true
+                        ? repayment.notes!
+                        : 'Repayment',
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      fontFamily: 'Manrope',
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 3.h),
+                  Text(
+                    dateText,
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      fontFamily: 'Manrope',
+                      fontWeight: FontWeight.w500,
+                      color: isDark
+                          ? Colors.white38
+                          : const Color(0xFF94A3B8),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  '+',
+                  style: TextStyle(
+                    fontSize: 13.sp,
+                    fontFamily: 'Manrope',
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primaryTeal,
+                  ),
+                ),
+                Text(
+                  '${repayment.amount.toCurrency()} ৳',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontFamily: 'Manrope',
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primaryTeal,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+
+    final totalRepayments = totalItems - 1;
+    final chronoIndex = totalRepayments - index;
+    final text = _ordinal(chronoIndex);
+
+    final indicator = Container(
+      width: 28.r,
+      height: 28.r,
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0F2D2A) : const Color(0xFFECFDF5),
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: AppColors.primaryTeal.withValues(alpha: 0.3),
+          width: 1.5,
+        ),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 9.sp,
+          fontFamily: 'Manrope',
+          fontWeight: FontWeight.bold,
+          color: AppColors.primaryTeal,
+        ),
+      ),
+    );
 
     return Dismissible(
       key: ValueKey(repayment.id),
       direction: DismissDirection.endToStart,
       background: Container(
-        margin: EdgeInsets.symmetric(vertical: 5.h),
+        margin: EdgeInsets.only(bottom: 12.h),
         padding: EdgeInsets.only(right: 20.w),
         decoration: BoxDecoration(
           color: AppColors.error,
@@ -178,114 +356,50 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
         child: Icon(Icons.delete_outline_rounded,
             color: Colors.white, size: 22.sp),
       ),
-      confirmDismiss: (dir) => _confirmDeleteRepayment(repayment),
-      onDismissed: (_) => controller.deleteRepayment(repayment),
-      child: GestureDetector(
-        onTap: () => _showRepaymentSheet(context, repayment: repayment),
-        child: Container(
-          margin: EdgeInsets.symmetric(vertical: 5.h),
-          padding: EdgeInsets.all(14.r),
-          decoration: BoxDecoration(
-            color: isDark ? AppColors.cardDark : AppColors.cardLight,
-            borderRadius: BorderRadius.circular(16.r),
-            border: Border.all(
-              color: isDark
-                  ? const Color(0xFF334155)
-                  : const Color(0xFFF1F5F9),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.03),
-                blurRadius: 6.r,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              // Icon badge
-              Container(
-                width: 40.r,
-                height: 40.r,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFECFDF5),
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                child: Icon(Icons.payments_rounded,
-                    size: 18.sp, color: AppColors.primaryTeal),
-              ),
-              SizedBox(width: 12.w),
+      confirmDismiss: (dir) async {
+        final confirmed = await _confirmDeleteRepayment(repayment);
+        if (confirmed != true) return false;
 
-              // Description + date
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      repayment.notes?.isNotEmpty == true
-                          ? repayment.notes!
-                          : 'Repayment #${index + 1}',
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        fontFamily: 'Manrope',
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : const Color(0xFF0F172A),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: 3.h),
-                    Text(
-                      dateText,
-                      style: TextStyle(
-                        fontSize: 11.sp,
-                        fontFamily: 'Manrope',
-                        fontWeight: FontWeight.w500,
-                        color: isDark
-                            ? Colors.white38
-                            : const Color(0xFF94A3B8),
-                      ),
-                    ),
-                  ],
-                ),
+        bool deleteSuccess = false;
+        await controller.deleteRepayment(
+          repayment,
+          onSuccess: () {
+            deleteSuccess = true;
+            if (!mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Repayment deleted successfully!'),
+                backgroundColor: AppColors.success,
               ),
-
-              // Amount
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    '+',
-                    style: TextStyle(
-                      fontSize: 13.sp,
-                      fontFamily: 'Manrope',
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primaryTeal,
-                    ),
-                  ),
-                  Text(
-                    '${repayment.amount.toCurrency()} ৳',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontFamily: 'Manrope',
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primaryTeal,
-                    ),
-                  ),
-                ],
+            );
+          },
+          onError: (err) {
+            deleteSuccess = false;
+            if (!mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to delete repayment: $err'),
+                backgroundColor: AppColors.error,
               ),
-            ],
-          ),
-        ),
+            );
+          },
+        );
+        return deleteSuccess;
+      },
+      onDismissed: (_) {},
+      child: _buildTimelineRow(
+        index: index,
+        totalItems: totalItems,
+        isDark: isDark,
+        indicator: indicator,
+        child: tileContent,
       ),
     );
   }
 
   // ── Origin / created tile ─────────────────────────────────────
-  Widget _buildOriginTile(bool isDark) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 5.h),
+  Widget _buildOriginTile(bool isDark, int totalItems) {
+    final tileContent = Container(
       padding: EdgeInsets.all(14.r),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF111C2B) : const Color(0xFFF8FAFC),
@@ -296,21 +410,6 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
       ),
       child: Row(
         children: [
-          Container(
-            width: 40.r,
-            height: 40.r,
-            decoration: BoxDecoration(
-              color: isDark
-                  ? const Color(0xFF1E293B)
-                  : const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-            child: Icon(Icons.flag_outlined,
-                size: 18.sp,
-                color:
-                    isDark ? Colors.white24 : const Color(0xFFCBD5E1)),
-          ),
-          SizedBox(width: 12.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -351,38 +450,68 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
         ],
       ),
     );
+
+    final indicator = Container(
+      width: 28.r,
+      height: 28.r,
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
+          width: 1.5,
+        ),
+      ),
+      alignment: Alignment.center,
+      child: Icon(
+        Icons.flag_rounded,
+        size: 13.sp,
+        color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+      ),
+    );
+
+    return _buildTimelineRow(
+      index: totalItems - 1,
+      totalItems: totalItems,
+      isDark: isDark,
+      indicator: indicator,
+      child: tileContent,
+    );
   }
 
   // ── Empty state ───────────────────────────────────────────────
   Widget _buildEmptyState(bool isDark) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.receipt_long_outlined,
-              size: 48.sp,
-              color: isDark ? Colors.white10 : Colors.black12),
-          SizedBox(height: 12.h),
-          Text(
-            'No repayments yet',
-            style: TextStyle(
-              fontSize: 13.sp,
-              fontFamily: 'Manrope',
-              fontWeight: FontWeight.bold,
-              color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 40.h),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.receipt_long_outlined,
+                size: 48.sp,
+                color: isDark ? Colors.white10 : Colors.black12),
+            SizedBox(height: 12.h),
+            Text(
+              'No repayments yet',
+              style: TextStyle(
+                fontSize: 13.sp,
+                fontFamily: 'Manrope',
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+              ),
             ),
-          ),
-          SizedBox(height: 4.h),
-          Text(
-            'Tap "Add Repayment" below to record a payment',
-            style: TextStyle(
-              fontSize: 11.sp,
-              fontFamily: 'Manrope',
-              color: isDark ? Colors.white24 : const Color(0xFFCBD5E1),
+            SizedBox(height: 4.h),
+            Text(
+              'Tap "Add Repayment" below to record a payment',
+              style: TextStyle(
+                fontSize: 11.sp,
+                fontFamily: 'Manrope',
+                color: isDark ? Colors.white24 : const Color(0xFFCBD5E1),
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -449,11 +578,6 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
       builder: (modalContext) {
         final isDark =
             Theme.of(modalContext).brightness == Brightness.dark;
-        final Color inputBg = isDark
-            ? const Color(0xFF1E293B)
-            : const Color(0xFFF1F5F9);
-        final Color labelColor =
-            isDark ? Colors.white60 : const Color(0xFF64748B);
 
         return Padding(
           padding: EdgeInsets.only(
@@ -499,188 +623,40 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
                   ),
                   SizedBox(height: 20.h),
 
-                  // Amount label
-                  _label('Amount', labelColor),
-
                   // Amount input field
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 14.w),
-                    decoration: BoxDecoration(
-                      color: inputBg,
-                      borderRadius: BorderRadius.circular(16.r),
-                    ),
-                    child: Row(
-                      children: [
-                        FaIcon(
-                          FontAwesomeIcons.bangladeshiTakaSign,
-                          size: 16.sp,
-                          color: isDark
-                              ? Colors.white38
-                              : const Color(0xFF94A3B8),
-                        ),
-                        SizedBox(width: 10.w),
-                        Expanded(
-                          child: TextFormField(
-                            controller: amountCtrl,
-                            keyboardType:
-                                const TextInputType.numberWithOptions(
-                                    decimal: true),
-                            autofocus: !isEdit,
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontFamily: 'Manrope',
-                              fontWeight: FontWeight.w600,
-                              color: isDark
-                                  ? Colors.white
-                                  : const Color(0xFF334155),
-                            ),
-                            decoration: InputDecoration(
-                              hintText: '0',
-                              hintStyle: TextStyle(
-                                color: isDark
-                                    ? Colors.white24
-                                    : const Color(0xFFCBD5E1),
-                              ),
-                              border: InputBorder.none,
-                              contentPadding:
-                                  EdgeInsets.symmetric(vertical: 14.h),
-                            ),
-                            validator: (val) {
-                              if (val == null || val.isEmpty) {
-                                return 'Enter an amount';
-                              }
-                              if (double.tryParse(val) == null ||
-                                  double.parse(val) <= 0) {
-                                return 'Enter a valid positive amount';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
+                  StyledAmountField(
+                    controller: amountCtrl,
+                    labelText: 'Amount Paid',
+                    autofocus: !isEdit,
+                    validator: (val) {
+                      if (val == null || val.isEmpty) {
+                        return 'Enter an amount';
+                      }
+                      if (double.tryParse(val) == null ||
+                          double.parse(val) <= 0) {
+                        return 'Enter a valid positive amount';
+                      }
+                      return null;
+                    },
                   ),
-
-                  SizedBox(height: 12.h),
+                  SizedBox(height: 16.h),
 
                   // Date picker
-                  _label('Payment Date', labelColor),
-                  Obx(() => GestureDetector(
-                        onTap: () async {
-                          final picked = await showDatePicker(
-                            context: modalContext,
-                            initialDate:
-                                dateObs.value ?? DateTime.now(),
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime.now(),
-                            builder: (ctx, child) {
-                              return Theme(
-                                data: isDark
-                                    ? ThemeData.dark().copyWith(
-                                        colorScheme:
-                                            const ColorScheme.dark(
-                                          primary: AppColors.primaryTeal,
-                                          onPrimary: Colors.white,
-                                          surface: AppColors.cardDark,
-                                          onSurface: Colors.white,
-                                        ))
-                                    : ThemeData.light().copyWith(
-                                        colorScheme:
-                                            const ColorScheme.light(
-                                          primary: AppColors.primaryTeal,
-                                          onPrimary: Colors.white,
-                                        )),
-                                child: child!,
-                              );
-                            },
-                          );
-                          if (picked != null) dateObs.value = picked;
-                        },
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 14.w, vertical: 14.h),
-                          decoration: BoxDecoration(
-                            color: inputBg,
-                            borderRadius: BorderRadius.circular(16.r),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(Icons.calendar_today_rounded,
-                                  size: 16.sp,
-                                  color: isDark
-                                      ? Colors.white38
-                                      : const Color(0xFF94A3B8)),
-                              SizedBox(width: 10.w),
-                              Text(
-                                dateObs.value != null
-                                    ? DateFormat('MMM dd, yyyy')
-                                        .format(dateObs.value!)
-                                    : 'Select date',
-                                style: TextStyle(
-                                  fontSize: 13.sp,
-                                  fontFamily: 'Manrope',
-                                  fontWeight: FontWeight.w600,
-                                  color: isDark
-                                      ? Colors.white
-                                      : const Color(0xFF334155),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                  Obx(() => StyledDatePickerButton(
+                        labelText: 'Payment Date',
+                        selectedDate: dateObs.value,
+                        onDateSelected: (date) => dateObs.value = date,
+                        validator: (value) =>
+                            value == null ? 'This field is required' : null,
                       )),
-
-                  SizedBox(height: 12.h),
+                  SizedBox(height: 16.h),
 
                   // Notes
-                  _label('Notes', labelColor, trailing: 'Optional'),
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 14.w, vertical: 4.h),
-                    decoration: BoxDecoration(
-                      color: inputBg,
-                      borderRadius: BorderRadius.circular(16.r),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(top: 13.h),
-                          child: Icon(Icons.edit_note_rounded,
-                              size: 18.sp,
-                              color: isDark
-                                  ? Colors.white38
-                                  : const Color(0xFF94A3B8)),
-                        ),
-                        SizedBox(width: 10.w),
-                        Expanded(
-                          child: TextField(
-                            controller: notesCtrl,
-                            maxLines: 2,
-                            keyboardType: TextInputType.multiline,
-                            style: TextStyle(
-                              fontSize: 13.sp,
-                              fontFamily: 'Manrope',
-                              fontWeight: FontWeight.w600,
-                              color: isDark
-                                  ? Colors.white
-                                  : const Color(0xFF334155),
-                            ),
-                            decoration: InputDecoration(
-                              hintText:
-                                  'e.g. Paid early as promised…',
-                              hintStyle: TextStyle(
-                                color: isDark
-                                    ? Colors.white24
-                                    : const Color(0xFFCBD5E1),
-                                fontSize: 13.sp,
-                              ),
-                              border: InputBorder.none,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                  StyledTextFormField(
+                    controller: notesCtrl,
+                    labelText: 'Notes (Optional)',
+                    hintText: 'e.g. Paid early as promised…',
+                    prefixIcon: Icons.notes_rounded,
                   ),
 
                   SizedBox(height: 24.h),
@@ -730,7 +706,16 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
     required Rx<DateTime?> dateObs,
     RepaymentEntity? existing,
   }) async {
-    if (!(formKey.currentState?.validate() ?? false)) return;
+    debugPrint('=== _saveRepayment called ===');
+    debugPrint('Amount entered: ${amountCtrl.text}');
+    debugPrint('Date selected: ${dateObs.value}');
+    
+    final isValid = formKey.currentState?.validate() ?? false;
+    debugPrint('Form validation result: $isValid');
+    if (!isValid) {
+      debugPrint('Form validation failed! Returning early.');
+      return;
+    }
 
     final isEdit = existing != null;
     final enteredAmount = double.parse(amountCtrl.text);
@@ -793,35 +778,51 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
     );
 
     if (isEdit) {
-      await controller.updateRepayment(newRepayment);
+      await controller.updateRepayment(
+        newRepayment,
+        onSuccess: () {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Repayment updated successfully!'),
+              backgroundColor: AppColors.success,
+            ),
+          );
+          if (modalContext.mounted) Navigator.pop(modalContext);
+        },
+        onError: (err) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to update repayment: $err'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        },
+      );
     } else {
-      await controller.addRepayment(newRepayment);
+      await controller.addRepayment(
+        newRepayment,
+        onSuccess: () {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Repayment added successfully!'),
+              backgroundColor: AppColors.success,
+            ),
+          );
+          if (modalContext.mounted) Navigator.pop(modalContext);
+        },
+        onError: (err) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to add repayment: $err'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        },
+      );
     }
-
-    if (!mounted) return;
-    if (modalContext.mounted) Navigator.pop(modalContext);
-  }
-
-  Widget _label(String text, Color color, {String? trailing}) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 6.h, top: 2.h),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(text,
-              style: TextStyle(
-                  fontSize: 11.sp,
-                  fontFamily: 'Manrope',
-                  fontWeight: FontWeight.bold,
-                  color: color)),
-          if (trailing != null)
-            Text(trailing,
-                style: TextStyle(
-                    fontSize: 10.sp,
-                    fontFamily: 'Manrope',
-                    color: color.withValues(alpha: 0.6))),
-        ],
-      ),
-    );
   }
 }

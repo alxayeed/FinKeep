@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
+import '../../../../core/common/widgets/widgets.dart';
 import '../../../../core/enums/expense_category.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/styles/app_colors.dart';
@@ -33,48 +33,7 @@ class _CreateExpenseScreenState extends State<CreateExpenseScreen> {
     super.dispose();
   }
 
-  Future<void> _pickDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-      builder: (context, child) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        return Theme(
-          data: isDark
-              ? ThemeData.dark().copyWith(
-                  colorScheme: const ColorScheme.dark(
-                    primary: AppColors.primaryTeal,
-                    onPrimary: Colors.white,
-                    surface: AppColors.cardDark,
-                    onSurface: Colors.white,
-                  ),
-                )
-              : ThemeData.light().copyWith(
-                  colorScheme: const ColorScheme.light(
-                    primary: AppColors.primaryTeal,
-                    onPrimary: Colors.white,
-                    surface: Colors.white,
-                    onSurface: Color(0xFF0F172A),
-                  ),
-                ),
-          child: child!,
-        );
-      },
-    );
-    if (picked != null) {
-      setState(() {
-        _selectedDate = DateTime(
-          picked.year,
-          picked.month,
-          picked.day,
-          _selectedDate.hour,
-          _selectedDate.minute,
-        );
-      });
-    }
-  }
+
 
   Future<void> _pickTime(BuildContext context) async {
     final TimeOfDay? picked = await showTimePicker(
@@ -189,101 +148,30 @@ class _CreateExpenseScreenState extends State<CreateExpenseScreen> {
                 SizedBox(height: 24.h),
 
                 // Large Centered Amount input
-                Text(
-                  'AMOUNT SPENT',
-                  style: TextStyle(
-                    fontSize: 10.sp,
-                    fontFamily: 'Manrope',
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.5,
-                    color: labelColor,
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: [
-                    Text(
-                      '৳',
-                      style: TextStyle(
-                        fontSize: 32.sp,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white30 : const Color(0xFFCBD5E1),
-                      ),
-                    ),
-                    SizedBox(width: 4.w),
-                    IntrinsicWidth(
-                      child: TextField(
-                        controller: amountController,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        autofocus: true,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 42.sp,
-                          fontFamily: 'Manrope',
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : const Color(0xFF0F172A),
-                        ),
-                        decoration: InputDecoration(
-                          hintText: '0.00',
-                          hintStyle: TextStyle(
-                            color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                      ),
-                    ),
-                  ],
+                StyledAmountField(
+                  controller: amountController,
+                  labelText: 'Amount Spent',
+                  autofocus: true,
                 ),
 
-                SizedBox(height: 28.h),
-
-                // Category Selection
-                _buildLabel('Category', labelColor),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 14.w),
-                  decoration: BoxDecoration(
-                    color: inputBg,
-                    borderRadius: BorderRadius.circular(16.r),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.category_rounded, size: 20.sp, color: isDark ? Colors.white38 : const Color(0xFF94A3B8)),
-                      SizedBox(width: 12.w),
-                      Expanded(
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<ExpenseCategory>(
-                            value: _selectedCategory,
-                            icon: Icon(Icons.expand_more_rounded, size: 20.sp, color: isDark ? Colors.white38 : const Color(0xFF94A3B8)),
-                            dropdownColor: isDark ? const Color(0xFF1E293B) : Colors.white,
-                            borderRadius: BorderRadius.circular(16.r),
-                            style: TextStyle(
-                              fontSize: 13.sp,
-                              fontFamily: 'Manrope',
-                              fontWeight: FontWeight.w600,
-                              color: isDark ? Colors.white : const Color(0xFF334155),
-                            ),
-                            onChanged: (cat) {
-                              if (cat != null) {
-                                setState(() {
-                                  _selectedCategory = cat;
-                                });
-                              }
-                            },
-                            items: ExpenseCategory.values.map((cat) {
-                              return DropdownMenuItem(
-                                value: cat,
-                                child: Text(cat.displayName),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                SizedBox(height: 28.h),                 // Category Selection
+                StyledDropdownFormField<ExpenseCategory>(
+                  value: _selectedCategory,
+                  labelText: 'Category',
+                  prefixIcon: Icons.category_rounded,
+                  items: ExpenseCategory.values.map((cat) {
+                    return DropdownMenuItem(
+                      value: cat,
+                      child: Text(cat.displayName),
+                    );
+                  }).toList(),
+                  onChanged: (cat) {
+                    if (cat != null) {
+                      setState(() {
+                        _selectedCategory = cat;
+                      });
+                    }
+                  },
                 ),
 
                 SizedBox(height: 16.h),
@@ -292,38 +180,22 @@ class _CreateExpenseScreenState extends State<CreateExpenseScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildLabel('Date', labelColor),
-                          GestureDetector(
-                            onTap: () => _pickDate(context),
-                            child: Container(
-                              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
-                              decoration: BoxDecoration(
-                                color: inputBg,
-                                borderRadius: BorderRadius.circular(16.r),
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.calendar_today_rounded, size: 18.sp, color: isDark ? Colors.white38 : const Color(0xFF94A3B8)),
-                                  SizedBox(width: 10.w),
-                                  Expanded(
-                                    child: Text(
-                                      DateFormat('yyyy-MM-dd').format(_selectedDate),
-                                      style: TextStyle(
-                                        fontSize: 13.sp,
-                                        fontFamily: 'Manrope',
-                                        fontWeight: FontWeight.w600,
-                                        color: isDark ? Colors.white : const Color(0xFF334155),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
+                      child: StyledDatePickerButton(
+                        labelText: 'Date',
+                        selectedDate: _selectedDate,
+                        onDateSelected: (d) {
+                          if (d != null) {
+                            setState(() {
+                              _selectedDate = DateTime(
+                                d.year,
+                                d.month,
+                                d.day,
+                                _selectedDate.hour,
+                                _selectedDate.minute,
+                              );
+                            });
+                          }
+                        },
                       ),
                     ),
                     SizedBox(width: 12.w),
@@ -368,43 +240,12 @@ class _CreateExpenseScreenState extends State<CreateExpenseScreen> {
                 SizedBox(height: 16.h),
 
                 // Note description field
-                _buildLabel('Note (Optional)', labelColor),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 4.h),
-                  decoration: BoxDecoration(
-                    color: inputBg,
-                    borderRadius: BorderRadius.circular(16.r),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(top: 12.h),
-                        child: Icon(Icons.description_rounded, size: 20.sp, color: isDark ? Colors.white38 : const Color(0xFF94A3B8)),
-                      ),
-                      SizedBox(width: 12.w),
-                      Expanded(
-                        child: TextField(
-                          controller: descriptionController,
-                          maxLines: 3,
-                          keyboardType: TextInputType.multiline,
-                          style: TextStyle(
-                            fontSize: 13.sp,
-                            fontFamily: 'Manrope',
-                            fontWeight: FontWeight.w600,
-                            color: isDark ? Colors.white : const Color(0xFF334155),
-                          ),
-                          decoration: InputDecoration(
-                            hintText: 'Add details about this expense...',
-                            hintStyle: TextStyle(
-                              color: isDark ? Colors.white24 : const Color(0xFFCBD5E1),
-                            ),
-                            border: InputBorder.none,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                StyledTextFormField(
+                  controller: descriptionController,
+                  labelText: 'Note (Optional)',
+                  hintText: 'Add details about this expense...',
+                  prefixIcon: Icons.description_rounded,
+                  maxLines: 3,
                 ),
 
                 SizedBox(height: 16.h),

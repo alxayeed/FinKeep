@@ -66,15 +66,7 @@ class StyledDropdownFormField<T> extends StatelessWidget {
                 : null,
             border: border,
             enabledBorder: border,
-            focusedBorder: readOnly
-                ? border
-                : OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16.r),
-                    borderSide: const BorderSide(
-                      color: AppColors.focusedBorderColor,
-                      width: 1.5,
-                    ),
-                  ),
+            focusedBorder: border,
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16.r),
               borderSide: const BorderSide(color: AppColors.error, width: 1.0),

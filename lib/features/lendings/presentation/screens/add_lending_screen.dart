@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:spendly/core/responsive/responsive.dart';
 import 'package:spendly/core/styles/app_colors.dart';
 import 'package:spendly/features/lendings/presentation/controllers/lendings_controller.dart';
 
+import '../../../../core/common/widgets/widgets.dart';
 import '../../domain/entity/lending/lending_entity.dart';
 import '../../domain/entity/lending_person/lending_person_entity.dart';
 
@@ -25,6 +24,13 @@ class _AddLendingScreenState extends State<AddLendingScreen> {
   final TextEditingController contactController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
 
+  final Map<LendingStatus, String> _statusLabels = {
+    LendingStatus.due: 'Due / Unpaid',
+    LendingStatus.partial: 'Partial Repayment',
+    LendingStatus.overdue: 'Overdue',
+    LendingStatus.paid: 'Fully Repaid',
+  };
+
   // 0 = Given, 1 = Taken
   int _selectedType = 0;
   LendingStatus _selectedStatus = LendingStatus.due;
@@ -40,50 +46,7 @@ class _AddLendingScreenState extends State<AddLendingScreen> {
     super.dispose();
   }
 
-  Future<void> _pickDate({required bool isDue}) async {
-    final initial = isDue ? (_dueDate ?? DateTime.now()) : _transactionDate;
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: initial,
-      firstDate: isDue
-          ? DateTime.now().subtract(const Duration(days: 365))
-          : DateTime.now().subtract(const Duration(days: 365 * 10)),
-      lastDate: DateTime(2101),
-      builder: (context, child) => _datePickerTheme(context, child!),
-    );
-    if (picked == null) return;
-    setState(() {
-      if (isDue) {
-        _dueDate = picked;
-      } else {
-        _transactionDate = picked;
-      }
-    });
-  }
 
-  Widget _datePickerTheme(BuildContext context, Widget child) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Theme(
-      data: isDark
-          ? ThemeData.dark().copyWith(
-              colorScheme: const ColorScheme.dark(
-                primary: AppColors.primaryTeal,
-                onPrimary: Colors.white,
-                surface: AppColors.cardDark,
-                onSurface: Colors.white,
-              ),
-            )
-          : ThemeData.light().copyWith(
-              colorScheme: const ColorScheme.light(
-                primary: AppColors.primaryTeal,
-                onPrimary: Colors.white,
-                surface: Colors.white,
-                onSurface: Color(0xFF0F172A),
-              ),
-            ),
-      child: child,
-    );
-  }
 
   Future<void> _save() async {
     final parsedAmount = double.tryParse(amountController.text);
@@ -142,10 +105,6 @@ class _AddLendingScreenState extends State<AddLendingScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color inputBg =
-        isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9);
-    final Color labelColor =
-        isDark ? Colors.white60 : const Color(0xFF64748B);
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.bgDark : Colors.white,
@@ -234,97 +193,50 @@ class _AddLendingScreenState extends State<AddLendingScreen> {
                         SizedBox(height: 28.h),
 
                         // ── Big amount ──
-                        Text(
-                          'AMOUNT',
-                          style: TextStyle(
-                            fontSize: 10.sp,
-                            fontFamily: 'Manrope',
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.5,
-                            color: labelColor,
-                          ),
-                        ),
-                        SizedBox(height: 8.h),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.baseline,
-                          textBaseline: TextBaseline.alphabetic,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(bottom: 4.h),
-                              child: FaIcon(
-                                FontAwesomeIcons.bangladeshiTakaSign,
-                                size: 26.sp,
-                                color: isDark
-                                    ? Colors.white30
-                                    : const Color(0xFFCBD5E1),
-                              ),
-                            ),
-                            SizedBox(width: 6.w),
-                            IntrinsicWidth(
-                              child: TextField(
-                                controller: amountController,
-                                keyboardType:
-                                    const TextInputType.numberWithOptions(
-                                        decimal: true),
-                                autofocus: true,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 42.sp,
-                                  fontFamily: 'Manrope',
-                                  fontWeight: FontWeight.bold,
-                                  color: isDark
-                                      ? Colors.white
-                                      : const Color(0xFF0F172A),
-                                ),
-                                decoration: InputDecoration(
-                                  hintText: '0.00',
-                                  hintStyle: TextStyle(
-                                    color: isDark
-                                        ? Colors.white12
-                                        : const Color(0xFFE2E8F0),
-                                    fontSize: 42.sp,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  border: InputBorder.none,
-                                  contentPadding: EdgeInsets.zero,
-                                ),
-                              ),
-                            ),
-                          ],
+                        StyledAmountField(
+                          controller: amountController,
+                          labelText: 'Amount',
+                          autofocus: true,
                         ),
 
                         SizedBox(height: 28.h),
 
                         // ── Person Name ──
-                        _label('Person Name', labelColor),
-                        _inputField(
+                        StyledTextFormField(
                           controller: personNameController,
-                          hint: 'Who did you lend to?',
-                          icon: Icons.person_outline_rounded,
-                          inputBg: inputBg,
-                          isDark: isDark,
+                          labelText: 'Person Name',
+                          hintText: 'Who did you lend to?',
+                          prefixIcon: Icons.person_outline_rounded,
                         ),
 
                         SizedBox(height: 12.h),
 
                         // ── Contact ──
-                        _label('Contact Number', labelColor,
-                            trailing: 'Optional'),
-                        _inputField(
+                        StyledTextFormField(
                           controller: contactController,
-                          hint: '+880 1XXX-XXXXXX',
-                          icon: Icons.phone_outlined,
-                          inputBg: inputBg,
-                          isDark: isDark,
+                          labelText: 'Contact Number',
+                          hintText: '+880 1XXX-XXXXXX',
+                          prefixIcon: Icons.phone_outlined,
                           keyboardType: TextInputType.phone,
                         ),
 
                         SizedBox(height: 12.h),
 
                         // ── Status dropdown ──
-                        _label('Current Status', labelColor),
-                        _statusDropdown(inputBg, isDark),
+                        StyledDropdownFormField<LendingStatus>(
+                          value: _selectedStatus,
+                          labelText: 'Current Status',
+                          prefixIcon: Icons.check_circle_outline_rounded,
+                          items: LendingStatus.values.map((s) {
+                            return DropdownMenuItem(
+                              value: s,
+                              child: Text(_statusLabels[s] ?? s.name),
+                            );
+                          }).toList(),
+                          onChanged: (val) {
+                            if (val != null) setState(() => _selectedStatus = val);
+                          },
+                        ),
 
                         SizedBox(height: 12.h),
 
@@ -332,34 +244,25 @@ class _AddLendingScreenState extends State<AddLendingScreen> {
                         Row(
                           children: [
                             Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _label('Transaction Date', labelColor),
-                                  _datePicker(
-                                    date: _transactionDate,
-                                    inputBg: inputBg,
-                                    isDark: isDark,
-                                    onTap: () => _pickDate(isDue: false),
-                                  ),
-                                ],
+                              child: StyledDatePickerButton(
+                                labelText: 'Transaction Date',
+                                selectedDate: _transactionDate,
+                                onDateSelected: (date) {
+                                  if (date != null) {
+                                    setState(() => _transactionDate = date);
+                                  }
+                                },
                               ),
                             ),
                             SizedBox(width: 10.w),
                             Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _label('Due Date', labelColor,
-                                      trailing: 'Optional'),
-                                  _datePicker(
-                                    date: _dueDate,
-                                    inputBg: inputBg,
-                                    isDark: isDark,
-                                    onTap: () => _pickDate(isDue: true),
-                                    placeholder: 'Not set',
-                                  ),
-                                ],
+                              child: StyledDatePickerButton(
+                                labelText: 'Due Date',
+                                hintText: 'Not set',
+                                selectedDate: _dueDate,
+                                onDateSelected: (date) =>
+                                    setState(() => _dueDate = date),
+                                isOptional: true,
                               ),
                             ),
                           ],
@@ -368,54 +271,12 @@ class _AddLendingScreenState extends State<AddLendingScreen> {
                         SizedBox(height: 12.h),
 
                         // ── Notes ──
-                        _label('Notes', labelColor, trailing: 'Optional'),
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 14.w, vertical: 4.h),
-                          decoration: BoxDecoration(
-                            color: inputBg,
-                            borderRadius: BorderRadius.circular(16.r),
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.only(top: 14.h),
-                                child: Icon(Icons.description_rounded,
-                                    size: 18.sp,
-                                    color: isDark
-                                        ? Colors.white38
-                                        : const Color(0xFF94A3B8)),
-                              ),
-                              SizedBox(width: 10.w),
-                              Expanded(
-                                child: TextField(
-                                  controller: descriptionController,
-                                  maxLines: 3,
-                                  keyboardType: TextInputType.multiline,
-                                  style: TextStyle(
-                                    fontSize: 13.sp,
-                                    fontFamily: 'Manrope',
-                                    fontWeight: FontWeight.w600,
-                                    color: isDark
-                                        ? Colors.white
-                                        : const Color(0xFF334155),
-                                  ),
-                                  decoration: InputDecoration(
-                                    hintText:
-                                        'What was this for? (e.g., Lunch, Project gear)',
-                                    hintStyle: TextStyle(
-                                      color: isDark
-                                          ? Colors.white24
-                                          : const Color(0xFFCBD5E1),
-                                      fontSize: 13.sp,
-                                    ),
-                                    border: InputBorder.none,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                        StyledTextFormField(
+                          controller: descriptionController,
+                          labelText: 'Notes',
+                          hintText: 'What was this for? (e.g., Lunch, Project gear)',
+                          prefixIcon: Icons.description_rounded,
+                          maxLines: 3,
                         ),
 
                         SizedBox(height: 28.h),
@@ -515,184 +376,4 @@ class _AddLendingScreenState extends State<AddLendingScreen> {
     );
   }
 
-  Widget _label(String text, Color color, {String? trailing}) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 6.h, top: 2.h),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 11.sp,
-              fontFamily: 'Manrope',
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-          if (trailing != null)
-            Text(
-              trailing,
-              style: TextStyle(
-                fontSize: 10.sp,
-                fontFamily: 'Manrope',
-                fontWeight: FontWeight.w500,
-                color: color.withValues(alpha: 0.6),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _inputField({
-    required TextEditingController controller,
-    required String hint,
-    required IconData icon,
-    required Color inputBg,
-    required bool isDark,
-    TextInputType keyboardType = TextInputType.text,
-    bool readOnly = false,
-  }) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 14.w),
-      decoration: BoxDecoration(
-        color: inputBg,
-        borderRadius: BorderRadius.circular(16.r),
-      ),
-      child: Row(
-        children: [
-          Icon(icon,
-              size: 18.sp,
-              color: isDark ? Colors.white38 : const Color(0xFF94A3B8)),
-          SizedBox(width: 10.w),
-          Expanded(
-            child: TextField(
-              controller: controller,
-              readOnly: readOnly,
-              keyboardType: keyboardType,
-              style: TextStyle(
-                fontSize: 13.sp,
-                fontFamily: 'Manrope',
-                fontWeight: FontWeight.w600,
-                color: isDark ? Colors.white : const Color(0xFF334155),
-              ),
-              decoration: InputDecoration(
-                hintText: hint,
-                hintStyle: TextStyle(
-                  color: isDark ? Colors.white24 : const Color(0xFFCBD5E1),
-                  fontSize: 13.sp,
-                ),
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(vertical: 14.h),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _statusDropdown(Color inputBg, bool isDark) {
-    final statusLabels = {
-      LendingStatus.due: 'Due / Unpaid',
-      LendingStatus.partial: 'Partial Repayment',
-      LendingStatus.overdue: 'Overdue',
-      LendingStatus.paid: 'Fully Repaid',
-    };
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 14.w),
-      decoration: BoxDecoration(
-        color: inputBg,
-        borderRadius: BorderRadius.circular(16.r),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.check_circle_outline_rounded,
-              size: 18.sp,
-              color: isDark ? Colors.white38 : const Color(0xFF94A3B8)),
-          SizedBox(width: 10.w),
-          Expanded(
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<LendingStatus>(
-                value: _selectedStatus,
-                icon: Icon(Icons.expand_more_rounded,
-                    size: 20.sp,
-                    color:
-                        isDark ? Colors.white38 : const Color(0xFF94A3B8)),
-                dropdownColor:
-                    isDark ? const Color(0xFF1E293B) : Colors.white,
-                borderRadius: BorderRadius.circular(16.r),
-                style: TextStyle(
-                  fontSize: 13.sp,
-                  fontFamily: 'Manrope',
-                  fontWeight: FontWeight.w600,
-                  color:
-                      isDark ? Colors.white : const Color(0xFF334155),
-                ),
-                onChanged: (val) {
-                  if (val != null) setState(() => _selectedStatus = val);
-                },
-                items: LendingStatus.values.map((s) {
-                  return DropdownMenuItem(
-                    value: s,
-                    child: Text(statusLabels[s] ?? s.name),
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _datePicker({
-    required DateTime? date,
-    required Color inputBg,
-    required bool isDark,
-    required VoidCallback onTap,
-    String? placeholder,
-  }) {
-    final text = date != null
-        ? DateFormat('MMM dd, yyyy').format(date)
-        : (placeholder ?? DateFormat('MMM dd, yyyy').format(DateTime.now()));
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding:
-            EdgeInsets.symmetric(horizontal: 12.w, vertical: 14.h),
-        decoration: BoxDecoration(
-          color: inputBg,
-          borderRadius: BorderRadius.circular(16.r),
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.calendar_today_rounded,
-                size: 16.sp,
-                color:
-                    isDark ? Colors.white38 : const Color(0xFF94A3B8)),
-            SizedBox(width: 8.w),
-            Expanded(
-              child: Text(
-                text,
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  fontFamily: 'Manrope',
-                  fontWeight: FontWeight.w600,
-                  color: date == null
-                      ? (isDark
-                          ? Colors.white24
-                          : const Color(0xFFCBD5E1))
-                      : (isDark
-                          ? Colors.white
-                          : const Color(0xFF334155)),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
