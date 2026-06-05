@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
+import 'package:spendly/core/common/widgets/custom_divider.dart';
+import 'package:spendly/core/common/widgets/expense_monthly_analysis.dart';
 import 'package:spendly/core/common/widgets/loader_widget.dart';
 import 'package:spendly/core/common/widgets/no_data_widget.dart';
-import 'package:spendly/core/common/widgets/expense_monthly_analysis.dart';
-import 'package:spendly/core/common/widgets/custom_divider.dart';
 import 'package:spendly/core/extensions/double_ext.dart';
 import 'package:spendly/core/responsive/responsive.dart';
 import 'package:spendly/core/styles/app_colors.dart';
 
 import '../../../../core/enums/expense_category.dart';
-import 'category_summary_list.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../controllers/expense_controller.dart';
+import 'category_summary_list.dart';
 import 'expense_bar_chart.dart';
 
 // ==========================================
@@ -165,7 +165,9 @@ class TotalSpentCard extends StatelessWidget {
       final double remaining = (budget - totalSpent).clamp(0.0, budget);
       final double overAmount = isOverBudget ? (totalSpent - budget) : 0;
 
-      final Color totalSpentColor = isDark ? Colors.white : const Color(0xFF0F172A);
+      final Color totalSpentColor = isDark
+          ? Colors.white
+          : const Color(0xFF0F172A);
 
       final Color remainingColor = isOverBudget
           ? Colors.red.shade600
@@ -225,7 +227,7 @@ class TotalSpentCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  crossAxisAlignment: .center,
                   textBaseline: TextBaseline.alphabetic,
                   children: [
                     Text(
@@ -386,14 +388,14 @@ class _VsLastMonthChip extends StatelessWidget {
     final Color color = isSame
         ? Colors.grey.shade600
         : isIncrease
-            ? Colors.red.shade600
-            : Colors.green.shade600;
+        ? Colors.red.shade600
+        : Colors.green.shade600;
 
     final String label = isSame
         ? "No change vs last month"
         : isIncrease
-            ? " ↑ ${percentChange.toStringAsFixed(0)}% "
-            : " ↓ ${percentChange.abs().toStringAsFixed(0)}% ";
+        ? " ↑ ${percentChange.toStringAsFixed(0)}% "
+        : " ↓ ${percentChange.abs().toStringAsFixed(0)}% ";
 
     return Tooltip(
       message: "Last month total: ${lastMonthTotal.toCurrency()} ৳",
@@ -445,8 +447,6 @@ class SummaryByCategoryWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final categorySpending = _calculateCategorySpending();
 
-    return CategorySummaryList.compact(
-      spentByCategory: categorySpending,
-    );
+    return CategorySummaryList.compact(spentByCategory: categorySpending);
   }
 }

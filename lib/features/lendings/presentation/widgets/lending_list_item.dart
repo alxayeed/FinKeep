@@ -1,23 +1,21 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:spendly/core/extensions/double_ext.dart';
 import 'package:spendly/core/responsive/responsive.dart';
+import 'package:spendly/core/routes/app_router.dart';
 import 'package:spendly/core/styles/app_colors.dart';
 import 'package:spendly/core/styles/app_text_styles.dart';
-import 'package:spendly/core/routes/app_router.dart';
-import 'package:intl/intl.dart';
 
 import '../../domain/entity/lending/lending_entity.dart';
 
 class LendingListItem extends StatelessWidget {
   final LendingEntity lending;
 
-  LendingListItem({
-    super.key,
-    required this.lending,
-  });
+  LendingListItem({super.key, required this.lending});
 
   final RxBool _isNameVisible = false.obs;
 
@@ -58,7 +56,9 @@ class LendingListItem extends StatelessWidget {
   }
 
   (String label, Color color, Color bgColor) _statusChip(
-      LendingStatus status, bool isDark) {
+    LendingStatus status,
+    bool isDark,
+  ) {
     switch (status) {
       case LendingStatus.overdue:
         return (
@@ -105,6 +105,7 @@ class LendingListItem extends StatelessWidget {
     final avatarBg = _avatarColor(lending.person.name, status, isDark);
     final avatarFg = _avatarTextColor(status);
     final isPaid = status == LendingStatus.paid;
+    final isOverdue = status == LendingStatus.overdue;
     final dateText = lending.dueDate != null
         ? _formatDueDate(lending.dueDate)
         : DateFormat('MMM dd, yyyy').format(lending.createdDate);
@@ -163,19 +164,19 @@ class LendingListItem extends StatelessWidget {
                     ),
                   ),
                   // Overdue indicator dot
-                  if (status == LendingStatus.overdue)
-                    Positioned(
-                      top: -2,
-                      right: -2,
-                      child: Container(
-                        width: 10.r,
-                        height: 10.r,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFEF4444),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ),
+                  // if (status == LendingStatus.overdue)
+                  //   Positioned(
+                  //     top: -2,
+                  //     right: -2,
+                  //     child: Container(
+                  //       width: 10.r,
+                  //       height: 10.r,
+                  //       decoration: const BoxDecoration(
+                  //         color: Color(0xFFEF4444),
+                  //         shape: BoxShape.circle,
+                  //       ),
+                  //     ),
+                  //   ),
                 ],
               ),
               SizedBox(width: 13.w),
@@ -187,26 +188,28 @@ class LendingListItem extends StatelessWidget {
                   children: [
                     GestureDetector(
                       onTap: () => _isNameVisible.toggle(),
-                      child: Obx(() => ImageFiltered(
-                            imageFilter: ImageFilter.blur(
-                              sigmaX: _isNameVisible.value ? 0.0 : 5.0,
-                              sigmaY: _isNameVisible.value ? 0.0 : 5.0,
+                      child: Obx(
+                        () => ImageFiltered(
+                          imageFilter: ImageFilter.blur(
+                            sigmaX: _isNameVisible.value ? 0.0 : 5.0,
+                            sigmaY: _isNameVisible.value ? 0.0 : 5.0,
+                          ),
+                          child: Text(
+                            lending.person.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.cardTitle(context).copyWith(
+                              decoration: isPaid
+                                  ? TextDecoration.lineThrough
+                                  : TextDecoration.none,
+                              decorationColor: isDark
+                                  ? Colors.white54
+                                  : const Color(0xFF94A3B8),
+                              decorationThickness: 1.5,
                             ),
-                            child: Text(
-                              lending.person.name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppTextStyles.cardTitle(context).copyWith(
-                                decoration: isPaid
-                                    ? TextDecoration.lineThrough
-                                    : TextDecoration.none,
-                                decorationColor: isDark
-                                    ? Colors.white54
-                                    : const Color(0xFF94A3B8),
-                                decorationThickness: 1.5,
-                              ),
-                            ),
-                          )),
+                          ),
+                        ),
+                      ),
                     ),
                     SizedBox(height: 5.h),
                     Row(
@@ -214,7 +217,9 @@ class LendingListItem extends StatelessWidget {
                         // Status chip
                         Container(
                           padding: EdgeInsets.symmetric(
-                              horizontal: 7.w, vertical: 2.h),
+                            horizontal: 7.w,
+                            vertical: 2.h,
+                          ),
                           decoration: BoxDecoration(
                             color: chipBg,
                             borderRadius: BorderRadius.circular(6.r),
@@ -262,15 +267,25 @@ class LendingListItem extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 4.h),
-                  Icon(
-                    isPaid
-                        ? Icons.check_circle_outline_rounded
-                        : Icons.chevron_right_rounded,
-                    size: 16.sp,
-                    color: isPaid
-                        ? const Color(0xFF059669)
-                        : (isDark ? Colors.white24 : const Color(0xFFCBD5E1)),
-                  ),
+                  isPaid
+                      ? Icon(
+                          Icons.check_circle_outline_rounded,
+                          size: 16.sp,
+                          color: const Color(0xFF059669),
+                        )
+                      : isOverdue
+                      ? Icon(
+                          Icons.warning_amber_outlined,
+                          size: 16.sp,
+                          color: const Color(0xFFEF4444),
+                        )
+                      : Icon(
+                          Icons.chevron_right_rounded,
+                          size: 16.sp,
+                          color: isDark
+                              ? Colors.white24
+                              : const Color(0xFFCBD5E1),
+                        ),
                 ],
               ),
             ],

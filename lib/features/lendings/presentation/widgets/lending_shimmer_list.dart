@@ -25,7 +25,7 @@ class LendingShimmerList extends StatelessWidget {
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
         padding: EdgeInsets.symmetric(vertical: 8.h),
-        itemCount: 5,
+        itemCount: 10,
         itemBuilder: (context, index) {
           return Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 5.h),
@@ -75,17 +75,9 @@ class LendingShimmerList extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(
-                        width: 50.w,
-                        height: 14.h,
-                        color: Colors.white,
-                      ),
+                      Container(width: 50.w, height: 14.h, color: Colors.white),
                       SizedBox(height: 6.h),
-                      Container(
-                        width: 40.w,
-                        height: 10.h,
-                        color: Colors.white,
-                      ),
+                      Container(width: 40.w, height: 10.h, color: Colors.white),
                     ],
                   ),
                 ],
