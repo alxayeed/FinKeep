@@ -64,8 +64,11 @@ class InvestmentListScreen extends StatelessWidget {
 
               return ListView.builder(
                 padding: EdgeInsets.symmetric(vertical: 8.h),
-                itemCount: controller.investments.length,
+                itemCount: controller.investments.length + 1,
                 itemBuilder: (context, index) {
+                  if (index == controller.investments.length) {
+                    return SizedBox(height: 100.h);
+                  }
                   final investment = controller.investments[index];
                   return InvestmentItem(
                     investment: investment,

@@ -132,8 +132,11 @@ class ExpenseListWidget extends StatelessWidget {
             }
 
             return ListView.builder(
-              itemCount: items.length,
+              itemCount: items.length + 1,
               itemBuilder: (context, index) {
+                if (index == items.length) {
+                  return const SizedBox(height: 100);
+                }
                 final item = items[index];
 
                 if (item is Map<String, dynamic>) {

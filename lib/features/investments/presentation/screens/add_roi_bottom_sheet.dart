@@ -61,7 +61,9 @@ class _AddReturnBottomSheetState extends State<AddReturnBottomSheet> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
       ),
       padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom + 24.h,
+        bottom: MediaQuery.of(context).viewInsets.bottom +
+            MediaQuery.of(context).padding.bottom +
+            24.h,
         top: 10.h,
         left: 24.w,
         right: 24.w,

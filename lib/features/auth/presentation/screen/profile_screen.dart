@@ -442,7 +442,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 24.h),
+                SizedBox(height: 100.h),
               ],
             ),
           ),

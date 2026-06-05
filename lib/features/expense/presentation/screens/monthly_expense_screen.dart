@@ -434,53 +434,57 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
       builder: (context) {
-        return Padding(
-          padding: EdgeInsets.all(20.r),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 38.w,
-                  height: 4.h,
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? const Color(0xFF334155)
-                        : const Color(0xFFE2E8F0),
-                    borderRadius: BorderRadius.circular(2.r),
+        return SafeArea(
+          top: false,
+          bottom: true,
+          child: Padding(
+            padding: EdgeInsets.all(20.r),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 38.w,
+                    height: 4.h,
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? const Color(0xFF334155)
+                          : const Color(0xFFE2E8F0),
+                      borderRadius: BorderRadius.circular(2.r),
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(height: 16.h),
-              Text(
-                'Configure Limit & Budget',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontFamily: 'Manrope',
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : const Color(0xFF0F172A),
-                ),
-              ),
-              SizedBox(height: 12.h),
-              TextField(
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: 'Monthly Budget Limit (৳)',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12.r),
+                SizedBox(height: 16.h),
+                Text(
+                  'Configure Limit & Budget',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontFamily: 'Manrope',
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
                   ),
                 ),
-                onSubmitted: (val) {
-                  final parsed = double.tryParse(val);
-                  if (parsed != null && parsed > 0) {
-                    controller.monthlyBudget.value = parsed;
-                  }
-                  Navigator.pop(context);
-                },
-              ),
-              SizedBox(height: 20.h),
-            ],
+                SizedBox(height: 12.h),
+                TextField(
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: 'Monthly Budget Limit (৳)',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                  ),
+                  onSubmitted: (val) {
+                    final parsed = double.tryParse(val);
+                    if (parsed != null && parsed > 0) {
+                      controller.monthlyBudget.value = parsed;
+                    }
+                    Navigator.pop(context);
+                  },
+                ),
+                SizedBox(height: 20.h),
+              ],
+            ),
           ),
         );
       },

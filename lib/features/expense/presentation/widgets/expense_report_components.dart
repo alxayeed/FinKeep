@@ -57,7 +57,7 @@ class ExpenseSummeryWidget extends StatelessWidget {
                     child: ExpenseBarChart(expenses: data),
                   ),
                 ],
-                SizedBox(height: 30.h),
+                SizedBox(height: 100.h),
               ],
             ),
           );

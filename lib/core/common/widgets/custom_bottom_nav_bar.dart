@@ -54,13 +54,16 @@ class CustomBottomNavBar extends StatelessWidget {
     final Color activeColor = AppColors.primaryTeal;
     final Color inactiveColor = isDark ? Colors.grey[400]! : Colors.grey[600]!;
 
-    return Padding(
-      padding: const EdgeInsets.only(
-        left: 20.0,
-        right: 20.0,
-        bottom: 14.0,
-        top: 6.0,
-      ),
+    return SafeArea(
+      top: false,
+      bottom: true,
+      child: Padding(
+        padding: const EdgeInsets.only(
+          left: 20.0,
+          right: 20.0,
+          bottom: 14.0,
+          top: 6.0,
+        ),
       // ClipRRect is required for BackdropFilter to shape with the border radius
       child: ClipRRect(
         borderRadius: BorderRadius.circular(28),
@@ -143,8 +146,9 @@ class CustomBottomNavBar extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   // Style 2: Flat Bottom Bar (Blends naturally by matching the exact screen background)
   Widget _buildIndicatorLine(BuildContext context) {

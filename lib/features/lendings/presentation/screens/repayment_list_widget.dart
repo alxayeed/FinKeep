@@ -589,7 +589,12 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
               borderRadius:
                   BorderRadius.vertical(top: Radius.circular(24.r)),
             ),
-            padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 32.h),
+            padding: EdgeInsets.only(
+              left: 24.w,
+              right: 24.w,
+              top: 0,
+              bottom: MediaQuery.of(modalContext).padding.bottom + 32.h,
+            ),
             child: Form(
               key: formKey,
               child: Column(
