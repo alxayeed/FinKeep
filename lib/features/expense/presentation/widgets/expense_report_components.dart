@@ -9,6 +9,8 @@ import 'package:spendly/core/extensions/double_ext.dart';
 import 'package:spendly/core/responsive/responsive.dart';
 import 'package:spendly/core/styles/app_colors.dart';
 
+import '../../../../core/enums/expense_category.dart';
+import 'category_summary_list.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../controllers/expense_controller.dart';
 import 'expense_bar_chart.dart';
@@ -418,21 +420,19 @@ class _VsLastMonthChip extends StatelessWidget {
   }
 }
 
-// ==========================================
-// 6. Category breakdown Summary Card
-// ==========================================
 class SummaryByCategoryWidget extends StatelessWidget {
   const SummaryByCategoryWidget({super.key, required this.expenses});
 
   final List<ExpenseEntity> expenses;
 
   // Calculate total spending per category
-  Map<String, double> _calculateCategorySpending() {
-    final Map<String, double> spending = {};
+  Map<ExpenseCategory, double> _calculateCategorySpending() {
+    final Map<ExpenseCategory, double> spending = {};
 
     for (final expense in expenses) {
+      final cat = ExpenseCategoryExtension.fromString(expense.category);
       spending.update(
-        expense.category,
+        cat,
         (value) => value + expense.amount,
         ifAbsent: () => expense.amount,
       );
@@ -443,129 +443,10 @@ class SummaryByCategoryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final categorySpending = _calculateCategorySpending();
 
-    if (categorySpending.isEmpty) {
-      return Padding(
-        padding: EdgeInsets.all(16.r),
-        child: const Center(child: Text("No expenses recorded.")),
-      );
-    }
-
-    final double totalSpending = categorySpending.values.fold(
-      0.0,
-      (sum, e) => sum + e,
-    );
-
-    final sortedEntries = categorySpending.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-
-    return Container(
-      padding: EdgeInsets.all(16.r),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.cardDark : AppColors.cardLight,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Summary by Category",
-            style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : const Color(0xFF0F172A),
-                ),
-          ),
-          SizedBox(height: 12.h),
-          ...sortedEntries.map((entry) {
-            final percent = totalSpending == 0 ? 0 : (entry.value / totalSpending) * 100;
-
-            return _CategorySummaryRow(
-              color: AppColors.getColorForCategory(entry.key),
-              category: entry.key,
-              percentage: percent.toDouble(),
-              amount: entry.value,
-            );
-          }),
-        ],
-      ),
-    );
-  }
-}
-
-// ==========================================
-// 7. Internal category breakdown row item
-// ==========================================
-class _CategorySummaryRow extends StatelessWidget {
-  const _CategorySummaryRow({
-    required this.color,
-    required this.category,
-    required this.percentage,
-    required this.amount,
-  });
-
-  final Color color;
-  final String category;
-  final double percentage;
-  final double amount;
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8.h),
-      child: Row(
-        children: [
-          // ● Colored dot
-          Container(
-            width: 8.r,
-            height: 8.r,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          ),
-          SizedBox(width: 10.w),
-
-          // Category name + percentage
-          Expanded(
-            child: Text(
-              "$category (${percentage.toStringAsFixed(0)}%)",
-              style: TextStyle(
-                fontSize: 14,
-                fontFamily: 'Manrope',
-                fontWeight: FontWeight.w500,
-                color: isDark ? Colors.white70 : const Color(0xFF334155),
-              ),
-            ),
-          ),
-
-          // Amount
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                amount.toCurrency(),
-                style: TextStyle(
-                  fontSize: 16,
-                  fontFamily: 'Manrope',
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white : const Color(0xFF0F172A),
-                ),
-              ),
-              SizedBox(width: 2.w),
-              FaIcon(
-                FontAwesomeIcons.bangladeshiTakaSign,
-                size: 11,
-                color: isDark ? Colors.white54 : const Color(0xFF64748B),
-              ),
-            ],
-          ),
-        ],
-      ),
+    return CategorySummaryList.compact(
+      spentByCategory: categorySpending,
     );
   }
 }

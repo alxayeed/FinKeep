@@ -271,9 +271,19 @@ class ExpenseController extends GetxController {
     fetchMonthlyExpenses();
   }
 
-  List<Object> get groupedExpenses {
+  List<Object> getGroupedExpenses() {
     final List<ExpenseEntity> source = filteredExpenses;
+    return _groupExpensesList(source);
+  }
 
+  List<Object> getGroupedReportExpenses() {
+    final List<ExpenseEntity> source = reportFilteredExpenses;
+    return _groupExpensesList(source);
+  }
+
+  List<Object> get groupedExpenses => getGroupedExpenses();
+
+  List<Object> _groupExpensesList(List<ExpenseEntity> source) {
     if (source.isEmpty) return [];
 
     final Map<DateTime, List<ExpenseEntity>> groupedMap = {};

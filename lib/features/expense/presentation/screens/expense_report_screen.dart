@@ -8,6 +8,8 @@ import '../../../../core/common/widgets/date_selector_button.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../controllers/expense_controller.dart';
 import '../widgets/widgets.dart';
+import 'expense_report_summary_screen.dart';
+import 'expense_report_list_screen.dart';
 
 class ExpenseReportScreen extends StatefulWidget {
   const ExpenseReportScreen({super.key});
@@ -213,13 +215,11 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
                           ),
                         )
                       : (_selectedTab == 0
-                          ? ExpenseSummeryWidget(
+                          ? ExpenseReportSummaryScreen(
                               controller: controller,
-                              isReport: true,
                             )
-                          : ExpenseListWidget(
+                          : ExpenseReportListScreen(
                               controller: controller,
-                              isReport: true,
                             )),
             ),
           ],

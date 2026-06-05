@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:spendly/core/common/widgets/custom_divider.dart';
 import 'package:spendly/core/extensions/double_ext.dart';
-
+import 'package:spendly/core/responsive/responsive.dart';
 import '../../../features/expense/domain/entities/expense_entity.dart';
-import '../../styles/app_colors.dart';
 
 class ExpenseMonthlyAnalysis extends StatelessWidget {
   final List<ExpenseEntity> expenses;
@@ -16,7 +15,6 @@ class ExpenseMonthlyAnalysis extends StatelessWidget {
 
   Map<String, double> _getMonthlyAggregates() {
     final Map<String, double> monthlyTotals = {};
-
     final DateFormat formatter = DateFormat('MMM yyyy');
 
     for (var expense in expenses) {
@@ -41,26 +39,43 @@ class ExpenseMonthlyAnalysis extends StatelessWidget {
       };
     }
 
+    final currentMonthKey = DateFormat('MMM yyyy').format(DateTime.now());
+
     double maxAmount = -1;
-    String maxMonth = '';
+    String maxMonth = 'N/A';
 
     double minAmount = double.infinity;
-    String minMonth = '';
+    String minMonth = 'N/A';
 
     double totalSum = 0;
     int count = monthlyTotals.length;
 
     monthlyTotals.forEach((month, amount) {
-      if (amount > maxAmount) {
-        maxAmount = amount;
-        maxMonth = month;
-      }
-      if (amount < minAmount) {
-        minAmount = amount;
-        minMonth = month;
-      }
+      // Average calculation includes the current month
       totalSum += amount;
+
+      // Omit current month from highest and lowest calculation
+      if (month != currentMonthKey) {
+        if (amount > maxAmount) {
+          maxAmount = amount;
+          maxMonth = month;
+        }
+        if (amount < minAmount) {
+          minAmount = amount;
+          minMonth = month;
+        }
+      }
     });
+
+    // Fallbacks if only the current month is present
+    if (maxMonth == 'N/A') {
+      maxMonth = currentMonthKey;
+      maxAmount = monthlyTotals[currentMonthKey] ?? 0.0;
+    }
+    if (minMonth == 'N/A') {
+      minMonth = currentMonthKey;
+      minAmount = monthlyTotals[currentMonthKey] ?? 0.0;
+    }
 
     return {
       'highestMonth': maxMonth,
@@ -71,22 +86,28 @@ class ExpenseMonthlyAnalysis extends StatelessWidget {
     };
   }
 
-  Widget _buildBreakdownRow(String label, double amount, Color amountColor) {
+  Widget _buildBreakdownRow(String label, double amount, bool isDark) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+      padding: EdgeInsets.symmetric(vertical: 4.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             label,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            style: TextStyle(
+              fontSize: 13.sp,
+              fontFamily: 'Manrope',
+              fontWeight: FontWeight.w500,
+              color: isDark ? Colors.white.withValues(alpha: 0.9) : const Color(0xFF334155),
+            ),
           ),
           Text(
             "${amount.toCurrency()} ৳",
             style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: amountColor,
+              fontSize: 13.sp,
+              fontFamily: 'Manrope',
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : const Color(0xFF0F172A),
             ),
           ),
         ],
@@ -94,20 +115,26 @@ class ExpenseMonthlyAnalysis extends StatelessWidget {
     );
   }
 
-  Widget _buildSummaryStatRow(String label, double amount, Color amountColor) {
+  Widget _buildSummaryStatRow(String label, double amount, Color amountColor, bool isDark) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: EdgeInsets.symmetric(vertical: 4.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             label,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 13.sp,
+              fontFamily: 'Manrope',
+              fontWeight: FontWeight.w500,
+              color: isDark ? Colors.white.withValues(alpha: 0.9) : const Color(0xFF334155),
+            ),
           ),
           Text(
             "${amount.toCurrency()} ৳",
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 13.sp,
+              fontFamily: 'Manrope',
               fontWeight: FontWeight.bold,
               color: amountColor,
             ),
@@ -122,6 +149,7 @@ class ExpenseMonthlyAnalysis extends StatelessWidget {
     final monthlyData = _getMonthlyAggregates();
     final summary = _getSummary(monthlyData);
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     if (monthlyData.isEmpty) {
       return const SizedBox.shrink();
@@ -137,52 +165,85 @@ class ExpenseMonthlyAnalysis extends StatelessWidget {
       return dateA.compareTo(dateB);
     });
 
-    return Padding(
-      padding: const EdgeInsets.all(0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const CustomDivider(),
-          Text(
-            'Summary By Month',
-            style: theme.textTheme.titleMedium!
-                .copyWith(fontWeight: FontWeight.bold),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(left: 4.w, bottom: 8.h),
+                child: Text(
+                  'Summary by Month',
+                  style: TextStyle(
+                    fontSize: 13.sp,
+                    fontFamily: 'Manrope',
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
+                ),
+              ),
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: sortedMonthlyData.length,
+                separatorBuilder: (context, index) => SizedBox(height: 8.h),
+                itemBuilder: (context, index) {
+                  final entry = sortedMonthlyData[index];
+                  return _buildBreakdownRow(
+                    entry.key,
+                    entry.value,
+                    isDark,
+                  );
+                },
+              ),
+            ],
           ),
-          const CustomDivider(),
-          // Use the sorted list here
-          ...sortedMonthlyData.map((entry) {
-            return _buildBreakdownRow(
-              entry.key,
-              entry.value,
-              theme.colorScheme.onSurface,
-            );
-          }),
-          const SizedBox(height: 8),
-          const CustomDivider(),
-          Text(
-            'High/Low/Avg(Month)',
-            style: theme.textTheme.titleMedium!
-                .copyWith(fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 16.h),
+        const CustomDivider(),
+        SizedBox(height: 12.h),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(left: 4.w, bottom: 8.h),
+                child: Text(
+                  'High/Low/Avg (Month)',
+                  style: TextStyle(
+                    fontSize: 13.sp,
+                    fontFamily: 'Manrope',
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
+                ),
+              ),
+              _buildSummaryStatRow(
+                'Highest (${summary['highestMonth']})',
+                summary['highestAmount'],
+                isDark ? Colors.red.shade400 : Colors.red.shade600,
+                isDark,
+              ),
+              _buildSummaryStatRow(
+                'Lowest (${summary['lowestMonth']})',
+                summary['lowestAmount'],
+                isDark ? Colors.green.shade400 : Colors.green.shade600,
+                isDark,
+              ),
+              _buildSummaryStatRow(
+                'Average',
+                summary['average'],
+                isDark ? Colors.white70 : const Color(0xFF475569),
+                isDark,
+              ),
+            ],
           ),
-          const CustomDivider(),
-          const SizedBox(height: 4),
-          _buildSummaryStatRow(
-            'Highest (${summary['highestMonth']})',
-            summary['highestAmount'],
-            theme.colorScheme.error,
-          ),
-          _buildSummaryStatRow(
-            'Lowest (${summary['lowestMonth']})',
-            summary['lowestAmount'],
-            AppColors.success,
-          ),
-          _buildSummaryStatRow(
-            'Average',
-            summary['average'],
-            theme.colorScheme.onSurfaceVariant,
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

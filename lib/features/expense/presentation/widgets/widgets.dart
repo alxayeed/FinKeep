@@ -1,14 +1,12 @@
 export '../../../../core/common/widgets/app_drawer.dart';
 export '../../../../core/common/widgets/custom_app_bar.dart';
-export 'custom_tab_bar.dart';
 export 'expense_bar_chart.dart';
 export 'expense_card_widget.dart';
-export 'expense_list_widget.dart';
 export 'expense_report_components.dart';
 export 'segmented_tab_bar.dart';
 export 'month_selector.dart';
 export 'category_filter_pills.dart';
 export 'budget_progress_card.dart';
-export 'category_spending_list.dart';
+export 'category_summary_list.dart';
 export 'smart_insight_banner.dart';
 export 'monthly_expense_shimmer.dart';

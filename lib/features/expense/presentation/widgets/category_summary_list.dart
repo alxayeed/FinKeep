@@ -5,24 +5,60 @@ import '../../../../core/styles/app_colors.dart';
 import '../../../../core/utils/app_localizations.dart';
 import 'package:spendly/core/extensions/double_ext.dart';
 
-class CategorySpendingList extends StatelessWidget {
+class CategorySummaryList extends StatelessWidget {
   final Map<ExpenseCategory, double> spentByCategory;
   final Map<ExpenseCategory, double> budgetsByCategory;
   final ValueChanged<ExpenseCategory>? onCategoryTap;
+  final bool isCompact;
 
-  const CategorySpendingList({
+  const CategorySummaryList.detailed({
     super.key,
     required this.spentByCategory,
     required this.budgetsByCategory,
     this.onCategoryTap,
-  });
+  }) : isCompact = false;
+
+  const CategorySummaryList.compact({
+    super.key,
+    required this.spentByCategory,
+    this.onCategoryTap,
+  })  : budgetsByCategory = const {},
+        isCompact = true;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Filter categories that have spending or a budget
-    final categories = ExpenseCategory.values.toList();
+    // Filter categories
+    final categories = ExpenseCategory.values.where((category) {
+      if (isCompact) {
+        return (spentByCategory[category] ?? 0.0) > 0;
+      }
+      return true;
+    }).toList();
+
+    // Sort categories by spending descending
+    categories.sort((a, b) {
+      final spentA = spentByCategory[a] ?? 0.0;
+      final spentB = spentByCategory[b] ?? 0.0;
+      return spentB.compareTo(spentA);
+    });
+
+    if (categories.isEmpty) {
+      return Padding(
+        padding: EdgeInsets.all(16.r),
+        child: Center(
+          child: Text(
+            "No expenses recorded.",
+            style: TextStyle(
+              fontSize: 13.sp,
+              fontFamily: 'Manrope',
+              color: Colors.grey,
+            ),
+          ),
+        ),
+      );
+    }
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -35,7 +71,7 @@ class CategorySpendingList extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  AppLocalizations.translate('spending_by_category'),
+                  isCompact ? "Summary by Category" : AppLocalizations.translate('spending_by_category'),
                   style: TextStyle(
                     fontSize: 13.sp,
                     fontFamily: 'Manrope',
@@ -43,15 +79,16 @@ class CategorySpendingList extends StatelessWidget {
                     color: isDark ? Colors.white : const Color(0xFF0F172A),
                   ),
                 ),
-                Text(
-                  AppLocalizations.translate('spent_budget'),
-                  style: TextStyle(
-                    fontSize: 10.sp,
-                    fontFamily: 'Manrope',
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white30 : const Color(0xFF94A3B8),
+                if (!isCompact)
+                  Text(
+                    AppLocalizations.translate('spent_budget'),
+                    style: TextStyle(
+                      fontSize: 10.sp,
+                      fontFamily: 'Manrope',
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white30 : const Color(0xFF94A3B8),
+                    ),
                   ),
-                ),
               ],
             ),
           ),
@@ -63,12 +100,72 @@ class CategorySpendingList extends StatelessWidget {
             itemBuilder: (context, index) {
               final category = categories[index];
               final spent = spentByCategory[category] ?? 0.0;
-              final budget = budgetsByCategory[category] ?? 1000.0; // Fallback budget allocation
-              final percent = budget > 0 ? (spent / budget).clamp(0.0, 1.0) : 0.0;
-              final percentText = '${(percent * 100).toStringAsFixed(0)}%';
-
+              
               final iconData = _getIconForCategory(category);
               final itemColor = _getColorForCategory(category);
+
+              if (isCompact) {
+                final totalSpentSum = spentByCategory.values.fold(0.0, (sum, val) => sum + val);
+                final percent = totalSpentSum > 0 ? (spent / totalSpentSum) * 100 : 0.0;
+
+                // Compact variant: bullet dot, tiny icon, name + percentage, and total amount at the right
+                return GestureDetector(
+                  onTap: () => onCategoryTap?.call(category),
+                  behavior: HitTestBehavior.opaque,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 4.h),
+                    child: Row(
+                      children: [
+                        // Bullet point (category-colored dot)
+                        Container(
+                          width: 8.r,
+                          height: 8.r,
+                          decoration: BoxDecoration(
+                            color: itemColor,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        // Tiny category icon
+                        Icon(
+                          iconData,
+                          color: itemColor,
+                          size: 14.sp,
+                        ),
+                        SizedBox(width: 8.w),
+                        // Category Name & Percentage
+                        Expanded(
+                          child: Text(
+                            "${category.displayName} (${percent.toStringAsFixed(0)}%)",
+                            style: TextStyle(
+                              fontSize: 13.sp,
+                              fontFamily: 'Manrope',
+                              fontWeight: FontWeight.w500,
+                              color: isDark ? Colors.white.withValues(alpha: 0.9) : const Color(0xFF334155),
+                            ),
+                          ),
+                        ),
+                        // Total Amount
+                        Text(
+                          '${spent.toCurrency()} ৳',
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            fontFamily: 'Manrope',
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+
+              // Detailed variant
+              final budget = budgetsByCategory[category] ?? 1000.0;
+              final percent = budget > 0 ? (spent / budget) : 0.0;
+              final percentText = '${(percent * 100).toStringAsFixed(0)}%';
+              final isOverBudget = spent > budget;
 
               return GestureDetector(
                 onTap: () => onCategoryTap?.call(category),
@@ -160,28 +257,41 @@ class CategorySpendingList extends StatelessWidget {
                                     child: SizedBox(
                                       height: 5.h,
                                       child: LinearProgressIndicator(
-                                        value: percent,
+                                        value: percent.clamp(0.0, 1.0),
                                         backgroundColor: isDark
                                             ? const Color(0xFF1E293B)
                                             : const Color(0xFFF1F5F9),
-                                        valueColor: AlwaysStoppedAnimation<Color>(itemColor),
+                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                          isOverBudget ? Colors.red.shade600 : itemColor,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
                                 SizedBox(width: 8.w),
-                                SizedBox(
-                                  width: 26.w,
-                                  child: Text(
-                                    percentText,
-                                    textAlign: TextAlign.right,
-                                    style: TextStyle(
-                                      fontSize: 9.sp,
-                                      fontFamily: 'Manrope',
-                                      fontWeight: FontWeight.bold,
-                                      color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (isOverBudget) ...[
+                                      Icon(
+                                        Icons.warning_amber_rounded,
+                                        color: Colors.red.shade600,
+                                        size: 11.sp,
+                                      ),
+                                      SizedBox(width: 2.w),
+                                    ],
+                                    Text(
+                                      percentText,
+                                      style: TextStyle(
+                                        fontSize: 9.sp,
+                                        fontFamily: 'Manrope',
+                                        fontWeight: FontWeight.bold,
+                                        color: isOverBudget 
+                                            ? Colors.red.shade600 
+                                            : (isDark ? Colors.white38 : const Color(0xFF94A3B8)),
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ),
                               ],
                             ),
