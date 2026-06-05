@@ -27,3 +27,18 @@ abstract class LendingEntity with _$LendingEntity {
   }) = _LendingEntity;
 }
 
+extension LendingStatusLabelX on LendingStatus {
+  String get label {
+    switch (this) {
+      case LendingStatus.due:
+        return 'Due / Unpaid';
+      case LendingStatus.partial:
+        return 'Partially Repaid';
+      case LendingStatus.overdue:
+        return 'Overdue';
+      case LendingStatus.paid:
+        return 'Fully Repaid';
+    }
+  }
+}
+

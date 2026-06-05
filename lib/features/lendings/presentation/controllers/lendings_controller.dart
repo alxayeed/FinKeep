@@ -49,6 +49,7 @@ class LendingsController extends GetxController {
   });
 
   final isLoading = true.obs;
+  final isRepaymentsLoading = false.obs;
   final lendingsList = RxList<LendingEntity>([]);
   final personsList = RxList<LendingPersonEntity>([]);
   final repaymentsList = RxList<RepaymentEntity>([]);
@@ -69,9 +70,7 @@ class LendingsController extends GetxController {
 
     super.onInit();
     _setupFilterListeners();
-    fetchLendings().then((_) {
-      migrateLendings();
-    });
+    fetchLendings();
     fetchUserPersons();
   }
 
@@ -255,6 +254,7 @@ class LendingsController extends GetxController {
 
   // --- Repayment Methods ---
   Future<void> fetchRepayments(String lendingId) async {
+    isRepaymentsLoading.value = true;
     final result = await getRepaymentsUseCase(lendingId);
     result.fold(
       (failure) {
@@ -264,6 +264,7 @@ class LendingsController extends GetxController {
         repaymentsList.assignAll(list);
       },
     );
+    isRepaymentsLoading.value = false;
   }
 
   Future<void> addRepayment(
@@ -351,40 +352,7 @@ class LendingsController extends GetxController {
     }
   }
 
-  Future<void> migrateLendings() async {
-    for (final lending in lendingsList) {
-      final repaymentsResult = await getRepaymentsUseCase(lending.id);
-      await repaymentsResult.fold(
-        (failure) async {},
-        (repayments) async {
-          final totalPaid = repayments.fold(0.0, (sum, r) => sum + r.amount);
 
-          LendingStatus newStatus = lending.status;
-          if (totalPaid >= lending.amount) {
-            newStatus = LendingStatus.paid;
-          } else if (totalPaid > 0 && totalPaid < lending.amount) {
-            if (lending.status != LendingStatus.paid) {
-              newStatus = LendingStatus.partial;
-            }
-          } else {
-            if (lending.status != LendingStatus.paid && lending.status != LendingStatus.partial) {
-              if (lending.dueDate != null && DateTime.now().isAfter(lending.dueDate!)) {
-                newStatus = LendingStatus.overdue;
-              } else {
-                newStatus = LendingStatus.due;
-              }
-            }
-          }
-
-          final updated = lending.copyWith(
-            repaidAmount: totalPaid,
-            status: newStatus,
-          );
-          await updateLending(updated);
-        },
-      );
-    }
-  }
 
   // inside LendingsController
   double get totalGivenDue {

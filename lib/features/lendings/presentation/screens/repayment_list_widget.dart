@@ -12,6 +12,7 @@ import '../../../auth/presentation/controller/auth_controller.dart';
 import '../../domain/entity/lending/lending_entity.dart';
 import '../../domain/entity/repayment/repayment_entity.dart';
 import '../controllers/lendings_controller.dart';
+import '../widgets/repayment_shimmer_list.dart';
 
 class RepaymentListWidget extends StatefulWidget {
   final LendingEntity lending;
@@ -54,12 +55,38 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
                   color: isDark ? Colors.white : const Color(0xFF0F172A),
                 ),
               ),
+              // Plus button for adding repayments
+              GestureDetector(
+                onTap: () => _showRepaymentSheet(context),
+                child: Container(
+                  padding: EdgeInsets.all(6.r),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryTeal,
+                    borderRadius: BorderRadius.circular(10.r),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primaryTeal.withValues(alpha: 0.2),
+                        blurRadius: 4.r,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    Icons.add_rounded,
+                    size: 20.sp,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
 
         // ── List ────────────────────────────────────────────────
         Obx(() {
+          if (controller.isRepaymentsLoading.value) {
+            return const RepaymentShimmerList();
+          }
           if (controller.repaymentsList.isEmpty) {
             return _buildEmptyState(isDark);
           }
@@ -84,76 +111,7 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
           );
         }),
 
-        SizedBox(height: 16.h),
-
-        // ── Bottom CTA row ──────────────────────────────────────
-        Padding(
-          padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 24.h),
-          child: Row(
-            children: [
-              // Add repayment CTA
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () => _showRepaymentSheet(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryTeal,
-                    foregroundColor: Colors.white,
-                    minimumSize: Size(0, 52.h),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16.r),
-                    ),
-                    elevation: 2,
-                    shadowColor: AppColors.primaryTeal.withValues(alpha: 0.2),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.add_circle_outline_rounded, size: 20.sp),
-                      SizedBox(width: 8.w),
-                      Text(
-                        'Add Repayment',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontFamily: 'Manrope',
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(width: 10.w),
-              // Edit record icon button
-              GestureDetector(
-                onTap: () {
-                  // Edit the last / any repayment via the list
-                  if (controller.repaymentsList.isNotEmpty) {
-                    _showRepaymentSheet(context,
-                        repayment: controller.repaymentsList.first);
-                  }
-                },
-                child: Container(
-                  width: 52.r,
-                  height: 52.r,
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? const Color(0xFF1E293B)
-                        : const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(16.r),
-                    border: Border.all(
-                      color: isDark
-                          ? const Color(0xFF334155)
-                          : const Color(0xFFE2E8F0),
-                    ),
-                  ),
-                  child: Icon(Icons.edit_rounded,
-                      size: 20.sp,
-                      color: isDark ? Colors.white54 : const Color(0xFF64748B)),
-                ),
-              ),
-            ],
-          ),
-        ),
+        SizedBox(height: 24.h),
       ],
     );
   }
