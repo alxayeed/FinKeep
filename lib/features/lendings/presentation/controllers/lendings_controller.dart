@@ -69,7 +69,9 @@ class LendingsController extends GetxController {
 
     super.onInit();
     _setupFilterListeners();
-    fetchLendings();
+    fetchLendings().then((_) {
+      migrateLendings();
+    });
     fetchUserPersons();
   }
 
@@ -277,6 +279,7 @@ class LendingsController extends GetxController {
       },
       (_) async {
         await fetchRepayments(repayment.lendingId);
+        await _updateLendingRepaidAndStatus(repayment.lendingId);
         onSuccess?.call();
       },
     );
@@ -295,6 +298,7 @@ class LendingsController extends GetxController {
       },
       (_) async {
         await fetchRepayments(repayment.lendingId);
+        await _updateLendingRepaidAndStatus(repayment.lendingId);
         onSuccess?.call();
       },
     );
@@ -313,9 +317,73 @@ class LendingsController extends GetxController {
       },
       (_) async {
         await fetchRepayments(repayment.lendingId);
+        await _updateLendingRepaidAndStatus(repayment.lendingId);
         onSuccess?.call();
       },
     );
+  }
+
+  Future<void> _updateLendingRepaidAndStatus(String lendingId) async {
+    final lendingIdx = lendingsList.indexWhere((l) => l.id == lendingId);
+    if (lendingIdx != -1) {
+      final lending = lendingsList[lendingIdx];
+      final totalPaid = repaymentsList.fold(0.0, (sum, r) => sum + r.amount);
+
+      LendingStatus newStatus;
+      if (totalPaid >= lending.amount) {
+        newStatus = LendingStatus.paid;
+      } else if (totalPaid > 0 && totalPaid < lending.amount) {
+        newStatus = LendingStatus.partial;
+      } else {
+        if (lending.dueDate != null && DateTime.now().isAfter(lending.dueDate!)) {
+          newStatus = LendingStatus.overdue;
+        } else {
+          newStatus = LendingStatus.due;
+        }
+      }
+
+      final updatedLending = lending.copyWith(
+        repaidAmount: totalPaid,
+        status: newStatus,
+      );
+
+      await updateLending(updatedLending);
+    }
+  }
+
+  Future<void> migrateLendings() async {
+    for (final lending in lendingsList) {
+      final repaymentsResult = await getRepaymentsUseCase(lending.id);
+      await repaymentsResult.fold(
+        (failure) async {},
+        (repayments) async {
+          final totalPaid = repayments.fold(0.0, (sum, r) => sum + r.amount);
+
+          LendingStatus newStatus = lending.status;
+          if (totalPaid >= lending.amount) {
+            newStatus = LendingStatus.paid;
+          } else if (totalPaid > 0 && totalPaid < lending.amount) {
+            if (lending.status != LendingStatus.paid) {
+              newStatus = LendingStatus.partial;
+            }
+          } else {
+            if (lending.status != LendingStatus.paid && lending.status != LendingStatus.partial) {
+              if (lending.dueDate != null && DateTime.now().isAfter(lending.dueDate!)) {
+                newStatus = LendingStatus.overdue;
+              } else {
+                newStatus = LendingStatus.due;
+              }
+            }
+          }
+
+          final updated = lending.copyWith(
+            repaidAmount: totalPaid,
+            status: newStatus,
+          );
+          await updateLending(updated);
+        },
+      );
+    }
   }
 
   // inside LendingsController
@@ -324,8 +392,7 @@ class LendingsController extends GetxController {
       sum,
       l,
     ) {
-      final repaid = l.repayments?.fold(0.0, (s, r) => s! + r.amount) ?? 0.0;
-      return sum + (l.amount - repaid);
+      return sum + (l.amount - l.repaidAmount);
     });
   }
 
@@ -334,8 +401,7 @@ class LendingsController extends GetxController {
       sum,
       l,
     ) {
-      final repaid = l.repayments?.fold(0.0, (s, r) => s! + r.amount) ?? 0.0;
-      return sum + (l.amount - repaid);
+      return sum + (l.amount - l.repaidAmount);
     });
   }
 }

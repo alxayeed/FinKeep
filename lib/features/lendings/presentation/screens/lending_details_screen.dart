@@ -109,19 +109,23 @@ class _LendingDetailsScreenState extends State<LendingDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final lending = widget.lending;
-    final status = lending.smartStatus;
-    final isGiven = lending.type == LendingType.given;
-    final isPaid = status == LendingStatus.paid;
+    return Obx(() {
+      final lending = controller.lendingsList.firstWhere(
+        (l) => l.id == widget.lending.id,
+        orElse: () => widget.lending,
+      );
+      final status = lending.status;
+      final isGiven = lending.type == LendingType.given;
+      final isPaid = status == LendingStatus.paid;
 
-    // Status appearance
-    final (statusLabel, statusColor, statusBg) = _statusAppearance(status, isDark);
+      // Status appearance
+      final (statusLabel, statusColor, statusBg) = _statusAppearance(status, isDark);
 
-    // Avatar colour
-    final avatarBg = _avatarBg(status, isDark);
-    final avatarFg = _avatarFg(status);
+      // Avatar colour
+      final avatarBg = _avatarBg(status, isDark);
+      final avatarFg = _avatarFg(status);
 
-    return Scaffold(
+      return Scaffold(
       backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
       body: SafeArea(
         child: Column(
@@ -234,9 +238,8 @@ class _LendingDetailsScreenState extends State<LendingDetailsScreen> {
                         SizedBox(height: 24.h),
 
                         // ── Amount card with repayment progress ───
-                        Obx(() {
-                          final paid = controller.repaymentsList
-                              .fold<double>(0, (s, r) => s + r.amount);
+                        Builder(builder: (context) {
+                          final paid = lending.repaidAmount;
                           final total = lending.amount;
                           final remaining = (total - paid).clamp(0.0, total);
                           final progress =
@@ -596,6 +599,7 @@ class _LendingDetailsScreenState extends State<LendingDetailsScreen> {
         ),
       ),
     );
+  });
   }
 
   // ── Helpers ──────────────────────────────────────────────────

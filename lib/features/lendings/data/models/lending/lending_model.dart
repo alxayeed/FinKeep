@@ -18,6 +18,7 @@ abstract class LendingModel with _$LendingModel {
     required String personId,
     @JsonKey(includeToJson: false) required LendingPersonModel person,
     required double amount,
+    @Default(0.0) double repaidAmount,
     String? description,
     @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
     required DateTime createdDate,
@@ -39,6 +40,7 @@ abstract class LendingModel with _$LendingModel {
       personId: entity.personId,
       person: LendingPersonModel.fromEntity(entity.person),
       amount: entity.amount,
+      repaidAmount: entity.repaidAmount,
       description: entity.description,
       createdDate: entity.createdDate,
       dueDate: entity.dueDate,
@@ -58,6 +60,7 @@ abstract class LendingModel with _$LendingModel {
       personId: personId,
       person: person.toEntity(),
       amount: amount,
+      repaidAmount: repaidAmount,
       description: description,
       createdDate: createdDate,
       dueDate: dueDate,

@@ -11,9 +11,11 @@ _LendingModel _$LendingModelFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String,
       type: $enumDecode(_$LendingTypeEnumMap, json['type']),
       personId: json['personId'] as String,
-      person:
-          LendingPersonModel.fromJson(json['person'] as Map<String, dynamic>),
+      person: LendingPersonModel.fromJson(
+        json['person'] as Map<String, dynamic>,
+      ),
       amount: (json['amount'] as num).toDouble(),
+      repaidAmount: (json['repaidAmount'] as num?)?.toDouble() ?? 0.0,
       description: json['description'] as String?,
       createdDate: _fromJsonDate(json['createdDate']),
       dueDate: _fromJsonNullableDate(json['dueDate']),
@@ -30,6 +32,7 @@ Map<String, dynamic> _$LendingModelToJson(_LendingModel instance) =>
       'type': _$LendingTypeEnumMap[instance.type]!,
       'personId': instance.personId,
       'amount': instance.amount,
+      'repaidAmount': instance.repaidAmount,
       'description': instance.description,
       'createdDate': _toJsonDate(instance.createdDate),
       'dueDate': _toJsonNullableDate(instance.dueDate),

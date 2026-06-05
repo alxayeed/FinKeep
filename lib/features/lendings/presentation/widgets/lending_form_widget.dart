@@ -58,6 +58,7 @@ class _LendingFormWidgetState extends State<LendingFormWidget> {
         contactNumber: personContact,
       ),
       amount: double.tryParse(amountController.text) ?? 0,
+      repaidAmount: 0.0,
       description: descriptionController.text.trim(),
       type: widget.controller.selectedTypeFilter.value!,
       status: widget.controller.selectedStatusFilter.value!,

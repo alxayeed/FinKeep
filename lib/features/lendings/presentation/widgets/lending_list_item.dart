@@ -96,7 +96,7 @@ class LendingListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final status = lending.smartStatus;
+    final status = lending.status;
     final (chipLabel, chipColor, chipBg) = _statusChip(status, isDark);
     final avatarBg = _avatarColor(lending.person.name, status, isDark);
     final avatarFg = _avatarTextColor(status);

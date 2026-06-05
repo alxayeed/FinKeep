@@ -117,6 +117,7 @@ class _UpdateLendingScreenState extends State<UpdateLendingScreen> {
       personId: widget.lending.person.id,
       person: widget.lending.person,
       amount: parsedAmount,
+      repaidAmount: widget.lending.repaidAmount,
       description: descriptionController.text.trim().isEmpty
           ? null
           : descriptionController.text.trim(),

@@ -43,6 +43,7 @@ class LendingFirestoreDataSource implements LendingDataSource {
         'type': lending.type.name,
         'personId': lending.person.id,
         'amount': lending.amount,
+        'repaidAmount': lending.repaidAmount,
         'description': lending.description,
         'createdDate': Timestamp.fromDate(lending.createdDate),
         'dueDate': lending.dueDate != null

@@ -72,6 +72,7 @@ class _AddLendingScreenState extends State<AddLendingScreen> {
             : contactController.text.trim(),
       ),
       amount: parsedAmount,
+      repaidAmount: 0.0,
       description: descriptionController.text.trim().isEmpty
           ? null
           : descriptionController.text.trim(),
