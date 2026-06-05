@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:spendly/core/common/widgets/custom_app_bar.dart';
+import 'package:spendly/core/common/widgets/custom_fab.dart';
 import 'package:spendly/core/extensions/double_ext.dart';
 import 'package:spendly/core/responsive/responsive.dart';
 import 'package:spendly/core/routes/app_router.dart';
 import 'package:spendly/core/styles/app_colors.dart';
-import 'package:spendly/core/common/widgets/custom_app_bar.dart';
-import 'package:spendly/core/common/widgets/custom_fab.dart';
 import 'package:spendly/features/lendings/presentation/controllers/lendings_controller.dart';
 import 'package:spendly/features/lendings/presentation/widgets/lending_list_item.dart';
 import 'package:spendly/features/lendings/presentation/widgets/lending_shimmer_list.dart';
@@ -46,19 +46,18 @@ class _LendingListScreenState extends State<LendingListScreen> {
   }
 
   List<LendingEntity> get _filteredLendings {
-    final type =
-        _selectedTab == 0 ? LendingType.given : LendingType.taken;
+    final type = _selectedTab == 0 ? LendingType.given : LendingType.taken;
     return controller.lendingsList.where((l) {
       final matchType = l.type == type;
-      final matchSearch = _searchQuery.isEmpty ||
+      final matchSearch =
+          _searchQuery.isEmpty ||
           l.person.name.toLowerCase().contains(_searchQuery);
       return matchType && matchSearch;
     }).toList();
   }
 
   double get _totalForTab {
-    final type =
-        _selectedTab == 0 ? LendingType.given : LendingType.taken;
+    final type = _selectedTab == 0 ? LendingType.given : LendingType.taken;
     return controller.lendingsList
         .where((l) => l.type == type)
         .fold(0.0, (sum, l) => sum + l.amount);
@@ -77,9 +76,7 @@ class _LendingListScreenState extends State<LendingListScreen> {
             return Column(
               children: [
                 _buildHeader(isDark),
-                const Expanded(
-                  child: LendingShimmerList(),
-                ),
+                const Expanded(child: LendingShimmerList()),
               ],
             );
           }
@@ -92,15 +89,14 @@ class _LendingListScreenState extends State<LendingListScreen> {
             onRefresh: controller.refreshLendings,
             child: CustomScrollView(
               physics: const BouncingScrollPhysics(
-                  parent: AlwaysScrollableScrollPhysics()),
+                parent: AlwaysScrollableScrollPhysics(),
+              ),
               slivers: [
                 // ── Header (title + tab switcher + search) ──
                 SliverToBoxAdapter(child: _buildHeader(isDark)),
 
                 // ── Summary card ──
-                SliverToBoxAdapter(
-                  child: _buildSummaryCard(isDark, total),
-                ),
+                SliverToBoxAdapter(child: _buildSummaryCard(isDark, total)),
 
                 // ── Section label ──
                 SliverToBoxAdapter(
@@ -114,15 +110,12 @@ class _LendingListScreenState extends State<LendingListScreen> {
                         child: _buildEmptyState(isDark),
                       )
                     : SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            if (index == filtered.length) {
-                              return SizedBox(height: 100.h);
-                            }
-                            return LendingListItem(lending: filtered[index]);
-                          },
-                          childCount: filtered.length + 1,
-                        ),
+                        delegate: SliverChildBuilderDelegate((context, index) {
+                          if (index == filtered.length) {
+                            return SizedBox(height: 100.h);
+                          }
+                          return LendingListItem(lending: filtered[index]);
+                        }, childCount: filtered.length + 1),
                       ),
               ],
             ),
@@ -150,8 +143,7 @@ class _LendingListScreenState extends State<LendingListScreen> {
           Container(
             height: 44.h,
             decoration: BoxDecoration(
-              color:
-                  isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+              color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
               borderRadius: BorderRadius.circular(12.r),
             ),
             child: Row(
@@ -167,8 +159,7 @@ class _LendingListScreenState extends State<LendingListScreen> {
           Container(
             height: 44.h,
             decoration: BoxDecoration(
-              color:
-                  isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+              color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
               borderRadius: BorderRadius.circular(12.r),
               border: Border.all(
                 color: isDark
@@ -260,13 +251,10 @@ class _LendingListScreenState extends State<LendingListScreen> {
             style: TextStyle(
               fontSize: 13.sp,
               fontFamily: 'Manrope',
-              fontWeight:
-                  isActive ? FontWeight.bold : FontWeight.w500,
+              fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
               color: isActive
                   ? (isDark ? Colors.white : const Color(0xFF0F172A))
-                  : (isDark
-                      ? Colors.white38
-                      : const Color(0xFF94A3B8)),
+                  : (isDark ? Colors.white38 : const Color(0xFF94A3B8)),
             ),
           ),
         ),
@@ -280,8 +268,9 @@ class _LendingListScreenState extends State<LendingListScreen> {
   Widget _buildSummaryCard(bool isDark, double total) {
     final isGiven = _selectedTab == 0;
     final cardBg = isDark ? const Color(0xFF022C22) : const Color(0xFFECFDF5);
-    final cardBorder =
-        isDark ? const Color(0xFF047857) : const Color(0xFFA7F3D0);
+    final cardBorder = isDark
+        ? const Color(0xFF047857)
+        : const Color(0xFFA7F3D0);
     final label = isGiven ? 'TOTAL GIVEN' : 'TOTAL TAKEN';
 
     return Padding(
@@ -313,7 +302,7 @@ class _LendingListScreenState extends State<LendingListScreen> {
                   ),
                   SizedBox(height: 6.h),
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
                         total.toCurrency(),
@@ -331,7 +320,7 @@ class _LendingListScreenState extends State<LendingListScreen> {
                         padding: EdgeInsets.only(bottom: 4.h),
                         child: FaIcon(
                           FontAwesomeIcons.bangladeshiTakaSign,
-                          size: 14.sp,
+                          size: 24.sp,
                           color: isDark
                               ? const Color(0xFF6EE7B7)
                               : const Color(0xFF059669),
@@ -380,8 +369,7 @@ class _LendingListScreenState extends State<LendingListScreen> {
               fontSize: 10.sp,
               fontFamily: 'Manrope',
               fontWeight: FontWeight.bold,
-              color:
-                  isDark ? Colors.white38 : const Color(0xFF94A3B8),
+              color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
               letterSpacing: 1.2,
             ),
           ),
@@ -391,8 +379,7 @@ class _LendingListScreenState extends State<LendingListScreen> {
               fontSize: 11.sp,
               fontFamily: 'Manrope',
               fontWeight: FontWeight.w500,
-              color:
-                  isDark ? Colors.white30 : const Color(0xFFCBD5E1),
+              color: isDark ? Colors.white30 : const Color(0xFFCBD5E1),
             ),
           ),
         ],
@@ -422,8 +409,7 @@ class _LendingListScreenState extends State<LendingListScreen> {
               fontSize: 14.sp,
               fontFamily: 'Manrope',
               fontWeight: FontWeight.bold,
-              color:
-                  isDark ? Colors.white38 : const Color(0xFF64748B),
+              color: isDark ? Colors.white38 : const Color(0xFF64748B),
             ),
           ),
           if (_searchQuery.isEmpty) ...[
@@ -433,8 +419,7 @@ class _LendingListScreenState extends State<LendingListScreen> {
               style: TextStyle(
                 fontSize: 12.sp,
                 fontFamily: 'Manrope',
-                color:
-                    isDark ? Colors.white24 : const Color(0xFF94A3B8),
+                color: isDark ? Colors.white24 : const Color(0xFF94A3B8),
               ),
             ),
           ],

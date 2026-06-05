@@ -1,4 +1,6 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendly/core/extensions/double_ext.dart';
 import 'package:spendly/core/responsive/responsive.dart';
@@ -12,10 +14,12 @@ import '../../domain/entity/lending/lending_entity.dart';
 class LendingListItem extends StatelessWidget {
   final LendingEntity lending;
 
-  const LendingListItem({
+  LendingListItem({
     super.key,
     required this.lending,
   });
+
+  final RxBool _isNameVisible = false.obs;
 
   /// Generate initials from name
   String _initials(String name) {
@@ -181,19 +185,28 @@ class LendingListItem extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      lending.person.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.cardTitle(context).copyWith(
-                        decoration: isPaid
-                            ? TextDecoration.lineThrough
-                            : TextDecoration.none,
-                        decorationColor: isDark
-                            ? Colors.white54
-                            : const Color(0xFF94A3B8),
-                        decorationThickness: 1.5,
-                      ),
+                    GestureDetector(
+                      onTap: () => _isNameVisible.toggle(),
+                      child: Obx(() => ImageFiltered(
+                            imageFilter: ImageFilter.blur(
+                              sigmaX: _isNameVisible.value ? 0.0 : 5.0,
+                              sigmaY: _isNameVisible.value ? 0.0 : 5.0,
+                            ),
+                            child: Text(
+                              lending.person.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.cardTitle(context).copyWith(
+                                decoration: isPaid
+                                    ? TextDecoration.lineThrough
+                                    : TextDecoration.none,
+                                decorationColor: isDark
+                                    ? Colors.white54
+                                    : const Color(0xFF94A3B8),
+                                decorationThickness: 1.5,
+                              ),
+                            ),
+                          )),
                     ),
                     SizedBox(height: 5.h),
                     Row(
