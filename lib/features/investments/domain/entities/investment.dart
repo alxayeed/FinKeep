@@ -37,7 +37,11 @@ class Investment {
     required this.transactionDate,
     required this.status,
     required this.returns,
-  });
+  }) {
+    if (returns.isNotEmpty && status == InvestmentStatus.active) {
+      status = InvestmentStatus.returnsStarted;
+    }
+  }
 
   Investment copyWith({
     String? id,

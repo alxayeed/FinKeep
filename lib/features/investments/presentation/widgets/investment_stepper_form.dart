@@ -365,7 +365,7 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
                           items: InvestmentStatus.values
                               .map((s) => DropdownMenuItem(
                                     value: s,
-                                    child: Text(s.name.capitalizeFirst ?? s.name),
+                                    child: Text(s.label),
                                   ))
                               .toList(),
                           onChanged: (v) => setState(() => _status = v!),

@@ -96,10 +96,14 @@ class InvestmentFirestoreDataSource implements InvestmentDataSource {
 
       final data = snapshot.data()!;
       List returnsList = data['returns'] ?? [];
-
       returnsList.add(returnEntry.toJson());
 
-      await investmentDoc.update({'returns': returnsList});
+      final updates = <String, dynamic>{'returns': returnsList};
+      if (data['status'] == 'active') {
+        updates['status'] = 'returnsStarted';
+      }
+
+      await investmentDoc.update(updates);
     } catch (e) {
       throw ServerException(message: '${AppStrings.operationFailed}: $e');
     }

@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import '../../../auth/presentation/controller/auth_controller.dart';
 import '../../domain/entities/investment.dart';
 import '../../domain/entities/return_entry.dart';
+import '../../domain/enums/investment_status.dart';
 import '../../domain/usecases/add_investment_usecase.dart';
 import '../../domain/usecases/add_return_entry_usecase.dart';
 import '../../domain/usecases/get_investments_usecase.dart';
@@ -156,5 +157,93 @@ class InvestmentController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  int get totalInvestmentsCount => investments.length;
+
+  int get ongoingInvestmentsCount => investments
+      .where((i) =>
+          i.status == InvestmentStatus.active ||
+          i.status == InvestmentStatus.returnsStarted)
+      .length;
+
+  int get completedInvestmentsCount => investments
+      .where((i) => i.status == InvestmentStatus.completed)
+      .length;
+
+  int get lossInvestmentsCount => investments
+      .where((i) => i.status == InvestmentStatus.loss)
+      .length;
+
+  double get totalMoneyInvested =>
+      investments.fold(0.0, (sum, i) => sum + i.amountInvested);
+
+  double get totalMoneyReceived => investments.fold(
+      0.0,
+      (sum, i) =>
+          sum +
+          i.returns.fold(0.0, (rSum, r) => rSum + r.amountReceived));
+
+  double get netProfit {
+    double totalProfit = 0.0;
+    for (final i in investments) {
+      final returnsSum = i.returns.fold(0.0, (sum, r) => sum + r.amountReceived);
+      if (i.status == InvestmentStatus.completed || i.status == InvestmentStatus.loss) {
+        totalProfit += (returnsSum - i.amountInvested);
+      } else {
+        // For ongoing investments, only count as profit if returns exceed invested capital (break-even exceeded)
+        if (returnsSum > i.amountInvested) {
+          totalProfit += (returnsSum - i.amountInvested);
+        }
+      }
+    }
+    return totalProfit;
+  }
+
+  double get activeMoneyInvested => investments
+      .where((i) =>
+          i.status == InvestmentStatus.active ||
+          i.status == InvestmentStatus.returnsStarted)
+      .fold(0.0, (sum, i) => sum + i.amountInvested);
+
+  double get totalExpectedROI => investments
+      .where((i) =>
+          i.status == InvestmentStatus.active ||
+          i.status == InvestmentStatus.returnsStarted)
+      .fold(0.0, (sum, i) => sum + (i.amountInvested * (i.expectedROI / 100)));
+
+  double get capitalAtRisk => investments
+      .where((i) =>
+          i.status == InvestmentStatus.active ||
+          i.status == InvestmentStatus.returnsStarted)
+      .fold(0.0, (sum, i) {
+        final returnsSum = i.returns.fold(0.0, (rSum, r) => rSum + r.amountReceived);
+        return sum + (i.amountInvested - returnsSum).clamp(0.0, double.infinity);
+      });
+
+  double get activeMoneyReceived => investments
+      .where((i) =>
+          i.status == InvestmentStatus.active ||
+          i.status == InvestmentStatus.returnsStarted)
+      .fold(0.0, (sum, i) => sum + i.returns.fold(0.0, (rSum, r) => rSum + r.amountReceived));
+
+  double get totalCompletedProfit {
+    return investments
+        .where((i) => i.status == InvestmentStatus.completed)
+        .fold(0.0, (sum, i) {
+          final returnsSum = i.returns.fold(0.0, (rSum, r) => rSum + r.amountReceived);
+          final profit = returnsSum - i.amountInvested;
+          return sum + (profit > 0 ? profit : 0.0);
+        });
+  }
+
+  double get totalCompletedLoss {
+    return investments
+        .where((i) => i.status == InvestmentStatus.loss)
+        .fold(0.0, (sum, i) {
+          final returnsSum = i.returns.fold(0.0, (rSum, r) => rSum + r.amountReceived);
+          final loss = i.amountInvested - returnsSum;
+          return sum + (loss > 0 ? loss : 0.0);
+        });
   }
 }
