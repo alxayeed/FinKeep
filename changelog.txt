@@ -1,5 +1,7 @@
-0.2.0+1
-UI 2.0
-
-
-
+0.2.0+2
+- UPDATE: Unified CategorySummaryList widget with detailed and compact constructors
+- UPDATE: Improved category summary compact mode to bulleted text style with tiny category icons
+- UPDATE: Redundant widget cleanups (removed custom_tab_bar and expense_list_widget)
+- UPDATE: Exclude current month from highest/lowest monthly analysis calculation
+- FIX: Layout, typography, and divider padding alignment in expense report summary screen
+- UPDATE: Investment list and details
