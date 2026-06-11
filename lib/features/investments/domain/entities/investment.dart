@@ -1,3 +1,4 @@
+import 'package:spendly/core/enums/payment_type.dart';
 import 'package:spendly/features/investments/domain/entities/return_entry.dart';
 
 import '../enums/investment_status.dart';
@@ -15,7 +16,7 @@ class Investment {
   final String notes;
   final String docLinks;
   final String transactionId;
-  final String transactionMedium;
+  final PaymentType transactionMedium;
   final DateTime transactionDate;
   InvestmentStatus status;
   final List<ReturnEntry> returns;
@@ -56,7 +57,7 @@ class Investment {
     String? notes,
     String? docLinks,
     String? transactionId,
-    String? transactionMedium,
+    PaymentType? transactionMedium,
     DateTime? transactionDate,
     InvestmentStatus? status,
     List<ReturnEntry>? returns,

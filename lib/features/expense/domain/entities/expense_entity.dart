@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:spendly/core/enums/payment_type.dart';
 import 'package:spendly/features/expense/data/models/expense_model.dart';
 
 class ExpenseEntity extends Equatable {
@@ -8,6 +9,7 @@ class ExpenseEntity extends Equatable {
   final DateTime date;
   final String description;
   final String userId;
+  final PaymentType paymentMethod;
   final DateTime createdAt;
 
   ExpenseEntity({
@@ -17,12 +19,13 @@ class ExpenseEntity extends Equatable {
     required this.date,
     this.description = '',
     this.userId = '',
+    this.paymentMethod = PaymentType.cash,
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
   @override
   List<Object?> get props =>
-      [id, amount, category, date, description, userId, createdAt];
+      [id, amount, category, date, description, userId, paymentMethod, createdAt];
 
   ExpenseModel toModel() {
     return ExpenseModel(
@@ -32,6 +35,7 @@ class ExpenseEntity extends Equatable {
       date: date,
       description: description,
       userId: userId,
+      paymentMethod: paymentMethod,
       createdAt: createdAt,
     );
   }
@@ -43,6 +47,7 @@ class ExpenseEntity extends Equatable {
     DateTime? date,
     String? description,
     String? userId,
+    PaymentType? paymentMethod,
     DateTime? createdAt,
   }) {
     return ExpenseEntity(
@@ -52,6 +57,7 @@ class ExpenseEntity extends Equatable {
       date: date ?? this.date,
       description: description ?? this.description,
       userId: userId ?? this.userId,
+      paymentMethod: paymentMethod ?? this.paymentMethod,
       createdAt: createdAt ?? this.createdAt,
     );
   }

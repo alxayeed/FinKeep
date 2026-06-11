@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:spendly/core/enums/payment_type.dart';
 
 import '../../../domain/entity/lending/lending_entity.dart';
 import '../lending_person/lending_person_model.dart';
@@ -26,6 +27,8 @@ abstract class LendingModel with _$LendingModel {
     DateTime? dueDate,
     required LendingStatus status,
     required String userId,
+    @JsonKey(fromJson: _fromJsonPaymentMethod, toJson: _toJsonPaymentMethod)
+    @Default(PaymentType.cash) PaymentType paymentMethod,
     List<RepaymentModel>? repayments,
   }) = _LendingModel;
 
@@ -46,6 +49,7 @@ abstract class LendingModel with _$LendingModel {
       dueDate: entity.dueDate,
       status: entity.status,
       userId: entity.userId,
+      paymentMethod: entity.paymentMethod,
       repayments: entity.repayments
           ?.map((repayment) => RepaymentModel.fromEntity(repayment))
           .toList(),
@@ -66,6 +70,7 @@ abstract class LendingModel with _$LendingModel {
       dueDate: dueDate,
       status: status,
       userId: userId,
+      paymentMethod: paymentMethod,
       repayments: repayments?.map((repayment) => repayment.toEntity()).toList(),
     );
   }
@@ -90,4 +95,13 @@ DateTime? _fromJsonNullableDate(dynamic value) {
 
 dynamic _toJsonNullableDate(DateTime? value) {
   return value == null ? null : Timestamp.fromDate(value);
+}
+
+PaymentType _fromJsonPaymentMethod(dynamic value) {
+  if (value is String) return PaymentTypeExtension.fromString(value);
+  return PaymentType.cash;
+}
+
+dynamic _toJsonPaymentMethod(PaymentType value) {
+  return value.value;
 }

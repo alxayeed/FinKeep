@@ -54,9 +54,17 @@ class MonthlyExpenseShimmer extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(width: 80.w, height: 10.h, color: Colors.white),
+                        Container(
+                          width: 80.w,
+                          height: 10.h,
+                          color: Colors.white,
+                        ),
                         SizedBox(height: 4.h),
-                        Container(width: 110.w, height: 16.h, color: Colors.white),
+                        Container(
+                          width: 110.w,
+                          height: 16.h,
+                          color: Colors.white,
+                        ),
                       ],
                     ),
                   ),
@@ -67,9 +75,17 @@ class MonthlyExpenseShimmer extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(width: 60.w, height: 10.h, color: Colors.white),
+                        Container(
+                          width: 60.w,
+                          height: 10.h,
+                          color: Colors.white,
+                        ),
                         SizedBox(height: 4.h),
-                        Container(width: 50.w, height: 16.h, color: Colors.white),
+                        Container(
+                          width: 50.w,
+                          height: 16.h,
+                          color: Colors.white,
+                        ),
                       ],
                     ),
                   ),
@@ -97,39 +113,39 @@ class MonthlyExpenseShimmer extends StatelessWidget {
         ),
         SizedBox(height: 4.h),
 
-        // 2. SmartInsightBanner Skeleton
-        Container(
-          height: 64.h,
-          margin: EdgeInsets.symmetric(vertical: 8.h),
-          decoration: BoxDecoration(
-            color: itemBg,
-            borderRadius: BorderRadius.circular(16.r),
-          ),
-          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(width: 30.r, height: 30.r, color: Colors.white),
-              SizedBox(width: 12.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(width: 80.w, height: 10.h, color: Colors.white),
-                    SizedBox(height: 4.h),
-                    Container(
-                      width: double.infinity,
-                      height: 8.h,
-                      color: Colors.white,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: 8.h),
+        // // 2. SmartInsightBanner Skeleton
+        // Container(
+        //   height: 64.h,
+        //   margin: EdgeInsets.symmetric(vertical: 8.h),
+        //   decoration: BoxDecoration(
+        //     color: itemBg,
+        //     borderRadius: BorderRadius.circular(16.r),
+        //   ),
+        //   padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+        //   child: Row(
+        //     crossAxisAlignment: CrossAxisAlignment.start,
+        //     children: [
+        //       Container(width: 30.r, height: 30.r, color: Colors.white),
+        //       SizedBox(width: 12.w),
+        //       Expanded(
+        //         child: Column(
+        //           crossAxisAlignment: CrossAxisAlignment.start,
+        //           mainAxisAlignment: MainAxisAlignment.center,
+        //           children: [
+        //             Container(width: 80.w, height: 10.h, color: Colors.white),
+        //             SizedBox(height: 4.h),
+        //             Container(
+        //               width: double.infinity,
+        //               height: 8.h,
+        //               color: Colors.white,
+        //             ),
+        //           ],
+        //         ),
+        //       ),
+        //     ],
+        //   ),
+        // ),
+        // SizedBox(height: 8.h),
 
         // 3. CategorySpendingList Checklist Skeletons
         Padding(
@@ -143,7 +159,7 @@ class MonthlyExpenseShimmer extends StatelessWidget {
           ),
         ),
         SizedBox(height: 4.h),
-        ...List.generate(5, (index) {
+        ...List.generate(10, (index) {
           return Padding(
             padding: EdgeInsets.symmetric(vertical: 4.h),
             child: Container(

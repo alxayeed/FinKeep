@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:spendly/core/enums/payment_type.dart';
 import '../../domain/entities/investment.dart';
 import '../../domain/entities/return_entry.dart';
 import '../../domain/enums/investment_status.dart';
@@ -85,7 +86,7 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
         docLinks:
             'https://drive.google.com/file/d/15mOiSprPqVCF_E0VRm5c4d_F07Vu8FSC/view?usp=sharing',
         transactionId: 'TXN1001',
-        transactionMedium: 'Bank Transfer',
+        transactionMedium: PaymentType.transfer,
         transactionDate: DateTime(2024, 1, 9),
         status: InvestmentStatus.returnsStarted,
         returns: [
@@ -121,7 +122,7 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
         docLinks:
             'https://drive.google.com/drive/folders/1-dK75DbFK2rzBCekDjk2uICqzJHyaqzQ?usp=sharing',
         transactionId: 'TXN1002',
-        transactionMedium: 'bKash',
+        transactionMedium: PaymentType.mfs,
         transactionDate: DateTime(2023, 5, 31),
         status: InvestmentStatus.active,
         returns: [],
@@ -139,7 +140,7 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
         notes: 'High risk investment',
         docLinks: '',
         transactionId: 'TXN1003',
-        transactionMedium: 'MSF',
+        transactionMedium: PaymentType.mfs,
         transactionDate: DateTime(2023, 3, 14),
         status: InvestmentStatus.loss,
         returns: [
@@ -166,7 +167,7 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
         notes: 'Completed investment',
         docLinks: 'https://github.com/alxayeed',
         transactionId: 'TXN1004',
-        transactionMedium: 'Cash',
+        transactionMedium: PaymentType.cash,
         transactionDate: DateTime(2022, 1, 31),
         status: InvestmentStatus.completed,
         returns: [

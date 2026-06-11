@@ -8,9 +8,9 @@ import '../../../../core/responsive/responsive.dart';
 import '../../../../core/routes/app_router.dart';
 import '../../../../core/styles/app_colors.dart';
 import 'package:spendly/core/extensions/double_ext.dart';
+import 'package:spendly/core/enums/payment_type.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../controllers/expense_controller.dart';
-import 'edit_expense_screen.dart';
 
 class ExpenseDetailsScreen extends StatefulWidget {
   final ExpenseEntity expense;
@@ -35,44 +35,35 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    Color categoryColor;
+    Color categoryColor = AppColors.getColorForCategory(_currentExpense.category);
     IconData categoryIcon;
 
     switch (_currentExpense.category.toLowerCase()) {
       case 'food':
-        categoryColor = Colors.orange.shade600;
         categoryIcon = Icons.restaurant_rounded;
         break;
       case 'transport':
-        categoryColor = const Color(0xFF059669);
         categoryIcon = Icons.directions_car_rounded;
         break;
       case 'family':
-        categoryColor = Colors.blue.shade600;
         categoryIcon = Icons.family_restroom_rounded;
         break;
       case 'personal':
-        categoryColor = Colors.purple.shade600;
         categoryIcon = Icons.person_rounded;
         break;
       case 'lend':
-        categoryColor = Colors.teal.shade600;
         categoryIcon = Icons.handshake_rounded;
         break;
       case 'clothing':
-        categoryColor = Colors.pink.shade600;
         categoryIcon = Icons.shopping_bag_rounded;
         break;
       case 'hangout':
-        categoryColor = Colors.amber.shade700;
         categoryIcon = Icons.local_activity_rounded;
         break;
       case 'utilities':
-        categoryColor = Colors.indigo.shade600;
         categoryIcon = Icons.bolt_rounded;
         break;
       default:
-        categoryColor = const Color(0xFF475569);
         categoryIcon = Icons.category_rounded;
     }
 
@@ -87,14 +78,14 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
         leadingWidth: 80.w,
         leading: TextButton.icon(
           onPressed: () => context.pop(),
-          icon: Icon(Icons.chevron_left, size: 24.sp, color: const Color(0xFF007AFF)),
+          icon: Icon(Icons.chevron_left, size: 24.sp, color: AppColors.primaryTeal),
           label: Text(
             'Back',
             style: TextStyle(
               fontSize: 15.sp,
               fontFamily: 'Manrope',
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF007AFF),
+              color: AppColors.primaryTeal,
             ),
           ),
           style: TextButton.styleFrom(
@@ -129,7 +120,7 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
                 fontSize: 15.sp,
                 fontFamily: 'Manrope',
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFF007AFF),
+                color: AppColors.primaryTeal,
               ),
             ),
           ),
@@ -267,7 +258,7 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
                                   borderRadius: BorderRadius.circular(4.r),
                                 ),
                                 child: Text(
-                                  'CASH',
+                                  _currentExpense.paymentMethod.value,
                                   style: TextStyle(
                                     fontSize: 8.sp,
                                     fontFamily: 'Manrope',
@@ -278,7 +269,7 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
                               ),
                               SizedBox(width: 8.w),
                               Text(
-                                'Cash Payment',
+                                _currentExpense.paymentMethod.displayName,
                                 style: TextStyle(
                                   fontSize: 13.sp,
                                   fontFamily: 'Manrope',
@@ -336,66 +327,11 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
                       ),
                     ),
 
-                  SizedBox(height: 16.h),
-
-                  // 3. Image Receipt Card (Dashed)
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(vertical: 24.h),
-                    decoration: BoxDecoration(
-                      color: isDark ? AppColors.cardDark : AppColors.cardLight,
-                      borderRadius: BorderRadius.circular(16.r),
-                      border: Border.all(
-                        color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
-                        width: 1,
-                        style: BorderStyle.solid, // solid fallback border in Flutter
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.image_outlined,
-                          size: 32.sp,
-                          color: isDark ? Colors.white24 : const Color(0xFFCBD5E1),
-                        ),
-                        SizedBox(height: 8.h),
-                        Text(
-                          'Add Receipt Image',
-                          style: TextStyle(
-                            fontSize: 11.sp,
-                            fontFamily: 'Manrope',
-                            fontWeight: FontWeight.bold,
-                            color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
                   SizedBox(height: 24.h),
 
                   // Action Buttons
                   Column(
                     children: [
-                      // Share/Export Button
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Statement exported successfully!')),
-                          );
-                        },
-                        icon: Icon(Icons.ios_share_rounded, size: 18.sp),
-                        label: const Text('Export Statement'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isDark ? const Color(0xFF334155) : const Color(0xFFEEF0F2),
-                          foregroundColor: isDark ? Colors.white : const Color(0xFF0F172A),
-                          minimumSize: Size(double.infinity, 48.h),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16.r),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 10.h),
                       // Delete button
                       OutlinedButton.icon(
                         onPressed: () => _confirmDelete(context),

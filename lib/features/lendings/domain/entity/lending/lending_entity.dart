@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:spendly/core/enums/payment_type.dart';
 
 import '../lending_person/lending_person_entity.dart';
 import '../repayment/repayment_entity.dart';
@@ -23,6 +24,7 @@ abstract class LendingEntity with _$LendingEntity {
     DateTime? dueDate,
     required LendingStatus status,
     required String userId,
+    @Default(PaymentType.cash) PaymentType paymentMethod,
     List<RepaymentEntity>? repayments,
   }) = _LendingEntity;
 }

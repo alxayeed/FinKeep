@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:spendly/core/enums/payment_type.dart';
 import '../../domain/entities/expense_entity.dart';
 
 class ExpenseModel extends ExpenseEntity {
@@ -9,6 +10,7 @@ class ExpenseModel extends ExpenseEntity {
     required super.date,
     super.description,
     super.userId,
+    super.paymentMethod,
     super.createdAt,
   });
 
@@ -20,6 +22,7 @@ class ExpenseModel extends ExpenseEntity {
       date: (json['date'] as Timestamp).toDate(),
       description: json['description'] as String,
       userId: json['userId'] as String,
+      paymentMethod: PaymentTypeExtension.fromString(json['paymentMethod'] as String? ?? 'CASH'),
       createdAt: (json['createdAt'] as Timestamp).toDate(),
     );
   }
@@ -32,6 +35,7 @@ class ExpenseModel extends ExpenseEntity {
       'date': Timestamp.fromDate(date),
       'description': description,
       'userId': userId,
+      'paymentMethod': paymentMethod.value,
       'createdAt': Timestamp.fromDate(createdAt),
     };
   }
@@ -44,6 +48,7 @@ class ExpenseModel extends ExpenseEntity {
       date: date,
       description: description,
       userId: userId,
+      paymentMethod: paymentMethod,
       createdAt: createdAt,
     );
   }

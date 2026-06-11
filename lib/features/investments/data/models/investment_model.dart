@@ -1,3 +1,4 @@
+import 'package:spendly/core/enums/payment_type.dart';
 import 'package:spendly/features/investments/domain/entities/investment.dart';
 
 import '../../domain/enums/investment_status.dart';
@@ -37,7 +38,7 @@ class InvestmentModel extends Investment {
       notes: json['notes'] ?? '',
       docLinks: json['docLinks'] ?? '',
       transactionId: json['transactionId'],
-      transactionMedium: json['transactionMedium'],
+      transactionMedium: PaymentTypeExtension.fromString(json['transactionMedium'] as String? ?? 'CASH'),
       transactionDate: DateTime.parse(json['transactionDate']),
       status: InvestmentStatus.values.firstWhere(
         (e) => e.toString() == 'InvestmentStatus.${json['status']}',
@@ -64,7 +65,7 @@ class InvestmentModel extends Investment {
       'notes': notes,
       'docLinks': docLinks,
       'transactionId': transactionId,
-      'transactionMedium': transactionMedium,
+      'transactionMedium': transactionMedium.value,
       'transactionDate': transactionDate.toIso8601String(),
       'status': status.name,
       'returns': returns.map((r) => (r as ReturnEntryModel).toJson()).toList(),

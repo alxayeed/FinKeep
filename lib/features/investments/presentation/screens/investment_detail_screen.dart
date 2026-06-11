@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:spendly/core/responsive/responsive.dart';
 import 'package:spendly/core/routes/app_router.dart';
 
+import 'package:spendly/core/enums/payment_type.dart';
 import '../../../../core/common/widgets/custom_app_bar.dart';
 import '../../domain/entities/investment.dart';
 import '../controller/investment_controller.dart';
@@ -93,7 +94,7 @@ class InvestmentDetailScreen extends StatelessWidget {
             ),
             const Divider(),
             _infoRow('Transaction ID', inv.transactionId),
-            _infoRow('Medium', inv.transactionMedium),
+            _infoRow('Medium', inv.transactionMedium.displayName),
             _infoRow('Date', _fmt(inv.transactionDate)),
           ],
         ),

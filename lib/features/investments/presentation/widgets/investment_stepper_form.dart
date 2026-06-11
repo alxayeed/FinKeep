@@ -4,6 +4,7 @@ import 'package:spendly/core/common/widgets/widgets.dart';
 import 'package:spendly/core/responsive/responsive.dart';
 import 'package:spendly/core/styles/app_colors.dart';
 import 'package:spendly/features/auth/presentation/controller/auth_controller.dart';
+import 'package:spendly/core/enums/payment_type.dart';
 
 import '../../domain/entities/investment.dart';
 import '../../domain/enums/investment_status.dart';
@@ -36,12 +37,12 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
   late final TextEditingController _notesController;
   late final TextEditingController _docLinksController;
   late final TextEditingController _transactionIdController;
-  late final TextEditingController _transactionMediumController;
 
   DateTime? _startDate;
   DateTime? _expectedEndDate;
   DateTime? _transactionDate;
   InvestmentStatus _status = InvestmentStatus.active;
+  late PaymentType _paymentMethod;
 
   bool get isEdit => widget.initialInvestment != null;
 
@@ -66,14 +67,12 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
     _transactionIdController = TextEditingController(
       text: inv?.transactionId ?? '',
     );
-    _transactionMediumController = TextEditingController(
-      text: inv?.transactionMedium ?? '',
-    );
 
     _startDate = inv?.startDate ?? DateTime.now();
     _expectedEndDate = inv?.expectedEndDate ?? DateTime.now().add(const Duration(days: 365));
     _transactionDate = inv?.transactionDate ?? DateTime.now();
     _status = inv?.status ?? InvestmentStatus.active;
+    _paymentMethod = inv?.transactionMedium ?? PaymentType.cash;
   }
 
   @override
@@ -86,8 +85,76 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
     _notesController.dispose();
     _docLinksController.dispose();
     _transactionIdController.dispose();
-    _transactionMediumController.dispose();
     super.dispose();
+  }
+
+  Widget _buildLabel(String text, Color color) {
+    return Padding(
+      padding: EdgeInsets.only(left: 4.w, bottom: 6.h, top: 10.h),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: 11.sp,
+            fontFamily: 'Manrope',
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPaymentBtn(String text, IconData icon, PaymentType method, Color primaryColor) {
+    final isSelected = _paymentMethod == method;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _paymentMethod = method;
+          });
+        },
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 12.h),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? primaryColor.withValues(alpha: 0.05)
+                : (isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9)),
+            border: Border.all(
+              color: isSelected ? primaryColor : Colors.transparent,
+              width: 1.5,
+            ),
+            borderRadius: BorderRadius.circular(16.r),
+          ),
+          child: Column(
+            children: [
+              Icon(
+                icon,
+                size: 20.sp,
+                color: isSelected
+                    ? primaryColor
+                    : (isDark ? Colors.white38 : const Color(0xFF94A3B8)),
+              ),
+              SizedBox(height: 4.h),
+              Text(
+                text.toUpperCase(),
+                style: TextStyle(
+                  fontSize: 9.sp,
+                  fontFamily: 'Manrope',
+                  fontWeight: FontWeight.bold,
+                  color: isSelected
+                      ? primaryColor
+                      : (isDark ? Colors.white38 : const Color(0xFF64748B)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void _submit() {
@@ -117,7 +184,7 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
       notes: _notesController.text.trim(),
       docLinks: _docLinksController.text.trim(),
       transactionId: _transactionIdController.text.trim(),
-      transactionMedium: _transactionMediumController.text.trim(),
+      transactionMedium: _paymentMethod,
       transactionDate: _transactionDate!,
       status: _status,
       returns: widget.initialInvestment?.returns ?? [],
@@ -137,6 +204,7 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final Color labelColor = isDark ? Colors.white60 : const Color(0xFF64748B);
+    final Color primaryColor = AppColors.primaryTeal;
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.bgDark : Colors.white,
@@ -303,29 +371,28 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
                       const Divider(height: 16),
                       SizedBox(height: 8.h),
 
-                      // Transaction Medium & ID
+                      // Payment Method Label and Selector Row
+                      _buildLabel('Payment Method *', labelColor),
                       Row(
                         children: [
-                          Expanded(
-                            child: StyledTextFormField(
-                              controller: _transactionMediumController,
-                              labelText: 'Transaction Medium *',
-                              hintText: 'e.g. Bank, bKash, Cash',
-                              prefixIcon: Icons.payment_outlined,
-                              validator: (v) => v == null || v.isEmpty ? 'Required' : null,
-                            ),
-                          ),
-                          SizedBox(width: 12.w),
-                          Expanded(
-                            child: StyledTextFormField(
-                              controller: _transactionIdController,
-                              labelText: 'Transaction ID *',
-                              hintText: 'e.g. TXN10023455',
-                              prefixIcon: Icons.vpn_key_outlined,
-                              validator: (v) => v == null || v.isEmpty ? 'Required' : null,
-                            ),
-                          ),
+                          _buildPaymentBtn('Cash', Icons.payments_rounded, PaymentType.cash, primaryColor),
+                          SizedBox(width: 8.w),
+                          _buildPaymentBtn('MFS', Icons.phone_android_rounded, PaymentType.mfs, primaryColor),
+                          SizedBox(width: 8.w),
+                          _buildPaymentBtn('Card', Icons.credit_card_rounded, PaymentType.card, primaryColor),
+                          SizedBox(width: 8.w),
+                          _buildPaymentBtn('Transfer', Icons.account_balance_rounded, PaymentType.transfer, primaryColor),
                         ],
+                      ),
+                      SizedBox(height: 16.h),
+
+                      // Transaction ID
+                      StyledTextFormField(
+                        controller: _transactionIdController,
+                        labelText: 'Transaction ID *',
+                        hintText: 'e.g. TXN10023455',
+                        prefixIcon: Icons.vpn_key_outlined,
+                        validator: (v) => v == null || v.isEmpty ? 'Required' : null,
                       ),
                       SizedBox(height: 16.h),
 
