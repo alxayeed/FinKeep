@@ -1,7 +1,6 @@
-0.2.0+2
-- UPDATE: Unified CategorySummaryList widget with detailed and compact constructors
-- UPDATE: Improved category summary compact mode to bulleted text style with tiny category icons
-- UPDATE: Redundant widget cleanups (removed custom_tab_bar and expense_list_widget)
-- UPDATE: Exclude current month from highest/lowest monthly analysis calculation
-- FIX: Layout, typography, and divider padding alignment in expense report summary screen
-- UPDATE: Investment list and details
+0.2.0+3
+- UPDATE: Standardized payment method selection using the reusable PaymentType enum across Expenses, Lendings, and Investments
+- UPDATE: Reordered payment methods selector to prioritize Cash first, followed by MFS, Card, and Transfer
+- UPDATE: Unified Create/Edit form widgets for both Expenses and Lendings to eliminate redundant layouts
+- UPDATE: Aligned Expense details screen layout with brand teal colors and removed unsupported export and receipt attachment placeholders
+- FIX: Dynamic system status bar overlay style handling to prevent solid black status bar in Dark Mode on real Android devices
