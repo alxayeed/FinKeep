@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:spendly/core/common/widgets/widgets.dart';
+import 'package:spendly/core/enums/payment_type.dart';
 import 'package:spendly/core/responsive/responsive.dart';
 import 'package:spendly/core/styles/app_colors.dart';
 import 'package:spendly/features/auth/presentation/controller/auth_controller.dart';
-import 'package:spendly/core/enums/payment_type.dart';
 
 import '../../domain/entities/investment.dart';
 import '../../domain/enums/investment_status.dart';
@@ -55,12 +55,16 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
 
     _titleController = TextEditingController(text: inv?.title ?? '');
     _amountController = TextEditingController(
-      text: inv?.amountInvested != null ? inv!.amountInvested.toStringAsFixed(0) : '',
+      text: inv?.amountInvested != null
+          ? inv!.amountInvested.toStringAsFixed(0)
+          : '',
     );
     _platformController = TextEditingController(text: inv?.platformName ?? '');
     _profitRateController = TextEditingController(text: inv?.profitRate ?? '');
     _expectedROIController = TextEditingController(
-      text: inv?.expectedROI != null && inv!.expectedROI > 0 ? inv.expectedROI.toStringAsFixed(0) : '',
+      text: inv?.expectedROI != null && inv!.expectedROI > 0
+          ? inv.expectedROI.toStringAsFixed(0)
+          : '',
     );
     _notesController = TextEditingController(text: inv?.notes ?? '');
     _docLinksController = TextEditingController(text: inv?.docLinks ?? '');
@@ -69,7 +73,8 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
     );
 
     _startDate = inv?.startDate ?? DateTime.now();
-    _expectedEndDate = inv?.expectedEndDate ?? DateTime.now().add(const Duration(days: 365));
+    _expectedEndDate =
+        inv?.expectedEndDate ?? DateTime.now().add(const Duration(days: 365));
     _transactionDate = inv?.transactionDate ?? DateTime.now();
     _status = inv?.status ?? InvestmentStatus.active;
     _paymentMethod = inv?.transactionMedium ?? PaymentType.cash;
@@ -106,7 +111,12 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
     );
   }
 
-  Widget _buildPaymentBtn(String text, IconData icon, PaymentType method, Color primaryColor) {
+  Widget _buildPaymentBtn(
+    String text,
+    IconData icon,
+    PaymentType method,
+    Color primaryColor,
+  ) {
     final isSelected = _paymentMethod == method;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -159,7 +169,7 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
-    
+
     final double? amount = double.tryParse(_amountController.text);
     if (amount == null || amount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -218,7 +228,9 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
                 height: 4.h,
                 margin: EdgeInsets.only(top: 10.h, bottom: 8.h),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                  color: isDark
+                      ? const Color(0xFF334155)
+                      : const Color(0xFFE2E8F0),
                   borderRadius: BorderRadius.circular(2.r),
                 ),
               ),
@@ -234,7 +246,11 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
                     onTap: () => Navigator.pop(context),
                     child: Row(
                       children: [
-                        Icon(Icons.chevron_left, size: 22.sp, color: AppColors.primaryTeal),
+                        Icon(
+                          Icons.chevron_left,
+                          size: 22.sp,
+                          color: AppColors.primaryTeal,
+                        ),
                         Text(
                           'Back',
                           style: TextStyle(
@@ -280,7 +296,8 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
                         autofocus: !isEdit,
                         validator: (val) {
                           if (val == null || val.isEmpty) return 'Required';
-                          if (double.tryParse(val) == null) return 'Invalid amount';
+                          if (double.tryParse(val) == null)
+                            return 'Invalid amount';
                           return null;
                         },
                       ),
@@ -291,9 +308,11 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
                       StyledTextFormField(
                         controller: _titleController,
                         labelText: 'Investment Title *',
-                        hintText: 'e.g. Sanchayapatra, Stock Purchase, Startup Fund',
+                        hintText:
+                            'e.g. Sanchayapatra, Stock Purchase, Startup Fund',
                         prefixIcon: Icons.business_center_outlined,
-                        validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                        validator: (v) =>
+                            v == null || v.isEmpty ? 'Required' : null,
                       ),
                       SizedBox(height: 16.h),
 
@@ -303,7 +322,8 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
                         labelText: 'Platform Name *',
                         hintText: 'e.g. Bangladesh Bank, LankaBangla, IDLC',
                         prefixIcon: Icons.account_balance_outlined,
-                        validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                        validator: (v) =>
+                            v == null || v.isEmpty ? 'Required' : null,
                       ),
                       SizedBox(height: 16.h),
 
@@ -316,7 +336,8 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
                               labelText: 'Profit Rate *',
                               hintText: 'e.g. 11.04% or 12–15%',
                               prefixIcon: Icons.trending_up,
-                              validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                              validator: (v) =>
+                                  v == null || v.isEmpty ? 'Required' : null,
                             ),
                           ),
                           SizedBox(width: 12.w),
@@ -340,7 +361,8 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
                             child: StyledDatePickerButton(
                               labelText: 'Start Date *',
                               selectedDate: _startDate,
-                              onDateSelected: (d) => setState(() => _startDate = d),
+                              onDateSelected: (d) =>
+                                  setState(() => _startDate = d),
                               validator: (d) => d == null ? 'Required' : null,
                             ),
                           ),
@@ -349,7 +371,8 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
                             child: StyledDatePickerButton(
                               labelText: 'Expected End Date *',
                               selectedDate: _expectedEndDate,
-                              onDateSelected: (d) => setState(() => _expectedEndDate = d),
+                              onDateSelected: (d) =>
+                                  setState(() => _expectedEndDate = d),
                               validator: (d) => d == null ? 'Required' : null,
                             ),
                           ),
@@ -375,13 +398,33 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
                       _buildLabel('Payment Method *', labelColor),
                       Row(
                         children: [
-                          _buildPaymentBtn('Cash', Icons.payments_rounded, PaymentType.cash, primaryColor),
+                          _buildPaymentBtn(
+                            'Cash',
+                            Icons.payments_rounded,
+                            PaymentType.cash,
+                            primaryColor,
+                          ),
                           SizedBox(width: 8.w),
-                          _buildPaymentBtn('MFS', Icons.phone_android_rounded, PaymentType.mfs, primaryColor),
+                          _buildPaymentBtn(
+                            'MFS',
+                            Icons.phone_android_rounded,
+                            PaymentType.mfs,
+                            primaryColor,
+                          ),
                           SizedBox(width: 8.w),
-                          _buildPaymentBtn('Card', Icons.credit_card_rounded, PaymentType.card, primaryColor),
+                          _buildPaymentBtn(
+                            'Card',
+                            Icons.credit_card_rounded,
+                            PaymentType.card,
+                            primaryColor,
+                          ),
                           SizedBox(width: 8.w),
-                          _buildPaymentBtn('Transfer', Icons.account_balance_rounded, PaymentType.transfer, primaryColor),
+                          _buildPaymentBtn(
+                            'Transfer',
+                            Icons.account_balance_rounded,
+                            PaymentType.transfer,
+                            primaryColor,
+                          ),
                         ],
                       ),
                       SizedBox(height: 16.h),
@@ -392,7 +435,8 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
                         labelText: 'Transaction ID *',
                         hintText: 'e.g. TXN10023455',
                         prefixIcon: Icons.vpn_key_outlined,
-                        validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                        validator: (v) =>
+                            v == null || v.isEmpty ? 'Required' : null,
                       ),
                       SizedBox(height: 16.h),
 
@@ -400,7 +444,8 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
                       StyledDatePickerButton(
                         labelText: 'Transaction Date *',
                         selectedDate: _transactionDate,
-                        onDateSelected: (d) => setState(() => _transactionDate = d),
+                        onDateSelected: (d) =>
+                            setState(() => _transactionDate = d),
                         validator: (d) => d == null ? 'Required' : null,
                       ),
                       SizedBox(height: 16.h),
@@ -430,10 +475,12 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
                           labelText: 'Investment Status',
                           prefixIcon: Icons.info_outline,
                           items: InvestmentStatus.values
-                              .map((s) => DropdownMenuItem(
-                                    value: s,
-                                    child: Text(s.label),
-                                  ))
+                              .map(
+                                (s) => DropdownMenuItem(
+                                  value: s,
+                                  child: Text(s.label),
+                                ),
+                              )
                               .toList(),
                           onChanged: (v) => setState(() => _status = v!),
                         ),
@@ -441,43 +488,51 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
                       ],
 
                       // Premium Emerald Action Button
-                      Obx(() => ElevatedButton(
-                            onPressed: _controller.isLoading.value ? null : _submit,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primaryTeal,
-                              foregroundColor: Colors.white,
-                              minimumSize: Size(double.infinity, 54.h),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16.r),
-                              ),
-                              elevation: 2,
-                              shadowColor: AppColors.primaryTeal.withValues(alpha: 0.2),
+                      Obx(
+                        () => ElevatedButton(
+                          onPressed: _controller.isLoading.value
+                              ? null
+                              : _submit,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primaryTeal,
+                            foregroundColor: Colors.white,
+                            minimumSize: Size(double.infinity, 54.h),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16.r),
                             ),
-                            child: _controller.isLoading.value
-                                ? SizedBox(
-                                    height: 20.r,
-                                    width: 20.r,
-                                    child: const CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.save_alt_rounded, size: 18.sp),
-                                      SizedBox(width: 8.w),
-                                      Text(
-                                        isEdit ? 'Update Investment' : 'Save Investment',
-                                        style: TextStyle(
-                                          fontSize: 14.sp,
-                                          fontFamily: 'Manrope',
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
+                            elevation: 2,
+                            shadowColor: AppColors.primaryTeal.withValues(
+                              alpha: 0.2,
+                            ),
+                          ),
+                          child: _controller.isLoading.value
+                              ? SizedBox(
+                                  height: 20.r,
+                                  width: 20.r,
+                                  child: const CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
                                   ),
-                          )),
+                                )
+                              : Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.save_alt_rounded, size: 18.sp),
+                                    SizedBox(width: 8.w),
+                                    Text(
+                                      isEdit
+                                          ? 'Update Investment'
+                                          : 'Save Investment',
+                                      style: TextStyle(
+                                        fontSize: 14.sp,
+                                        fontFamily: 'Manrope',
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                        ),
+                      ),
                       SizedBox(height: 40.h),
                     ],
                   ),
