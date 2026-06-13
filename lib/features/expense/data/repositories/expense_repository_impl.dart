@@ -1,37 +1,65 @@
+import 'package:spendly/core/config/app_config.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../../domain/repositories/expense_repository.dart';
+import '../datasources/expense_local_datasource.dart';
 import '../datasources/expense_remote_datasource.dart';
 
 class ExpenseRepositoryImpl implements ExpenseRepository {
+  final ExpenseLocalDataSource localDataSource;
   final ExpenseRemoteDataSource remoteDataSource;
 
-  ExpenseRepositoryImpl(this.remoteDataSource);
+  ExpenseRepositoryImpl({
+    required this.localDataSource,
+    required this.remoteDataSource,
+  });
 
   @override
   Future<void> addExpense(ExpenseEntity expense) async {
-    await remoteDataSource.createExpense(expense.toModel());
+    await localDataSource.createExpense(expense.toModel());
+    if (AppConfig.isPersonal) {
+      try {
+        await remoteDataSource.createExpense(expense.toModel());
+      } catch (e) {
+        // Will be picked up by the offline sync queue in Step 6
+      }
+    }
   }
 
   @override
   Future<void> updateExpense(ExpenseEntity expense) async {
-    await remoteDataSource.updateExpense(expense.toModel());
+    await localDataSource.updateExpense(expense.toModel());
+    if (AppConfig.isPersonal) {
+      try {
+        await remoteDataSource.updateExpense(expense.toModel());
+      } catch (e) {
+        // Sync queue will process it
+      }
+    }
   }
 
   @override
   Future<void> deleteExpense(String id) async {
-    await remoteDataSource.deleteExpense(id);
+    await localDataSource.deleteExpense(id);
+    if (AppConfig.isPersonal) {
+      try {
+        await remoteDataSource.deleteExpense(id);
+      } catch (e) {
+        // Sync queue will process it
+      }
+    }
   }
 
   @override
   Future<List<ExpenseEntity>> getExpenses(String userId) async {
-    final expenses = await remoteDataSource.getExpenses(userId);
-    return expenses.map((expenseModel) => expenseModel.toEntity()).toList();
+    // Offline-first: read locally.
+    final localExpenses = await localDataSource.getExpenses(userId);
+    return localExpenses.map((model) => model.toEntity()).toList();
   }
 
   @override
   Future<ExpenseEntity?> getExpenseById(String id) async {
-    final expenseModel = await remoteDataSource.getExpenseById(id);
-    return expenseModel?.toEntity();
+    final localModel = await localDataSource.getExpenseById(id);
+    return localModel?.toEntity();
   }
 
   @override
@@ -39,11 +67,8 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
     String userId,
     DateTime selectedMonth,
   ) async {
-    final models = await remoteDataSource.getExpensesForMonth(
-      userId,
-      selectedMonth,
-    );
-    return models.map((model) => model.toEntity()).toList();
+    final localExpenses = await localDataSource.getExpensesForMonth(userId, selectedMonth);
+    return localExpenses.map((model) => model.toEntity()).toList();
   }
 
   @override
@@ -52,13 +77,8 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
     DateTime start,
     DateTime end,
   ) async {
-    final models = await remoteDataSource.getExpensesInRange(
-      userId,
-      start,
-      end,
-    );
-
-    return models.map((model) => model.toEntity()).toList();
+    final localExpenses = await localDataSource.getExpensesInRange(userId, start, end);
+    return localExpenses.map((model) => model.toEntity()).toList();
   }
 
   @override
@@ -66,9 +86,6 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
     String userId,
     DateTime selectedMonth,
   ) async {
-    return await remoteDataSource.getTotalExpensesForMonth(
-      userId,
-      selectedMonth,
-    );
+    return await localDataSource.getTotalExpensesForMonth(userId, selectedMonth);
   }
 }

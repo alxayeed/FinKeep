@@ -56,6 +56,13 @@ import 'features/lendings/domain/usecases/repayment/delete_repayment_usecase.dar
 import 'features/lendings/domain/usecases/repayment/get_repayments_for_lending_usecase.dart';
 import 'features/lendings/domain/usecases/repayment/update_repayment_usecase.dart';
 import 'features/lendings/presentation/controllers/lendings_controller.dart';
+import 'package:spendly/core/services/local_db_service.dart';
+import 'package:spendly/features/expense/data/datasources/expense_local_datasource.dart';
+import 'package:spendly/features/expense/data/datasources/expense_hive_datasource.dart';
+import 'package:spendly/features/investments/data/datasources/investment_local_datasource.dart';
+import 'package:spendly/features/investments/data/datasources/investment_hive_datasource.dart';
+import 'package:spendly/features/lendings/data/datasources/lending_local_datasource.dart';
+import 'package:spendly/features/lendings/data/datasources/lending_hive_datasource.dart';
 
 class DependencyInjection {
   static void initDependencies() {
@@ -85,11 +92,24 @@ class DependencyInjection {
     );
     // Get.lazyPut(() => SplashController());
 
+    // --- Local DB Service Reference ---
+    Get.lazyPut<LocalDbService>(() => LocalDbService(), fenix: true);
+
     // --- Expense Feature ---
+    Get.lazyPut<ExpenseLocalDataSource>(
+      () => ExpenseHiveDataSource(localDb: Get.find()),
+      fenix: true,
+    );
     Get.lazyPut<ExpenseRemoteDataSource>(
       () => FirebaseCloudStoreDataSource(fireStore: Get.find()),
+      fenix: true,
     );
-    Get.lazyPut<ExpenseRepository>(() => ExpenseRepositoryImpl(Get.find()));
+    Get.lazyPut<ExpenseRepository>(
+      () => ExpenseRepositoryImpl(
+        localDataSource: Get.find(),
+        remoteDataSource: Get.find(),
+      ),
+    );
     Get.lazyPut(() => GetAllExpensesUseCase(Get.find()));
     Get.lazyPut(() => GetMonthlyExpensesUseCase(Get.find()));
     Get.lazyPut(() => GetLastMonthTotalUseCase(Get.find()));
@@ -120,11 +140,17 @@ class DependencyInjection {
     );
 
     // --- Lending Feature ---
+    Get.lazyPut<LendingLocalDataSource>(
+      () => LendingHiveDataSource(localDb: Get.find()),
+      fenix: true,
+    );
     Get.lazyPut<LendingDataSource>(
       () => LendingFirestoreDataSource(firestore: Get.find()),
+      fenix: true,
     );
     Get.lazyPut<LendingRepository>(
       () => LendingRepositoryImpl(
+        localDataSource: Get.find(),
         remoteDataSource: Get.find(),
         exceptionMapper: Get.find(),
       ),
@@ -171,12 +197,20 @@ class DependencyInjection {
     );
 
     // --- Investment Feature ---
+    Get.lazyPut<InvestmentLocalDataSource>(
+      () => InvestmentHiveDataSource(localDb: Get.find()),
+      fenix: true,
+    );
     Get.lazyPut<InvestmentDataSource>(
       () => InvestmentFirestoreDataSource(firestore: Get.find()),
+      fenix: true,
     );
 
     Get.lazyPut<InvestmentRepository>(
-      () => InvestmentRepositoryImpl(dataSource: Get.find()),
+      () => InvestmentRepositoryImpl(
+        localDataSource: Get.find(),
+        remoteDataSource: Get.find(),
+      ),
     );
 
     // Use Cases
