@@ -1,6 +1,2 @@
-0.2.0+4
- FIX: Dynamic system status bar overlay style handling to prevent solid black status bar in Dark Mode on real Android devices
-- ADD: Set monthly and category-specific budgets with Firestore-backed persistence and real-time validation in SetMonthlyBudgetScreen
-- ADD: Interactive PaymentMediumChart pie chart to visualize expense payment distributions
-- UPDATE: Made the total spent progress card adaptive to switch from row to column layout for long text/numbers
-- UPDATE: Split monolithic ExpenseController into MonthlyExpenseController, BudgetController, and ExpenseReportController for clean architecture
+0.2.5
+ FIX: default budget and recurring budget issue
