@@ -1,6 +1,6 @@
-0.2.0+3
-- UPDATE: Standardized payment method selection using the reusable PaymentType enum across Expenses, Lendings, and Investments
-- UPDATE: Reordered payment methods selector to prioritize Cash first, followed by MFS, Card, and Transfer
-- UPDATE: Unified Create/Edit form widgets for both Expenses and Lendings to eliminate redundant layouts
-- UPDATE: Aligned Expense details screen layout with brand teal colors and removed unsupported export and receipt attachment placeholders
-- FIX: Dynamic system status bar overlay style handling to prevent solid black status bar in Dark Mode on real Android devices
+0.2.0+4
+ FIX: Dynamic system status bar overlay style handling to prevent solid black status bar in Dark Mode on real Android devices
+- ADD: Set monthly and category-specific budgets with Firestore-backed persistence and real-time validation in SetMonthlyBudgetScreen
+- ADD: Interactive PaymentMediumChart pie chart to visualize expense payment distributions
+- UPDATE: Made the total spent progress card adaptive to switch from row to column layout for long text/numbers
+- UPDATE: Split monolithic ExpenseController into MonthlyExpenseController, BudgetController, and ExpenseReportController for clean architecture
