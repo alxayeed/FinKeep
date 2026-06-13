@@ -8,7 +8,8 @@ import 'package:spendly/core/responsive/responsive.dart';
 
 import '../../../../core/enums/expense_category.dart';
 import '../../domain/entities/expense_entity.dart';
-import '../controllers/expense_controller.dart';
+import '../controllers/expense_report_controller.dart';
+import '../controllers/budget_controller.dart';
 import 'budget_progress_card.dart';
 import 'category_summary_list.dart';
 import 'expense_bar_chart.dart';
@@ -24,11 +25,11 @@ class ExpenseSummeryWidget extends StatelessWidget {
     this.isReport = false,
   });
 
-  final ExpenseController controller;
+  final ExpenseReportController controller;
   final bool isReport;
 
   List<ExpenseEntity> get _dataList {
-    return isReport ? controller.reportExpenses : controller.expenses;
+    return isReport ? controller.reportExpenses : [];
   }
 
   @override
@@ -105,13 +106,14 @@ class ExpenseSummery extends StatelessWidget {
       );
     }
 
-    final controller = Get.find<ExpenseController>();
-    final startDate = controller.startDate.value;
-    final endDate = controller.endDate.value;
-    double calculatedBudget = controller.monthlyBudget.value;
+    final reportController = Get.find<ExpenseReportController>();
+    final budgetController = Get.find<BudgetController>();
+    final startDate = reportController.startDate.value;
+    final endDate = reportController.endDate.value;
+    double calculatedBudget = budgetController.monthlyBudget.value;
     if (isReport && startDate != null && endDate != null) {
       final days = endDate.difference(startDate).inDays + 1;
-      calculatedBudget = (controller.monthlyBudget.value / 30.0) * days;
+      calculatedBudget = (budgetController.monthlyBudget.value / 30.0) * days;
     }
 
     return Column(

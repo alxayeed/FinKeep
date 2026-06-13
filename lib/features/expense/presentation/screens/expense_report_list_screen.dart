@@ -7,14 +7,14 @@ import 'package:spendly/core/extensions/double_ext.dart';
 import 'package:spendly/core/responsive/responsive.dart';
 import 'package:spendly/core/styles/app_colors.dart';
 import 'package:spendly/features/expense/domain/entities/expense_entity.dart';
-import 'package:spendly/features/expense/presentation/controllers/expense_controller.dart';
+import 'package:spendly/features/expense/presentation/controllers/expense_report_controller.dart';
 import 'package:spendly/features/expense/presentation/widgets/category_filter_pills.dart';
 import '../../../../core/enums/expense_category.dart';
 import '../../../../core/common/widgets/loader_widget.dart';
 import '../widgets/expense_card_widget.dart';
 
 class ExpenseReportListScreen extends StatelessWidget {
-  final ExpenseController controller;
+  final ExpenseReportController controller;
 
   const ExpenseReportListScreen({
     super.key,

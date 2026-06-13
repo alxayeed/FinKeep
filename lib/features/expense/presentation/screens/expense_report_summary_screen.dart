@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../controllers/expense_controller.dart';
+import '../controllers/expense_report_controller.dart';
 import '../widgets/expense_report_components.dart';
 
 class ExpenseReportSummaryScreen extends StatelessWidget {
-  final ExpenseController controller;
+  final ExpenseReportController controller;
 
   const ExpenseReportSummaryScreen({
     super.key,

@@ -7,7 +7,7 @@ import '../../../../core/enums/payment_type.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../../domain/entities/expense_entity.dart';
-import '../controllers/expense_controller.dart';
+import '../controllers/monthly_expense_controller.dart';
 import '../widgets/expense_form.dart';
 
 class CreateExpenseScreen extends StatefulWidget {
@@ -18,7 +18,7 @@ class CreateExpenseScreen extends StatefulWidget {
 }
 
 class _CreateExpenseScreenState extends State<CreateExpenseScreen> {
-  final ExpenseController controller = Get.find();
+  final MonthlyExpenseController controller = Get.find();
 
   @override
   Widget build(BuildContext context) {

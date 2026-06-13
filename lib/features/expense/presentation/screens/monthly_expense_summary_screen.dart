@@ -6,11 +6,11 @@ import 'package:spendly/core/responsive/responsive.dart';
 import 'package:spendly/core/routes/app_router.dart';
 import 'package:spendly/core/styles/app_colors.dart';
 
-import '../controllers/expense_controller.dart';
+import '../controllers/monthly_expense_controller.dart';
 import '../widgets/widgets.dart';
 
 class MonthlyExpenseSummaryScreen extends StatelessWidget {
-  final ExpenseController controller;
+  final MonthlyExpenseController controller;
   final ValueChanged<ExpenseCategory> onCategoryTap;
 
   const MonthlyExpenseSummaryScreen({

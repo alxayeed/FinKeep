@@ -10,7 +10,7 @@ import '../../../../core/styles/app_colors.dart';
 import 'package:spendly/core/extensions/double_ext.dart';
 import 'package:spendly/core/enums/payment_type.dart';
 import '../../domain/entities/expense_entity.dart';
-import '../controllers/expense_controller.dart';
+import '../controllers/monthly_expense_controller.dart';
 
 class ExpenseDetailsScreen extends StatefulWidget {
   final ExpenseEntity expense;
@@ -22,7 +22,7 @@ class ExpenseDetailsScreen extends StatefulWidget {
 }
 
 class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
-  final ExpenseController controller = Get.find();
+  final MonthlyExpenseController controller = Get.find();
   late ExpenseEntity _currentExpense;
 
   @override

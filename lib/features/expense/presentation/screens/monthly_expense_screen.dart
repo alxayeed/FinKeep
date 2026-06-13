@@ -7,7 +7,7 @@ import '../../../../core/enums/expense_category.dart';
 
 import '../../../../core/common/widgets/custom_fab.dart';
 import '../../../../core/styles/app_colors.dart';
-import '../controllers/expense_controller.dart';
+import '../controllers/monthly_expense_controller.dart';
 import '../widgets/widgets.dart';
 import 'monthly_expense_summary_screen.dart';
 import 'monthly_expense_list_screen.dart';
@@ -20,7 +20,7 @@ class MonthlyExpenseScreen extends StatefulWidget {
 }
 
 class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
-  final ExpenseController controller = Get.find();
+  final MonthlyExpenseController controller = Get.find();
   int _selectedTab = 0; // 0 for Summary, 1 for Details
 
   @override

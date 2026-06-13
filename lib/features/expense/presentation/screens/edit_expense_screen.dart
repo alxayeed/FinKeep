@@ -7,7 +7,7 @@ import '../../../../core/enums/payment_type.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../../domain/entities/expense_entity.dart';
-import '../controllers/expense_controller.dart';
+import '../controllers/monthly_expense_controller.dart';
 import '../widgets/expense_form.dart';
 
 class EditExpenseScreen extends StatefulWidget {
@@ -21,7 +21,7 @@ class EditExpenseScreen extends StatefulWidget {
 }
 
 class _EditExpenseScreenState extends State<EditExpenseScreen> {
-  final ExpenseController controller = Get.find();
+  final MonthlyExpenseController controller = Get.find();
 
   Future<void> _confirmDelete(BuildContext context) async {
     final bool? confirm = await showDialog<bool>(

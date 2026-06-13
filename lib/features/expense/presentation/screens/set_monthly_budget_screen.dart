@@ -5,7 +5,7 @@ import 'package:spendly/core/enums/expense_category.dart';
 import 'package:spendly/core/responsive/responsive.dart';
 import 'package:spendly/core/styles/app_colors.dart';
 import 'package:spendly/core/extensions/double_ext.dart';
-import '../controllers/set_monthly_budget_controller.dart';
+import '../controllers/budget_controller.dart';
 
 class SetMonthlyBudgetScreen extends StatelessWidget {
   final DateTime month;
@@ -63,12 +63,18 @@ class SetMonthlyBudgetScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Put SetMonthlyBudgetController into Get dependency injection system dynamically
-    final controller = Get.put(SetMonthlyBudgetController(month: month));
+    final controller = Get.find<BudgetController>();
+    controller.initUi(month);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final monthLabel = DateFormat('MMMM yyyy').format(month);
 
-    return Scaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          controller.disposeUi();
+        }
+      },
+      child: Scaffold(
       backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
       appBar: AppBar(
         backgroundColor: isDark ? AppColors.bgDark : Colors.white,
@@ -473,7 +479,7 @@ class SetMonthlyBudgetScreen extends StatelessWidget {
             left: 0,
             right: 0,
             child: Obx(() {
-              final isLoading = controller.expenseController.isBudgetLoading.value;
+              final isLoading = controller.isBudgetLoading.value;
               return Container(
                 padding: EdgeInsets.all(16.r),
                 decoration: BoxDecoration(
@@ -554,6 +560,7 @@ class SetMonthlyBudgetScreen extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 }

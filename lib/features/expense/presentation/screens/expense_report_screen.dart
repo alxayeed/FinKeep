@@ -6,7 +6,7 @@ import 'package:spendly/core/responsive/responsive.dart';
 
 import '../../../../core/common/widgets/date_selector_button.dart';
 import '../../../../core/styles/app_colors.dart';
-import '../controllers/expense_controller.dart';
+import '../controllers/expense_report_controller.dart';
 import '../widgets/widgets.dart';
 import 'expense_report_summary_screen.dart';
 import 'expense_report_list_screen.dart';
@@ -19,7 +19,7 @@ class ExpenseReportScreen extends StatefulWidget {
 }
 
 class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
-  final ExpenseController controller = Get.find<ExpenseController>();
+  final ExpenseReportController controller = Get.find<ExpenseReportController>();
   int _selectedTab = 0; // 0 for Summary, 1 for Details
 
   @override
@@ -179,7 +179,7 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
             _ReportHeader(
               startDate: startDate,
               endDate: endDate,
-              totalExpense: controller.totalExpense.value,
+              totalExpense: controller.reportTotalExpense.value,
               onStartDateSelect: () =>
                   _selectDate(context, isStartDate: true),
               onEndDateSelect: () => _selectDate(context, isStartDate: false),
