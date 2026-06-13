@@ -116,6 +116,8 @@ class MonthlyExpenseSummaryScreen extends StatelessWidget {
               },
               child: BudgetProgressCard(spent: totalSpent, budget: totalBudget),
             ),
+            // Spending by medium pie chart
+            PaymentMediumChart(expenses: controller.expenses),
             // Category spending checklist
             CategorySummaryList.detailed(
               spentByCategory: spentByCategory,

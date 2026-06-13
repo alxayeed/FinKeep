@@ -14,6 +14,7 @@ import '../../domain/entities/expense_entity.dart';
 import '../controllers/expense_controller.dart';
 import 'category_summary_list.dart';
 import 'expense_bar_chart.dart';
+import 'payment_medium_chart.dart';
 
 // ==========================================
 // 1. Unified Main Summary Widget Container
@@ -114,8 +115,14 @@ class ExpenseSummery extends StatelessWidget {
 
         SizedBox(height: 16.h),
 
+        // 💳 Spending Medium Chart
+        PaymentMediumChart(expenses: expenses),
+
+        SizedBox(height: 16.h),
+
         // 📊 Summary by Category
         SummaryByCategoryWidget(expenses: expenses),
+
 
         SizedBox(height: 12.h),
         const CustomDivider(),

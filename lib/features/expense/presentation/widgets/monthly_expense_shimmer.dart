@@ -3,6 +3,8 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/styles/app_colors.dart';
+import 'payment_medium_chart.dart';
+
 
 class MonthlyExpenseShimmer extends StatelessWidget {
   final int selectedTab;
@@ -112,6 +114,8 @@ class MonthlyExpenseShimmer extends StatelessWidget {
           ),
         ),
         SizedBox(height: 4.h),
+        const PaymentMediumChartShimmer(),
+
 
         // // 2. SmartInsightBanner Skeleton
         // Container(
