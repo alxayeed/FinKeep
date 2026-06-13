@@ -4,6 +4,7 @@ import 'package:spendly/core/enums/expense_category.dart';
 import 'package:spendly/features/auth/presentation/controller/auth_controller.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../../domain/usecases/usecases.dart';
+import 'budget_controller.dart';
 
 class ExpenseReportController extends GetxController {
   final GetExpensesInRangeUseCase getExpensesInRangeUseCase;
@@ -13,6 +14,7 @@ class ExpenseReportController extends GetxController {
   var reportExpenses = <ExpenseEntity>[].obs;
   var reportFilteredExpenses = <ExpenseEntity>[].obs;
   var reportTotalExpense = 0.0.obs;
+  var reportRangeBudget = 0.0.obs;
 
   final categories = <String>[
     'All',
@@ -43,6 +45,7 @@ class ExpenseReportController extends GetxController {
     startDate.value = null;
     endDate.value = null;
     selectedCategory.value = 'All';
+    reportRangeBudget.value = 0.0;
   }
 
   Future<void> fetchExpensesInRange(DateTime start, DateTime end) async {
@@ -61,12 +64,40 @@ class ExpenseReportController extends GetxController {
       );
       updateReportTotalExpense();
       filterReportExpensesByCategory();
+      await calculateBudgetForRange(start, end);
     } catch (e) {
       log('Error fetching expenses in range: $e');
       reportExpenses.value = [];
     } finally {
       isLoading.value = false;
     }
+  }
+
+  Future<void> calculateBudgetForRange(DateTime start, DateTime end) async {
+    final budgetController = Get.find<BudgetController>();
+    double totalBudget = 0.0;
+
+    var current = DateTime(start.year, start.month, start.day);
+    final limitDate = DateTime(end.year, end.month, end.day);
+
+    final Map<DateTime, int> monthDaysCount = {};
+    while (!current.isAfter(limitDate)) {
+      final monthKey = DateTime(current.year, current.month);
+      monthDaysCount[monthKey] = (monthDaysCount[monthKey] ?? 0) + 1;
+      current = current.add(const Duration(days: 1));
+    }
+
+    for (final entry in monthDaysCount.entries) {
+      final month = entry.key;
+      final daysCovered = entry.value;
+
+      final monthBudget = await budgetController.getBudgetForMonth(month);
+      final totalDaysInMonth = DateTime(month.year, month.month + 1, 0).day;
+      
+      totalBudget += monthBudget * (daysCovered / totalDaysInMonth);
+    }
+
+    reportRangeBudget.value = totalBudget;
   }
 
   void filterReportExpensesByCategory() {

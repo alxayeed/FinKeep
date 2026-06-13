@@ -219,11 +219,17 @@ class BudgetController extends GetxController {
 
       if (isRecurring) {
         await firestore.collection(collectionName).doc(recurringDocId).set(budgetData);
+        try {
+          await firestore.collection(collectionName).doc(monthDocId).delete();
+        } catch (_) {}
       } else {
         await firestore.collection(collectionName).doc(monthDocId).set({
           ...budgetData,
           'month': DateFormat('yyyy-MMMM').format(month),
         });
+        try {
+          await firestore.collection(collectionName).doc(recurringDocId).delete();
+        } catch (_) {}
       }
 
       monthlyBudget.value = overall;
@@ -233,5 +239,36 @@ class BudgetController extends GetxController {
     } finally {
       isBudgetLoading.value = false;
     }
+  }
+
+  Future<double> getBudgetForMonth(DateTime month) async {
+    if (userId.isEmpty) return 30000.0;
+    try {
+      final collectionName = AppConfig.isProd ? 'budgets' : 'budgets_dev';
+      final String monthDocId = '${userId}_${DateFormat('yyyy-MMMM').format(month)}';
+      final String recurringDocId = '${userId}_recurring';
+
+      // 1. Try loading month-specific budget
+      final monthDoc = await firestore.collection(collectionName).doc(monthDocId).get();
+      if (monthDoc.exists && monthDoc.data() != null) {
+        final data = monthDoc.data()!;
+        return (data['overallBudget'] as num?)?.toDouble() ?? 30000.0;
+      }
+
+      // 2. Try loading recurring budget (only if the target month is the current month or in the future)
+      final now = DateTime.now();
+      final currentMonthStart = DateTime(now.year, now.month);
+      final targetMonthStart = DateTime(month.year, month.month);
+      if (!targetMonthStart.isBefore(currentMonthStart)) {
+        final recurringDoc = await firestore.collection(collectionName).doc(recurringDocId).get();
+        if (recurringDoc.exists && recurringDoc.data() != null) {
+          final data = recurringDoc.data()!;
+          return (data['overallBudget'] as num?)?.toDouble() ?? 30000.0;
+        }
+      }
+    } catch (e) {
+      log('Error getting budget for month: $e');
+    }
+    return 30000.0;
   }
 }

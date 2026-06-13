@@ -108,13 +108,9 @@ class ExpenseSummery extends StatelessWidget {
 
     final reportController = Get.find<ExpenseReportController>();
     final budgetController = Get.find<BudgetController>();
-    final startDate = reportController.startDate.value;
-    final endDate = reportController.endDate.value;
-    double calculatedBudget = budgetController.monthlyBudget.value;
-    if (isReport && startDate != null && endDate != null) {
-      final days = endDate.difference(startDate).inDays + 1;
-      calculatedBudget = (budgetController.monthlyBudget.value / 30.0) * days;
-    }
+    final calculatedBudget = isReport
+        ? reportController.reportRangeBudget.value
+        : budgetController.monthlyBudget.value;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
