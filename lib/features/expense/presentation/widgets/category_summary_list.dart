@@ -162,10 +162,11 @@ class CategorySummaryList extends StatelessWidget {
               }
 
               // Detailed variant
-              final budget = budgetsByCategory[category] ?? 1000.0;
-              final percent = budget > 0 ? (spent / budget) : 0.0;
+              final double? budget = budgetsByCategory[category];
+              final hasBudget = budget != null && budget > 0;
+              final percent = hasBudget ? (spent / budget) : 0.0;
               final percentText = '${(percent * 100).toStringAsFixed(0)}%';
-              final isOverBudget = spent > budget;
+              final isOverBudget = hasBudget && spent > budget;
 
               return GestureDetector(
                 onTap: () => onCategoryTap?.call(category),
@@ -234,67 +235,70 @@ class CategorySummaryList extends StatelessWidget {
                                         color: isDark ? Colors.white : const Color(0xFF0F172A),
                                       ),
                                     ),
-                                    Text(
-                                      ' / ${budget.toCurrency()} ৳',
-                                      style: TextStyle(
-                                        fontSize: 9.sp,
-                                        fontFamily: 'Manrope',
-                                        fontWeight: FontWeight.w600,
-                                        color: isDark ? Colors.white30 : const Color(0xFF94A3B8),
+                                    if (hasBudget)
+                                      Text(
+                                        ' / ${budget.toCurrency()} ৳',
+                                        style: TextStyle(
+                                          fontSize: 9.sp,
+                                          fontFamily: 'Manrope',
+                                          fontWeight: FontWeight.w600,
+                                          color: isDark ? Colors.white30 : const Color(0xFF94A3B8),
+                                        ),
                                       ),
-                                    ),
                                   ],
                                 ),
                               ],
                             ),
-                            SizedBox(height: 6.h),
-                            // Progress Bar & Percentage
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(9999.r),
-                                    child: SizedBox(
-                                      height: 5.h,
-                                      child: LinearProgressIndicator(
-                                        value: percent.clamp(0.0, 1.0),
-                                        backgroundColor: isDark
-                                            ? const Color(0xFF1E293B)
-                                            : const Color(0xFFF1F5F9),
-                                        valueColor: AlwaysStoppedAnimation<Color>(
-                                          isOverBudget ? Colors.red.shade600 : itemColor,
+                            if (hasBudget) ...[
+                              SizedBox(height: 6.h),
+                              // Progress Bar & Percentage
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(9999.r),
+                                      child: SizedBox(
+                                        height: 5.h,
+                                        child: LinearProgressIndicator(
+                                          value: percent.clamp(0.0, 1.0),
+                                          backgroundColor: isDark
+                                              ? const Color(0xFF1E293B)
+                                              : const Color(0xFFF1F5F9),
+                                          valueColor: AlwaysStoppedAnimation<Color>(
+                                            isOverBudget ? Colors.red.shade600 : itemColor,
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                SizedBox(width: 8.w),
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    if (isOverBudget) ...[
-                                      Icon(
-                                        Icons.warning_amber_rounded,
-                                        color: Colors.red.shade600,
-                                        size: 11.sp,
+                                  SizedBox(width: 8.w),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (isOverBudget) ...[
+                                        Icon(
+                                          Icons.warning_amber_rounded,
+                                          color: Colors.red.shade600,
+                                          size: 11.sp,
+                                        ),
+                                        SizedBox(width: 2.w),
+                                      ],
+                                      Text(
+                                        percentText,
+                                        style: TextStyle(
+                                          fontSize: 9.sp,
+                                          fontFamily: 'Manrope',
+                                          fontWeight: FontWeight.bold,
+                                          color: isOverBudget 
+                                              ? Colors.red.shade600 
+                                              : (isDark ? Colors.white38 : const Color(0xFF94A3B8)),
+                                        ),
                                       ),
-                                      SizedBox(width: 2.w),
                                     ],
-                                    Text(
-                                      percentText,
-                                      style: TextStyle(
-                                        fontSize: 9.sp,
-                                        fontFamily: 'Manrope',
-                                        fontWeight: FontWeight.bold,
-                                        color: isOverBudget 
-                                            ? Colors.red.shade600 
-                                            : (isDark ? Colors.white38 : const Color(0xFF94A3B8)),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ],
                         ),
                       ),

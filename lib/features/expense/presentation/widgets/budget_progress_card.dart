@@ -77,7 +77,7 @@ class BudgetProgressCard extends StatelessWidget {
                       textBaseline: TextBaseline.alphabetic,
                       children: [
                         Text(
-                          '${spent.toCurrency()} ৳',
+                          spent.toCurrency(),
                           style: TextStyle(
                             fontSize: 18,
                             fontFamily: 'Manrope',
@@ -87,9 +87,9 @@ class BudgetProgressCard extends StatelessWidget {
                                 : const Color(0xFF0F172A),
                           ),
                         ),
-                        SizedBox(width: 4.w),
+                        // SizedBox(width: 4.w),
                         Text(
-                          '${AppLocalizations.translate('of')} ${budget.toCurrency()} ৳',
+                          '/${budget.toCurrency()} ৳',
                           style: TextStyle(
                             fontSize: 11,
                             fontFamily: 'Manrope',
@@ -136,36 +136,16 @@ class BudgetProgressCard extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 4.h),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: [
-                        Text(
-                          '${remainingVal.abs().toCurrency()} ৳',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontFamily: 'Manrope',
-                            fontWeight: FontWeight.bold,
-                            color: isOverspent
-                                ? AppColors.error
-                                : AppColors.success,
-                          ),
-                        ),
-                        SizedBox(width: 4.w),
-                        Text(
-                          isOverspent
-                              ? 'over'
-                              : AppLocalizations.translate('left'),
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontFamily: 'Manrope',
-                            fontWeight: FontWeight.bold,
-                            color: isOverspent
-                                ? AppColors.error
-                                : AppColors.success,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      '${remainingVal.abs().toCurrency()} ৳',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontFamily: 'Manrope',
+                        fontWeight: FontWeight.bold,
+                        color: isOverspent
+                            ? AppColors.error
+                            : AppColors.success,
+                      ),
                     ),
                   ],
                 ),

@@ -7,6 +7,9 @@ import 'package:spendly/core/extensions/double_ext.dart';
 
 import '../../../../core/enums/expense_category.dart';
 import '../../../auth/presentation/controller/auth_controller.dart';
+import 'package:spendly/core/config/app_config.dart';
+import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../../domain/usecases/get_last_month_total_usecase.dart';
 import '../../domain/usecases/usecases.dart';
@@ -45,7 +48,9 @@ class ExpenseController extends GetxController {
   final Rx<DateTime?> endDate = Rx<DateTime?>(null);
 
   // ===== Budget & Last Month Total =====
-  var monthlyBudget = 25000.0.obs;
+  var monthlyBudget = 30000.0.obs;
+  var categoryBudgets = <ExpenseCategory, double>{}.obs;
+  var isBudgetLoading = false.obs;
   var lastMonthTotal = 0.0.obs;
   var lastMonthExpenses = <ExpenseEntity>[].obs;
 
@@ -102,9 +107,141 @@ class ExpenseController extends GetxController {
 
       await fetchLastMonthTotal();
       await fetchLastMonthExpenses();
+      await loadBudgetsForMonth(month);
     } finally {
       isLoading.value = false;
       shouldRefresh = false;
+    }
+  }
+
+  Future<void> loadBudgetsForMonth(DateTime month) async {
+    isBudgetLoading.value = true;
+    try {
+      final firestore = Get.find<FirebaseFirestore>();
+      final collectionName = AppConfig.isProd ? 'budgets' : 'budgets_dev';
+      
+      final monthKey = DateFormat('yyyy-MMMM').format(month);
+      final monthDocId = '${userId}_$monthKey';
+      
+      // 1. Try loading month-specific budget
+      final monthSnap = await firestore.collection(collectionName).doc(monthDocId).get();
+      if (monthSnap.exists && monthSnap.data() != null) {
+        final data = monthSnap.data()!;
+        monthlyBudget.value = (data['overallBudget'] as num?)?.toDouble() ?? 30000.0;
+        
+        final catBudgets = <ExpenseCategory, double>{};
+        if (data['categoryBudgets'] is Map) {
+          final map = data['categoryBudgets'] as Map;
+          map.forEach((k, v) {
+            final cat = ExpenseCategoryExtension.fromString(k.toString());
+            catBudgets[cat] = (v as num).toDouble();
+          });
+        }
+        categoryBudgets.value = catBudgets;
+        return;
+      }
+      
+      // 2. Try loading recurring budget (only if the target month is the current month or in the future)
+      final now = DateTime.now();
+      final currentMonthStart = DateTime(now.year, now.month);
+      final targetMonthStart = DateTime(month.year, month.month);
+      if (!targetMonthStart.isBefore(currentMonthStart)) {
+        final recurringDocId = '${userId}_recurring';
+        final recSnap = await firestore.collection(collectionName).doc(recurringDocId).get();
+        if (recSnap.exists && recSnap.data() != null) {
+          final data = recSnap.data()!;
+          monthlyBudget.value = (data['overallBudget'] as num?)?.toDouble() ?? 30000.0;
+          
+          final catBudgets = <ExpenseCategory, double>{};
+          if (data['categoryBudgets'] is Map) {
+            final map = data['categoryBudgets'] as Map;
+            map.forEach((k, v) {
+              final cat = ExpenseCategoryExtension.fromString(k.toString());
+              catBudgets[cat] = (v as num).toDouble();
+            });
+          }
+          categoryBudgets.value = catBudgets;
+          return;
+        }
+      }
+      
+      // 3. Fallback to default overall budget of 30,000 and default category budgets
+      monthlyBudget.value = 30000.0;
+      categoryBudgets.value = {
+        ExpenseCategory.family: 12000.0,
+        ExpenseCategory.personal: 5000.0,
+        ExpenseCategory.transport: 3000.0,
+        ExpenseCategory.food: 2500.0,
+        ExpenseCategory.utilities: 1500.0,
+        ExpenseCategory.lend: 1500.0,
+        ExpenseCategory.clothing: 1500.0,
+        ExpenseCategory.hangout: 1500.0,
+        ExpenseCategory.other: 1500.0,
+      };
+    } catch (e) {
+      log('Error loading budget: $e');
+      monthlyBudget.value = 30000.0;
+      categoryBudgets.value = {
+        ExpenseCategory.family: 12000.0,
+        ExpenseCategory.personal: 5000.0,
+        ExpenseCategory.transport: 3000.0,
+        ExpenseCategory.food: 2500.0,
+        ExpenseCategory.utilities: 1500.0,
+        ExpenseCategory.lend: 1500.0,
+        ExpenseCategory.clothing: 1500.0,
+        ExpenseCategory.hangout: 1500.0,
+        ExpenseCategory.other: 1500.0,
+      };
+    } finally {
+      isBudgetLoading.value = false;
+    }
+  }
+
+  Future<void> saveBudgetsForMonth({
+    required DateTime month,
+    required double overall,
+    required Map<ExpenseCategory, double> categories,
+    required bool isRecurring,
+  }) async {
+    isBudgetLoading.value = true;
+    try {
+      final firestore = Get.find<FirebaseFirestore>();
+      final collectionName = AppConfig.isProd ? 'budgets' : 'budgets_dev';
+      
+      // Prepare category map of string to double
+      final categoryMap = <String, double>{};
+      categories.forEach((cat, limit) {
+        categoryMap[cat.name] = limit;
+      });
+      
+      final budgetData = {
+        'userId': userId,
+        'overallBudget': overall,
+        'categoryBudgets': categoryMap,
+      };
+
+      if (isRecurring) {
+        // Save to recurring document
+        final recurringDocId = '${userId}_recurring';
+        await firestore.collection(collectionName).doc(recurringDocId).set(budgetData);
+      } else {
+        // Save to month-specific document
+        final monthKey = DateFormat('yyyy-MMMM').format(month);
+        final monthDocId = '${userId}_$monthKey';
+        await firestore.collection(collectionName).doc(monthDocId).set({
+          ...budgetData,
+          'monthKey': monthKey,
+        });
+      }
+      
+      // Update in-memory state
+      monthlyBudget.value = overall;
+      categoryBudgets.value = categories;
+    } catch (e) {
+      log('Error saving budget: $e');
+      rethrow;
+    } finally {
+      isBudgetLoading.value = false;
     }
   }
 
