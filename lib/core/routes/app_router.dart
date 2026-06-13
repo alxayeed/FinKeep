@@ -31,6 +31,7 @@ class AppRoutes {
   static const String expenseDetails = '/expenseDetails';
   static const String editExpense = '/editExpense';
   static const String expenseReport = '/expenseReport';
+  static const String setMonthlyBudget = '/setMonthlyBudget';
 
   // Lending Routes
   static const String lendings = '/lendings';
@@ -123,6 +124,14 @@ class AppRouter {
         name: AppRoutes.addExpense,
         pageBuilder: (context, state) =>
             const NoTransitionPage(child: CreateExpenseScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.setMonthlyBudget,
+        name: AppRoutes.setMonthlyBudget,
+        pageBuilder: (context, state) {
+          final DateTime month = state.extra as DateTime? ?? DateTime.now();
+          return NoTransitionPage(child: SetMonthlyBudgetScreen(month: month));
+        },
       ),
       GoRoute(
         path: AppRoutes.expenseDetails,

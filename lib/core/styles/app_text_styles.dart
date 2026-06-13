@@ -21,7 +21,7 @@ class AppTextStyles {
   static TextStyle cardTitle(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return TextStyle(
-      fontSize: 16.sp,
+      fontSize: 14.sp,
       fontFamily: 'Manrope',
       fontWeight: FontWeight.bold,
       color: isDark ? Colors.white : const Color(0xFF0F172A),
@@ -32,7 +32,7 @@ class AppTextStyles {
   static TextStyle cardSubtitle(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return TextStyle(
-      fontSize: 13.sp,
+      fontSize: 12.sp,
       fontFamily: 'Manrope',
       fontWeight: FontWeight.w600,
       color: isDark ? Colors.white38 : const Color(0xFF94A3B8),

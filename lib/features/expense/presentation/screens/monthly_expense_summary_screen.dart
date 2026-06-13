@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:spendly/core/enums/expense_category.dart';
 import 'package:spendly/core/responsive/responsive.dart';
 import 'package:spendly/core/styles/app_colors.dart';
+import 'package:go_router/go_router.dart';
+import 'package:spendly/core/routes/app_router.dart';
 import '../controllers/expense_controller.dart';
 import '../widgets/widgets.dart';
 
@@ -79,22 +81,10 @@ class MonthlyExpenseSummaryScreen extends StatelessWidget {
             .fold(0.0, (sum, item) => sum + item.amount);
         spentByCategory[category] = spent;
 
-        // Dynamically allocate budget percentage for beautiful aesthetics
-        switch (category) {
-          case ExpenseCategory.food:
-            budgetsByCategory[category] = totalBudget * 0.20;
-            break;
-          case ExpenseCategory.transport:
-            budgetsByCategory[category] = totalBudget * 0.10;
-            break;
-          case ExpenseCategory.family:
-            budgetsByCategory[category] = totalBudget * 0.30;
-            break;
-          case ExpenseCategory.utilities:
-            budgetsByCategory[category] = totalBudget * 0.15;
-            break;
-          default:
-            budgetsByCategory[category] = totalBudget * 0.05;
+        // Retrieve user-configured budget limit from controller
+        final limit = controller.categoryBudgets[category];
+        if (limit != null) {
+          budgetsByCategory[category] = limit;
         }
       }
 
@@ -107,8 +97,25 @@ class MonthlyExpenseSummaryScreen extends StatelessWidget {
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
           children: [
-            // Total budget vs spent slider card
-            BudgetProgressCard(spent: totalSpent, budget: totalBudget),
+            // Total budget vs spent slider card (clickable)
+            GestureDetector(
+              onTap: () {
+                final now = DateTime.now();
+                final currentMonthStart = DateTime(now.year, now.month);
+                final selected = DateTime(
+                  controller.selectedMonth.value.year,
+                  controller.selectedMonth.value.month,
+                );
+                final targetMonth = selected.isBefore(currentMonthStart)
+                    ? now
+                    : controller.selectedMonth.value;
+                context.pushNamed(
+                  AppRoutes.setMonthlyBudget,
+                  extra: targetMonth,
+                );
+              },
+              child: BudgetProgressCard(spent: totalSpent, budget: totalBudget),
+            ),
             // Category spending checklist
             CategorySummaryList.detailed(
               spentByCategory: spentByCategory,

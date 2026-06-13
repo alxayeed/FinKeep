@@ -44,7 +44,19 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
                   _showSearchDialog(context);
                 },
                 onFilterPressed: () {
-                  _showFilterBottomSheet(context);
+                  final now = DateTime.now();
+                  final currentMonthStart = DateTime(now.year, now.month);
+                  final selected = DateTime(
+                    controller.selectedMonth.value.year,
+                    controller.selectedMonth.value.month,
+                  );
+                  final targetMonth = selected.isBefore(currentMonthStart)
+                      ? now
+                      : controller.selectedMonth.value;
+                  context.pushNamed(
+                    AppRoutes.setMonthlyBudget,
+                    extra: targetMonth,
+                  );
                 },
               ),
 
@@ -180,71 +192,5 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
       },
     );
   }
-
-  // --- Aesthetic dynamic filter bottom sheet ---
-  void _showFilterBottomSheet(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: isDark ? AppColors.cardDark : AppColors.cardLight,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
-      ),
-      builder: (context) {
-        return SafeArea(
-          top: false,
-          bottom: true,
-          child: Padding(
-            padding: EdgeInsets.all(20.r),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 38.w,
-                    height: 4.h,
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? const Color(0xFF334155)
-                          : const Color(0xFFE2E8F0),
-                      borderRadius: BorderRadius.circular(2.r),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 16.h),
-                Text(
-                  'Configure Limit & Budget',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontFamily: 'Manrope',
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : const Color(0xFF0F172A),
-                  ),
-                ),
-                SizedBox(height: 12.h),
-                TextField(
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: 'Monthly Budget Limit (৳)',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                  ),
-                  onSubmitted: (val) {
-                    final parsed = double.tryParse(val);
-                    if (parsed != null && parsed > 0) {
-                      controller.monthlyBudget.value = parsed;
-                    }
-                    Navigator.pop(context);
-                  },
-                ),
-                SizedBox(height: 20.h),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 }
+

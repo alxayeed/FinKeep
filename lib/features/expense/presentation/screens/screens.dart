@@ -7,3 +7,5 @@ export 'monthly_expense_list_screen.dart';
 export 'expense_report_screen.dart';
 export 'expense_report_summary_screen.dart';
 export 'expense_report_list_screen.dart';
+export 'set_monthly_budget_screen.dart';
+
