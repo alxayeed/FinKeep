@@ -12,6 +12,7 @@ class LocalDbService {
   late final Box<Map> _personsBox;
   late final Box<Map> _repaymentsBox;
   late final Box<Map> _syncQueueBox;
+  late final Box<Map> _budgetsBox;
 
   Future<void> init() async {
     await Hive.initFlutter();
@@ -25,6 +26,7 @@ class LocalDbService {
     _personsBox = await Hive.openBox<Map>('persons$suffix');
     _repaymentsBox = await Hive.openBox<Map>('repayments$suffix');
     _syncQueueBox = await Hive.openBox<Map>('pending_sync_operations$suffix');
+    _budgetsBox = await Hive.openBox<Map>('budgets$suffix');
   }
 
   Box<Map> get expensesBox => _expensesBox;
@@ -33,6 +35,7 @@ class LocalDbService {
   Box<Map> get personsBox => _personsBox;
   Box<Map> get repaymentsBox => _repaymentsBox;
   Box<Map> get syncQueueBox => _syncQueueBox;
+  Box<Map> get budgetsBox => _budgetsBox;
 
   /// Utility to clear all databases (useful for testing or full resets)
   Future<void> clearAll() async {
@@ -42,5 +45,6 @@ class LocalDbService {
     await _personsBox.clear();
     await _repaymentsBox.clear();
     await _syncQueueBox.clear();
+    await _budgetsBox.clear();
   }
 }
