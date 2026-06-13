@@ -24,7 +24,7 @@ class BudgetProgressCard extends StatelessWidget {
     final usageText = '${(usagePercent * 100).toStringAsFixed(0)}%';
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+      margin: EdgeInsets.symmetric(vertical: 10.h),
       padding: EdgeInsets.all(20.r),
       decoration: BoxDecoration(
         color: isOverspent
@@ -47,17 +47,28 @@ class BudgetProgressCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Row containing columns
-          Row(
-            children: [
-              // Col 1: Spent vs Budget
-              Expanded(
-                flex: 4,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final double cardWidth = constraints.maxWidth;
+          final String spentText = spent.toCurrency();
+          final String budgetText = budget.toCurrency();
+          final String remainingText = remainingVal.abs().toCurrency();
+
+          // Decide adaptively whether to use the column layout
+          final bool useVerticalLayout =
+              cardWidth < 300.w ||
+              (spentText.length + budgetText.length + remainingText.length >
+                  20);
+
+          Widget infoLayout;
+
+          if (useVerticalLayout) {
+            infoLayout = Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Row 1: Spent vs Budget
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       AppLocalizations.translate(
@@ -71,15 +82,14 @@ class BudgetProgressCard extends StatelessWidget {
                         letterSpacing: 0.5,
                       ),
                     ),
-                    SizedBox(height: 4.h),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.baseline,
                       textBaseline: TextBaseline.alphabetic,
                       children: [
                         Text(
-                          spent.toCurrency(),
+                          spentText,
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 15,
                             fontFamily: 'Manrope',
                             fontWeight: FontWeight.bold,
                             color: isDark
@@ -87,11 +97,10 @@ class BudgetProgressCard extends StatelessWidget {
                                 : const Color(0xFF0F172A),
                           ),
                         ),
-                        // SizedBox(width: 4.w),
                         Text(
-                          '/${budget.toCurrency()} ৳',
+                          '/$budgetText ৳',
                           style: TextStyle(
-                            fontSize: 11,
+                            fontSize: 10,
                             fontFamily: 'Manrope',
                             fontWeight: FontWeight.w600,
                             color: isDark
@@ -103,23 +112,16 @@ class BudgetProgressCard extends StatelessWidget {
                     ),
                   ],
                 ),
-              ),
-
-              // Divider
-              Container(
-                width: 1.w,
-                height: 32.h,
-                color: isDark
-                    ? const Color(0xFF334155)
-                    : const Color(0xFFF1F5F9),
-              ),
-              SizedBox(width: 12.w),
-
-              // Col 2: Remaining / Overspent
-              Expanded(
-                flex: 3,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Divider(
+                  height: 16.h,
+                  color: isDark
+                      ? const Color(0xFF334155)
+                      : const Color(0xFFF1F5F9),
+                  thickness: 1,
+                ),
+                // Row 2: Remaining / Overspent
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       isOverspent
@@ -135,11 +137,10 @@ class BudgetProgressCard extends StatelessWidget {
                         letterSpacing: 0.5,
                       ),
                     ),
-                    SizedBox(height: 4.h),
                     Text(
-                      '${remainingVal.abs().toCurrency()} ৳',
+                      '$remainingText ৳',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 15,
                         fontFamily: 'Manrope',
                         fontWeight: FontWeight.bold,
                         color: isOverspent
@@ -149,69 +150,200 @@ class BudgetProgressCard extends StatelessWidget {
                     ),
                   ],
                 ),
-              ),
+                Divider(
+                  height: 16.h,
+                  color: isDark
+                      ? const Color(0xFF334155)
+                      : const Color(0xFFF1F5F9),
+                  thickness: 1,
+                ),
+                // Row 3: Usage
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      AppLocalizations.translate('usage').toUpperCase(),
+                      style: const TextStyle(
+                        fontSize: 10,
+                        fontFamily: 'Manrope',
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    Text(
+                      usageText,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Manrope',
+                        fontWeight: FontWeight.bold,
+                        color: isOverspent
+                            ? AppColors.error
+                            : (isDark ? Colors.white : const Color(0xFF0F172A)),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          } else {
+            // Horizontal row (original design)
+            infoLayout = Row(
+              children: [
+                Expanded(
+                  flex: 4,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppLocalizations.translate(
+                          'spent_vs_budget',
+                        ).toUpperCase(),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontFamily: 'Manrope',
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      SizedBox(height: 4.h),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Text(
+                            spentText,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontFamily: 'Manrope',
+                              fontWeight: FontWeight.bold,
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF0F172A),
+                            ),
+                          ),
+                          Text(
+                            '/$budgetText ৳',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontFamily: 'Manrope',
+                              fontWeight: FontWeight.w600,
+                              color: isDark
+                                  ? Colors.white30
+                                  : const Color(0xFF94A3B8),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  width: 1.w,
+                  height: 32.h,
+                  color: isDark
+                      ? const Color(0xFF334155)
+                      : const Color(0xFFF1F5F9),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  flex: 3,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        isOverspent
+                            ? 'OVERSPENT'
+                            : AppLocalizations.translate(
+                                'remaining',
+                              ).toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontFamily: 'Manrope',
+                          fontWeight: FontWeight.bold,
+                          color: isOverspent ? AppColors.error : Colors.grey,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      SizedBox(height: 4.h),
+                      Text(
+                        '$remainingText ৳',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontFamily: 'Manrope',
+                          fontWeight: FontWeight.bold,
+                          color: isOverspent
+                              ? AppColors.error
+                              : AppColors.success,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  width: 1.w,
+                  height: 32.h,
+                  color: isDark
+                      ? const Color(0xFF334155)
+                      : const Color(0xFFF1F5F9),
+                ),
+                SizedBox(width: 12.w),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      AppLocalizations.translate('usage').toUpperCase(),
+                      style: const TextStyle(
+                        fontSize: 10,
+                        fontFamily: 'Manrope',
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      usageText,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontFamily: 'Manrope',
+                        fontWeight: FontWeight.bold,
+                        color: isOverspent
+                            ? AppColors.error
+                            : (isDark ? Colors.white : const Color(0xFF0F172A)),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          }
 
-              // Divider
-              Container(
-                width: 1.w,
-                height: 32.h,
-                color: isDark
-                    ? const Color(0xFF334155)
-                    : const Color(0xFFF1F5F9),
-              ),
-              SizedBox(width: 12.w),
-
-              // Col 3: Usage
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    AppLocalizations.translate('usage').toUpperCase(),
-                    style: const TextStyle(
-                      fontSize: 10,
-                      fontFamily: 'Manrope',
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey,
-                      letterSpacing: 0.5,
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              infoLayout,
+              SizedBox(height: 16.h),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(9999.r),
+                child: SizedBox(
+                  height: 8.h,
+                  width: double.infinity,
+                  child: LinearProgressIndicator(
+                    value: usagePercent.clamp(0.0, 1.0),
+                    backgroundColor: isDark
+                        ? const Color(0xFF1E293B)
+                        : const Color(0xFFF1F5F9),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      isOverspent ? AppColors.error : AppColors.success,
                     ),
                   ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    usageText,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontFamily: 'Manrope',
-                      fontWeight: FontWeight.bold,
-                      color: isOverspent
-                          ? AppColors.error
-                          : (isDark ? Colors.white : const Color(0xFF0F172A)),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-
-          SizedBox(height: 16.h),
-
-          // Linear progress bar
-          ClipRRect(
-            borderRadius: BorderRadius.circular(9999.r),
-            child: SizedBox(
-              height: 8.h,
-              width: double.infinity,
-              child: LinearProgressIndicator(
-                value: usagePercent.clamp(0.0, 1.0),
-                backgroundColor: isDark
-                    ? const Color(0xFF1E293B)
-                    : const Color(0xFFF1F5F9),
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  isOverspent ? AppColors.error : AppColors.success,
                 ),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
