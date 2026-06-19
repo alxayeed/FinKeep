@@ -9,6 +9,8 @@ import 'package:spendly/core/responsive/responsive.dart';
 import 'package:spendly/core/common/widgets/custom_app_bar.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class BackupRestoreScreen extends StatefulWidget {
   const BackupRestoreScreen({super.key});
@@ -54,41 +56,131 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
       final bytes = await _backupService.exportEncryptedBackup();
       
       final dateStr = DateTime.now().toIso8601String().split('T').first;
-      final defaultFileName = 'spendly_backup_$dateStr.spdb';
+      final fileName = 'spendly_backup_$dateStr.spdb';
       
-      // Open the Save File dialog and pass the bytes directly (required on Android/iOS)
-      savePath = await FilePicker.platform.saveFile(
-        dialogTitle: 'Save Backup File',
-        fileName: defaultFileName,
-        type: FileType.any,
-        bytes: bytes,
-      );
+      File? file;
       
-      if (savePath == null) {
-        setState(() {
-          _isLoading = false;
-        });
-        return;
-      }
-      
-      final file = File(savePath);
-      // Fallback: if platform didn't write bytes automatically (e.g. desktop), write manually
-      if (!await file.exists() || (await file.length()) == 0) {
+      if (Platform.isAndroid) {
+        // Check permission first
+        var status = await Permission.manageExternalStorage.status;
+        if (!status.isGranted) {
+          if (mounted) {
+            // Show explanation dialog first before requesting/redirecting to settings
+            final bool? proceed = await showDialog<bool>(
+              context: context,
+              barrierDismissible: false,
+              builder: (dialogCtx) {
+                final isDark = Theme.of(dialogCtx).brightness == Brightness.dark;
+                final textCol = isDark ? Colors.white : const Color(0xFF0F172A);
+                final subtextCol = isDark ? Colors.white60 : const Color(0xFF64748B);
+                
+                return AlertDialog(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
+                  backgroundColor: isDark ? AppColors.cardDark : Colors.white,
+                  title: Row(
+                    children: [
+                      const Icon(Icons.folder_shared_outlined, color: AppColors.primaryTeal),
+                      SizedBox(width: 8.w),
+                      Text(
+                        'Storage Access Required',
+                        style: TextStyle(
+                          fontFamily: 'Manrope',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16.sp,
+                          color: textCol,
+                        ),
+                      ),
+                    ],
+                  ),
+                  content: Text(
+                    'To save your encrypted backup file (.spdb) directly to the public Downloads folder without leaving the app, Spendly requires "All Files Access" permission.\n\nYou will be redirected to the system settings page to enable this permission.',
+                    style: TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 13.sp,
+                      color: subtextCol,
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(dialogCtx, false),
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontFamily: 'Manrope',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13.sp,
+                        ),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(dialogCtx, true),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryTeal,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                      ),
+                      child: Text(
+                        'Go to Settings',
+                        style: TextStyle(
+                          fontFamily: 'Manrope',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13.sp,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
+
+            if (proceed == true) {
+              status = await Permission.manageExternalStorage.request();
+            } else {
+              throw Exception('Storage permission request cancelled.');
+            }
+          }
+        }
+
+        if (!status.isGranted) {
+          throw Exception('Storage permission denied. All Files Access is required to save to the public Downloads folder.');
+        }
+        
+        final pubDownload = Directory('/storage/emulated/0/Download');
+        if (!await pubDownload.exists()) {
+          await pubDownload.create(recursive: true);
+        }
+        file = File('${pubDownload.path}/$fileName');
+        await file.writeAsBytes(bytes);
+      } else {
+        // On iOS / other platforms, write to documents directory
+        final directory = await getApplicationDocumentsDirectory();
+        file = File('${directory.path}/$fileName');
         await file.writeAsBytes(bytes);
       }
+      
+      savePath = file.path;
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Backup saved successfully to: ${savePath.split('/').last}'),
+            content: Text('Backup downloaded to:\n$savePath'),
+            duration: const Duration(seconds: 10),
             backgroundColor: AppColors.success,
+            action: SnackBarAction(
+              label: 'Share',
+              textColor: Colors.white,
+              onPressed: () async {
+                final xFile = XFile(file!.path);
+                await Share.shareXFiles([xFile], text: 'Spendly Encrypted Backup - $dateStr');
+              },
+            ),
           ),
         );
       }
-      
-      // Open the share sheet only after downloading/saving the file
-      final xFile = XFile(file.path);
-      await Share.shareXFiles([xFile], text: 'Spendly Encrypted Backup - $dateStr');
       
     } catch (e, stackTrace) {
       ExceptionHandler.handle(
@@ -99,7 +191,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Export failed: $e'),
+            content: Text('Export failed: ${e.toString().replaceAll('Exception: ', '')}'),
             backgroundColor: AppColors.error,
           ),
         );
