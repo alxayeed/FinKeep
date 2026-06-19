@@ -35,7 +35,9 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
         .get();
 
     final list = querySnapshot.docs
-        .map((doc) => ExpenseModel.fromFirestoreMap(doc.data()..['id'] = doc.id))
+        .map(
+          (doc) => ExpenseModel.fromFirestoreMap(doc.data()..['id'] = doc.id),
+        )
         .toList();
 
     // Sort in-memory to avoid needing composite indexes in Firestore
@@ -76,7 +78,9 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
         .get();
 
     final list = querySnapshot.docs
-        .map((doc) => ExpenseModel.fromFirestoreMap(doc.data()..['id'] = doc.id))
+        .map(
+          (doc) => ExpenseModel.fromFirestoreMap(doc.data()..['id'] = doc.id),
+        )
         .toList();
 
     // Sort in-memory to avoid needing composite indexes in Firestore
@@ -131,7 +135,9 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
         .get();
 
     final list = querySnapshot.docs
-        .map((doc) => ExpenseModel.fromJson(doc.data()..['id'] = doc.id))
+        .map(
+          (doc) => ExpenseModel.fromFirestoreMap(doc.data()..['id'] = doc.id),
+        )
         .toList();
 
     // Sort in-memory to avoid needing composite indexes in Firestore
