@@ -48,15 +48,13 @@ class LendingFirestoreDataSource implements LendingDataSource {
 
   @override
   Future<List<LendingModel>> getLendings({
-    required String userId,
     LendingType? typeFilter,
     DateTime? monthFilter,
     LendingStatus? statusFilter,
     String? personIdFilter,
   }) async {
     try {
-      Query<Map<String, dynamic>> query =
-          _lendingsCollection.where('userId', isEqualTo: userId);
+      Query<Map<String, dynamic>> query = _lendingsCollection;
 
       if (typeFilter != null) {
         query = query.where('type', isEqualTo: typeFilter.name);
@@ -139,14 +137,12 @@ class LendingFirestoreDataSource implements LendingDataSource {
 
   @override
   Future<double> getTotalLendingAmount({
-    required String userId,
     LendingType? typeFilter,
     LendingStatus? statusFilter,
     String? personNameFilter,
   }) async {
     try {
-      Query<Map<String, dynamic>> query =
-          _lendingsCollection.where('userId', isEqualTo: userId);
+      Query<Map<String, dynamic>> query = _lendingsCollection;
       if (typeFilter != null) {
         query = query.where('type', isEqualTo: typeFilter.name);
       }
@@ -166,14 +162,12 @@ class LendingFirestoreDataSource implements LendingDataSource {
 
   @override
   Future<int> getLendingsCount({
-    required String userId,
     LendingType? typeFilter,
     LendingStatus? statusFilter,
     String? personNameFilter,
   }) async {
     try {
-      Query<Map<String, dynamic>> query =
-          _lendingsCollection.where('userId', isEqualTo: userId);
+      Query<Map<String, dynamic>> query = _lendingsCollection;
       if (typeFilter != null) {
         query = query.where('type', isEqualTo: typeFilter.name);
       }
@@ -215,11 +209,9 @@ class LendingFirestoreDataSource implements LendingDataSource {
   }
 
   @override
-  Future<List<LendingPersonModel>> getUserPersons(String userId,
-      {String? nameFilter}) async {
+  Future<List<LendingPersonModel>> getUserPersons({String? nameFilter}) async {
     try {
-      Query<Map<String, dynamic>> query =
-          _personsCollection.where('userId', isEqualTo: userId);
+      Query<Map<String, dynamic>> query = _personsCollection;
       if (nameFilter != null && nameFilter.isNotEmpty) {
         query = query.where('name', isEqualTo: nameFilter);
       }

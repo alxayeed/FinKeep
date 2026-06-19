@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:spendly/features/lendings/domain/usecases/repayment/get_repayments_for_lending_usecase.dart';
-
-import '../../../auth/presentation/controller/auth_controller.dart';
 import '../../domain/entity/lending/lending_entity.dart';
 import '../../domain/entity/lending_person/lending_person_entity.dart';
 import '../../domain/entity/repayment/repayment_entity.dart';
@@ -60,14 +58,8 @@ class LendingsController extends GetxController {
   final selectedPersonFilter = Rx<String?>(null);
   final selectedMonthFilter = Rx<DateTime?>(null);
 
-  final AuthController authController = Get.find();
-
-  late String userId;
-
   @override
   void onInit() {
-    userId = authController.user?.email ?? 'unknown_user';
-
     super.onInit();
     _setupFilterListeners();
     fetchLendings();
@@ -122,14 +114,18 @@ class LendingsController extends GetxController {
     errorMessage.value = null;
 
     final params = GetLendingsParams(
-      userId: userId,
       typeFilter: selectedTypeFilter.value,
       statusFilter: selectedStatusFilter.value,
       personNameFilter: selectedPersonFilter.value,
       monthFilter: selectedMonthFilter.value,
     );
 
-    final result = await getLendingsUseCase(userId: params.userId);
+    final result = await getLendingsUseCase(
+      typeFilter: params.typeFilter,
+      statusFilter: params.statusFilter,
+      personIdFilter: params.personNameFilter,
+      monthFilter: params.monthFilter,
+    );
 
     if (!showLoading && result.isRight()) lendingsList.clear();
 
@@ -150,8 +146,6 @@ class LendingsController extends GetxController {
   }) async {
     isLoading.value = true;
     errorMessage.value = null;
-
-    lending = lending.copyWith(userId: userId);
 
     final result = await addLendingUseCase(lending);
 
@@ -217,7 +211,7 @@ class LendingsController extends GetxController {
 
   // --- Person Methods ---
   Future<void> fetchUserPersons() async {
-    final result = await getUserPersonsUseCase(userId);
+    final result = await getUserPersonsUseCase();
     result.fold(
       (failure) {
         errorMessage.value = failure.message;

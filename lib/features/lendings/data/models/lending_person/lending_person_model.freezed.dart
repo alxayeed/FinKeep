@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$LendingPersonModel {
 
- String get id; String get userId; String get name; String? get contactNumber; String? get email; String? get notes;
+ String get id; String get name; String? get contactNumber; String? get email; String? get notes;
 /// Create a copy of LendingPersonModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $LendingPersonModelCopyWith<LendingPersonModel> get copyWith => _$LendingPersonM
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is LendingPersonModel&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.name, name) || other.name == name)&&(identical(other.contactNumber, contactNumber) || other.contactNumber == contactNumber)&&(identical(other.email, email) || other.email == email)&&(identical(other.notes, notes) || other.notes == notes));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LendingPersonModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.contactNumber, contactNumber) || other.contactNumber == contactNumber)&&(identical(other.email, email) || other.email == email)&&(identical(other.notes, notes) || other.notes == notes));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,userId,name,contactNumber,email,notes);
+int get hashCode => Object.hash(runtimeType,id,name,contactNumber,email,notes);
 
 @override
 String toString() {
-  return 'LendingPersonModel(id: $id, userId: $userId, name: $name, contactNumber: $contactNumber, email: $email, notes: $notes)';
+  return 'LendingPersonModel(id: $id, name: $name, contactNumber: $contactNumber, email: $email, notes: $notes)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $LendingPersonModelCopyWith<$Res>  {
   factory $LendingPersonModelCopyWith(LendingPersonModel value, $Res Function(LendingPersonModel) _then) = _$LendingPersonModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String userId, String name, String? contactNumber, String? email, String? notes
+ String id, String name, String? contactNumber, String? email, String? notes
 });
 
 
@@ -65,10 +65,9 @@ class _$LendingPersonModelCopyWithImpl<$Res>
 
 /// Create a copy of LendingPersonModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = null,Object? name = null,Object? contactNumber = freezed,Object? email = freezed,Object? notes = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? contactNumber = freezed,Object? email = freezed,Object? notes = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,contactNumber: freezed == contactNumber ? _self.contactNumber : contactNumber // ignore: cast_nullable_to_non_nullable
 as String?,email: freezed == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
@@ -158,10 +157,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String userId,  String name,  String? contactNumber,  String? email,  String? notes)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String? contactNumber,  String? email,  String? notes)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LendingPersonModel() when $default != null:
-return $default(_that.id,_that.userId,_that.name,_that.contactNumber,_that.email,_that.notes);case _:
+return $default(_that.id,_that.name,_that.contactNumber,_that.email,_that.notes);case _:
   return orElse();
 
 }
@@ -179,10 +178,10 @@ return $default(_that.id,_that.userId,_that.name,_that.contactNumber,_that.email
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String userId,  String name,  String? contactNumber,  String? email,  String? notes)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String? contactNumber,  String? email,  String? notes)  $default,) {final _that = this;
 switch (_that) {
 case _LendingPersonModel():
-return $default(_that.id,_that.userId,_that.name,_that.contactNumber,_that.email,_that.notes);case _:
+return $default(_that.id,_that.name,_that.contactNumber,_that.email,_that.notes);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -199,10 +198,10 @@ return $default(_that.id,_that.userId,_that.name,_that.contactNumber,_that.email
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String userId,  String name,  String? contactNumber,  String? email,  String? notes)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String? contactNumber,  String? email,  String? notes)?  $default,) {final _that = this;
 switch (_that) {
 case _LendingPersonModel() when $default != null:
-return $default(_that.id,_that.userId,_that.name,_that.contactNumber,_that.email,_that.notes);case _:
+return $default(_that.id,_that.name,_that.contactNumber,_that.email,_that.notes);case _:
   return null;
 
 }
@@ -214,11 +213,10 @@ return $default(_that.id,_that.userId,_that.name,_that.contactNumber,_that.email
 @JsonSerializable()
 
 class _LendingPersonModel extends LendingPersonModel {
-  const _LendingPersonModel({required this.id, required this.userId, required this.name, this.contactNumber, this.email, this.notes}): super._();
+  const _LendingPersonModel({required this.id, required this.name, this.contactNumber, this.email, this.notes}): super._();
   factory _LendingPersonModel.fromJson(Map<String, dynamic> json) => _$LendingPersonModelFromJson(json);
 
 @override final  String id;
-@override final  String userId;
 @override final  String name;
 @override final  String? contactNumber;
 @override final  String? email;
@@ -237,16 +235,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LendingPersonModel&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.name, name) || other.name == name)&&(identical(other.contactNumber, contactNumber) || other.contactNumber == contactNumber)&&(identical(other.email, email) || other.email == email)&&(identical(other.notes, notes) || other.notes == notes));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LendingPersonModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.contactNumber, contactNumber) || other.contactNumber == contactNumber)&&(identical(other.email, email) || other.email == email)&&(identical(other.notes, notes) || other.notes == notes));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,userId,name,contactNumber,email,notes);
+int get hashCode => Object.hash(runtimeType,id,name,contactNumber,email,notes);
 
 @override
 String toString() {
-  return 'LendingPersonModel(id: $id, userId: $userId, name: $name, contactNumber: $contactNumber, email: $email, notes: $notes)';
+  return 'LendingPersonModel(id: $id, name: $name, contactNumber: $contactNumber, email: $email, notes: $notes)';
 }
 
 
@@ -257,7 +255,7 @@ abstract mixin class _$LendingPersonModelCopyWith<$Res> implements $LendingPerso
   factory _$LendingPersonModelCopyWith(_LendingPersonModel value, $Res Function(_LendingPersonModel) _then) = __$LendingPersonModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String userId, String name, String? contactNumber, String? email, String? notes
+ String id, String name, String? contactNumber, String? email, String? notes
 });
 
 
@@ -274,10 +272,9 @@ class __$LendingPersonModelCopyWithImpl<$Res>
 
 /// Create a copy of LendingPersonModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = null,Object? name = null,Object? contactNumber = freezed,Object? email = freezed,Object? notes = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? contactNumber = freezed,Object? email = freezed,Object? notes = freezed,}) {
   return _then(_LendingPersonModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,contactNumber: freezed == contactNumber ? _self.contactNumber : contactNumber // ignore: cast_nullable_to_non_nullable
 as String?,email: freezed == email ? _self.email : email // ignore: cast_nullable_to_non_nullable

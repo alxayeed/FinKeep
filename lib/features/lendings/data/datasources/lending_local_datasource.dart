@@ -8,7 +8,6 @@ abstract class LendingLocalDataSource {
   Future<void> addLending(LendingModel lending);
 
   Future<List<LendingModel>> getLendings({
-    required String userId,
     LendingType? typeFilter,
     DateTime? monthFilter,
     LendingStatus? statusFilter,
@@ -20,14 +19,12 @@ abstract class LendingLocalDataSource {
   Future<void> deleteLending(String lendingId);
 
   Future<double> getTotalLendingAmount({
-    required String userId,
     LendingType? typeFilter,
     LendingStatus? statusFilter,
     String? personNameFilter,
   });
 
   Future<int> getLendingsCount({
-    required String userId,
     LendingType? typeFilter,
     LendingStatus? statusFilter,
     String? personNameFilter,
@@ -38,8 +35,7 @@ abstract class LendingLocalDataSource {
 
   Future<LendingPersonModel> getPersonById(String personId);
 
-  Future<List<LendingPersonModel>> getUserPersons(
-    String userId, {
+  Future<List<LendingPersonModel>> getUserPersons({
     String? nameFilter,
   });
 

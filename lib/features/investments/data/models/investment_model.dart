@@ -8,7 +8,6 @@ import 'return_entry_model.dart';
 class InvestmentModel extends Investment {
   InvestmentModel({
     required super.id,
-    required super.userId,
     required super.title,
     required super.amountInvested,
     required super.startDate,
@@ -29,7 +28,6 @@ class InvestmentModel extends Investment {
   factory InvestmentModel.fromJson(Map<String, dynamic> json) {
     return InvestmentModel(
       id: json['id'] as String,
-      userId: json['userId'] as String,
       title: json['title'] as String,
       amountInvested: (json['amountInvested'] as num).toDouble(),
       startDate: json['startDate'] as DateTime,
@@ -58,7 +56,6 @@ class InvestmentModel extends Investment {
   factory InvestmentModel.fromFirestoreMap(Map<String, dynamic> json) {
     return InvestmentModel(
       id: json['id'] as String,
-      userId: json['userId'] as String,
       title: json['title'] as String,
       amountInvested: (json['amountInvested'] as num).toDouble(),
       startDate: (json['startDate'] as Timestamp).toDate(),
@@ -87,7 +84,6 @@ class InvestmentModel extends Investment {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'userId': userId,
       'title': title,
       'amountInvested': amountInvested,
       'startDate': startDate,
@@ -109,7 +105,6 @@ class InvestmentModel extends Investment {
   Map<String, dynamic> toFirestoreMap() {
     return {
       'id': id,
-      'userId': userId,
       'title': title,
       'amountInvested': amountInvested,
       'startDate': Timestamp.fromDate(startDate),
@@ -132,7 +127,6 @@ class InvestmentModel extends Investment {
   factory InvestmentModel.fromEntity(Investment investment) {
     return InvestmentModel(
       id: investment.id,
-      userId: investment.userId,
       title: investment.title,
       amountInvested: investment.amountInvested,
       startDate: investment.startDate,

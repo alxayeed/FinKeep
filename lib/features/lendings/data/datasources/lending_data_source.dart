@@ -9,7 +9,6 @@ abstract class LendingDataSource {
   Future<void> addLending(LendingModel lending);
 
   Future<List<LendingModel>> getLendings({
-    required String userId,
     LendingType? typeFilter,
     DateTime? monthFilter,
     LendingStatus? statusFilter,
@@ -23,14 +22,12 @@ abstract class LendingDataSource {
   Future<void> deleteLending(String lendingId);
 
   Future<double> getTotalLendingAmount({
-    required String userId,
     LendingType? typeFilter,
     LendingStatus? statusFilter,
     String? personNameFilter,
   });
 
   Future<int> getLendingsCount({
-    required String userId,
     LendingType? typeFilter,
     LendingStatus? statusFilter,
     String? personNameFilter,
@@ -41,8 +38,7 @@ abstract class LendingDataSource {
 
   Future<LendingPersonModel> getPersonById(String personId);
 
-  Future<List<LendingPersonModel>> getUserPersons(String userId,
-      {String? nameFilter});
+  Future<List<LendingPersonModel>> getUserPersons({String? nameFilter});
 
   Future<void> updatePerson(LendingPersonModel person);
 

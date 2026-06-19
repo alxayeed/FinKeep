@@ -11,7 +11,6 @@ abstract class LendingPersonModel with _$LendingPersonModel {
 
   const factory LendingPersonModel({
     required String id,
-    required String userId,
     required String name,
     String? contactNumber,
     String? email,
@@ -24,7 +23,6 @@ abstract class LendingPersonModel with _$LendingPersonModel {
   factory LendingPersonModel.fromEntity(LendingPersonEntity entity) {
     return LendingPersonModel(
       id: entity.id,
-      userId: entity.userId,
       name: entity.name,
       contactNumber: entity.contactNumber,
       email: entity.email,
@@ -35,7 +33,6 @@ abstract class LendingPersonModel with _$LendingPersonModel {
   LendingPersonEntity toEntity() {
     return LendingPersonEntity(
       id: id,
-      userId: userId,
       name: name,
       contactNumber: contactNumber,
       email: email,

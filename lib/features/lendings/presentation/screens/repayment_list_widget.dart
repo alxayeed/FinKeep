@@ -7,8 +7,6 @@ import 'package:spendly/core/styles/app_colors.dart';
 
 
 import 'package:spendly/core/common/widgets/widgets.dart';
-
-import '../../../auth/presentation/controller/auth_controller.dart';
 import '../../domain/entity/lending/lending_entity.dart';
 import '../../domain/entity/repayment/repayment_entity.dart';
 import '../controllers/lendings_controller.dart';
@@ -730,11 +728,9 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
 
     if (!mounted) return;
 
-    final AuthController authController = Get.find();
     final newRepayment = RepaymentEntity(
       id: existing?.id ?? UniqueKey().toString(),
       lendingId: widget.lending.id,
-      userId: authController.user?.email ?? 'unknown_user',
       amount: enteredAmount,
       paidDate: dateObs.value ?? DateTime.now(),
       notes: notesCtrl.text.trim().isEmpty ? null : notesCtrl.text.trim(),

@@ -1,14 +1,12 @@
 import 'package:spendly/core/error/exception_handler.dart';
 import 'package:get/get.dart';
 import 'package:spendly/core/enums/expense_category.dart';
-import 'package:spendly/features/auth/presentation/controller/auth_controller.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../../domain/usecases/usecases.dart';
 import 'budget_controller.dart';
 
 class ExpenseReportController extends GetxController {
   final GetExpensesInRangeUseCase getExpensesInRangeUseCase;
-  final AuthController authController = Get.find();
 
   var isLoading = false.obs;
   var reportExpenses = <ExpenseEntity>[].obs;
@@ -25,8 +23,6 @@ class ExpenseReportController extends GetxController {
 
   final Rx<DateTime?> startDate = Rx<DateTime?>(null);
   final Rx<DateTime?> endDate = Rx<DateTime?>(null);
-
-  String get userId => authController.user?.email ?? '';
 
   ExpenseReportController({
     required this.getExpensesInRangeUseCase,
@@ -58,7 +54,6 @@ class ExpenseReportController extends GetxController {
 
     try {
       reportExpenses.value = await getExpensesInRangeUseCase.call(
-        userId,
         start,
         end,
       );

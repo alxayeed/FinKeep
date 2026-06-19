@@ -3,7 +3,7 @@ import '../models/return_entry_model.dart';
 
 abstract class InvestmentDataSource {
   /// Fetch all investments
-  Future<List<InvestmentModel>> getInvestments(String userId);
+  Future<List<InvestmentModel>> getInvestments();
 
   /// Add a new investment
   Future<void> addInvestment(InvestmentModel investment);

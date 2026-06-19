@@ -23,7 +23,6 @@ abstract class LendingEntity with _$LendingEntity {
     required DateTime createdDate,
     DateTime? dueDate,
     required LendingStatus status,
-    required String userId,
     @Default(PaymentType.cash) PaymentType paymentMethod,
     List<RepaymentEntity>? repayments,
   }) = _LendingEntity;

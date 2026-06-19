@@ -13,7 +13,6 @@ abstract class RepaymentModel with _$RepaymentModel {
   const factory RepaymentModel({
     required String id,
     required String lendingId,
-    required String userId,
     required double amount,
     @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
     required DateTime paidDate,
@@ -29,7 +28,6 @@ abstract class RepaymentModel with _$RepaymentModel {
     return RepaymentModel(
       id: json['id'] as String,
       lendingId: json['lendingId'] as String,
-      userId: json['userId'] as String,
       amount: (json['amount'] as num).toDouble(),
       paidDate: (json['paidDate'] as Timestamp).toDate(),
       notes: json['notes'] as String?,
@@ -41,7 +39,6 @@ abstract class RepaymentModel with _$RepaymentModel {
     return RepaymentModel(
       id: entity.id,
       lendingId: entity.lendingId,
-      userId: entity.userId,
       amount: entity.amount,
       paidDate: entity.paidDate,
       notes: entity.notes,
@@ -53,7 +50,6 @@ abstract class RepaymentModel with _$RepaymentModel {
     return RepaymentEntity(
       id: id,
       lendingId: lendingId,
-      userId: userId,
       amount: amount,
       paidDate: paidDate,
       notes: notes,
@@ -65,7 +61,6 @@ abstract class RepaymentModel with _$RepaymentModel {
     return {
       'id': id,
       'lendingId': lendingId,
-      'userId': userId,
       'amount': amount,
       'paidDate': Timestamp.fromDate(paidDate),
       'notes': notes,

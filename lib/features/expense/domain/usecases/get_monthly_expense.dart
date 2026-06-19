@@ -6,10 +6,7 @@ class GetMonthlyExpensesUseCase {
 
   GetMonthlyExpensesUseCase(this.repository);
 
-  Future<List<ExpenseEntity>> call(String userId, DateTime month) async {
-    if (userId.isEmpty) {
-      throw Exception('User ID cannot be empty');
-    }
-    return await repository.getExpensesForMonth(userId, month);
+  Future<List<ExpenseEntity>> call(DateTime month) async {
+    return await repository.getExpensesForMonth(month);
   }
 }

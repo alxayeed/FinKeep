@@ -116,7 +116,6 @@ class _CreateExpenseScreenState extends State<CreateExpenseScreen> {
       category: category.displayName,
       date: date,
       description: description,
-      userId: controller.userId,
       paymentMethod: paymentMethod,
     );
 

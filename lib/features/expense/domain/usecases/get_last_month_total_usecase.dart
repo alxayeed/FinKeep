@@ -6,17 +6,13 @@ class GetLastMonthTotalUseCase {
   GetLastMonthTotalUseCase(this.repository);
 
   /// Returns total expenses of the month **before [currentMonth]**
-  Future<double> call(String userId, {required DateTime currentMonth}) async {
-    if (userId.isEmpty) {
-      throw Exception('User ID cannot be empty');
-    }
-
+  Future<double> call({required DateTime currentMonth}) async {
     final prevMonth = DateTime(
       currentMonth.month == 1 ? currentMonth.year - 1 : currentMonth.year,
       currentMonth.month == 1 ? 12 : currentMonth.month - 1,
       1,
     );
 
-    return repository.getTotalExpensesForMonth(userId, prevMonth);
+    return repository.getTotalExpensesForMonth(prevMonth);
   }
 }

@@ -7,10 +7,9 @@ class GetExpensesInRangeUseCase {
   GetExpensesInRangeUseCase(this.repository);
 
   Future<List<ExpenseEntity>> call(
-    String userId,
     DateTime start,
     DateTime end,
   ) async {
-    return await repository.getExpensesInRange(userId, start, end);
+    return await repository.getExpensesInRange(start, end);
   }
 }

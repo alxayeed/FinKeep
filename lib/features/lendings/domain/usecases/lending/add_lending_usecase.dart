@@ -22,7 +22,7 @@ class AddLendingUseCase {
           (_) async {
             // After creating person, fetch the created person to get id
             final getPersonResult = await repository
-                .getUserPersons(person.userId, nameFilter: person.name);
+                .getUserPersons(nameFilter: person.name);
             return getPersonResult.fold(
               (failure) => Left(failure),
               (persons) {

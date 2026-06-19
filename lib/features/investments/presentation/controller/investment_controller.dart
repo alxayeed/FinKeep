@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:get/get.dart';
 
-import '../../../auth/presentation/controller/auth_controller.dart';
 import '../../domain/entities/investment.dart';
 import '../../domain/entities/return_entry.dart';
 import '../../domain/enums/investment_status.dart';
@@ -29,13 +28,8 @@ class InvestmentController extends GetxController {
   var isLoading = false.obs;
   var errorMessage = ''.obs;
 
-  final AuthController authController = Get.find();
-
-  late String userId;
-
   @override
   void onInit() {
-    userId = authController.user?.email ?? 'unknown_user';
     super.onInit();
     fetchInvestments();
   }
@@ -46,7 +40,7 @@ class InvestmentController extends GetxController {
       isLoading.value = true;
       errorMessage.value = '';
 
-      final result = await getInvestmentsUseCase(userId: userId);
+      final result = await getInvestmentsUseCase();
       investments.assignAll(result);
     } catch (e) {
       errorMessage.value = 'Failed to load investments: $e';

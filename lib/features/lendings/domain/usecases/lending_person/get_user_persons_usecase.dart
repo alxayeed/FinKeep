@@ -9,10 +9,9 @@ class GetUserPersonsUseCase {
 
   GetUserPersonsUseCase({required this.repository});
 
-  Future<Either<Failure, List<LendingPersonEntity>>> call(
-    String userId, {
+  Future<Either<Failure, List<LendingPersonEntity>>> call({
     String? nameFilter,
   }) async {
-    return await repository.getUserPersons(userId, nameFilter: nameFilter);
+    return await repository.getUserPersons(nameFilter: nameFilter);
   }
 }
