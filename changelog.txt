@@ -1,2 +1,6 @@
-0.2.5
- FIX: default budget and recurring budget issue
+0.2.6
+ - ADD: Hybrid database architecture (Firestore remote database for Personal/Dev profiles, standalone zero-knowledge local database for other profiles)
+ - ADD: In-app database export and import flow with custom file filters (.spdb)
+ - ADD: Obfuscated AES-256 encryption/decryption service for secure database backups
+ - ADD: Direct export to public Android Downloads folder using MANAGE_EXTERNAL_STORAGE permission with quick-share SnackBar action
+
