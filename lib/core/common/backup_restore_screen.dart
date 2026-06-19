@@ -9,7 +9,6 @@ import 'package:spendly/core/responsive/responsive.dart';
 import 'package:spendly/core/common/widgets/custom_app_bar.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:path_provider/path_provider.dart';
 
 class BackupRestoreScreen extends StatefulWidget {
   const BackupRestoreScreen({super.key});
@@ -50,37 +49,52 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
     setState(() {
       _isLoading = true;
     });
-    String? tempFilePath;
+    String? savePath;
     try {
       final bytes = await _backupService.exportEncryptedBackup();
       
-      final tempDir = await getTemporaryDirectory();
       final dateStr = DateTime.now().toIso8601String().split('T').first;
-      final file = File('${tempDir.path}/spendly_backup_$dateStr.spdb');
-      tempFilePath = file.path;
+      final defaultFileName = 'spendly_backup_$dateStr.spdb';
       
-      await file.writeAsBytes(bytes);
-      
-      final xFile = XFile(file.path);
-      final params = ShareParams(
-        text: 'Spendly Encrypted Backup - $dateStr',
-        files: [xFile],
+      // Open the Save File dialog and pass the bytes directly (required on Android/iOS)
+      savePath = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save Backup File',
+        fileName: defaultFileName,
+        type: FileType.any,
+        bytes: bytes,
       );
-      await SharePlus.instance.share(params);
+      
+      if (savePath == null) {
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+      
+      final file = File(savePath);
+      // Fallback: if platform didn't write bytes automatically (e.g. desktop), write manually
+      if (!await file.exists() || (await file.length()) == 0) {
+        await file.writeAsBytes(bytes);
+      }
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Backup exported & share menu opened!'),
+          SnackBar(
+            content: Text('Backup saved successfully to: ${savePath.split('/').last}'),
             backgroundColor: AppColors.success,
           ),
         );
       }
+      
+      // Open the share sheet only after downloading/saving the file
+      final xFile = XFile(file.path);
+      await Share.shareXFiles([xFile], text: 'Spendly Encrypted Backup - $dateStr');
+      
     } catch (e, stackTrace) {
       ExceptionHandler.handle(
         e,
         stackTrace,
-        'BackupRestoreScreen._exportBackup${tempFilePath != null ? ' (temp file: $tempFilePath)' : ''}',
+        'BackupRestoreScreen._exportBackup${savePath != null ? ' (file: $savePath)' : ''}',
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -107,8 +121,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
     String? selectedFilePath;
     try {
       final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['spdb'],
+        type: FileType.any,
       );
 
       if (result == null || result.files.single.path == null) {
@@ -119,6 +132,10 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
       }
 
       selectedFilePath = result.files.single.path!;
+      if (!selectedFilePath.endsWith('.spdb')) {
+        throw Exception('Please select a valid .spdb backup file.');
+      }
+
       final file = File(selectedFilePath);
       final bytes = await file.readAsBytes();
 
