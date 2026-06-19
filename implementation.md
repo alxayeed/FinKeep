@@ -18,3 +18,18 @@ Export the entire Hive database into a single encrypted file (`.spdb`) which can
   - [x] Implement file picker for Import
   - [x] Keep the UI clean and premium
 - [x] 4. Verify end-to-end functionality (unit/manual verification)
+
+## Phase 2: Centralized Exception Handling
+
+### Goal
+Standardize and improve error tracking app-wide by introducing a centralized `ExceptionHandler` utility that logs errors with stack traces and caller context, and mapping exceptions.
+
+### Tasks
+- [x] 1. Create `ExceptionHandler` class at `lib/core/error/exception_handler.dart`
+- [x] 2. Integrate `ExceptionHandler` in `BackupRestoreScreen`
+- [x] 3. Refactor key Controllers to use `ExceptionHandler.handle`:
+  - [x] `MonthlyExpenseController`
+  - [x] `BudgetController`
+  - [x] `ExpenseReportController`
+- [x] 4. Refactor Repository layer (`LendingRepositoryImpl`) to log exceptions via `ExceptionHandler`
+

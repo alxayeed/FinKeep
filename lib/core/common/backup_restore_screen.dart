@@ -1,4 +1,4 @@
-import 'dart:developer' as developer;
+import 'package:spendly/core/error/exception_handler.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:spendly/core/config/app_config.dart';
@@ -77,11 +77,10 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
         );
       }
     } catch (e, stackTrace) {
-      developer.log(
-        'Export backup failed${tempFilePath != null ? ' (temp file: $tempFilePath)' : ''}',
-        name: 'BackupRestoreScreen',
-        error: e,
-        stackTrace: stackTrace,
+      ExceptionHandler.handle(
+        e,
+        stackTrace,
+        'BackupRestoreScreen._exportBackup${tempFilePath != null ? ' (temp file: $tempFilePath)' : ''}',
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -134,11 +133,10 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
         );
       }
     } catch (e, stackTrace) {
-      developer.log(
-        'Import backup failed${selectedFilePath != null ? ' (file: $selectedFilePath)' : ''}',
-        name: 'BackupRestoreScreen',
-        error: e,
-        stackTrace: stackTrace,
+      ExceptionHandler.handle(
+        e,
+        stackTrace,
+        'BackupRestoreScreen._importBackup${selectedFilePath != null ? ' (file: $selectedFilePath)' : ''}',
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

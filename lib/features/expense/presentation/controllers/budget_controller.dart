@@ -1,4 +1,4 @@
-import 'dart:developer';
+import 'package:spendly/core/error/exception_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -164,8 +164,8 @@ class BudgetController extends GetxController {
 
       // 3. Fallback defaults
       _applyDefaultBudgets();
-    } catch (e) {
-      log('Error loading budget: $e');
+    } catch (e, stackTrace) {
+      ExceptionHandler.handle(e, stackTrace, 'BudgetController.loadBudgetsForMonth');
       _applyDefaultBudgets();
     } finally {
       isBudgetLoading.value = false;
@@ -257,15 +257,15 @@ class BudgetController extends GetxController {
               await firestore.collection(collectionName).doc(recurringDocId).delete();
             } catch (_) {}
           }
-        } catch (e) {
-          log('Firestore budget sync failed (handled silently offline-first): $e');
+        } catch (e, stackTrace) {
+          ExceptionHandler.handle(e, stackTrace, 'BudgetController.saveBudgetsForMonth - Firestore sync');
         }
       }
 
       monthlyBudget.value = overall;
       categoryBudgets.value = categories;
-    } catch (e) {
-      log('Error saving budget: $e');
+    } catch (e, stackTrace) {
+      ExceptionHandler.handle(e, stackTrace, 'BudgetController.saveBudgetsForMonth');
     } finally {
       isBudgetLoading.value = false;
     }
@@ -292,8 +292,8 @@ class BudgetController extends GetxController {
           return (localRecurData['overallBudget'] as num?)?.toDouble() ?? 30000.0;
         }
       }
-    } catch (e) {
-      log('Error getting budget for month: $e');
+    } catch (e, stackTrace) {
+      ExceptionHandler.handle(e, stackTrace, 'BudgetController.getBudgetForMonth');
     }
     return 30000.0;
   }

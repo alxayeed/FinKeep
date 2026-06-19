@@ -1,4 +1,4 @@
-import 'dart:developer';
+import 'package:spendly/core/error/exception_handler.dart';
 import 'package:get/get.dart';
 import 'package:spendly/core/enums/expense_category.dart';
 import 'package:spendly/features/auth/presentation/controller/auth_controller.dart';
@@ -65,8 +65,8 @@ class ExpenseReportController extends GetxController {
       updateReportTotalExpense();
       filterReportExpensesByCategory();
       await calculateBudgetForRange(start, end);
-    } catch (e) {
-      log('Error fetching expenses in range: $e');
+    } catch (e, stackTrace) {
+      ExceptionHandler.handle(e, stackTrace, 'ExpenseReportController.fetchExpensesInRange');
       reportExpenses.value = [];
     } finally {
       isLoading.value = false;

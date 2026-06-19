@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:spendly/core/config/app_config.dart';
-import 'package:spendly/core/constants/app_strings.dart';
 import 'package:spendly/core/error/exception_mapper.dart';
+import 'package:spendly/core/error/exception_handler.dart';
 import 'package:spendly/core/error/failure.dart';
 import 'package:spendly/features/lendings/data/datasources/lending_data_source.dart';
 import 'package:spendly/features/lendings/data/datasources/lending_local_datasource.dart';
@@ -313,10 +313,11 @@ class LendingRepositoryImpl implements LendingRepository {
     }
   }
 
-  Failure _handleException(dynamic exception) {
-    if (exception is Exception) {
-      return exceptionMapper.map(exception);
-    }
-    return ServerFailure(message: AppStrings.unknownError);
+  Failure _handleException(dynamic exception, [StackTrace? stackTrace, String? context]) {
+    return ExceptionHandler.handle(
+      exception,
+      stackTrace,
+      context ?? 'LendingRepositoryImpl',
+    );
   }
 }
