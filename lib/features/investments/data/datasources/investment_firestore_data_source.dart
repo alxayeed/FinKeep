@@ -14,7 +14,7 @@ class InvestmentFirestoreDataSource implements InvestmentDataSource {
 
   InvestmentFirestoreDataSource({required this.firestore}) {
     _investmentsCollection = firestore.collection(
-      AppConfig.isProd
+      AppConfig.isPersonal
           ? AppStrings.investmentsCollection
           : '${AppStrings.investmentsCollection}_dev',
     );

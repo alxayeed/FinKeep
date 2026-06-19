@@ -1,10 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:spendly/core/config/app_config.dart';
+
 import '../../domain/entities/investment.dart';
 import '../../domain/entities/return_entry.dart';
 import '../../domain/repositories/investment_repository.dart';
-import '../datasources/investment_local_datasource.dart';
 import '../datasources/investment_data_source.dart';
+import '../datasources/investment_local_datasource.dart';
 import '../models/investment_model.dart';
 import '../models/return_entry_model.dart';
 
@@ -15,14 +16,19 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
   InvestmentRepositoryImpl({
     required InvestmentLocalDataSource localDataSource,
     required InvestmentDataSource remoteDataSource,
-  })  : _localDataSource = localDataSource,
-        _remoteDataSource = remoteDataSource;
+  }) : _localDataSource = localDataSource,
+       _remoteDataSource = remoteDataSource;
 
   @override
   Future<List<Investment>> getInvestments(String userId) async {
     try {
-      final models = await _localDataSource.getInvestments(userId);
-      return models.map((m) => m).toList();
+      if (AppConfig.isPersonal) {
+        final models = await _remoteDataSource.getInvestments(userId);
+        return models.map((m) => m).toList();
+      } else {
+        final models = await _localDataSource.getInvestments(userId);
+        return models.map((m) => m).toList();
+      }
     } catch (e, s) {
       debugPrint('InvestmentRepositoryImpl.getInvestments error: $e\n$s');
       rethrow;
@@ -33,13 +39,14 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
   Future<void> addInvestment(Investment investment) async {
     final model = InvestmentModel.fromEntity(investment);
     try {
-      await _localDataSource.addInvestment(model);
       if (AppConfig.isPersonal) {
         try {
           await _remoteDataSource.addInvestment(model);
         } catch (e) {
           // Will be handled by background sync
         }
+      } else {
+        await _localDataSource.addInvestment(model);
       }
     } catch (e, s) {
       debugPrint('InvestmentRepositoryImpl.addInvestment error: $e\n$s');
@@ -51,13 +58,14 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
   Future<void> updateInvestment(Investment investment) async {
     final model = InvestmentModel.fromEntity(investment);
     try {
-      await _localDataSource.updateInvestment(model);
       if (AppConfig.isPersonal) {
         try {
           await _remoteDataSource.updateInvestment(model);
         } catch (e) {
           // Will be handled by background sync
         }
+      } else {
+        await _localDataSource.updateInvestment(model);
       }
     } catch (e, s) {
       debugPrint('InvestmentRepositoryImpl.updateInvestment error: $e\n$s');
@@ -72,13 +80,14 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
   ) async {
     final model = ReturnEntryModel.fromEntity(returnEntry);
     try {
-      await _localDataSource.addReturnEntry(investmentId, model);
       if (AppConfig.isPersonal) {
         try {
           await _remoteDataSource.addReturnEntry(investmentId, model);
         } catch (e) {
           // Will be handled by background sync
         }
+      } else {
+        await _localDataSource.addReturnEntry(investmentId, model);
       }
     } catch (e, s) {
       debugPrint('InvestmentRepositoryImpl.addReturnEntry error: $e\n$s');

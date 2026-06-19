@@ -10,15 +10,13 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
 
   FirebaseCloudStoreDataSource({required this.fireStore}) {
     _expensesCollection = fireStore.collection(
-      AppConfig.isProd ? 'expenses' : 'expenses_dev',
+      AppConfig.isPersonal ? 'expenses' : 'expenses_dev',
     );
   }
 
   @override
   Future<void> createExpense(ExpenseModel expense) async {
-    await _expensesCollection
-        .doc(expense.id)
-        .set(expense.toJson());
+    await _expensesCollection.doc(expense.id).set(expense.toJson());
   }
 
   @override
@@ -47,9 +45,7 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
 
   @override
   Future<void> updateExpense(ExpenseModel expense) async {
-    await _expensesCollection
-        .doc(expense.id)
-        .update(expense.toJson());
+    await _expensesCollection.doc(expense.id).update(expense.toJson());
   }
 
   @override

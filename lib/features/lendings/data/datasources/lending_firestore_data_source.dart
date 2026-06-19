@@ -18,20 +18,21 @@ class LendingFirestoreDataSource implements LendingDataSource {
 
   LendingFirestoreDataSource({required this.firestore}) {
     _lendingsCollection = firestore.collection(
-      AppConfig.isProd
+      AppConfig.useRemote
           ? AppStrings.lendingsCollection
           : '${AppStrings.lendingsCollection}_dev',
     );
     _personsCollection = firestore.collection(
-      AppConfig.isProd
+      AppConfig.useRemote
           ? AppStrings.lendingPersonCollection
           : '${AppStrings.lendingPersonCollection}_dev',
     );
     _repaymentsCollection = firestore.collection(
-      AppConfig.isProd
+      AppConfig.useRemote
           ? AppStrings.repaymentsCollection
           : '${AppStrings.repaymentsCollection}_dev',
     );
+
   }
 
   // Lending Methods
