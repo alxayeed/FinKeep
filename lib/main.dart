@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:spendly/core/routes/app_router.dart';
 
 import 'core/responsive/responsive.dart';
+import 'core/services/local_db_service.dart';
 import 'core/styles/app_themes.dart';
 import 'core/styles/theme_provider.dart';
 import 'dependency_injection.dart';
@@ -26,6 +27,10 @@ void main() async {
   );
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Initialize offline local database (Hive)
+  final localDb = LocalDbService();
+  await localDb.init();
 
   DependencyInjection.initDependencies();
 

@@ -1,8 +1,10 @@
 import 'package:dartz/dartz.dart';
-import 'package:spendly/core/constants/app_strings.dart';
+import 'package:spendly/core/config/app_config.dart';
 import 'package:spendly/core/error/exception_mapper.dart';
+import 'package:spendly/core/error/exception_handler.dart';
 import 'package:spendly/core/error/failure.dart';
 import 'package:spendly/features/lendings/data/datasources/lending_data_source.dart';
+import 'package:spendly/features/lendings/data/datasources/lending_local_datasource.dart';
 import 'package:spendly/features/lendings/domain/repositories/lending_repository.dart';
 
 import '../../domain/entity/lending/lending_entity.dart';
@@ -13,26 +15,28 @@ import '../models/lending_person/lending_person_model.dart';
 import '../models/repayment/repayment_model.dart';
 
 class LendingRepositoryImpl implements LendingRepository {
+  final LendingLocalDataSource localDataSource;
   final LendingDataSource remoteDataSource;
   final ExceptionMapper exceptionMapper;
 
   LendingRepositoryImpl({
+    required this.localDataSource,
     required this.remoteDataSource,
     required this.exceptionMapper,
   });
 
-  // Lending methods
   @override
   Future<Either<Failure, void>> addLending(LendingEntity lending) async {
     try {
       final lendingModel = LendingModel.fromEntity(lending);
-      await remoteDataSource.addLending(lendingModel);
+      if (AppConfig.useRemote) {
+        await remoteDataSource.addLending(lendingModel);
+      } else {
+        await localDataSource.addLending(lendingModel);
+      }
       return const Right(null);
     } catch (exception) {
-      final failure = exception is Exception
-          ? exceptionMapper.map(exception)
-          : ServerFailure(message: AppStrings.unknownError);
-      return Left(failure);
+      return Left(_handleException(exception));
     }
   }
 
@@ -45,60 +49,57 @@ class LendingRepositoryImpl implements LendingRepository {
     String? personIdFilter,
   }) async {
     try {
-      final lendingModels = await remoteDataSource.getLendings(
-        userId: userId,
-        typeFilter: typeFilter,
-        monthFilter: monthFilter,
-        statusFilter: statusFilter,
-        personIdFilter: personIdFilter,
-      );
+      final List<LendingModel> lendingModels;
+      if (AppConfig.useRemote) {
+        lendingModels = await remoteDataSource.getLendings(
+          userId: userId,
+          typeFilter: typeFilter,
+          monthFilter: monthFilter,
+          statusFilter: statusFilter,
+          personIdFilter: personIdFilter,
+        );
+      } else {
+        lendingModels = await localDataSource.getLendings(
+          userId: userId,
+          typeFilter: typeFilter,
+          monthFilter: monthFilter,
+          statusFilter: statusFilter,
+          personIdFilter: personIdFilter,
+        );
+      }
       final lendings = lendingModels.map((model) => model.toEntity()).toList();
       return Right(lendings);
     } catch (exception) {
-      final failure = exception is Exception
-          ? exceptionMapper.map(exception)
-          : ServerFailure(message: AppStrings.unknownError);
-      return Left(failure);
+      return Left(_handleException(exception));
     }
   }
 
   @override
   Future<Either<Failure, void>> updateLending(LendingEntity lending) async {
     try {
-      await remoteDataSource.updateLending(LendingModel.fromEntity(lending));
+      final model = LendingModel.fromEntity(lending);
+      if (AppConfig.useRemote) {
+        await remoteDataSource.updateLending(model);
+      } else {
+        await localDataSource.updateLending(model);
+      }
       return const Right(null);
     } catch (exception) {
-      final failure = exception is Exception
-          ? exceptionMapper.map(exception)
-          : ServerFailure(message: AppStrings.unknownError);
-      return Left(failure);
+      return Left(_handleException(exception));
     }
   }
-
-  // @override
-  // Future<Either<Failure, void>> updateLendingStatus(
-  //     String lendingId, LendingStatus newStatus) async {
-  //   try {
-  //     await remoteDataSource.updateLendingStatus(lendingId, newStatus);
-  //     return const Right(null);
-  //   } catch (exception) {
-  //     final failure = exception is Exception
-  //         ? exceptionMapper.map(exception)
-  //         : ServerFailure(message: AppStrings.unknownError);
-  //     return Left(failure);
-  //   }
-  // }
 
   @override
   Future<Either<Failure, void>> deleteLending(String lendingId) async {
     try {
-      await remoteDataSource.deleteLending(lendingId);
+      if (AppConfig.useRemote) {
+        await remoteDataSource.deleteLending(lendingId);
+      } else {
+        await localDataSource.deleteLending(lendingId);
+      }
       return const Right(null);
     } catch (exception) {
-      final failure = exception is Exception
-          ? exceptionMapper.map(exception)
-          : ServerFailure(message: AppStrings.unknownError);
-      return Left(failure);
+      return Left(_handleException(exception));
     }
   }
 
@@ -110,18 +111,25 @@ class LendingRepositoryImpl implements LendingRepository {
     String? personNameFilter,
   }) async {
     try {
-      final total = await remoteDataSource.getTotalLendingAmount(
-        userId: userId,
-        typeFilter: typeFilter,
-        statusFilter: statusFilter,
-        personNameFilter: personNameFilter,
-      );
+      final double total;
+      if (AppConfig.useRemote) {
+        total = await remoteDataSource.getTotalLendingAmount(
+          userId: userId,
+          typeFilter: typeFilter,
+          statusFilter: statusFilter,
+          personNameFilter: personNameFilter,
+        );
+      } else {
+        total = await localDataSource.getTotalLendingAmount(
+          userId: userId,
+          typeFilter: typeFilter,
+          statusFilter: statusFilter,
+          personNameFilter: personNameFilter,
+        );
+      }
       return Right(total);
     } catch (exception) {
-      final failure = exception is Exception
-          ? exceptionMapper.map(exception)
-          : ServerFailure(message: AppStrings.unknownError);
-      return Left(failure);
+      return Left(_handleException(exception));
     }
   }
 
@@ -133,149 +141,183 @@ class LendingRepositoryImpl implements LendingRepository {
     String? personNameFilter,
   }) async {
     try {
-      final count = await remoteDataSource.getLendingsCount(
-        userId: userId,
-        typeFilter: typeFilter,
-        statusFilter: statusFilter,
-        personNameFilter: personNameFilter,
-      );
+      final int count;
+      if (AppConfig.useRemote) {
+        count = await remoteDataSource.getLendingsCount(
+          userId: userId,
+          typeFilter: typeFilter,
+          statusFilter: statusFilter,
+          personNameFilter: personNameFilter,
+        );
+      } else {
+        count = await localDataSource.getLendingsCount(
+          userId: userId,
+          typeFilter: typeFilter,
+          statusFilter: statusFilter,
+          personNameFilter: personNameFilter,
+        );
+      }
       return Right(count);
     } catch (exception) {
-      final failure = exception is Exception
-          ? exceptionMapper.map(exception)
-          : ServerFailure(message: AppStrings.unknownError);
-      return Left(failure);
+      return Left(_handleException(exception));
     }
   }
 
-  // LendingPerson methods
   @override
   Future<Either<Failure, void>> addPerson(LendingPersonEntity person) async {
     try {
-      await remoteDataSource.addPerson(LendingPersonModel.fromEntity(person));
+      final model = LendingPersonModel.fromEntity(person);
+      if (AppConfig.useRemote) {
+        await remoteDataSource.addPerson(model);
+      } else {
+        await localDataSource.addPerson(model);
+      }
       return const Right(null);
     } catch (exception) {
-      final failure = exception is Exception
-          ? exceptionMapper.map(exception)
-          : ServerFailure(message: AppStrings.unknownError);
-      return Left(failure);
+      return Left(_handleException(exception));
     }
   }
 
   @override
   Future<Either<Failure, LendingPersonEntity>> getPersonById(
-      String personId) async {
+    String personId,
+  ) async {
     try {
-      final model = await remoteDataSource.getPersonById(personId);
+      final LendingPersonModel model;
+      if (AppConfig.useRemote) {
+        model = await remoteDataSource.getPersonById(personId);
+      } else {
+        model = await localDataSource.getPersonById(personId);
+      }
       return Right(model.toEntity());
     } catch (exception) {
-      final failure = exception is Exception
-          ? exceptionMapper.map(exception)
-          : ServerFailure(message: AppStrings.unknownError);
-      return Left(failure);
+      return Left(_handleException(exception));
     }
   }
 
   @override
   Future<Either<Failure, List<LendingPersonEntity>>> getUserPersons(
-      String userId,
-      {String? nameFilter}) async {
+    String userId, {
+    String? nameFilter,
+  }) async {
     try {
-      final models = await remoteDataSource.getUserPersons(
-        userId,
-        nameFilter: nameFilter,
-      );
+      final List<LendingPersonModel> models;
+      if (AppConfig.useRemote) {
+        models = await remoteDataSource.getUserPersons(
+          userId,
+          nameFilter: nameFilter,
+        );
+      } else {
+        models = await localDataSource.getUserPersons(
+          userId,
+          nameFilter: nameFilter,
+        );
+      }
       final persons = models.map((m) => m.toEntity()).toList();
       return Right(persons);
     } catch (exception) {
-      final failure = exception is Exception
-          ? exceptionMapper.map(exception)
-          : ServerFailure(message: AppStrings.unknownError);
-      return Left(failure);
+      return Left(_handleException(exception));
     }
   }
 
   @override
   Future<Either<Failure, void>> updatePerson(LendingPersonEntity person) async {
     try {
-      await remoteDataSource
-          .updatePerson(LendingPersonModel.fromEntity(person));
+      final model = LendingPersonModel.fromEntity(person);
+      if (AppConfig.useRemote) {
+        await remoteDataSource.updatePerson(model);
+      } else {
+        await localDataSource.updatePerson(model);
+      }
       return const Right(null);
     } catch (exception) {
-      final failure = exception is Exception
-          ? exceptionMapper.map(exception)
-          : ServerFailure(message: AppStrings.unknownError);
-      return Left(failure);
+      return Left(_handleException(exception));
     }
   }
 
   @override
   Future<Either<Failure, void>> deletePerson(String personId) async {
     try {
-      await remoteDataSource.deletePerson(personId);
+      if (AppConfig.useRemote) {
+        await remoteDataSource.deletePerson(personId);
+      } else {
+        await localDataSource.deletePerson(personId);
+      }
       return const Right(null);
     } catch (exception) {
-      final failure = exception is Exception
-          ? exceptionMapper.map(exception)
-          : ServerFailure(message: AppStrings.unknownError);
-      return Left(failure);
+      return Left(_handleException(exception));
     }
   }
 
-  // Repayment methods
   @override
   Future<Either<Failure, void>> addRepayment(RepaymentEntity repayment) async {
     try {
-      await remoteDataSource.addRepayment(RepaymentModel.fromEntity(repayment));
+      final model = RepaymentModel.fromEntity(repayment);
+      if (AppConfig.useRemote) {
+        await remoteDataSource.addRepayment(model);
+      } else {
+        await localDataSource.addRepayment(model);
+      }
       return const Right(null);
     } catch (exception) {
-      final failure = exception is Exception
-          ? exceptionMapper.map(exception)
-          : ServerFailure(message: AppStrings.unknownError);
-      return Left(failure);
+      return Left(_handleException(exception));
     }
   }
 
   @override
   Future<Either<Failure, List<RepaymentEntity>>> getRepaymentsForLending(
-      String lendingId) async {
+    String lendingId,
+  ) async {
     try {
-      final models = await remoteDataSource.getRepaymentsForLending(lendingId);
+      final List<RepaymentModel> models;
+      if (AppConfig.useRemote) {
+        models = await remoteDataSource.getRepaymentsForLending(lendingId);
+      } else {
+        models = await localDataSource.getRepaymentsForLending(lendingId);
+      }
       final repayments = models.map((m) => m.toEntity()).toList();
       return Right(repayments);
     } catch (exception) {
-      final failure = exception is Exception
-          ? exceptionMapper.map(exception)
-          : ServerFailure(message: AppStrings.unknownError);
-      return Left(failure);
+      return Left(_handleException(exception));
     }
   }
 
   @override
   Future<Either<Failure, void>> updateRepayment(
-      RepaymentEntity repayment) async {
+    RepaymentEntity repayment,
+  ) async {
     try {
-      await remoteDataSource
-          .updateRepayment(RepaymentModel.fromEntity(repayment));
+      final model = RepaymentModel.fromEntity(repayment);
+      if (AppConfig.useRemote) {
+        await remoteDataSource.updateRepayment(model);
+      } else {
+        await localDataSource.updateRepayment(model);
+      }
       return const Right(null);
     } catch (exception) {
-      final failure = exception is Exception
-          ? exceptionMapper.map(exception)
-          : ServerFailure(message: AppStrings.unknownError);
-      return Left(failure);
+      return Left(_handleException(exception));
     }
   }
 
   @override
   Future<Either<Failure, void>> deleteRepayment(String repaymentId) async {
     try {
-      await remoteDataSource.deleteRepayment(repaymentId);
+      if (AppConfig.useRemote) {
+        await remoteDataSource.deleteRepayment(repaymentId);
+      } else {
+        await localDataSource.deleteRepayment(repaymentId);
+      }
       return const Right(null);
     } catch (exception) {
-      final failure = exception is Exception
-          ? exceptionMapper.map(exception)
-          : ServerFailure(message: AppStrings.unknownError);
-      return Left(failure);
+      return Left(_handleException(exception));
     }
+  }
+
+  Failure _handleException(dynamic exception, [StackTrace? stackTrace, String? context]) {
+    return ExceptionHandler.handle(
+      exception,
+      stackTrace,
+      context ?? 'LendingRepositoryImpl',
+    );
   }
 }

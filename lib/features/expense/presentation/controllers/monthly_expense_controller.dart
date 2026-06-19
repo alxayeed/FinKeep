@@ -1,4 +1,4 @@
-import 'dart:developer';
+import 'package:spendly/core/error/exception_handler.dart';
 import 'dart:ui';
 import 'package:get/get.dart';
 import 'package:spendly/features/expense/domain/usecases/get_monthly_expense.dart';
@@ -98,8 +98,8 @@ class MonthlyExpenseController extends GetxController {
         userId,
         currentMonth: selectedMonth.value,
       );
-    } catch (e) {
-      log('Error fetching last month total: $e');
+    } catch (e, stackTrace) {
+      ExceptionHandler.handle(e, stackTrace, 'MonthlyExpenseController.fetchLastMonthTotal');
       lastMonthTotal.value = 0.0;
     }
   }
@@ -112,8 +112,8 @@ class MonthlyExpenseController extends GetxController {
         1,
       );
       lastMonthExpenses.value = await getMonthlyExpensesUseCase(userId, prevMonth);
-    } catch (e) {
-      log('Error fetching last month expenses: $e');
+    } catch (e, stackTrace) {
+      ExceptionHandler.handle(e, stackTrace, 'MonthlyExpenseController.fetchLastMonthExpenses');
       lastMonthExpenses.value = [];
     }
   }
@@ -128,9 +128,9 @@ class MonthlyExpenseController extends GetxController {
       await addExpense.call(expense);
       onSuccess?.call();
       fetchMonthlyExpenses();
-    } catch (e) {
+    } catch (e, stackTrace) {
       onError?.call(e);
-      log('Create Expense Error: $e');
+      ExceptionHandler.handle(e, stackTrace, 'MonthlyExpenseController.createExpense');
     }
   }
 
@@ -144,9 +144,9 @@ class MonthlyExpenseController extends GetxController {
       await updateExpense.call(expense);
       onSuccess?.call();
       fetchMonthlyExpenses();
-    } catch (e) {
+    } catch (e, stackTrace) {
       onError?.call(e);
-      log('Edit Expense Error: $e');
+      ExceptionHandler.handle(e, stackTrace, 'MonthlyExpenseController.editExpense');
     }
   }
 
@@ -160,9 +160,9 @@ class MonthlyExpenseController extends GetxController {
       await deleteExpense.call(id);
       onSuccess?.call();
       fetchMonthlyExpenses();
-    } catch (e) {
+    } catch (e, stackTrace) {
       onError?.call(e);
-      log('Remove Expense Error: $e');
+      ExceptionHandler.handle(e, stackTrace, 'MonthlyExpenseController.removeExpense');
     }
   }
 

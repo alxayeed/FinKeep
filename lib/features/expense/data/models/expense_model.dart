@@ -17,17 +17,45 @@ class ExpenseModel extends ExpenseEntity {
   factory ExpenseModel.fromJson(Map<String, dynamic> json) {
     return ExpenseModel(
       id: json['id'] as String,
-      amount: json['amount'] as double,
+      amount: (json['amount'] as num).toDouble(),
+      category: json['category'] as String,
+      date: json['date'] as DateTime,
+      description: json['description'] as String? ?? '',
+      userId: json['userId'] as String? ?? '',
+      paymentMethod: PaymentTypeExtension.fromString(json['paymentMethod'] as String? ?? 'CASH'),
+      createdAt: json['createdAt'] as DateTime,
+    );
+  }
+
+  /// Firestore-specific deserialization: reads Firestore Timestamps.
+  factory ExpenseModel.fromFirestoreMap(Map<String, dynamic> json) {
+    return ExpenseModel(
+      id: json['id'] as String,
+      amount: (json['amount'] as num).toDouble(),
       category: json['category'] as String,
       date: (json['date'] as Timestamp).toDate(),
-      description: json['description'] as String,
-      userId: json['userId'] as String,
+      description: json['description'] as String? ?? '',
+      userId: json['userId'] as String? ?? '',
       paymentMethod: PaymentTypeExtension.fromString(json['paymentMethod'] as String? ?? 'CASH'),
       createdAt: (json['createdAt'] as Timestamp).toDate(),
     );
   }
 
   Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'amount': amount,
+      'category': category,
+      'date': date,
+      'description': description,
+      'userId': userId,
+      'paymentMethod': paymentMethod.value,
+      'createdAt': createdAt,
+    };
+  }
+
+  /// Firestore-specific map: dates are stored as Timestamps.
+  Map<String, dynamic> toFirestoreMap() {
     return {
       'id': id,
       'amount': amount,

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:spendly/core/enums/payment_type.dart';
 import 'package:spendly/features/investments/domain/entities/investment.dart';
 
@@ -24,41 +25,73 @@ class InvestmentModel extends Investment {
     required super.returns,
   });
 
+  /// Plain Dart deserialization — used by Hive.
   factory InvestmentModel.fromJson(Map<String, dynamic> json) {
     return InvestmentModel(
-      id: json['id'],
-      userId: json['userId'],
-      title: json['title'],
+      id: json['id'] as String,
+      userId: json['userId'] as String,
+      title: json['title'] as String,
       amountInvested: (json['amountInvested'] as num).toDouble(),
-      startDate: DateTime.parse(json['startDate']),
-      expectedEndDate: DateTime.parse(json['expectedEndDate']),
-      platformName: json['platformName'],
+      startDate: json['startDate'] as DateTime,
+      expectedEndDate: json['expectedEndDate'] as DateTime,
+      platformName: json['platformName'] as String,
       profitRate: json['profitRate'],
       expectedROI: (json['expectedROI'] as num).toDouble(),
-      notes: json['notes'] ?? '',
-      docLinks: json['docLinks'] ?? '',
-      transactionId: json['transactionId'],
-      transactionMedium: PaymentTypeExtension.fromString(json['transactionMedium'] as String? ?? 'CASH'),
-      transactionDate: DateTime.parse(json['transactionDate']),
+      notes: json['notes'] as String? ?? '',
+      docLinks: json['docLinks'] as String? ?? '',
+      transactionId: json['transactionId'] as String,
+      transactionMedium: PaymentTypeExtension.fromString(
+          json['transactionMedium'] as String? ?? 'CASH'),
+      transactionDate: json['transactionDate'] as DateTime,
       status: InvestmentStatus.values.firstWhere(
         (e) => e.toString() == 'InvestmentStatus.${json['status']}',
       ),
-      returns:
-          (json['returns'] as List<dynamic>?)
-              ?.map((e) => ReturnEntryModel.fromJson(e))
+      returns: (json['returns'] as List<dynamic>?)
+              ?.map((e) =>
+                  ReturnEntryModel.fromJson(Map<String, dynamic>.from(e as Map)))
               .toList() ??
           [],
     );
   }
 
+  /// Firestore-specific deserialization — reads Firestore Timestamps.
+  factory InvestmentModel.fromFirestoreMap(Map<String, dynamic> json) {
+    return InvestmentModel(
+      id: json['id'] as String,
+      userId: json['userId'] as String,
+      title: json['title'] as String,
+      amountInvested: (json['amountInvested'] as num).toDouble(),
+      startDate: (json['startDate'] as Timestamp).toDate(),
+      expectedEndDate: (json['expectedEndDate'] as Timestamp).toDate(),
+      platformName: json['platformName'] as String,
+      profitRate: json['profitRate'],
+      expectedROI: (json['expectedROI'] as num).toDouble(),
+      notes: json['notes'] as String? ?? '',
+      docLinks: json['docLinks'] as String? ?? '',
+      transactionId: json['transactionId'] as String,
+      transactionMedium: PaymentTypeExtension.fromString(
+          json['transactionMedium'] as String? ?? 'CASH'),
+      transactionDate: (json['transactionDate'] as Timestamp).toDate(),
+      status: InvestmentStatus.values.firstWhere(
+        (e) => e.toString() == 'InvestmentStatus.${json['status']}',
+      ),
+      returns: (json['returns'] as List<dynamic>?)
+              ?.map((e) => ReturnEntryModel.fromFirestoreMap(
+                  Map<String, dynamic>.from(e as Map)))
+              .toList() ??
+          [],
+    );
+  }
+
+  /// Plain Dart serialization — used by Hive.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'userId': userId,
       'title': title,
       'amountInvested': amountInvested,
-      'startDate': startDate.toIso8601String(),
-      'expectedEndDate': expectedEndDate.toIso8601String(),
+      'startDate': startDate,
+      'expectedEndDate': expectedEndDate,
       'platformName': platformName,
       'profitRate': profitRate,
       'expectedROI': expectedROI,
@@ -66,13 +99,36 @@ class InvestmentModel extends Investment {
       'docLinks': docLinks,
       'transactionId': transactionId,
       'transactionMedium': transactionMedium.value,
-      'transactionDate': transactionDate.toIso8601String(),
+      'transactionDate': transactionDate,
       'status': status.name,
       'returns': returns.map((r) => (r as ReturnEntryModel).toJson()).toList(),
     };
   }
 
-  /// Helper to convert domain entity to model
+  /// Firestore-specific serialization — stores dates as Timestamps.
+  Map<String, dynamic> toFirestoreMap() {
+    return {
+      'id': id,
+      'userId': userId,
+      'title': title,
+      'amountInvested': amountInvested,
+      'startDate': Timestamp.fromDate(startDate),
+      'expectedEndDate': Timestamp.fromDate(expectedEndDate),
+      'platformName': platformName,
+      'profitRate': profitRate,
+      'expectedROI': expectedROI,
+      'notes': notes,
+      'docLinks': docLinks,
+      'transactionId': transactionId,
+      'transactionMedium': transactionMedium.value,
+      'transactionDate': Timestamp.fromDate(transactionDate),
+      'status': status.name,
+      'returns':
+          returns.map((r) => (r as ReturnEntryModel).toFirestoreMap()).toList(),
+    };
+  }
+
+  /// Helper to convert domain entity to model.
   factory InvestmentModel.fromEntity(Investment investment) {
     return InvestmentModel(
       id: investment.id,
