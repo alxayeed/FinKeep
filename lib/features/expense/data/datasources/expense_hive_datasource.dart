@@ -10,6 +10,7 @@ class ExpenseHiveDataSource implements ExpenseLocalDataSource {
   ExpenseHiveDataSource({required this.localDb});
 
   DateTime _parseTimestamp(dynamic val) {
+    if (val is DateTime) return val;
     if (val is Timestamp) return val.toDate();
     if (val is Map) {
       final seconds = val['_seconds'] ?? val['seconds'];
@@ -22,18 +23,8 @@ class ExpenseHiveDataSource implements ExpenseLocalDataSource {
     return DateTime.now();
   }
 
-  ExpenseModel _mapJson(Map<String, dynamic> json) {
-    return ExpenseModel(
-      id: json['id'] as String,
-      amount: (json['amount'] as num).toDouble(),
-      category: json['category'] as String,
-      date: _parseTimestamp(json['date']),
-      description: json['description'] as String? ?? '',
-      userId: json['userId'] as String? ?? '',
-      paymentMethod: PaymentTypeExtension.fromString(json['paymentMethod'] as String? ?? 'CASH'),
-      createdAt: _parseTimestamp(json['createdAt']),
-    );
-  }
+  ExpenseModel _mapJson(Map<String, dynamic> json) =>
+      ExpenseModel.fromJson(json);
 
   @override
   Future<void> createExpense(ExpenseModel expense) async {

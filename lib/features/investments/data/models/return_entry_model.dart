@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:spendly/features/investments/domain/entities/return_entry.dart';
 
 class ReturnEntryModel extends ReturnEntry {
@@ -10,22 +11,48 @@ class ReturnEntryModel extends ReturnEntry {
     required super.notes,
   });
 
+  /// Plain Dart deserialization — used by Hive.
   factory ReturnEntryModel.fromJson(Map<String, dynamic> json) {
     return ReturnEntryModel(
-      id: json['id'],
+      id: json['id'] as String,
       amountReceived: (json['amountReceived'] as num).toDouble(),
-      date: DateTime.parse(json['date']),
-      transactionId: json['transactionId'],
-      medium: json['medium'],
-      notes: json['notes'] ?? '',
+      date: json['date'] as DateTime,
+      transactionId: json['transactionId'] as String,
+      medium: json['medium'] as String,
+      notes: json['notes'] as String? ?? '',
     );
   }
 
+  /// Firestore-specific deserialization — reads Firestore Timestamps.
+  factory ReturnEntryModel.fromFirestoreMap(Map<String, dynamic> json) {
+    return ReturnEntryModel(
+      id: json['id'] as String,
+      amountReceived: (json['amountReceived'] as num).toDouble(),
+      date: (json['date'] as Timestamp).toDate(),
+      transactionId: json['transactionId'] as String,
+      medium: json['medium'] as String,
+      notes: json['notes'] as String? ?? '',
+    );
+  }
+
+  /// Plain Dart serialization — used by Hive.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'amountReceived': amountReceived,
-      'date': date.toIso8601String(),
+      'date': date,
+      'transactionId': transactionId,
+      'medium': medium,
+      'notes': notes,
+    };
+  }
+
+  /// Firestore-specific serialization — stores dates as Timestamps.
+  Map<String, dynamic> toFirestoreMap() {
+    return {
+      'id': id,
+      'amountReceived': amountReceived,
+      'date': Timestamp.fromDate(date),
       'transactionId': transactionId,
       'medium': medium,
       'notes': notes,

@@ -32,29 +32,14 @@ class LendingFirestoreDataSource implements LendingDataSource {
           ? AppStrings.repaymentsCollection
           : '${AppStrings.repaymentsCollection}_dev',
     );
-
   }
 
-  // Lending Methods
   // --- Lending Methods ---
   @override
   Future<void> addLending(LendingModel lending) async {
     try {
-      final data = {
-        'type': lending.type.name,
-        'personId': lending.person.id,
-        'amount': lending.amount,
-        'repaidAmount': lending.repaidAmount,
-        'description': lending.description,
-        'createdDate': Timestamp.fromDate(lending.createdDate),
-        'dueDate': lending.dueDate != null
-            ? Timestamp.fromDate(lending.dueDate!)
-            : null,
-        'status': lending.status.name,
-        'userId': lending.userId,
-        'repayments':
-            lending.repayments?.map((r) => r.toJson()).toList(), // optional
-      };
+      final data = lending.toFirestoreMap();
+      data.remove('id'); // Firestore generates ID
       await _lendingsCollection.add(data);
     } catch (e) {
       throw ServerException(message: '${AppStrings.operationFailed}: $e');
@@ -105,7 +90,6 @@ class LendingFirestoreDataSource implements LendingDataSource {
 
       final snapshot = await query.get();
 
-      // If no docs, return empty
       if (snapshot.docs.isEmpty) return [];
 
       final List<LendingModel> lendings = [];
@@ -115,12 +99,10 @@ class LendingFirestoreDataSource implements LendingDataSource {
         data['id'] = doc.id;
 
         final String personId = data['personId'];
-
         final person = await getPersonById(personId);
+        data['person'] = person.toJson(); // no dates, plain toJson() is fine
 
-        data['person'] = person.toJson();
-
-        lendings.add(LendingModel.fromJson(data));
+        lendings.add(LendingModel.fromFirestoreMap(data));
       }
 
       // Sort in-memory to avoid needing composite indexes in Firestore
@@ -132,22 +114,10 @@ class LendingFirestoreDataSource implements LendingDataSource {
     }
   }
 
-  // @override
-  // Future<void> updateLendingStatus(
-  //     String lendingId, LendingStatus newStatus) async {
-  //   try {
-  //     await _lendingsCollection
-  //         .doc(lendingId)
-  //         .update({'status': newStatus.name});
-  //   } catch (e) {
-  //     throw ServerException(message: '${AppStrings.updateFailed}: $e');
-  //   }
-  // }
-
   @override
   Future<void> updateLending(LendingModel lending) async {
     try {
-      final data = lending.toJson();
+      final data = lending.toFirestoreMap();
       final String docId = data.remove('id');
       if (docId.isEmpty) {
         throw ArgumentError('Lending ID cannot be empty for update.');
@@ -221,7 +191,7 @@ class LendingFirestoreDataSource implements LendingDataSource {
     }
   }
 
-  // LendingPerson Methods
+  // --- LendingPerson Methods ---
   @override
   Future<void> addPerson(LendingPersonModel person) async {
     try {
@@ -288,18 +258,21 @@ class LendingFirestoreDataSource implements LendingDataSource {
     }
   }
 
-  // Repayment Methods
+  // --- Repayment Methods ---
   @override
   Future<void> addRepayment(RepaymentModel repayment) async {
     try {
-      await _repaymentsCollection.add(repayment.toJson());
+      final data = repayment.toFirestoreMap();
+      data.remove('id'); // Firestore generates ID
+      await _repaymentsCollection.add(data);
     } catch (e) {
       throw ServerException(message: '${AppStrings.operationFailed}: $e');
     }
   }
 
   @override
-  Future<List<RepaymentModel>> getRepaymentsForLending(String lendingId) async {
+  Future<List<RepaymentModel>> getRepaymentsForLending(
+      String lendingId) async {
     try {
       final snapshot = await _repaymentsCollection
           .where('lendingId', isEqualTo: lendingId)
@@ -307,7 +280,7 @@ class LendingFirestoreDataSource implements LendingDataSource {
       final list = snapshot.docs.map((doc) {
         final data = doc.data();
         data['id'] = doc.id;
-        return RepaymentModel.fromJson(data);
+        return RepaymentModel.fromFirestoreMap(data);
       }).toList();
 
       // Sort in-memory to avoid needing composite indexes in Firestore
@@ -321,7 +294,7 @@ class LendingFirestoreDataSource implements LendingDataSource {
   @override
   Future<void> updateRepayment(RepaymentModel repayment) async {
     try {
-      final data = repayment.toJson();
+      final data = repayment.toFirestoreMap();
       final String docId = data.remove('id');
       if (docId.isEmpty) {
         throw ArgumentError('Repayment ID cannot be empty for update.');

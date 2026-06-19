@@ -16,14 +16,14 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
 
   @override
   Future<void> createExpense(ExpenseModel expense) async {
-    await _expensesCollection.doc(expense.id).set(expense.toJson());
+    await _expensesCollection.doc(expense.id).set(expense.toFirestoreMap());
   }
 
   @override
   Future<ExpenseModel?> getExpenseById(String id) async {
     final snapshot = await _expensesCollection.doc(id).get();
     if (snapshot.exists) {
-      return ExpenseModel.fromJson(snapshot.data()!);
+      return ExpenseModel.fromFirestoreMap(snapshot.data()!);
     }
     return null;
   }
@@ -35,7 +35,7 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
         .get();
 
     final list = querySnapshot.docs
-        .map((doc) => ExpenseModel.fromJson(doc.data()..['id'] = doc.id))
+        .map((doc) => ExpenseModel.fromFirestoreMap(doc.data()..['id'] = doc.id))
         .toList();
 
     // Sort in-memory to avoid needing composite indexes in Firestore
@@ -45,7 +45,7 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
 
   @override
   Future<void> updateExpense(ExpenseModel expense) async {
-    await _expensesCollection.doc(expense.id).update(expense.toJson());
+    await _expensesCollection.doc(expense.id).update(expense.toFirestoreMap());
   }
 
   @override
@@ -76,7 +76,7 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
         .get();
 
     final list = querySnapshot.docs
-        .map((doc) => ExpenseModel.fromJson(doc.data()..['id'] = doc.id))
+        .map((doc) => ExpenseModel.fromFirestoreMap(doc.data()..['id'] = doc.id))
         .toList();
 
     // Sort in-memory to avoid needing composite indexes in Firestore

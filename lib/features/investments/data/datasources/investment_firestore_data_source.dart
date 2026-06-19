@@ -23,7 +23,7 @@ class InvestmentFirestoreDataSource implements InvestmentDataSource {
   @override
   Future<void> addInvestment(InvestmentModel investment) async {
     try {
-      final data = investment.toJson();
+      final data = investment.toFirestoreMap();
       data.remove('id'); // Firestore generates ID
       await _investmentsCollection.add(data);
     } catch (e) {
@@ -43,7 +43,7 @@ class InvestmentFirestoreDataSource implements InvestmentDataSource {
       final list = snapshot.docs.map((doc) {
         final data = doc.data();
         data['id'] = doc.id;
-        return InvestmentModel.fromJson(data);
+        return InvestmentModel.fromFirestoreMap(data);
       }).toList();
 
       // Sort in-memory to avoid needing composite indexes in Firestore
@@ -61,7 +61,7 @@ class InvestmentFirestoreDataSource implements InvestmentDataSource {
       if (!doc.exists) return null;
       final data = doc.data()!;
       data['id'] = doc.id;
-      return InvestmentModel.fromJson(data);
+      return InvestmentModel.fromFirestoreMap(data);
     } catch (e) {
       throw ServerException(message: '${AppStrings.fetchFailed}: $e');
     }
@@ -70,7 +70,7 @@ class InvestmentFirestoreDataSource implements InvestmentDataSource {
   @override
   Future<void> updateInvestment(InvestmentModel investment) async {
     try {
-      final data = investment.toJson();
+      final data = investment.toFirestoreMap();
       final String docId = data.remove('id');
       if (docId.isEmpty) {
         throw ArgumentError('Investment ID cannot be empty for update.');
@@ -96,7 +96,7 @@ class InvestmentFirestoreDataSource implements InvestmentDataSource {
 
       final data = snapshot.data()!;
       List returnsList = data['returns'] ?? [];
-      returnsList.add(returnEntry.toJson());
+      returnsList.add(returnEntry.toFirestoreMap());
 
       final updates = <String, dynamic>{'returns': returnsList};
       if (data['status'] == 'active') {

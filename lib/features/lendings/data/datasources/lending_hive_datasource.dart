@@ -34,8 +34,12 @@ class LendingHiveDataSource implements LendingLocalDataSource {
       if (personIdFilter != null && personIdFilter.isNotEmpty && data['personId'] != personIdFilter) continue;
 
       if (monthFilter != null) {
-        final createdDate = DateTime.parse(data['createdDate']);
-        if (createdDate.year != monthFilter.year || createdDate.month != monthFilter.month) {
+        final raw = data['createdDate'];
+        final createdDate = raw is DateTime
+            ? raw
+            : DateTime.parse(raw as String);
+        if (createdDate.year != monthFilter.year ||
+            createdDate.month != monthFilter.month) {
           continue;
         }
       }

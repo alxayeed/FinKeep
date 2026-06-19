@@ -32,10 +32,36 @@ abstract class LendingModel with _$LendingModel {
     List<RepaymentModel>? repayments,
   }) = _LendingModel;
 
+  /// Plain Dart deserialization — used by Hive (via json_serializable).
   factory LendingModel.fromJson(Map<String, dynamic> json) =>
       _$LendingModelFromJson(json);
 
-  /// Convert entity to model
+  /// Firestore-specific deserialization — reads Firestore Timestamps.
+  factory LendingModel.fromFirestoreMap(Map<String, dynamic> json) {
+    return LendingModel(
+      id: json['id'] as String,
+      type: $enumDecode(_$LendingTypeEnumMap, json['type']),
+      personId: json['personId'] as String,
+      person: LendingPersonModel.fromJson(
+          Map<String, dynamic>.from(json['person'] as Map)),
+      amount: (json['amount'] as num).toDouble(),
+      repaidAmount: (json['repaidAmount'] as num?)?.toDouble() ?? 0.0,
+      description: json['description'] as String?,
+      createdDate: (json['createdDate'] as Timestamp).toDate(),
+      dueDate: json['dueDate'] != null
+          ? (json['dueDate'] as Timestamp).toDate()
+          : null,
+      status: $enumDecode(_$LendingStatusEnumMap, json['status']),
+      userId: json['userId'] as String,
+      paymentMethod: _fromJsonPaymentMethod(json['paymentMethod']),
+      repayments: (json['repayments'] as List<dynamic>?)
+          ?.map((e) => RepaymentModel.fromFirestoreMap(
+              Map<String, dynamic>.from(e as Map)))
+          .toList(),
+    );
+  }
+
+  /// Convert entity to model.
   factory LendingModel.fromEntity(LendingEntity entity) {
     return LendingModel(
       id: entity.id,
@@ -56,7 +82,7 @@ abstract class LendingModel with _$LendingModel {
     );
   }
 
-  /// Convert model to entity
+  /// Convert model to entity.
   LendingEntity toEntity() {
     return LendingEntity(
       id: id,
@@ -74,34 +100,54 @@ abstract class LendingModel with _$LendingModel {
       repayments: repayments?.map((repayment) => repayment.toEntity()).toList(),
     );
   }
+
+  /// Firestore-specific serialization — stores dates as Timestamps.
+  Map<String, dynamic> toFirestoreMap() {
+    return {
+      'id': id,
+      'type': _$LendingTypeEnumMap[type]!,
+      'personId': personId,
+      'amount': amount,
+      'repaidAmount': repaidAmount,
+      'description': description,
+      'createdDate': Timestamp.fromDate(createdDate),
+      'dueDate': dueDate != null ? Timestamp.fromDate(dueDate!) : null,
+      'status': _$LendingStatusEnumMap[status]!,
+      'userId': userId,
+      'paymentMethod': _toJsonPaymentMethod(paymentMethod),
+      'repayments': repayments?.map((r) => r.toFirestoreMap()).toList(),
+    };
+  }
 }
 
+// ---------------------------------------------------------------------------
+// @JsonKey converter helpers — plain Dart types (Hive-safe).
+// ---------------------------------------------------------------------------
+
+/// Reads a DateTime from Hive (DateTime) or legacy formats (Timestamp, String).
 DateTime _fromJsonDate(dynamic value) {
+  if (value is DateTime) return value;
   if (value is Timestamp) return value.toDate();
   if (value is String) return DateTime.parse(value);
   throw Exception('Invalid date: $value');
 }
 
-dynamic _toJsonDate(DateTime value) {
-  return Timestamp.fromDate(value);
-}
+/// Writes a plain DateTime — safe for Hive.
+DateTime _toJsonDate(DateTime value) => value;
 
 DateTime? _fromJsonNullableDate(dynamic value) {
   if (value == null) return null;
+  if (value is DateTime) return value;
   if (value is Timestamp) return value.toDate();
   if (value is String) return DateTime.parse(value);
   throw Exception('Invalid nullable date: $value');
 }
 
-dynamic _toJsonNullableDate(DateTime? value) {
-  return value == null ? null : Timestamp.fromDate(value);
-}
+DateTime? _toJsonNullableDate(DateTime? value) => value;
 
 PaymentType _fromJsonPaymentMethod(dynamic value) {
   if (value is String) return PaymentTypeExtension.fromString(value);
   return PaymentType.cash;
 }
 
-dynamic _toJsonPaymentMethod(PaymentType value) {
-  return value.value;
-}
+String _toJsonPaymentMethod(PaymentType value) => value.value;
