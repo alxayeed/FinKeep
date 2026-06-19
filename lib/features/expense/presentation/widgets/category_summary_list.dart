@@ -45,22 +45,6 @@ class CategorySummaryList extends StatelessWidget {
       return spentB.compareTo(spentA);
     });
 
-    if (categories.isEmpty) {
-      return Padding(
-        padding: EdgeInsets.all(16.r),
-        child: Center(
-          child: Text(
-            "No expenses recorded.",
-            style: TextStyle(
-              fontSize: 13.sp,
-              fontFamily: 'Manrope',
-              color: Colors.grey,
-            ),
-          ),
-        ),
-      );
-    }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

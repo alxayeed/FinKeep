@@ -19,54 +19,11 @@ class MonthlyExpenseSummaryScreen extends StatelessWidget {
     required this.onCategoryTap,
   });
 
-  Widget _buildEmptyState(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return RefreshIndicator(
-      onRefresh: () async {
-        controller.shouldRefresh = true;
-        await controller.fetchMonthlyExpenses();
-      },
-      color: AppColors.primaryTeal,
-      child: ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        children: [
-          SizedBox(height: 150.h),
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.receipt_long_rounded,
-                  size: 64.sp,
-                  color: isDark ? Colors.white10 : Colors.black12,
-                ),
-                SizedBox(height: 16.h),
-                Text(
-                  'No Expenses Registered',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontFamily: 'Manrope',
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white38 : const Color(0xFF64748B),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       final double totalSpent = controller.totalExpense.value;
       final double totalBudget = controller.monthlyBudget.value;
-
-      if (controller.expenses.isEmpty) {
-        return _buildEmptyState(context);
-      }
 
       // Compute dynamic category totals from raw controller.expenses
       final Map<ExpenseCategory, double> spentByCategory = {};

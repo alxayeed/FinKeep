@@ -3,13 +3,12 @@ import 'package:get/get.dart';
 import 'package:spendly/core/common/widgets/custom_divider.dart';
 import 'package:spendly/core/common/widgets/expense_monthly_analysis.dart';
 import 'package:spendly/core/common/widgets/loader_widget.dart';
-import 'package:spendly/core/common/widgets/no_data_widget.dart';
 import 'package:spendly/core/responsive/responsive.dart';
 
 import '../../../../core/enums/expense_category.dart';
 import '../../domain/entities/expense_entity.dart';
-import '../controllers/expense_report_controller.dart';
 import '../controllers/budget_controller.dart';
+import '../controllers/expense_report_controller.dart';
 import 'budget_progress_card.dart';
 import 'category_summary_list.dart';
 import 'expense_bar_chart.dart';
@@ -41,8 +40,6 @@ class ExpenseSummeryWidget extends StatelessWidget {
 
         if (controller.isLoading.value) {
           return const Center(child: LoaderWidget());
-        } else if (data.isEmpty) {
-          return const Center(child: NoDataWidget());
         } else {
           return SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
@@ -89,22 +86,6 @@ class ExpenseSummery extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double totalSpending = _calculateTotalSpending();
-
-    if (expenses.isEmpty || totalSpending == 0) {
-      return Padding(
-        padding: EdgeInsets.all(16.r),
-        child: Center(
-          child: Text(
-            "No expenses recorded.",
-            style: TextStyle(
-              fontSize: 13.sp,
-              fontFamily: 'Manrope',
-              color: Colors.grey,
-            ),
-          ),
-        ),
-      );
-    }
 
     final reportController = Get.find<ExpenseReportController>();
     final budgetController = Get.find<BudgetController>();
