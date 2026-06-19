@@ -1,13 +1,15 @@
+import 'dart:developer' as developer;
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:spendly/core/config/app_config.dart';
 import 'package:spendly/core/services/local_db_service.dart';
 import 'package:spendly/core/services/backup_service.dart';
 import 'package:spendly/core/styles/app_colors.dart';
-import 'package:spendly/core/styles/app_themes.dart';
-import 'package:spendly/core/styles/theme_provider.dart';
 import 'package:spendly/core/responsive/responsive.dart';
 import 'package:spendly/core/common/widgets/custom_app_bar.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 class BackupRestoreScreen extends StatefulWidget {
   const BackupRestoreScreen({super.key});
@@ -19,7 +21,6 @@ class BackupRestoreScreen extends StatefulWidget {
 class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
   final LocalDbService _localDb = LocalDbService();
   late final BackupService _backupService;
-  final TextEditingController _importController = TextEditingController();
 
   int _expenseCount = 0;
   int _investmentCount = 0;
@@ -49,18 +50,39 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
     setState(() {
       _isLoading = true;
     });
+    String? tempFilePath;
     try {
-      final jsonStr = await _backupService.exportBackup();
-      await Clipboard.setData(ClipboardData(text: jsonStr));
+      final bytes = await _backupService.exportEncryptedBackup();
+      
+      final tempDir = await getTemporaryDirectory();
+      final dateStr = DateTime.now().toIso8601String().split('T').first;
+      final file = File('${tempDir.path}/spendly_backup_$dateStr.spdb');
+      tempFilePath = file.path;
+      
+      await file.writeAsBytes(bytes);
+      
+      final xFile = XFile(file.path);
+      final params = ShareParams(
+        text: 'Spendly Encrypted Backup - $dateStr',
+        files: [xFile],
+      );
+      await SharePlus.instance.share(params);
+      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Backup exported & copied to clipboard!'),
+            content: Text('Backup exported & share menu opened!'),
             backgroundColor: AppColors.success,
           ),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      developer.log(
+        'Export backup failed${tempFilePath != null ? ' (temp file: $tempFilePath)' : ''}',
+        name: 'BackupRestoreScreen',
+        error: e,
+        stackTrace: stackTrace,
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -79,24 +101,29 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
   }
 
   Future<void> _importBackup() async {
-    final text = _importController.text.trim();
-    if (text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please paste backup JSON to import'),
-          backgroundColor: AppColors.error,
-        ),
-      );
-      return;
-    }
-
     setState(() {
       _isLoading = true;
     });
 
+    String? selectedFilePath;
     try {
-      await _backupService.importBackup(text);
-      _importController.clear();
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['spdb'],
+      );
+
+      if (result == null || result.files.single.path == null) {
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+
+      selectedFilePath = result.files.single.path!;
+      final file = File(selectedFilePath);
+      final bytes = await file.readAsBytes();
+
+      await _backupService.importEncryptedBackup(bytes);
       _loadStats();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -106,7 +133,13 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
           ),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      developer.log(
+        'Import backup failed${selectedFilePath != null ? ' (file: $selectedFilePath)' : ''}',
+        name: 'BackupRestoreScreen',
+        error: e,
+        stackTrace: stackTrace,
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -270,7 +303,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
 
                 // Actions Card
                 Text(
-                  'DATA UTILITIES',
+                  'EXPORT BACKUP',
                   style: TextStyle(
                     fontSize: 11.sp,
                     fontFamily: 'Manrope',
@@ -279,7 +312,16 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                     color: subtitleColor,
                   ),
                 ),
-                SizedBox(height: 10.h),
+                SizedBox(height: 8.h),
+                Text(
+                  'Export your database into a secure, encrypted .spdb file. You can save it to your device or share it via messages, mail, or cloud storage.',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontFamily: 'Manrope',
+                    color: subtitleColor,
+                  ),
+                ),
+                SizedBox(height: 12.h),
                 ElevatedButton.icon(
                   onPressed: _exportBackup,
                   style: ElevatedButton.styleFrom(
@@ -290,18 +332,18 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                     ),
                     padding: EdgeInsets.symmetric(vertical: 14.h),
                   ),
-                  icon: const Icon(Icons.copy_all_outlined),
+                  icon: const Icon(Icons.share_outlined),
                   label: const Text(
-                    'Export & Copy JSON Backup',
+                    'Export & Share Backup',
                     style: TextStyle(fontFamily: 'Manrope', fontWeight: FontWeight.bold),
                   ),
                 ),
 
-                SizedBox(height: 24.h),
+                SizedBox(height: 32.h),
 
                 // Import Panel
                 Text(
-                  'IMPORT JSON BACKUP',
+                  'IMPORT BACKUP',
                   style: TextStyle(
                     fontSize: 11.sp,
                     fontFamily: 'Manrope',
@@ -310,36 +352,13 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                     color: subtitleColor,
                   ),
                 ),
-                SizedBox(height: 10.h),
-                TextField(
-                  controller: _importController,
-                  maxLines: 6,
+                SizedBox(height: 8.h),
+                Text(
+                  'Select an encrypted .spdb backup file to restore your database. Warning: This will completely replace your current local data.',
                   style: TextStyle(
-                    fontFamily: 'Courier',
                     fontSize: 12.sp,
-                    color: textColor,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: 'Paste raw JSON backup here...',
-                    hintStyle: TextStyle(fontSize: 12.sp, fontFamily: 'Manrope', color: subtitleColor),
-                    filled: true,
-                    fillColor: isDark ? AppColors.cardDark : Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16.r),
-                      borderSide: BorderSide(
-                        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16.r),
-                      borderSide: BorderSide(
-                        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16.r),
-                      borderSide: const BorderSide(color: AppColors.primaryTeal, width: 2),
-                    ),
+                    fontFamily: 'Manrope',
+                    color: subtitleColor,
                   ),
                 ),
                 SizedBox(height: 12.h),
@@ -353,9 +372,9 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                     ),
                     padding: EdgeInsets.symmetric(vertical: 14.h),
                   ),
-                  icon: const Icon(Icons.file_download_outlined),
+                  icon: const Icon(Icons.file_open_outlined),
                   label: const Text(
-                    'Validate & Import Backup',
+                    'Select & Import Backup File',
                     style: TextStyle(fontFamily: 'Manrope', fontWeight: FontWeight.bold),
                   ),
                 ),
