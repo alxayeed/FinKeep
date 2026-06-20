@@ -20,6 +20,7 @@ class ExpenseReportController extends GetxController {
   ];
 
   var selectedCategory = 'All'.obs;
+  var searchQuery = ''.obs;
 
   final Rx<DateTime?> startDate = Rx<DateTime?>(null);
   final Rx<DateTime?> endDate = Rx<DateTime?>(null);
@@ -41,6 +42,7 @@ class ExpenseReportController extends GetxController {
     startDate.value = null;
     endDate.value = null;
     selectedCategory.value = 'All';
+    searchQuery.value = '';
     reportRangeBudget.value = 0.0;
   }
 
@@ -96,31 +98,39 @@ class ExpenseReportController extends GetxController {
   }
 
   void filterReportExpensesByCategory() {
-    if (selectedCategory.value == 'All') {
-      reportFilteredExpenses.value = reportExpenses;
-    } else {
-      reportFilteredExpenses.value = reportExpenses
-          .where((expense) => expense.category == selectedCategory.value)
-          .toList();
+    final query = searchQuery.value.trim().toLowerCase();
+    List<ExpenseEntity> temp = reportExpenses;
+    
+    if (selectedCategory.value != 'All') {
+      temp = temp.where((expense) => expense.category == selectedCategory.value).toList();
     }
+    
+    if (query.isNotEmpty) {
+      temp = temp.where((expense) =>
+        expense.description.toLowerCase().contains(query) ||
+        expense.amount.toString().contains(query) ||
+        expense.category.toLowerCase().contains(query)
+      ).toList();
+    }
+    
+    reportFilteredExpenses.value = temp;
   }
 
   void updateReportTotalExpense() {
-    if (selectedCategory.value == 'All') {
-      reportTotalExpense.value = reportExpenses.fold(
-        0.0,
-        (sum, item) => sum + item.amount,
-      );
-    } else {
-      reportTotalExpense.value = reportFilteredExpenses.fold(
-        0.0,
-        (sum, item) => sum + item.amount,
-      );
-    }
+    reportTotalExpense.value = reportFilteredExpenses.fold(
+      0.0,
+      (sum, item) => sum + item.amount,
+    );
   }
 
   void updateSelectedCategory(String category) {
     selectedCategory.value = category;
+    filterReportExpensesByCategory();
+    updateReportTotalExpense();
+  }
+
+  void updateSearchQuery(String query) {
+    searchQuery.value = query;
     filterReportExpensesByCategory();
     updateReportTotalExpense();
   }

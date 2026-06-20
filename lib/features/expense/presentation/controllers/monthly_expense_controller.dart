@@ -28,6 +28,7 @@ class MonthlyExpenseController extends GetxController {
   ];
 
   var selectedCategory = 'All'.obs;
+  var searchQuery = ''.obs;
   var filteredExpenses = <ExpenseEntity>[].obs;
   Rx<DateTime> selectedMonth = DateTime.now().obs;
   bool shouldRefresh = false;
@@ -71,6 +72,7 @@ class MonthlyExpenseController extends GetxController {
     }
 
     selectedCategory.value = 'All';
+    searchQuery.value = '';
     isLoading.value = true;
     try {
       expenses.value = await getMonthlyExpensesUseCase(month);
@@ -160,17 +162,32 @@ class MonthlyExpenseController extends GetxController {
   }
 
   void filterExpensesByCategory() {
-    if (selectedCategory.value == 'All') {
-      filteredExpenses.value = expenses;
-    } else {
-      filteredExpenses.value = expenses
-          .where((expense) => expense.category == selectedCategory.value)
-          .toList();
+    final query = searchQuery.value.trim().toLowerCase();
+    List<ExpenseEntity> temp = expenses;
+    
+    if (selectedCategory.value != 'All') {
+      temp = temp.where((expense) => expense.category == selectedCategory.value).toList();
     }
+    
+    if (query.isNotEmpty) {
+      temp = temp.where((expense) =>
+        expense.description.toLowerCase().contains(query) ||
+        expense.amount.toString().contains(query) ||
+        expense.category.toLowerCase().contains(query)
+      ).toList();
+    }
+    
+    filteredExpenses.value = temp;
   }
 
   void updateSelectedCategory(String category) {
     selectedCategory.value = category;
+    filterExpensesByCategory();
+    updateTotalExpense();
+  }
+
+  void updateSearchQuery(String query) {
+    searchQuery.value = query;
     filterExpensesByCategory();
     updateTotalExpense();
   }

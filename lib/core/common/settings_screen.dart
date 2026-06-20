@@ -123,7 +123,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  void _toggleTheme() => _themeProvider.toggleTheme();
+  Widget _buildThemeSegmentButton(
+    BuildContext context,
+    IconData icon,
+    ThemeMode optionMode,
+    ThemeMode currentMode,
+    bool isDark,
+  ) {
+    final isSelected = currentMode == optionMode;
+    return GestureDetector(
+      onTap: () => _themeProvider.setTheme(optionMode),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        width: 32.w,
+        height: 28.h,
+        decoration: BoxDecoration(
+          color: isSelected
+              ? (isDark ? AppColors.primaryTeal : Colors.white)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(6.r),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 2.r,
+                    offset: const Offset(0, 1),
+                  ),
+                ]
+              : null,
+        ),
+        child: Icon(
+          icon,
+          size: 14.sp,
+          color: isSelected
+              ? (isDark ? Colors.white : const Color(0xFF0F172A))
+              : (isDark ? Colors.white38 : const Color(0xFF64748B)),
+        ),
+      ),
+    );
+  }
 
   Future<void> _showTestNotificationNow() async {
     await _reminderService.showTestNotificationNow();
@@ -242,14 +280,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           style: TextStyle(fontSize: 13.sp, fontFamily: 'Manrope', fontWeight: FontWeight.w600, color: textColor),
                         ),
                         subtitle: Text(
-                          isDark ? 'Dark Mode' : 'Light Mode',
+                          mode == ThemeMode.light
+                              ? 'Light Mode'
+                              : mode == ThemeMode.dark
+                                  ? 'Dark Mode'
+                                  : 'System Default',
                           style: TextStyle(fontSize: 11.sp, fontFamily: 'Manrope', color: subtitleColor),
                         ),
-                        trailing: Switch(
-                          value: isDark,
-                          onChanged: (_) => _toggleTheme(),
-                          activeColor: AppColors.primaryTeal,
-                          activeTrackColor: AppColors.primaryTeal.withValues(alpha: 0.3),
+                        trailing: Container(
+                          height: 32.h,
+                          padding: EdgeInsets.all(2.r),
+                          decoration: BoxDecoration(
+                            color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _buildThemeSegmentButton(
+                                context,
+                                Icons.wb_sunny_rounded,
+                                ThemeMode.light,
+                                mode,
+                                isDark,
+                              ),
+                              _buildThemeSegmentButton(
+                                context,
+                                Icons.nights_stay_rounded,
+                                ThemeMode.dark,
+                                mode,
+                                isDark,
+                              ),
+                              _buildThemeSegmentButton(
+                                context,
+                                Icons.settings_suggest_rounded,
+                                ThemeMode.system,
+                                mode,
+                                isDark,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       Divider(height: 1, color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),

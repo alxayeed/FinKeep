@@ -89,6 +89,10 @@ class MonthlyExpenseListScreen extends StatelessWidget {
               onCategorySelected: (cat) {
                 controller.updateSelectedCategory(cat?.displayName ?? 'All');
               },
+              searchQuery: controller.searchQuery.value,
+              onSearchQueryChanged: (query) {
+                controller.updateSearchQuery(query);
+              },
             ),
           );
         }),

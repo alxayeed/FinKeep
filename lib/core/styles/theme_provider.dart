@@ -9,14 +9,14 @@ class ThemeProvider extends ValueNotifier<ThemeMode> {
 
   /// Singleton accessor
   factory ThemeProvider() {
-    _instance ??= ThemeProvider._internal(ThemeMode.system);
+    _instance ??= ThemeProvider._internal(ThemeMode.light);
     return _instance!;
   }
 
   /// Load theme from SharedPreferences
   Future<void> loadTheme() async {
     final prefs = await SharedPreferences.getInstance();
-    final themeStr = prefs.getString(_key) ?? 'system';
+    final themeStr = prefs.getString(_key) ?? 'light';
     switch (themeStr) {
       case 'light':
         value = ThemeMode.light;
@@ -24,8 +24,11 @@ class ThemeProvider extends ValueNotifier<ThemeMode> {
       case 'dark':
         value = ThemeMode.dark;
         break;
-      default:
+      case 'system':
         value = ThemeMode.system;
+        break;
+      default:
+        value = ThemeMode.light;
     }
   }
 
@@ -33,6 +36,12 @@ class ThemeProvider extends ValueNotifier<ThemeMode> {
   Future<void> _saveTheme(ThemeMode mode) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_key, mode.name); // 'light', 'dark', 'system'
+  }
+
+  /// Set theme specifically
+  Future<void> setTheme(ThemeMode mode) async {
+    value = mode;
+    await _saveTheme(mode);
   }
 
   /// Toggle between light and dark

@@ -1,9 +1,4 @@
 0.4.0
- - ADD: Modern unified capsule merged date range selector with premium styling and future-date selection validation (capped to today)
- - ADD: Default month validation to select current month instead of year-end by default
- - ADD: Pagination controls (prev/next) in the Summary By Month card to limit displayed items to 12 by default
- - MODIFY: Wrapped Spending by Category, Summary by Month, and High/Low/Average widgets in card containers matching the Spending by Medium styling
- - MODIFY: Set category, month, and statistics widgets in Expense Report Summary to show skeleton/empty state structures when no data is available, matching the details view
- - MODIFY: Improved density of the spending by category list elements (reduced height, smaller icons)
- - MODIFY: Cleaned up date range selector layout spacing by removing bottom divider and establishing even vertical spacing between report screen column items
- - UPDATE: Shimmer loading skeletons to match updated layout cards and spacing
+ - ADD: Light, Dark, and System Default theme support with inline 3-option toggle switch buttons (Sun/Moon/System) directly on the Settings screen row
+ - ADD: Search capability in Expense List & Report Details via an inline expandable search button inside CategoryFilterPills with soft-fading list mask
+ - MODIFY: Defaulted the app theme to Light mode by default instead of falling back to system automatically
