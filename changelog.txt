@@ -1,6 +1,8 @@
-0.2.6
- - ADD: Hybrid database architecture (Firestore remote database for Personal/Dev profiles, standalone zero-knowledge local database for other profiles)
- - ADD: In-app database export and import flow with custom file filters (.spdb)
- - ADD: Obfuscated AES-256 encryption/decryption service for secure database backups
- - ADD: Direct export to public Android Downloads folder using MANAGE_EXTERNAL_STORAGE permission with quick-share SnackBar action
+0.3.0
+ - REMOVE: All authentication screens (Login, Registration), controllers, use cases, and Firebase Auth dependencies
+ - REMOVE: User isolation / `userId` parameters from all local (Hive) and remote (Firestore) database actions, models, and entities
+ - REFRACTOR: Profile screen converted into a Settings screen with budgeting setup options, and profile details removed
+ - MODIFY: Bottom navigation bar reduced to 4 tabs (Expenses, Lendings, Reports, Investments)
+ - ADD: Settings gear icon button to the top-right app bars of all list and summary screens for global settings access
+
 
