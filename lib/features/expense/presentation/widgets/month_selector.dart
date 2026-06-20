@@ -5,14 +5,14 @@ import '../../../../core/responsive/responsive.dart';
 class MonthSelector extends StatefulWidget {
   final ValueChanged<DateTime> onMonthChanged;
   final VoidCallback? onSearchPressed;
-  final VoidCallback? onFilterPressed;
+  final VoidCallback? onSettingsPressed;
   final bool showSearchButton;
 
   const MonthSelector({
     super.key,
     required this.onMonthChanged,
     this.onSearchPressed,
-    this.onFilterPressed,
+    this.onSettingsPressed,
     this.showSearchButton = true,
   });
 
@@ -187,9 +187,9 @@ class _MonthSelectorState extends State<MonthSelector> {
                 ),
                 SizedBox(width: 4.w),
               ],
-              // Filter Button
+              // Settings Button
               GestureDetector(
-                onTap: widget.onFilterPressed,
+                onTap: widget.onSettingsPressed,
                 child: Container(
                   width: 36.r,
                   height: 36.r,
@@ -198,7 +198,7 @@ class _MonthSelectorState extends State<MonthSelector> {
                     color: isDark ? const Color(0xFF1E293B) : Colors.transparent,
                   ),
                   child: Icon(
-                    Icons.tune_rounded,
+                    Icons.settings_rounded,
                     size: 22.sp,
                     color: isDark ? Colors.white70 : const Color(0xFF64748B),
                   ),

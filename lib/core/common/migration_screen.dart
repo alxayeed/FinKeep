@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:spendly/core/styles/app_colors.dart';
-import 'package:spendly/features/auth/presentation/controller/auth_controller.dart';
 
 import '../services/firestore_migration_service.dart';
 
@@ -26,9 +25,7 @@ class _MigrationScreenState extends State<MigrationScreen> {
         firestore: FirebaseFirestore.instance,
       );
 
-      final AuthController authController = Get.find();
-
-      await migrationService.migrate(value: authController.user?.email);
+      await migrationService.migrate(value: 'local_user');
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -53,8 +50,7 @@ class _MigrationScreenState extends State<MigrationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final AuthController authController = Get.find();
-    final String? migrationValue = authController.user?.email;
+    final String? migrationValue = 'local_user';
 
     return Scaffold(
       appBar: AppBar(

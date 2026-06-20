@@ -43,20 +43,8 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
                 onSearchPressed: () {
                   _showSearchDialog(context);
                 },
-                onFilterPressed: () {
-                  final now = DateTime.now();
-                  final currentMonthStart = DateTime(now.year, now.month);
-                  final selected = DateTime(
-                    controller.selectedMonth.value.year,
-                    controller.selectedMonth.value.month,
-                  );
-                  final targetMonth = selected.isBefore(currentMonthStart)
-                      ? now
-                      : controller.selectedMonth.value;
-                  context.pushNamed(
-                    AppRoutes.setMonthlyBudget,
-                    extra: targetMonth,
-                  );
+                onSettingsPressed: () {
+                  context.pushNamed(AppRoutes.settings);
                 },
               ),
 
