@@ -1,6 +1,2 @@
-0.6.0
- - REMOVE: Duplicate search button in app bar
- - FIX: Investment Date Parsing
- - ADD: Remote data will be synced and exported in personal mode
- - ADD: Data syncing while export and import to overcome data loss
- - ADD: Local data will be synced to remote in personal mode
+1.0.0+3
+ - ADD: Onboarding screen
