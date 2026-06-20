@@ -6,6 +6,7 @@ import 'package:finkeep/core/error/exception_handler.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/services/backup_service.dart';
 import 'package:finkeep/core/services/local_db_service.dart';
+import 'package:finkeep/core/services/mock_data_service.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -218,6 +219,120 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
             content: Text(
               'Export failed: ${e.toString().replaceAll('Exception: ', '')}',
             ),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _populateMockData() async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (dialogCtx) {
+        final isDark = Theme.of(dialogCtx).brightness == Brightness.dark;
+        final textCol = isDark ? Colors.white : const Color(0xFF0F172A);
+        final subtextCol = isDark ? Colors.white60 : const Color(0xFF64748B);
+
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.r),
+          ),
+          backgroundColor: isDark ? AppColors.cardDark : Colors.white,
+          title: Row(
+            children: [
+              const Icon(Icons.warning_amber_rounded, color: Colors.orange),
+              SizedBox(width: 8.w),
+              Text(
+                'Populate Mock Data',
+                style: TextStyle(
+                  fontFamily: 'Manrope',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16.sp,
+                  color: textCol,
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            'This action will clear all current local database entries and load realistic mock transactions, budgets, lendings, and investments for screenshots.\n\nAre you sure you want to proceed?',
+            style: TextStyle(
+              fontFamily: 'Manrope',
+              fontSize: 13.sp,
+              color: subtextCol,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogCtx, false),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontFamily: 'Manrope',
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13.sp,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(dialogCtx, true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryTeal,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+              ),
+              child: Text(
+                'Yes, Populate',
+                style: TextStyle(
+                  fontFamily: 'Manrope',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13.sp,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm != true) return;
+
+    setState(() {
+      _isLoading = true;
+      _loadingText = 'Clearing and generating mock data...';
+    });
+
+    try {
+      await MockDataService.populateMockData();
+      _loadStats();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Realistic mock data populated successfully!'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+      }
+    } catch (e, stackTrace) {
+      ExceptionHandler.handle(
+        e,
+        stackTrace,
+        'BackupRestoreScreen._populateMockData',
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to populate mock data: ${e.toString()}'),
             backgroundColor: AppColors.error,
           ),
         );
@@ -504,6 +619,48 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                     ),
                   ),
                 ),
+                SizedBox(height: 32.h),
+
+                // Mock Data Panel
+                Text(
+                  'MOCK DATA UTILITY',
+                  style: TextStyle(
+                    fontSize: 11.sp,
+                    fontFamily: 'Manrope',
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                    color: subtitleColor,
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  'Populate the database with a preset list of realistic expenses, investments, lendings, and budgets. Ideal for store screenshots or UI validation. Note: This will overwrite current local data.',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontFamily: 'Manrope',
+                    color: subtitleColor,
+                  ),
+                ),
+                // SizedBox(height: 12.h),
+                // ElevatedButton.icon(
+                //   onPressed: _populateMockData,
+                //   style: ElevatedButton.styleFrom(
+                //     backgroundColor: Colors.amber.shade700,
+                //     foregroundColor: Colors.white,
+                //     shape: RoundedRectangleBorder(
+                //       borderRadius: BorderRadius.circular(16.r),
+                //     ),
+                //     padding: EdgeInsets.symmetric(vertical: 14.h),
+                //   ),
+                //   icon: const Icon(Icons.analytics_outlined),
+                //   label: const Text(
+                //     'Populate Realistic Mock Data',
+                //     style: TextStyle(
+                //       fontFamily: 'Manrope',
+                //       fontWeight: FontWeight.bold,
+                //     ),
+                //   ),
+                // ),
                 SizedBox(height: 60.h),
               ],
             ),
