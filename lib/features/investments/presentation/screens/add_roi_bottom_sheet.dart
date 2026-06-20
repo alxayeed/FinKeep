@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:spendly/core/common/widgets/widgets.dart';
-import 'package:spendly/core/responsive/responsive.dart';
-import 'package:spendly/core/styles/app_colors.dart';
+import 'package:finkeep/core/common/widgets/widgets.dart';
+import 'package:finkeep/core/responsive/responsive.dart';
+import 'package:finkeep/core/styles/app_colors.dart';
 import '../../domain/entities/return_entry.dart';
 import '../controller/investment_controller.dart';
 

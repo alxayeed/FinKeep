@@ -1,5 +1,5 @@
-import 'package:spendly/features/lendings/data/models/lending/lending_model.dart';
-import 'package:spendly/features/lendings/data/models/repayment/repayment_model.dart';
+import 'package:finkeep/features/lendings/data/models/lending/lending_model.dart';
+import 'package:finkeep/features/lendings/data/models/repayment/repayment_model.dart';
 
 import '../../domain/entity/lending/lending_entity.dart';
 import '../models/lending_person/lending_person_model.dart';

@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:spendly/core/extensions/double_ext.dart';
+import 'package:finkeep/core/extensions/double_ext.dart';
 
 import '../../domain/entities/expense_entity.dart';
 

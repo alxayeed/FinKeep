@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
-import 'package:spendly/core/routes/app_router.dart';
+import 'package:finkeep/core/routes/app_router.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/enums/expense_category.dart';
 

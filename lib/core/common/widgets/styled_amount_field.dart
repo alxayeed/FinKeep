@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:spendly/core/responsive/responsive.dart';
+import 'package:finkeep/core/responsive/responsive.dart';
 
 class StyledAmountField extends StatelessWidget {
   final TextEditingController controller;

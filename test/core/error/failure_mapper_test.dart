@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:spendly/core/constants/app_strings.dart';
-import 'package:spendly/core/error/failure.dart';
-import 'package:spendly/core/error/failure_mapper.dart';
+import 'package:finkeep/core/constants/app_strings.dart';
+import 'package:finkeep/core/error/failure.dart';
+import 'package:finkeep/core/error/failure_mapper.dart';
 
 void main() {
   group('FailureMapper', () {

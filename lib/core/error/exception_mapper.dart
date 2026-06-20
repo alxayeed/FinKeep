@@ -1,5 +1,5 @@
-import 'package:spendly/core/constants/app_strings.dart';
-import 'package:spendly/core/error/exceptions.dart';
+import 'package:finkeep/core/constants/app_strings.dart';
+import 'package:finkeep/core/error/exceptions.dart';
 
 import 'failure.dart';
 

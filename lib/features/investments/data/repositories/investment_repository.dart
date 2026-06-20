@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:spendly/core/config/app_config.dart';
+import 'package:finkeep/core/config/app_config.dart';
 
 import '../../domain/entities/investment.dart';
 import '../../domain/entities/return_entry.dart';

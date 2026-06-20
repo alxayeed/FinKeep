@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:spendly/core/extensions/double_ext.dart';
+import 'package:finkeep/core/extensions/double_ext.dart';
 
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/styles/app_colors.dart';

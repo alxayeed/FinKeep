@@ -1,4 +1,4 @@
-import 'package:spendly/features/expense/data/models/expense_model.dart';
+import 'package:finkeep/features/expense/data/models/expense_model.dart';
 
 abstract class ExpenseLocalDataSource {
   Future<void> createExpense(ExpenseModel expense);

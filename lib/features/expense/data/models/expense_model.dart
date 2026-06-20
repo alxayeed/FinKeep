@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:spendly/core/enums/payment_type.dart';
+import 'package:finkeep/core/enums/payment_type.dart';
 import '../../domain/entities/expense_entity.dart';
 
 class ExpenseModel extends ExpenseEntity {

@@ -2,7 +2,7 @@
   "project_info": {
     "project_number": "638261628234",
     "project_id": "spendly-194e0",
-    "storage_bucket": "spendly-194e0.appspot.com"
+    "storage_bucket": "spendly-194e0.firebasestorage.app"
   },
   "client": [
     {
@@ -12,7 +12,12 @@
           "package_name": "com.example.spendly"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "638261628234-c0dn6kdf52raprfvgmpu1v5vljo99r8h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAElPoMoWfte9__cNvlgSJZ1tugPs2fBRc"
@@ -20,7 +25,55 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "638261628234-c0dn6kdf52raprfvgmpu1v5vljo99r8h.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "638261628234-uotddicji6u5dhargum54a2olvl9q11t.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.spendly"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:638261628234:android:94864f17200d725b0e85b3",
+        "android_client_info": {
+          "package_name": "com.raindropstudio.finkeep"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "638261628234-c0dn6kdf52raprfvgmpu1v5vljo99r8h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAElPoMoWfte9__cNvlgSJZ1tugPs2fBRc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "638261628234-c0dn6kdf52raprfvgmpu1v5vljo99r8h.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "638261628234-uotddicji6u5dhargum54a2olvl9q11t.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.spendly"
+              }
+            }
+          ]
         }
       }
     }

@@ -2,12 +2,12 @@
 
 #example file name - upload_apk.sh
 
-flutter build apk --release --split-per-abi --dart-define=ENV=prod
+flutter build apk --release --split-per-abi --dart-define=ENV=personal #personal, dev, local
 
 
 
 APK_PATH="build/app/outputs/flutter-apk/app-arm64-v8a-release.apk"
-APP_ID="1:638261628234:android:d036c748cea24a1f0e85b3"
+APP_ID="1:638261628234:android:94864f17200d725b0e85b3"
 RELEASE_NOTES_FILE_PATH="changelog.txt"
 TESTERS_EMAILS="alxayeed@gmail.com"  # Add tester emails, separated by commas
 TESTERS_GROUP="me"  # Use a group name, or use --users for individual emails

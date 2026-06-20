@@ -1,11 +1,11 @@
 import 'package:dartz/dartz.dart';
-import 'package:spendly/core/config/app_config.dart';
-import 'package:spendly/core/error/exception_mapper.dart';
-import 'package:spendly/core/error/exception_handler.dart';
-import 'package:spendly/core/error/failure.dart';
-import 'package:spendly/features/lendings/data/datasources/lending_data_source.dart';
-import 'package:spendly/features/lendings/data/datasources/lending_local_datasource.dart';
-import 'package:spendly/features/lendings/domain/repositories/lending_repository.dart';
+import 'package:finkeep/core/config/app_config.dart';
+import 'package:finkeep/core/error/exception_mapper.dart';
+import 'package:finkeep/core/error/exception_handler.dart';
+import 'package:finkeep/core/error/failure.dart';
+import 'package:finkeep/features/lendings/data/datasources/lending_data_source.dart';
+import 'package:finkeep/features/lendings/data/datasources/lending_local_datasource.dart';
+import 'package:finkeep/features/lendings/domain/repositories/lending_repository.dart';
 
 import '../../domain/entity/lending/lending_entity.dart';
 import '../../domain/entity/lending_person/lending_person_entity.dart';

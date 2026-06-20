@@ -1,5 +1,5 @@
-import 'package:spendly/core/enums/payment_type.dart';
-import 'package:spendly/features/investments/domain/entities/return_entry.dart';
+import 'package:finkeep/core/enums/payment_type.dart';
+import 'package:finkeep/features/investments/domain/entities/return_entry.dart';
 
 import '../enums/investment_status.dart';
 

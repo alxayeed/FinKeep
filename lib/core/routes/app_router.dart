@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:spendly/features/investments/domain/entities/investment.dart';
-import 'package:spendly/features/investments/presentation/screens/add_investment_screen.dart';
-import 'package:spendly/features/investments/presentation/screens/edit_investment_screen.dart';
-import 'package:spendly/features/investments/presentation/screens/investment_detail_screen.dart';
-import 'package:spendly/features/investments/presentation/screens/investment_list_screen.dart';
+import 'package:finkeep/features/investments/domain/entities/investment.dart';
+import 'package:finkeep/features/investments/presentation/screens/add_investment_screen.dart';
+import 'package:finkeep/features/investments/presentation/screens/edit_investment_screen.dart';
+import 'package:finkeep/features/investments/presentation/screens/investment_detail_screen.dart';
+import 'package:finkeep/features/investments/presentation/screens/investment_list_screen.dart';
 
 import '../common/settings_screen.dart';
 import '../../features/expense/domain/entities/expense_entity.dart';

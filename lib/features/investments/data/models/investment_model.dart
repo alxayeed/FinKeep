@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:spendly/core/enums/payment_type.dart';
-import 'package:spendly/features/investments/domain/entities/investment.dart';
+import 'package:finkeep/core/enums/payment_type.dart';
+import 'package:finkeep/features/investments/domain/entities/investment.dart';
 
 import '../../domain/enums/investment_status.dart';
 import 'return_entry_model.dart';

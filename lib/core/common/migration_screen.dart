@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:spendly/core/styles/app_colors.dart';
+import 'package:finkeep/core/styles/app_colors.dart';
 
 import '../services/firestore_migration_service.dart';
 

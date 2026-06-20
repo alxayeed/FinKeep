@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:spendly/core/common/widgets/expense_monthly_analysis.dart';
-import 'package:spendly/core/common/widgets/loader_widget.dart';
-import 'package:spendly/core/responsive/responsive.dart';
+import 'package:finkeep/core/common/widgets/expense_monthly_analysis.dart';
+import 'package:finkeep/core/common/widgets/loader_widget.dart';
+import 'package:finkeep/core/responsive/responsive.dart';
 
 import '../../../../core/enums/expense_category.dart';
 import '../../domain/entities/expense_entity.dart';

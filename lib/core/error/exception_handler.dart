@@ -1,5 +1,5 @@
 import 'dart:developer' as developer;
-import 'package:spendly/core/constants/app_strings.dart';
+import 'package:finkeep/core/constants/app_strings.dart';
 import 'exceptions.dart';
 import 'failure.dart';
 

@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:spendly/core/routes/app_router.dart';
+import 'package:finkeep/core/routes/app_router.dart';
 
 import 'core/responsive/responsive.dart';
 import 'core/services/local_db_service.dart';
@@ -74,7 +74,7 @@ class MainApp extends StatelessWidget {
         return MaterialApp.router(
           debugShowCheckedModeBanner: false,
           routerConfig: AppRouter.router,
-          title: 'Spendly',
+          title: 'FinKeep',
           theme: AppThemes.lightTheme,
           darkTheme: AppThemes.darkTheme,
           themeMode: themeMode,

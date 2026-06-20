@@ -7,8 +7,8 @@ import 'package:intl/intl.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/routes/app_router.dart';
 import '../../../../core/styles/app_colors.dart';
-import 'package:spendly/core/extensions/double_ext.dart';
-import 'package:spendly/core/enums/payment_type.dart';
+import 'package:finkeep/core/extensions/double_ext.dart';
+import 'package:finkeep/core/enums/payment_type.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../controllers/monthly_expense_controller.dart';
 

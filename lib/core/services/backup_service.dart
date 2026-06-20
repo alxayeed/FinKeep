@@ -2,20 +2,20 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:hive/hive.dart';
-import 'package:spendly/core/services/local_db_service.dart';
+import 'package:finkeep/core/services/local_db_service.dart';
 
 class BackupService {
   final LocalDbService localDb;
 
   BackupService({required this.localDb});
 
-  // Obfuscated 32-byte key: "SpendlySecureBackupKey2026!@#$%"
+  // Obfuscated 32-byte key (legacy Spendly key preserved for backup compatibility)
   static final List<int> _keyBytes = [
     83, 112, 101, 110, 100, 108, 121, 83, 101, 99, 117, 114, 101, 66, 97, 99,
     107, 117, 112, 75, 101, 121, 50, 48, 50, 54, 33, 64, 35, 36, 37, 94
   ];
 
-  // Obfuscated 16-byte IV: "SpendlyIVInit206"
+  // Obfuscated 16-byte IV (legacy Spendly IV preserved for backup compatibility)
   static final List<int> _ivBytes = [
     83, 112, 101, 110, 100, 108, 121, 73, 86, 73, 110, 105, 116, 50, 48, 54
   ];

@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:spendly/core/constants/app_strings.dart';
-import 'package:spendly/core/error/exceptions.dart';
-import 'package:spendly/features/lendings/data/models/lending/lending_model.dart';
-import 'package:spendly/features/lendings/data/models/lending_person/lending_person_model.dart';
-import 'package:spendly/features/lendings/data/models/repayment/repayment_model.dart';
+import 'package:finkeep/core/constants/app_strings.dart';
+import 'package:finkeep/core/error/exceptions.dart';
+import 'package:finkeep/features/lendings/data/models/lending/lending_model.dart';
+import 'package:finkeep/features/lendings/data/models/lending_person/lending_person_model.dart';
+import 'package:finkeep/features/lendings/data/models/repayment/repayment_model.dart';
 
 import '../../../../core/config/app_config.dart';
 import '../../domain/entity/lending/lending_entity.dart';

@@ -1,4 +1,4 @@
-import 'package:spendly/core/config/app_config.dart';
+import 'package:finkeep/core/config/app_config.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../../domain/repositories/expense_repository.dart';
 import '../datasources/expense_local_datasource.dart';

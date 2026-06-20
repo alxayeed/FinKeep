@@ -52,16 +52,16 @@ class DefaultFirebaseOptions {
     messagingSenderId: '638261628234',
     projectId: 'spendly-194e0',
     authDomain: 'spendly-194e0.firebaseapp.com',
-    storageBucket: 'spendly-194e0.appspot.com',
+    storageBucket: 'spendly-194e0.firebasestorage.app',
     measurementId: 'G-07QEZ8FW6W',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyAElPoMoWfte9__cNvlgSJZ1tugPs2fBRc',
-    appId: '1:638261628234:android:d036c748cea24a1f0e85b3',
+    appId: '1:638261628234:android:94864f17200d725b0e85b3',
     messagingSenderId: '638261628234',
     projectId: 'spendly-194e0',
-    storageBucket: 'spendly-194e0.appspot.com',
+    storageBucket: 'spendly-194e0.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -69,7 +69,8 @@ class DefaultFirebaseOptions {
     appId: '1:638261628234:ios:3174b2e33de7cc710e85b3',
     messagingSenderId: '638261628234',
     projectId: 'spendly-194e0',
-    storageBucket: 'spendly-194e0.appspot.com',
+    storageBucket: 'spendly-194e0.firebasestorage.app',
+    iosClientId: '638261628234-uotddicji6u5dhargum54a2olvl9q11t.apps.googleusercontent.com',
     iosBundleId: 'com.example.spendly',
   );
 

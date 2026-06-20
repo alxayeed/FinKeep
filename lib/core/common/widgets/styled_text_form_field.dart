@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:spendly/core/responsive/responsive.dart';
+import 'package:finkeep/core/responsive/responsive.dart';
 
 import '../../styles/app_colors.dart';
 
