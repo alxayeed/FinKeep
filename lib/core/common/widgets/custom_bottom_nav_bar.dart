@@ -49,8 +49,8 @@ class CustomBottomNavBar extends StatelessWidget {
 
     // Using highly transparent backgrounds with blur for blending
     final Color barBgColor = isDark
-        ? AppColors.bgDark.withOpacity(0.7)
-        : Colors.white.withOpacity(0.75);
+        ? AppColors.bgDark.withValues(alpha: 0.7)
+        : Colors.white.withValues(alpha: 0.75);
     final Color activeColor = AppColors.primaryTeal;
     final Color inactiveColor = isDark ? Colors.grey[400]! : Colors.grey[600]!;
 
@@ -76,15 +76,15 @@ class CustomBottomNavBar extends StatelessWidget {
               borderRadius: BorderRadius.circular(28),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+                  color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
                   blurRadius: 16,
                   offset: const Offset(0, 4),
                 ),
               ],
               border: Border.all(
                 color: isDark
-                    ? Colors.white.withOpacity(0.06)
-                    : AppColors.primaryTeal.withOpacity(0.08),
+                    ? Colors.white.withValues(alpha: 0.06)
+                    : AppColors.primaryTeal.withValues(alpha: 0.08),
                 width: 1,
               ),
             ),
@@ -110,7 +110,7 @@ class CustomBottomNavBar extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? AppColors.primaryTeal.withOpacity(0.12)
+                                ? AppColors.primaryTeal.withValues(alpha: 0.12)
                                 : Colors.transparent,
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -165,7 +165,7 @@ class CustomBottomNavBar extends StatelessWidget {
         // Using an ultra-subtle top gradient/shadow instead of a hard line for blending
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.08 : 0.02),
+            color: Colors.black.withValues(alpha: isDark ? 0.08 : 0.02),
             blurRadius: 8,
             offset: const Offset(0, -3),
           ),
@@ -250,8 +250,8 @@ class CustomBottomNavBar extends StatelessWidget {
 
     // Blends by using a soft screen background match with blur
     final Color barBgColor = isDark
-        ? AppColors.bgDark.withOpacity(0.9)
-        : AppColors.bgLight.withOpacity(0.9);
+        ? AppColors.bgDark.withValues(alpha: 0.9)
+        : AppColors.bgLight.withValues(alpha: 0.9);
     final Color inactiveColor = isDark ? Colors.grey[400]! : Colors.grey[600]!;
 
     return ClipRect(
@@ -263,8 +263,8 @@ class CustomBottomNavBar extends StatelessWidget {
             border: Border(
               top: BorderSide(
                 color: isDark
-                    ? Colors.white.withOpacity(0.04)
-                    : Colors.black.withOpacity(0.03),
+                    ? Colors.white.withValues(alpha: 0.04)
+                    : Colors.black.withValues(alpha: 0.03),
                 width: 1,
               ),
             ),
@@ -296,8 +296,8 @@ class CustomBottomNavBar extends StatelessWidget {
                         boxShadow: isSelected
                             ? [
                                 BoxShadow(
-                                  color: AppColors.primaryTeal.withOpacity(
-                                    0.25,
+                                  color: AppColors.primaryTeal.withValues(
+                                    alpha: 0.25,
                                   ),
                                   blurRadius: 10,
                                   offset: const Offset(0, 3),

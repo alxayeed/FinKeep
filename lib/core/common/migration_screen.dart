@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 
 import '../services/firestore_migration_service.dart';
@@ -50,7 +49,7 @@ class _MigrationScreenState extends State<MigrationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final String? migrationValue = 'local_user';
+    final String migrationValue = 'local_user';
 
     return Scaffold(
       appBar: AppBar(
@@ -71,17 +70,16 @@ class _MigrationScreenState extends State<MigrationScreen> {
             : Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (migrationValue != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: Text(
-                        'Migration will use: $migrationValue',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Text(
+                      'Migration will use: $migrationValue',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
+                  ),
                   ElevatedButton(
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(

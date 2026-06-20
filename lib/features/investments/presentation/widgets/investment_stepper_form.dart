@@ -293,8 +293,9 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
                         autofocus: !isEdit,
                         validator: (val) {
                           if (val == null || val.isEmpty) return 'Required';
-                          if (double.tryParse(val) == null)
+                          if (double.tryParse(val) == null) {
                             return 'Invalid amount';
+                          }
                           return null;
                         },
                       ),

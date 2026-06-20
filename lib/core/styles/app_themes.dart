@@ -27,7 +27,6 @@ class AppThemes {
       onPrimary: Colors.white,
       surface: AppColors.cardLight,
       onSurface: AppColors.darkGrey,
-      background: AppColors.bgLight,
     ),
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.white,
@@ -121,7 +120,6 @@ class AppThemes {
       onPrimary: Colors.white,
       surface: AppColors.cardDark,
       onSurface: Colors.white70,
-      background: AppColors.bgDark,
     ),
     appBarTheme: const AppBarTheme(
       backgroundColor: AppColors.cardDark,

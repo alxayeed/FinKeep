@@ -5,6 +5,7 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:hive/hive.dart';
 import 'package:finkeep/core/config/app_config.dart';
 import 'package:finkeep/core/constants/app_strings.dart';
+import 'package:finkeep/core/error/exception_handler.dart';
 import 'package:finkeep/core/services/local_db_service.dart';
 import 'package:finkeep/features/expense/data/models/expense_model.dart';
 import 'package:finkeep/features/investments/data/models/investment_model.dart';
@@ -148,14 +149,14 @@ class BackupService {
     return encrypted.bytes;
   }
 
-  /// Imports data from encrypted binary list into Hive boxes, overwriting existing items
-  Future<void> importEncryptedBackup(Uint8List encryptedData) async {
+  /// Imports data from encrypted binary list into Hive boxes, overwriting/merging existing items
+  Future<void> importEncryptedBackup(Uint8List encryptedData, {Function(String)? onProgress}) async {
     final key = encrypt.Key(Uint8List.fromList(_keyBytes));
     final iv = encrypt.IV(Uint8List.fromList(_ivBytes));
     final encrypter = encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.cbc));
     final encrypted = encrypt.Encrypted(encryptedData);
     final decryptedJson = encrypter.decrypt(encrypted, iv: iv);
-    await importBackup(decryptedJson);
+    await importBackup(decryptedJson, onProgress: onProgress);
   }
 
   /// Exports all Hive box data to a formatted JSON string
@@ -178,8 +179,8 @@ class BackupService {
     return encoder.convert(cleanBackup);
   }
 
-  /// Imports data from a JSON string into Hive boxes, overwriting existing items
-  Future<void> importBackup(String jsonString) async {
+  /// Imports data from a JSON string into Hive boxes, merging existing items
+  Future<void> importBackup(String jsonString, {Function(String)? onProgress}) async {
     final Map<String, dynamic> rawData;
     try {
       rawData = json.decode(jsonString) as Map<String, dynamic>;
@@ -197,16 +198,112 @@ class BackupService {
       }
     }
 
-    // Clear existing local cache before loading backup
-    await localDb.clearAll();
-
-    // Import each collection
+    // Merge into local boxes (no clearAll)
+    onProgress?.call('Merging local expenses...');
     await _importToBox(localDb.expensesBox, data['expenses'] as List);
+
+    onProgress?.call('Merging local investments...');
     await _importToBox(localDb.investmentsBox, data['investments'] as List);
+
+    onProgress?.call('Merging local lendings...');
     await _importToBox(localDb.lendingsBox, data['lendings'] as List);
+
+    onProgress?.call('Merging local loan parties...');
     await _importToBox(localDb.personsBox, data['persons'] as List);
+
+    onProgress?.call('Merging local repayments...');
     await _importToBox(localDb.repaymentsBox, data['repayments'] as List);
+
+    onProgress?.call('Merging local budgets...');
     await _importToBox(localDb.budgetsBox, data['budgets'] as List);
+
+    // If cloud mode is active, merge into Firestore
+    if (AppConfig.isPersonal) {
+      onProgress?.call('Syncing merged expenses with cloud...');
+      final expensesColName = 'expenses';
+      await _mergeToFirestore(expensesColName, rawData['expenses'] as List);
+
+      onProgress?.call('Syncing merged investments with cloud...');
+      final investmentsColName = AppStrings.investmentsCollection;
+      await _mergeToFirestore(investmentsColName, rawData['investments'] as List);
+
+      onProgress?.call('Syncing merged loan parties with cloud...');
+      final loanPartiesColName = AppStrings.lendingPersonCollection;
+      await _mergeToFirestore(loanPartiesColName, rawData['persons'] as List);
+
+      onProgress?.call('Syncing merged repayments with cloud...');
+      final repaymentsColName = AppStrings.repaymentsCollection;
+      await _mergeToFirestore(repaymentsColName, rawData['repayments'] as List);
+
+      onProgress?.call('Syncing merged lendings with cloud...');
+      final lendingsColName = AppStrings.lendingsCollection;
+      await _mergeToFirestore(lendingsColName, rawData['lendings'] as List);
+
+      onProgress?.call('Syncing merged budgets with cloud...');
+      final budgetsColName = AppConfig.get('FIRESTORE_SUFFIX').isEmpty
+          ? 'budgets'
+          : 'budgets${AppConfig.get('FIRESTORE_SUFFIX')}';
+      await _mergeToFirestore(budgetsColName, rawData['budgets'] as List, isBudget: true);
+    }
+  }
+
+  Future<void> _mergeToFirestore(String collectionName, List items, {bool isBudget = false}) async {
+    final firestore = FirebaseFirestore.instance;
+    final collection = firestore.collection(collectionName);
+    for (final item in items) {
+      if (item is Map) {
+        final mapItem = Map<String, dynamic>.from(item);
+        final id = mapItem['id'];
+        if (id != null && id is String) {
+          if (isBudget) {
+            final firestoreMap = _deepConvertToFirestoreTimestamps(mapItem);
+            await collection.doc(id).set(firestoreMap);
+          } else {
+            final firestoreMap = _convertToFirestoreMap(collectionName, mapItem);
+            if (firestoreMap != null) {
+              await collection.doc(id).set(firestoreMap);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  Map<String, dynamic>? _convertToFirestoreMap(String collectionName, Map<String, dynamic> json) {
+    try {
+      if (collectionName.contains('expenses')) {
+        return ExpenseModel.fromJson(json).toFirestoreMap();
+      } else if (collectionName.contains('investments')) {
+        return InvestmentModel.fromJson(json).toFirestoreMap();
+      } else if (collectionName.contains('loan_parties')) {
+        return LendingPersonModel.fromJson(json).toJson();
+      } else if (collectionName.contains('repayments')) {
+        return RepaymentModel.fromJson(json).toFirestoreMap();
+      } else if (collectionName.contains('lendings')) {
+        return LendingModel.fromJson(json).toFirestoreMap();
+      }
+    } catch (e, s) {
+      ExceptionHandler.handle(e, s, 'BackupService._convertToFirestoreMap ($collectionName)');
+    }
+    return null;
+  }
+
+  Map<String, dynamic> _deepConvertToFirestoreTimestamps(Map<String, dynamic> map) {
+    final result = <String, dynamic>{};
+    map.forEach((k, v) {
+      if (v is String && RegExp(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}').hasMatch(v)) {
+        try {
+          result[k] = Timestamp.fromDate(DateTime.parse(v));
+        } catch (_) {
+          result[k] = v;
+        }
+      } else if (v is Map) {
+        result[k] = _deepConvertToFirestoreTimestamps(Map<String, dynamic>.from(v));
+      } else {
+        result[k] = v;
+      }
+    });
+    return result;
   }
 
   dynamic _deepConvertDateTimes(dynamic val) {

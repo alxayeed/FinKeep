@@ -1,15 +1,18 @@
-import 'package:finkeep/core/error/exception_handler.dart';
 import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:finkeep/core/services/local_db_service.dart';
-import 'package:finkeep/core/services/backup_service.dart';
-import 'package:finkeep/core/styles/app_colors.dart';
-import 'package:finkeep/core/responsive/responsive.dart';
-import 'package:finkeep/core/common/widgets/custom_app_bar.dart';
-import 'package:share_plus/share_plus.dart';
+
 import 'package:file_picker/file_picker.dart';
+import 'package:finkeep/core/common/widgets/custom_app_bar.dart';
+import 'package:finkeep/core/error/exception_handler.dart';
+import 'package:finkeep/core/responsive/responsive.dart';
+import 'package:finkeep/core/services/backup_service.dart';
+import 'package:finkeep/core/services/local_db_service.dart';
+import 'package:finkeep/core/styles/app_colors.dart';
+import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:share_plus/share_plus.dart';
+
+import '../config/app_config.dart';
 
 class BackupRestoreScreen extends StatefulWidget {
   const BackupRestoreScreen({super.key});
@@ -61,12 +64,12 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
           });
         },
       );
-      
+
       final dateStr = DateTime.now().toIso8601String().split('T').first;
       final fileName = 'finkeep_backup_$dateStr.spdb';
-      
+
       File? file;
-      
+
       if (Platform.isAndroid) {
         // Check permission first
         var status = await Permission.manageExternalStorage.status;
@@ -77,16 +80,24 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
               context: context,
               barrierDismissible: false,
               builder: (dialogCtx) {
-                final isDark = Theme.of(dialogCtx).brightness == Brightness.dark;
+                final isDark =
+                    Theme.of(dialogCtx).brightness == Brightness.dark;
                 final textCol = isDark ? Colors.white : const Color(0xFF0F172A);
-                final subtextCol = isDark ? Colors.white60 : const Color(0xFF64748B);
-                
+                final subtextCol = isDark
+                    ? Colors.white60
+                    : const Color(0xFF64748B);
+
                 return AlertDialog(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.r),
+                  ),
                   backgroundColor: isDark ? AppColors.cardDark : Colors.white,
                   title: Row(
                     children: [
-                      const Icon(Icons.folder_shared_outlined, color: AppColors.primaryTeal),
+                      const Icon(
+                        Icons.folder_shared_outlined,
+                        color: AppColors.primaryTeal,
+                      ),
                       SizedBox(width: 8.w),
                       Text(
                         'Storage Access Required',
@@ -128,7 +139,10 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.r),
                         ),
-                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 8.h,
+                        ),
                       ),
                       child: Text(
                         'Go to Settings',
@@ -153,9 +167,11 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
         }
 
         if (!status.isGranted) {
-          throw Exception('Storage permission denied. All Files Access is required to save to the public Downloads folder.');
+          throw Exception(
+            'Storage permission denied. All Files Access is required to save to the public Downloads folder.',
+          );
         }
-        
+
         final pubDownload = Directory('/storage/emulated/0/Download');
         if (!await pubDownload.exists()) {
           await pubDownload.create(recursive: true);
@@ -168,9 +184,9 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
         file = File('${directory.path}/$fileName');
         await file.writeAsBytes(bytes);
       }
-      
+
       savePath = file.path;
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -182,13 +198,14 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
               textColor: Colors.white,
               onPressed: () async {
                 final xFile = XFile(file!.path);
-                await Share.shareXFiles([xFile], text: 'FinKeep Encrypted Backup - $dateStr');
+                await Share.shareXFiles([
+                  xFile,
+                ], text: 'FinKeep Encrypted Backup - $dateStr');
               },
             ),
           ),
         );
       }
-      
     } catch (e, stackTrace) {
       ExceptionHandler.handle(
         e,
@@ -198,7 +215,9 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Export failed: ${e.toString().replaceAll('Exception: ', '')}'),
+            content: Text(
+              'Export failed: ${e.toString().replaceAll('Exception: ', '')}',
+            ),
             backgroundColor: AppColors.error,
           ),
         );
@@ -220,9 +239,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
 
     String? selectedFilePath;
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.any,
-      );
+      final result = await FilePicker.platform.pickFiles(type: FileType.any);
 
       if (result == null || result.files.single.path == null) {
         setState(() {
@@ -240,9 +257,16 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
       final bytes = await file.readAsBytes();
 
       setState(() {
-        _loadingText = 'Decrypting and importing backup into local database...';
+        _loadingText = 'Decrypting backup...';
       });
-      await _backupService.importEncryptedBackup(bytes);
+      await _backupService.importEncryptedBackup(
+        bytes,
+        onProgress: (progress) {
+          setState(() {
+            _loadingText = progress;
+          });
+        },
+      );
       _loadStats();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -261,7 +285,9 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Import failed: ${e.toString().replaceAll('Exception: ', '')}'),
+            content: Text(
+              'Import failed: ${e.toString().replaceAll('Exception: ', '')}',
+            ),
             backgroundColor: AppColors.error,
           ),
         );
@@ -370,9 +396,24 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                   ),
                 ),
                 SizedBox(height: 10.h),
-                _buildStatRow('Expenses', _expenseCount, Icons.payment_outlined, AppColors.primaryTeal),
-                _buildStatRow('Investments', _investmentCount, Icons.trending_up, Colors.orange),
-                _buildStatRow('Lendings', _lendingCount, Icons.handshake_outlined, Colors.purple),
+                _buildStatRow(
+                  'Expenses',
+                  _expenseCount,
+                  Icons.payment_outlined,
+                  AppColors.primaryTeal,
+                ),
+                _buildStatRow(
+                  'Investments',
+                  _investmentCount,
+                  Icons.trending_up,
+                  Colors.orange,
+                ),
+                _buildStatRow(
+                  'Lendings',
+                  _lendingCount,
+                  Icons.handshake_outlined,
+                  Colors.purple,
+                ),
 
                 SizedBox(height: 24.h),
 
@@ -410,7 +451,10 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                   icon: const Icon(Icons.share_outlined),
                   label: const Text(
                     'Export & Share Backup',
-                    style: TextStyle(fontFamily: 'Manrope', fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontFamily: 'Manrope',
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
 
@@ -429,7 +473,9 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                 ),
                 SizedBox(height: 8.h),
                 Text(
-                  'Select an encrypted .spdb backup file to restore your database. Warning: This will completely replace your current local data.',
+                  AppConfig.isPersonal
+                      ? 'Select an encrypted .spdb backup file to merge with your cloud database. Existing records will be updated and new records will be added.'
+                      : 'Select an encrypted .spdb backup file to restore your database. This will merge the backup items with your current local data.',
                   style: TextStyle(
                     fontSize: 12.sp,
                     fontFamily: 'Manrope',
@@ -440,7 +486,9 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                 ElevatedButton.icon(
                   onPressed: _importBackup,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                    backgroundColor: isDark
+                        ? const Color(0xFF1E293B)
+                        : const Color(0xFFE2E8F0),
                     foregroundColor: textColor,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16.r),
@@ -450,7 +498,10 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                   icon: const Icon(Icons.file_open_outlined),
                   label: const Text(
                     'Select & Import Backup File',
-                    style: TextStyle(fontFamily: 'Manrope', fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontFamily: 'Manrope',
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 SizedBox(height: 60.h),

@@ -55,7 +55,7 @@ class StyledDropdownFormField<T> extends StatelessWidget {
           ),
         ),
         DropdownButtonFormField<T>(
-          value: value,
+          initialValue: value,
           decoration: InputDecoration(
             prefixIcon: prefixIcon != null
                 ? Icon(

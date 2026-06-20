@@ -40,8 +40,8 @@ class BudgetProgressCard extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: isOverspent
-                ? Colors.red.withOpacity(0.04)
-                : Colors.black.withOpacity(0.03),
+                ? Colors.red.withValues(alpha: 0.04)
+                : Colors.black.withValues(alpha: 0.03),
             blurRadius: 10.r,
             offset: const Offset(0, 4),
           ),

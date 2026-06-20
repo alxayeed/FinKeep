@@ -369,7 +369,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         trailing: Switch(
                           value: _reminderEnabled,
                           onChanged: _toggleReminder,
-                          activeColor: AppColors.primaryTeal,
+                          activeThumbColor: AppColors.primaryTeal,
                           activeTrackColor: AppColors.primaryTeal.withValues(alpha: 0.3),
                         ),
                       ),
