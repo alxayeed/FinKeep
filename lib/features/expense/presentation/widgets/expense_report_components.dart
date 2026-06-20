@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:spendly/core/common/widgets/custom_divider.dart';
 import 'package:spendly/core/common/widgets/expense_monthly_analysis.dart';
 import 'package:spendly/core/common/widgets/loader_widget.dart';
 import 'package:spendly/core/responsive/responsive.dart';
@@ -34,7 +33,7 @@ class ExpenseSummeryWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Obx(() {
         final data = _dataList;
 
@@ -95,22 +94,16 @@ class ExpenseSummery extends StatelessWidget {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 8.h,
       children: [
         // 💳 Total Spent Card
         BudgetProgressCard(spent: totalSpending, budget: calculatedBudget),
 
-        SizedBox(height: 16.h),
-
         // 💳 Spending Medium Chart
         PaymentMediumChart(expenses: expenses),
 
-        SizedBox(height: 16.h),
-
         // 📊 Summary by Category
         SummaryByCategoryWidget(expenses: expenses),
-
-        SizedBox(height: 12.h),
-        const CustomDivider(),
       ],
     );
   }

@@ -1,7 +1,6 @@
 import 'package:spendly/core/error/exception_handler.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:spendly/core/config/app_config.dart';
 import 'package:spendly/core/services/local_db_service.dart';
 import 'package:spendly/core/services/backup_service.dart';
 import 'package:spendly/core/styles/app_colors.dart';
@@ -317,9 +316,6 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
     final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
     final subtitleColor = isDark ? Colors.white60 : const Color(0xFF64748B);
 
-    final envName = AppConfig.environment.name.toUpperCase();
-    final isFirestore = AppConfig.firestoreEnabled;
-
     return Scaffold(
       backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
       appBar: const CustomAppBar(
@@ -332,62 +328,6 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
               physics: const BouncingScrollPhysics(),
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
               children: [
-                // Environment Card
-                Container(
-                  padding: EdgeInsets.all(16.r),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [AppColors.primaryTeal, AppColors.primaryTealLight],
-                    ),
-                    borderRadius: BorderRadius.circular(20.r),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.info_outline, color: Colors.white, size: 20.sp),
-                          SizedBox(width: 8.w),
-                          Text(
-                            'Active Configuration Profile',
-                            style: TextStyle(
-                              fontSize: 12.sp,
-                              fontFamily: 'Manrope',
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white70,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 12.h),
-                      Text(
-                        envName,
-                        style: TextStyle(
-                          fontSize: 24.sp,
-                          fontFamily: 'Manrope',
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
-                          letterSpacing: 1.5,
-                        ),
-                      ),
-                      SizedBox(height: 8.h),
-                      Text(
-                        isFirestore
-                            ? 'Cloud database (Firestore) active + Offline local cache'
-                            : 'Standalone offline database mode active (Zero-Knowledge)',
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          fontFamily: 'Manrope',
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white.withValues(alpha: 0.9),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                SizedBox(height: 20.h),
-
                 // Statistics
                 Text(
                   'LOCAL DATABASE STATE',
@@ -403,8 +343,6 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                 _buildStatRow('Expenses', _expenseCount, Icons.payment_outlined, AppColors.primaryTeal),
                 _buildStatRow('Investments', _investmentCount, Icons.trending_up, Colors.orange),
                 _buildStatRow('Lendings', _lendingCount, Icons.handshake_outlined, Colors.purple),
-                _buildStatRow('Lending People', _personCount, Icons.people_outline, Colors.blue),
-                _buildStatRow('Repayments', _repaymentCount, Icons.receipt_long_outlined, Colors.green),
 
                 SizedBox(height: 24.h),
 

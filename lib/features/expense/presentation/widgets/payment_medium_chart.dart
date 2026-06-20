@@ -44,10 +44,6 @@ class PaymentMediumChart extends StatelessWidget {
       totalSpent += expense.amount;
     }
 
-    if (totalSpent == 0.0) {
-      return const SizedBox.shrink();
-    }
-
     return Container(
       padding: EdgeInsets.all(18.r),
       decoration: BoxDecoration(
@@ -92,27 +88,36 @@ class PaymentMediumChart extends StatelessWidget {
                       PieChartData(
                         sectionsSpace: 2,
                         centerSpaceRadius: 40.r,
-                        sections: PaymentType.values.map((type) {
-                          final value = mediumTotals[type] ?? 0.0;
-                          final percentage = totalSpent == 0
-                              ? 0.0
-                              : (value / totalSpent) * 100;
+                        sections: totalSpent == 0.0
+                            ? [
+                                PieChartSectionData(
+                                  color: isDark
+                                      ? const Color(0xFF334155)
+                                      : const Color(0xFFE2E8F0),
+                                  value: 1.0,
+                                  title: '',
+                                  radius: 16.r,
+                                ),
+                              ]
+                            : PaymentType.values.map((type) {
+                                final value = mediumTotals[type] ?? 0.0;
+                                final percentage = (value / totalSpent) * 100;
 
-                          return PieChartSectionData(
-                            color: _getColorForMedium(type),
-                            value: value,
-                            title: value > 0
-                                ? '${percentage.toStringAsFixed(0)}%'
-                                : '',
-                            radius: 16.r,
-                            titleStyle: TextStyle(
-                              fontSize: 9.sp,
-                              fontFamily: 'Manrope',
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          );
-                        }).toList(),
+                                return PieChartSectionData(
+                                  color: _getColorForMedium(type),
+                                  value: value,
+                                  title: value > 0
+                                      ? '${percentage.toStringAsFixed(0)}%'
+                                      : '',
+                                  radius: 16.r,
+                                  titleStyle: TextStyle(
+                                    fontSize: 9.sp,
+                                    fontFamily: 'Manrope',
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                );
+                              }).toList(),
                       ),
                     ),
                   ),

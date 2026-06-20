@@ -24,7 +24,7 @@ class BudgetProgressCard extends StatelessWidget {
     final usageText = '${(usagePercent * 100).toStringAsFixed(0)}%';
 
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 10.h),
+      // margin: EdgeInsets.symmetric(vertical: 10.h),
       padding: EdgeInsets.all(20.r),
       decoration: BoxDecoration(
         color: isOverspent

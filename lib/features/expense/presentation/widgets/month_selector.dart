@@ -23,6 +23,14 @@ class MonthSelector extends StatefulWidget {
 class _MonthSelectorState extends State<MonthSelector> {
   DateTime _selectedMonth = DateTime.now();
 
+  String get _displayText {
+    final now = DateTime.now();
+    if (_selectedMonth.year == now.year && _selectedMonth.month == now.month) {
+      return DateFormat('d MMMM, yyyy').format(now);
+    }
+    return DateFormat('MMMM yyyy').format(_selectedMonth);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -124,7 +132,7 @@ class _MonthSelectorState extends State<MonthSelector> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        DateFormat('MMMM yyyy').format(_selectedMonth),
+                        _displayText,
                         style: TextStyle(
                           fontSize: 14.sp,
                           fontFamily: 'Manrope',

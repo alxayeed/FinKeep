@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import 'package:spendly/core/responsive/responsive.dart';
 import 'package:spendly/core/routes/app_router.dart';
 
-import '../../../../core/common/widgets/date_selector_button.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../controllers/expense_report_controller.dart';
 import '../widgets/widgets.dart';
@@ -33,7 +32,7 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
     final now = DateTime.now();
 
     controller.startDate.value = DateTime(now.year, 1, 1);
-    controller.endDate.value = DateTime(now.year, 12, 31, 23, 59, 59);
+    controller.endDate.value = DateTime(now.year, now.month, now.day, 23, 59, 59);
 
     controller.fetchExpensesInRange(
       controller.startDate.value!,
@@ -46,7 +45,7 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
     final DateTime now = DateTime.now();
     DateTime selectedDate = isStartDate
         ? controller.startDate.value ?? now
-        : controller.endDate.value ?? now;
+        : (controller.endDate.value != null && controller.endDate.value!.isAfter(now) ? now : controller.endDate.value ?? now);
 
     final results = await showDialog<List<DateTime?>>(
       context: context,
@@ -68,7 +67,7 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
                   config: CalendarDatePicker2Config(
                     calendarType: CalendarDatePicker2Type.single,
                     firstDate: DateTime(now.year - 5),
-                    lastDate: DateTime(now.year + 1, 12, 31),
+                    lastDate: isStartDate ? DateTime(now.year + 1, 12, 31) : now,
                     selectedDayHighlightColor: AppColors.primaryTeal,
                     dayTextStyle: TextStyle(
                       fontFamily: 'Manrope',
@@ -89,7 +88,7 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
                 SizedBox(height: 8.h),
                 ActionChip(
                   label: Text(
-                    isStartDate ? 'YEAR START' : 'YEAR END',
+                    isStartDate ? 'YEAR START' : 'TODAY',
                     style: TextStyle(
                       fontSize: 10.sp,
                       fontFamily: 'Manrope',
@@ -115,7 +114,7 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
                       [
                         isStartDate
                             ? DateTime(now.year, 1, 1)
-                            : DateTime(now.year, 12, 31),
+                            : now,
                       ],
                     );
                   },
@@ -134,6 +133,16 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
         controller.startDate.value =
             DateTime(picked.year, picked.month, picked.day);
       } else {
+        if (picked.isAfter(now)) {
+          Get.snackbar(
+            'Invalid Date',
+            'To date cannot be in the future.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red.withValues(alpha: 0.8),
+            colorText: Colors.white,
+          );
+          return;
+        }
         controller.endDate.value =
             DateTime(picked.year, picked.month, picked.day, 23, 59, 59);
       }
@@ -254,11 +263,7 @@ class _ReportHeader extends StatelessWidget {
 
   String _formatDate(DateTime? date, {required bool isFrom}) {
     if (date == null) {
-      if (isFrom) {
-        return "Start Date";
-      } else {
-        return "End Date";
-      }
+      return isFrom ? "Start Date" : "End Date";
     }
     return DateFormat('d MMM, yyyy').format(date);
   }
@@ -268,39 +273,111 @@ class _ReportHeader extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.cardDark : AppColors.cardLight,
-        border: Border(
-          bottom: BorderSide(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+      child: Container(
+        height: 52.h,
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+          border: Border.all(
             color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
             width: 1,
           ),
+          borderRadius: BorderRadius.circular(9999.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 4.r,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              DateSelectorButton(
-                title: 'START DATE',
-                dateText: _formatDate(startDate, isFrom: true),
+        child: Row(
+          children: [
+            Icon(
+              Icons.calendar_month_rounded,
+              size: 18.sp,
+              color: AppColors.primaryTeal,
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: GestureDetector(
                 onTap: onStartDateSelect,
+                behavior: HitTestBehavior.opaque,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'START DATE',
+                      style: TextStyle(
+                        fontSize: 8.sp,
+                        fontFamily: 'Manrope',
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    SizedBox(height: 2.h),
+                    Text(
+                      _formatDate(startDate, isFrom: true),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        fontFamily: 'Manrope',
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8.w),
-                child: const Icon(Icons.arrow_right_alt, color: Colors.grey),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.w),
+              child: Icon(
+                Icons.arrow_forward_rounded,
+                size: 14.sp,
+                color: isDark ? Colors.white30 : const Color(0xFF94A3B8),
               ),
-              DateSelectorButton(
-                title: 'END DATE',
-                dateText: _formatDate(endDate, isFrom: false),
+            ),
+            Expanded(
+              child: GestureDetector(
                 onTap: onEndDateSelect,
+                behavior: HitTestBehavior.opaque,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'END DATE',
+                      style: TextStyle(
+                        fontSize: 8.sp,
+                        fontFamily: 'Manrope',
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    SizedBox(height: 2.h),
+                    Text(
+                      _formatDate(endDate, isFrom: false),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        fontFamily: 'Manrope',
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }

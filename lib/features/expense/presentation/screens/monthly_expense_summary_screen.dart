@@ -79,8 +79,11 @@ class MonthlyExpenseSummaryScreen extends StatelessWidget {
                   budget: totalBudget,
                 ),
               ),
+              SizedBox(height: 8.h),
               // Spending by medium pie chart
               PaymentMediumChart(expenses: controller.expenses),
+              SizedBox(height: 8.h),
+
               // Category spending checklist
               CategorySummaryList.detailed(
                 spentByCategory: spentByCategory,

@@ -113,122 +113,95 @@ class MonthlyExpenseShimmer extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(height: 4.h),
+        SizedBox(height: 16.h),
         const PaymentMediumChartShimmer(),
-
-
-        // // 2. SmartInsightBanner Skeleton
-        // Container(
-        //   height: 64.h,
-        //   margin: EdgeInsets.symmetric(vertical: 8.h),
-        //   decoration: BoxDecoration(
-        //     color: itemBg,
-        //     borderRadius: BorderRadius.circular(16.r),
-        //   ),
-        //   padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
-        //   child: Row(
-        //     crossAxisAlignment: CrossAxisAlignment.start,
-        //     children: [
-        //       Container(width: 30.r, height: 30.r, color: Colors.white),
-        //       SizedBox(width: 12.w),
-        //       Expanded(
-        //         child: Column(
-        //           crossAxisAlignment: CrossAxisAlignment.start,
-        //           mainAxisAlignment: MainAxisAlignment.center,
-        //           children: [
-        //             Container(width: 80.w, height: 10.h, color: Colors.white),
-        //             SizedBox(height: 4.h),
-        //             Container(
-        //               width: double.infinity,
-        //               height: 8.h,
-        //               color: Colors.white,
-        //             ),
-        //           ],
-        //         ),
-        //       ),
-        //     ],
-        //   ),
-        // ),
-        // SizedBox(height: 8.h),
-
-        // 3. CategorySpendingList Checklist Skeletons
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 8.h),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(width: 130.w, height: 14.h, color: Colors.white),
-              Container(width: 70.w, height: 10.h, color: Colors.white),
-            ],
+        SizedBox(height: 16.h),
+        Container(
+          padding: EdgeInsets.all(18.r),
+          decoration: BoxDecoration(
+            color: itemBg,
+            borderRadius: BorderRadius.circular(16.r),
           ),
-        ),
-        SizedBox(height: 4.h),
-        ...List.generate(10, (index) {
-          return Padding(
-            padding: EdgeInsets.symmetric(vertical: 4.h),
-            child: Container(
-              height: 58.h,
-              decoration: BoxDecoration(
-                color: itemBg,
-                borderRadius: BorderRadius.circular(12.r),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(bottom: 12.h),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(width: 120.w, height: 10.h, color: Colors.white),
+                    Container(width: 70.w, height: 9.h, color: Colors.white),
+                  ],
+                ),
               ),
-              padding: EdgeInsets.all(10.r),
-              child: Row(
-                children: [
-                  Container(
-                    width: 36.r,
-                    height: 36.r,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                  ),
-                  SizedBox(width: 12.w),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: 4,
+                separatorBuilder: (context, index) => SizedBox(height: 6.h),
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: EdgeInsets.symmetric(vertical: 4.h),
+                    child: Row(
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              width: 70.w,
-                              height: 12.h,
-                              color: Colors.white,
-                            ),
-                            Container(
-                              width: 80.w,
-                              height: 12.h,
-                              color: Colors.white,
-                            ),
-                          ],
+                        Container(
+                          width: 28.r,
+                          height: 28.r,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(6.r),
+                          ),
                         ),
-                        SizedBox(height: 6.h),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                height: 5.h,
-                                color: Colors.white,
+                        SizedBox(width: 10.w),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Container(
+                                    width: 60.w,
+                                    height: 10.h,
+                                    color: Colors.white,
+                                  ),
+                                  Container(
+                                    width: 70.w,
+                                    height: 10.h,
+                                    color: Colors.white,
+                                  ),
+                                ],
                               ),
-                            ),
-                            SizedBox(width: 8.w),
-                            Container(
-                              width: 22.w,
-                              height: 9.h,
-                              color: Colors.white,
-                            ),
-                          ],
+                              SizedBox(height: 4.h),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Container(
+                                      height: 4.h,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  SizedBox(width: 8.w),
+                                  Container(
+                                    width: 20.w,
+                                    height: 8.h,
+                                    color: Colors.white,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                ],
+                  );
+                },
               ),
-            ),
-          );
-        }),
+            ],
+          ),
+        ),
       ],
     );
   }
