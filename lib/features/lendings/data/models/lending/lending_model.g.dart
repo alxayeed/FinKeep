@@ -20,7 +20,6 @@ _LendingModel _$LendingModelFromJson(Map<String, dynamic> json) =>
       createdDate: _fromJsonDate(json['createdDate']),
       dueDate: _fromJsonNullableDate(json['dueDate']),
       status: $enumDecode(_$LendingStatusEnumMap, json['status']),
-      userId: json['userId'] as String,
       paymentMethod: json['paymentMethod'] == null
           ? PaymentType.cash
           : _fromJsonPaymentMethod(json['paymentMethod']),
@@ -40,7 +39,6 @@ Map<String, dynamic> _$LendingModelToJson(_LendingModel instance) =>
       'createdDate': _toJsonDate(instance.createdDate),
       'dueDate': _toJsonNullableDate(instance.dueDate),
       'status': _$LendingStatusEnumMap[instance.status]!,
-      'userId': instance.userId,
       'paymentMethod': _toJsonPaymentMethod(instance.paymentMethod),
       'repayments': instance.repayments,
     };

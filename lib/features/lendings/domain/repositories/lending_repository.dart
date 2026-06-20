@@ -10,7 +10,6 @@ abstract class LendingRepository {
   Future<Either<Failure, void>> addLending(LendingEntity lending);
 
   Future<Either<Failure, List<LendingEntity>>> getLendings({
-    required String userId,
     LendingType? typeFilter,
     DateTime? monthFilter,
     LendingStatus? statusFilter,
@@ -22,14 +21,12 @@ abstract class LendingRepository {
   Future<Either<Failure, void>> deleteLending(String lendingId);
 
   Future<Either<Failure, double>> getTotalLendingAmount({
-    required String userId,
     LendingType? typeFilter,
     LendingStatus? statusFilter,
     String? personNameFilter,
   });
 
   Future<Either<Failure, int>> getLendingsCount({
-    required String userId,
     LendingType? typeFilter,
     LendingStatus? statusFilter,
     String? personNameFilter,
@@ -40,8 +37,7 @@ abstract class LendingRepository {
 
   Future<Either<Failure, LendingPersonEntity>> getPersonById(String personId);
 
-  Future<Either<Failure, List<LendingPersonEntity>>> getUserPersons(
-    String userId, {
+  Future<Either<Failure, List<LendingPersonEntity>>> getUserPersons({
     String? nameFilter,
   });
 

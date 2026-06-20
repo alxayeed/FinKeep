@@ -5,25 +5,22 @@ abstract class ExpenseLocalDataSource {
 
   Future<ExpenseModel?> getExpenseById(String id);
 
-  Future<List<ExpenseModel>> getExpenses(String userId);
+  Future<List<ExpenseModel>> getExpenses();
 
   Future<void> updateExpense(ExpenseModel expense);
 
   Future<void> deleteExpense(String id);
 
   Future<List<ExpenseModel>> getExpensesForMonth(
-    String userId,
     DateTime selectedMonth,
   );
 
   Future<List<ExpenseModel>> getExpensesInRange(
-    String userId,
     DateTime start,
     DateTime end,
   );
 
   Future<double> getTotalExpensesForMonth(
-    String userId,
     DateTime selectedMonth,
   );
 }

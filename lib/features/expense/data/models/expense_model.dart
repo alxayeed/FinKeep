@@ -9,7 +9,6 @@ class ExpenseModel extends ExpenseEntity {
     required super.category,
     required super.date,
     super.description,
-    super.userId,
     super.paymentMethod,
     super.createdAt,
   });
@@ -21,7 +20,6 @@ class ExpenseModel extends ExpenseEntity {
       category: json['category'] as String,
       date: json['date'] as DateTime,
       description: json['description'] as String? ?? '',
-      userId: json['userId'] as String? ?? '',
       paymentMethod: PaymentTypeExtension.fromString(json['paymentMethod'] as String? ?? 'CASH'),
       createdAt: json['createdAt'] as DateTime,
     );
@@ -35,7 +33,6 @@ class ExpenseModel extends ExpenseEntity {
       category: json['category'] as String,
       date: (json['date'] as Timestamp).toDate(),
       description: json['description'] as String? ?? '',
-      userId: json['userId'] as String? ?? '',
       paymentMethod: PaymentTypeExtension.fromString(json['paymentMethod'] as String? ?? 'CASH'),
       createdAt: (json['createdAt'] as Timestamp).toDate(),
     );
@@ -48,7 +45,6 @@ class ExpenseModel extends ExpenseEntity {
       'category': category,
       'date': date,
       'description': description,
-      'userId': userId,
       'paymentMethod': paymentMethod.value,
       'createdAt': createdAt,
     };
@@ -62,7 +58,6 @@ class ExpenseModel extends ExpenseEntity {
       'category': category,
       'date': Timestamp.fromDate(date),
       'description': description,
-      'userId': userId,
       'paymentMethod': paymentMethod.value,
       'createdAt': Timestamp.fromDate(createdAt),
     };
@@ -75,7 +70,6 @@ class ExpenseModel extends ExpenseEntity {
       category: category,
       date: date,
       description: description,
-      userId: userId,
       paymentMethod: paymentMethod,
       createdAt: createdAt,
     );

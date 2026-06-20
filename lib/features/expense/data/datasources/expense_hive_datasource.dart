@@ -41,10 +41,9 @@ class ExpenseHiveDataSource implements ExpenseLocalDataSource {
   }
 
   @override
-  Future<List<ExpenseModel>> getExpenses(String userId) async {
+  Future<List<ExpenseModel>> getExpenses() async {
     final list = localDb.expensesBox.values
         .map((raw) => _mapJson(Map<String, dynamic>.from(raw)))
-        .where((expense) => expense.userId == userId)
         .toList();
     list.sort((a, b) => b.date.compareTo(a.date));
     return list;
@@ -62,7 +61,6 @@ class ExpenseHiveDataSource implements ExpenseLocalDataSource {
 
   @override
   Future<List<ExpenseModel>> getExpensesForMonth(
-    String userId,
     DateTime selectedMonth,
   ) async {
     DateTime startOfMonth = DateTime(selectedMonth.year, selectedMonth.month, 1);
@@ -72,7 +70,6 @@ class ExpenseHiveDataSource implements ExpenseLocalDataSource {
     final list = localDb.expensesBox.values
         .map((raw) => _mapJson(Map<String, dynamic>.from(raw)))
         .where((expense) =>
-            expense.userId == userId &&
             expense.date.isAfter(startOfMonth.subtract(const Duration(seconds: 1))) &&
             expense.date.isBefore(endOfMonth.add(const Duration(seconds: 1))))
         .toList();
@@ -82,14 +79,12 @@ class ExpenseHiveDataSource implements ExpenseLocalDataSource {
 
   @override
   Future<List<ExpenseModel>> getExpensesInRange(
-    String userId,
     DateTime start,
     DateTime end,
   ) async {
     final list = localDb.expensesBox.values
         .map((raw) => _mapJson(Map<String, dynamic>.from(raw)))
         .where((expense) =>
-            expense.userId == userId &&
             expense.date.isAfter(start.subtract(const Duration(seconds: 1))) &&
             expense.date.isBefore(end.add(const Duration(seconds: 1))))
         .toList();
@@ -99,10 +94,9 @@ class ExpenseHiveDataSource implements ExpenseLocalDataSource {
 
   @override
   Future<double> getTotalExpensesForMonth(
-    String userId,
     DateTime selectedMonth,
   ) async {
-    final expenses = await getExpensesForMonth(userId, selectedMonth);
+    final expenses = await getExpensesForMonth(selectedMonth);
     return expenses.fold<double>(0.0, (acc, expense) => acc + expense.amount);
   }
 }

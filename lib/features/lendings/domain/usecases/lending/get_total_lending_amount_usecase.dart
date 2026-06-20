@@ -10,13 +10,11 @@ class GetTotalLendingAmountUseCase {
   GetTotalLendingAmountUseCase({required this.repository});
 
   Future<Either<Failure, double>> call({
-    required String userId,
     LendingType? typeFilter,
     LendingStatus? statusFilter,
     String? personNameFilter,
   }) async {
     return await repository.getTotalLendingAmount(
-      userId: userId,
       typeFilter: typeFilter,
       statusFilter: statusFilter,
       personNameFilter: personNameFilter,

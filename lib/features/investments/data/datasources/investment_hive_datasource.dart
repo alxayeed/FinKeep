@@ -14,10 +14,9 @@ class InvestmentHiveDataSource implements InvestmentLocalDataSource {
   }
 
   @override
-  Future<List<InvestmentModel>> getInvestments(String userId) async {
+  Future<List<InvestmentModel>> getInvestments() async {
     final list = localDb.investmentsBox.values
         .map((raw) => InvestmentModel.fromJson(Map<String, dynamic>.from(raw)))
-        .where((inv) => inv.userId == userId)
         .toList();
     list.sort((a, b) => b.startDate.compareTo(a.startDate));
     return list;

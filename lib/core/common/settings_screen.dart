@@ -1,31 +1,28 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:spendly/features/auth/presentation/controller/auth_controller.dart';
+import 'package:go_router/go_router.dart';
+import 'package:spendly/core/routes/app_router.dart';
+import 'backup_restore_screen.dart';
+import 'widgets/custom_app_bar.dart';
+import '../responsive/responsive.dart';
+import '../styles/app_colors.dart';
+import '../styles/app_themes.dart';
+import '../styles/theme_provider.dart';
+import '../../features/expense/services/expense_reminder_service.dart';
 
-import '../../../../core/common/backup_restore_screen.dart';
-import '../../../../core/common/widgets/custom_app_bar.dart';
-import '../../../../core/responsive/responsive.dart';
-import '../../../../core/styles/app_colors.dart';
-import '../../../../core/styles/app_themes.dart';
-import '../../../../core/styles/theme_provider.dart';
-import '../../../expense/services/expense_reminder_service.dart';
-
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _SettingsScreenState extends State<SettingsScreen> {
   bool _reminderEnabled = false;
   TimeOfDay? _selectedTime;
   final ExpenseReminderService _reminderService =
       createExpenseReminderService();
-  final AuthController authController = Get.find();
   final ThemeProvider _themeProvider = ThemeProvider();
 
   @override
@@ -170,8 +167,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Scaffold(
             backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
             appBar: CustomAppBar(
-              title: 'Profile',
-              showBackButton: false,
+              title: 'Settings',
+              showBackButton: true,
               actions: [
                 IconButton(
                   icon: Icon(
@@ -188,12 +185,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               physics: const BouncingScrollPhysics(),
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
               children: [
-                // Header profile card
+                // Settings section: Budgeting
+                _buildSectionTitle('BUDGET & PLANNING', isDark),
                 Container(
-                  padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 16.w),
                   decoration: BoxDecoration(
                     color: cardBg,
-                    borderRadius: BorderRadius.circular(24.r),
+                    borderRadius: BorderRadius.circular(20.r),
                     border: Border.all(
                       color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
                       width: 1,
@@ -201,56 +198,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   child: Column(
                     children: [
-                      // Premium circular avatar ring
-                      Container(
-                        padding: EdgeInsets.all(4.r),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: const LinearGradient(
-                            colors: [AppColors.primaryTeal, AppColors.primaryTealLight],
-                          ),
+                      ListTile(
+                        leading: Icon(Icons.tune_rounded, size: 20.sp, color: AppColors.primaryTeal),
+                        title: Text(
+                          'Set Monthly Budget',
+                          style: TextStyle(fontSize: 13.sp, fontFamily: 'Manrope', fontWeight: FontWeight.w600, color: textColor),
                         ),
-                        child: CircleAvatar(
-                          radius: 46.r,
-                          backgroundColor: cardBg,
-                          child: CircleAvatar(
-                            radius: 42.r,
-                            backgroundImage: const NetworkImage(
-                              'https://www.placecats.com/neo_banana/300/200',
-                            ),
-                          ),
+                        subtitle: Text(
+                          'Manage your spending limit and goals',
+                          style: TextStyle(fontSize: 11.sp, fontFamily: 'Manrope', color: subtitleColor),
                         ),
-                      ),
-                      SizedBox(height: 12.h),
-                      Text(
-                        'Mr. Mew',
-                        style: TextStyle(
-                          fontSize: 20.sp,
-                          fontFamily: 'Manrope',
-                          fontWeight: FontWeight.bold,
-                          color: textColor,
-                        ),
-                      ),
-                      SizedBox(height: 4.h),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.email_outlined,
-                            color: AppColors.primaryTeal,
-                            size: 14.sp,
-                          ),
-                          SizedBox(width: 6.w),
-                          Text(
-                            authController.user?.email ?? 'Unknown user',
-                            style: TextStyle(
-                              fontSize: 13.sp,
-                              fontFamily: 'Manrope',
-                              fontWeight: FontWeight.w500,
-                              color: subtitleColor,
-                            ),
-                          ),
-                        ],
+                        trailing: Icon(Icons.chevron_right, size: 20.sp, color: subtitleColor),
+                        onTap: () {
+                          context.pushNamed(
+                            AppRoutes.setMonthlyBudget,
+                            extra: DateTime.now(),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -258,7 +222,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 SizedBox(height: 12.h),
 
-                // Settings section 1
+                // Settings section: App Customization
                 _buildSectionTitle('APP SETTINGS', isDark),
                 Container(
                   decoration: BoxDecoration(
@@ -345,8 +309,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 SizedBox(height: 12.h),
 
-                // Settings section 2
-                _buildSectionTitle('ACCOUNT & UTILITIES', isDark),
+                // Settings section: Data & Info
+                _buildSectionTitle('DATA & UTILITIES', isDark),
                 Container(
                   decoration: BoxDecoration(
                     color: cardBg,
@@ -358,26 +322,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   child: Column(
                     children: [
-                      ListTile(
-                        leading: Icon(Icons.edit_outlined, size: 20.sp, color: AppColors.primaryTeal),
-                        title: Text(
-                          'Edit Profile',
-                          style: TextStyle(fontSize: 13.sp, fontFamily: 'Manrope', fontWeight: FontWeight.w600, color: textColor),
-                        ),
-                        trailing: Icon(Icons.chevron_right, size: 20.sp, color: subtitleColor),
-                        onTap: () {},
-                      ),
-                      Divider(height: 1, color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
-                      ListTile(
-                        leading: Icon(Icons.lock_outline_rounded, size: 20.sp, color: AppColors.primaryTeal),
-                        title: Text(
-                          'Change Password',
-                          style: TextStyle(fontSize: 13.sp, fontFamily: 'Manrope', fontWeight: FontWeight.w600, color: textColor),
-                        ),
-                        trailing: Icon(Icons.chevron_right, size: 20.sp, color: subtitleColor),
-                        onTap: () {},
-                      ),
-                      Divider(height: 1, color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
                       ListTile(
                         leading: Icon(Icons.cloud_upload_outlined, size: 20.sp, color: AppColors.primaryTeal),
                         title: Text(
@@ -405,41 +349,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         onTap: () {},
                       ),
                     ],
-                  ),
-                ),
-
-                SizedBox(height: 32.h),
-
-                // Logout Button
-                Center(
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 50.h,
-                    child: OutlinedButton(
-                      onPressed: () => authController.logout(),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppColors.error, width: 1.5),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16.r),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.logout_rounded, color: AppColors.error, size: 18.sp),
-                          SizedBox(width: 8.w),
-                          Text(
-                            'Logout',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontFamily: 'Manrope',
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.error,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                   ),
                 ),
                 SizedBox(height: 100.h),

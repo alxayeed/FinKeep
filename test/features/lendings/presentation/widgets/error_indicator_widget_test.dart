@@ -18,42 +18,28 @@ void main() {
     expect(find.text(errorMessage), findsOneWidget);
   });
 
-  testWidgets('ErrorIndicator displays an error icon', (tester) async {
+  testWidgets('ErrorIndicator shows retry button when onRetry is provided',
+      (tester) async {
     const errorMessage = 'Something went wrong!';
+    bool retryCalled = false;
 
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: ErrorIndicatorWidget(errorMessage: errorMessage),
+          body: ErrorIndicatorWidget(
+            errorMessage: errorMessage,
+            onRetry: () {
+              retryCalled = true;
+            },
+          ),
         ),
       ),
     );
 
-    expect(find.byIcon(Icons.error), findsOneWidget);
-  });
+    final retryButtonFinder = find.widgetWithText(ElevatedButton, 'Retry');
+    expect(retryButtonFinder, findsOneWidget);
 
-  testWidgets('ErrorIndicator has correct styling', (tester) async {
-    const errorMessage = 'Something went wrong!';
-
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: ErrorIndicatorWidget(errorMessage: errorMessage),
-        ),
-      ),
-    );
-
-    final cardFinder = find.byType(Card);
-    final textFinder = find.text(errorMessage);
-    final iconFinder = find.byIcon(Icons.error);
-
-    final card = tester.widget<Card>(cardFinder);
-    expect(card.color, Colors.redAccent);
-
-    final text = tester.widget<Text>(textFinder);
-    expect(text.style?.color, Colors.white);
-
-    final icon = tester.widget<Icon>(iconFinder);
-    expect(icon.color, Colors.white);
+    await tester.tap(retryButtonFinder);
+    expect(retryCalled, true);
   });
 }

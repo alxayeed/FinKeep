@@ -52,44 +52,44 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
   }
 
   @override
-  Future<List<ExpenseEntity>> getExpenses(String userId) async {
+  Future<List<ExpenseEntity>> getExpenses() async {
     if (AppConfig.useRemote) {
-      final models = await remoteDataSource.getExpenses(userId);
+      final models = await remoteDataSource.getExpenses();
       return models.map((m) => m.toEntity()).toList();
     } else {
-      final models = await localDataSource.getExpenses(userId);
+      final models = await localDataSource.getExpenses();
       return models.map((m) => m.toEntity()).toList();
     }
   }
 
   @override
-  Future<List<ExpenseEntity>> getExpensesForMonth(String userId, DateTime selectedMonth) async {
+  Future<List<ExpenseEntity>> getExpensesForMonth(DateTime selectedMonth) async {
     if (AppConfig.useRemote) {
-      final models = await remoteDataSource.getExpensesForMonth(userId, selectedMonth);
+      final models = await remoteDataSource.getExpensesForMonth(selectedMonth);
       return models.map((m) => m.toEntity()).toList();
     } else {
-      final models = await localDataSource.getExpensesForMonth(userId, selectedMonth);
+      final models = await localDataSource.getExpensesForMonth(selectedMonth);
       return models.map((m) => m.toEntity()).toList();
     }
   }
 
   @override
-  Future<List<ExpenseEntity>> getExpensesInRange(String userId, DateTime start, DateTime end) async {
+  Future<List<ExpenseEntity>> getExpensesInRange(DateTime start, DateTime end) async {
     if (AppConfig.useRemote) {
-      final models = await remoteDataSource.getExpensesInRange(userId, start, end);
+      final models = await remoteDataSource.getExpensesInRange(start, end);
       return models.map((m) => m.toEntity()).toList();
     } else {
-      final models = await localDataSource.getExpensesInRange(userId, start, end);
+      final models = await localDataSource.getExpensesInRange(start, end);
       return models.map((m) => m.toEntity()).toList();
     }
   }
 
   @override
-  Future<double> getTotalExpensesForMonth(String userId, DateTime selectedMonth) async {
+  Future<double> getTotalExpensesForMonth(DateTime selectedMonth) async {
     if (AppConfig.useRemote) {
-      return await remoteDataSource.getTotalExpensesForMonth(userId, selectedMonth);
+      return await remoteDataSource.getTotalExpensesForMonth(selectedMonth);
     } else {
-      return await localDataSource.getTotalExpensesForMonth(userId, selectedMonth);
+      return await localDataSource.getTotalExpensesForMonth(selectedMonth);
     }
   }
 }

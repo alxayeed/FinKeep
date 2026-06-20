@@ -69,7 +69,15 @@ class _LendingListScreenState extends State<LendingListScreen> {
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
-      appBar: const CustomAppBar(title: 'Lend Management'),
+      appBar: CustomAppBar(
+        title: 'Lend Management',
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_rounded),
+            onPressed: () => context.pushNamed(AppRoutes.settings),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Obx(() {
           if (controller.isLoading.value && controller.lendingsList.isEmpty) {

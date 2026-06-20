@@ -1,6 +1,3 @@
-import 'dart:async';
-
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendly/features/investments/domain/entities/investment.dart';
@@ -9,9 +6,7 @@ import 'package:spendly/features/investments/presentation/screens/edit_investmen
 import 'package:spendly/features/investments/presentation/screens/investment_detail_screen.dart';
 import 'package:spendly/features/investments/presentation/screens/investment_list_screen.dart';
 
-import '../../features/auth/presentation/screen/login_screen.dart';
-import '../../features/auth/presentation/screen/profile_screen.dart';
-import '../../features/auth/presentation/screen/registration_screen.dart';
+import '../common/settings_screen.dart';
 import '../../features/expense/domain/entities/expense_entity.dart';
 import '../../features/expense/presentation/screens/expense_report_screen.dart';
 import '../../features/expense/presentation/screens/screens.dart';
@@ -45,37 +40,16 @@ class AppRoutes {
   static const String addInvestment = '/addInvestment';
   static const String updateInvestment = '/updateInvestment';
 
-  // Profile
-  static const String profile = '/profile';
-
-  // Auth
-  static const String login = '/login';
-  static const String register = '/register';
+  // Settings
+  static const String settings = '/settings';
 }
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
-final List<String> authenticatedRoutes = [
-  AppRoutes.home,
-  AppRoutes.expenses,
-  AppRoutes.lendings,
-  AppRoutes.investments,
-  AppRoutes.profile,
-  AppRoutes.expenseReport,
-];
-
-final List<String> unauthenticatedRoutes = [
-  AppRoutes.login,
-  AppRoutes.register,
-];
 
 class AppRouter {
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
     initialLocation: AppRoutes.home,
-    refreshListenable: GoRouterRefreshStream(
-      FirebaseAuth.instance.authStateChanges(),
-    ),
     routes: [
       ShellRoute(
         builder: (context, state, child) => HomeScaffold(child: child),
@@ -105,12 +79,6 @@ class AppRouter {
                 const NoTransitionPage(child: InvestmentListScreen()),
           ),
           GoRoute(
-            path: AppRoutes.profile,
-            name: AppRoutes.profile,
-            pageBuilder: (context, state) =>
-                const NoTransitionPage(child: ProfileScreen()),
-          ),
-          GoRoute(
             path: AppRoutes.expenseReport,
             name: AppRoutes.expenseReport,
             pageBuilder: (context, state) =>
@@ -119,6 +87,12 @@ class AppRouter {
         ],
       ),
 
+      GoRoute(
+        path: AppRoutes.settings,
+        name: AppRoutes.settings,
+        pageBuilder: (context, state) =>
+            const NoTransitionPage(child: SettingsScreen()),
+      ),
       GoRoute(
         path: AppRoutes.addExpense,
         name: AppRoutes.addExpense,
@@ -238,34 +212,7 @@ class AppRouter {
           );
         },
       ),
-
-      // Auth Routes
-      GoRoute(
-        path: AppRoutes.login,
-        name: AppRoutes.login,
-        builder: (context, state) => LoginScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.register,
-        name: AppRoutes.register,
-        builder: (context, state) => RegistrationScreen(),
-      ),
     ],
-
-    redirect: (context, state) {
-      final user = FirebaseAuth.instance.currentUser;
-
-      if (user == null && authenticatedRoutes.contains(state.matchedLocation)) {
-        return AppRoutes.login;
-      }
-
-      if (user != null &&
-          unauthenticatedRoutes.contains(state.matchedLocation)) {
-        return AppRoutes.home;
-      }
-
-      return null;
-    },
   );
 }
 
@@ -281,23 +228,5 @@ class ErrorScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Error')),
       body: Center(child: Text(message)),
     );
-  }
-}
-
-/// Helper to refresh GoRouter when FirebaseAuth state changes
-class GoRouterRefreshStream extends ChangeNotifier {
-  GoRouterRefreshStream(Stream<User?> stream) {
-    notifyListeners();
-    _subscription = stream.listen((event) {
-      notifyListeners();
-    });
-  }
-
-  late final StreamSubscription<User?> _subscription;
-
-  @override
-  void dispose() {
-    _subscription.cancel();
-    super.dispose();
   }
 }

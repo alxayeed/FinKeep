@@ -26,7 +26,6 @@ abstract class LendingModel with _$LendingModel {
     @JsonKey(fromJson: _fromJsonNullableDate, toJson: _toJsonNullableDate)
     DateTime? dueDate,
     required LendingStatus status,
-    required String userId,
     @JsonKey(fromJson: _fromJsonPaymentMethod, toJson: _toJsonPaymentMethod)
     @Default(PaymentType.cash) PaymentType paymentMethod,
     List<RepaymentModel>? repayments,
@@ -52,7 +51,6 @@ abstract class LendingModel with _$LendingModel {
           ? (json['dueDate'] as Timestamp).toDate()
           : null,
       status: $enumDecode(_$LendingStatusEnumMap, json['status']),
-      userId: json['userId'] as String,
       paymentMethod: _fromJsonPaymentMethod(json['paymentMethod']),
       repayments: (json['repayments'] as List<dynamic>?)
           ?.map((e) => RepaymentModel.fromFirestoreMap(
@@ -74,7 +72,6 @@ abstract class LendingModel with _$LendingModel {
       createdDate: entity.createdDate,
       dueDate: entity.dueDate,
       status: entity.status,
-      userId: entity.userId,
       paymentMethod: entity.paymentMethod,
       repayments: entity.repayments
           ?.map((repayment) => RepaymentModel.fromEntity(repayment))
@@ -95,7 +92,6 @@ abstract class LendingModel with _$LendingModel {
       createdDate: createdDate,
       dueDate: dueDate,
       status: status,
-      userId: userId,
       paymentMethod: paymentMethod,
       repayments: repayments?.map((repayment) => repayment.toEntity()).toList(),
     );
@@ -113,7 +109,6 @@ abstract class LendingModel with _$LendingModel {
       'createdDate': Timestamp.fromDate(createdDate),
       'dueDate': dueDate != null ? Timestamp.fromDate(dueDate!) : null,
       'status': _$LendingStatusEnumMap[status]!,
-      'userId': userId,
       'paymentMethod': _toJsonPaymentMethod(paymentMethod),
       'repayments': repayments?.map((r) => r.toFirestoreMap()).toList(),
     };

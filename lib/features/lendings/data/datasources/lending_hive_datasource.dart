@@ -18,7 +18,6 @@ class LendingHiveDataSource implements LendingLocalDataSource {
 
   @override
   Future<List<LendingModel>> getLendings({
-    required String userId,
     LendingType? typeFilter,
     DateTime? monthFilter,
     LendingStatus? statusFilter,
@@ -27,7 +26,6 @@ class LendingHiveDataSource implements LendingLocalDataSource {
     final list = <LendingModel>[];
     for (final raw in localDb.lendingsBox.values) {
       final data = Map<String, dynamic>.from(raw);
-      if (data['userId'] != userId) continue;
 
       if (typeFilter != null && data['type'] != typeFilter.name) continue;
       if (statusFilter != null && data['status'] != statusFilter.name) continue;
@@ -68,13 +66,11 @@ class LendingHiveDataSource implements LendingLocalDataSource {
 
   @override
   Future<double> getTotalLendingAmount({
-    required String userId,
     LendingType? typeFilter,
     LendingStatus? statusFilter,
     String? personNameFilter,
   }) async {
     final lendings = await getLendings(
-      userId: userId,
       typeFilter: typeFilter,
       statusFilter: statusFilter,
       personIdFilter: personNameFilter,
@@ -84,13 +80,11 @@ class LendingHiveDataSource implements LendingLocalDataSource {
 
   @override
   Future<int> getLendingsCount({
-    required String userId,
     LendingType? typeFilter,
     LendingStatus? statusFilter,
     String? personNameFilter,
   }) async {
     final lendings = await getLendings(
-      userId: userId,
       typeFilter: typeFilter,
       statusFilter: statusFilter,
       personIdFilter: personNameFilter,
@@ -114,13 +108,11 @@ class LendingHiveDataSource implements LendingLocalDataSource {
   }
 
   @override
-  Future<List<LendingPersonModel>> getUserPersons(
-    String userId, {
+  Future<List<LendingPersonModel>> getUserPersons({
     String? nameFilter,
   }) async {
     final list = localDb.personsBox.values
         .map((raw) => LendingPersonModel.fromJson(Map<String, dynamic>.from(raw)))
-        .where((person) => person.userId == userId)
         .toList();
 
     if (nameFilter != null && nameFilter.isNotEmpty) {

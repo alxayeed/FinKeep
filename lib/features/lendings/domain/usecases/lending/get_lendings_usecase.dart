@@ -10,14 +10,12 @@ class GetLendingsUseCase {
   GetLendingsUseCase({required this.repository});
 
   Future<Either<Failure, List<LendingEntity>>> call({
-    required String userId,
     LendingType? typeFilter,
     DateTime? monthFilter,
     LendingStatus? statusFilter,
     String? personIdFilter,
   }) async {
     return await repository.getLendings(
-      userId: userId,
       typeFilter: typeFilter,
       monthFilter: monthFilter,
       statusFilter: statusFilter,

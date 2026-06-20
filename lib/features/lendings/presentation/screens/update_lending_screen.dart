@@ -35,7 +35,6 @@ class _UpdateLendingScreenState extends State<UpdateLendingScreen> {
   ) async {
     final updated = LendingEntity(
       id: widget.lending.id,
-      userId: widget.lending.userId,
       personId: widget.lending.person.id,
       person: widget.lending.person,
       amount: amount,

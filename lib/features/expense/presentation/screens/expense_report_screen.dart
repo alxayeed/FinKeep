@@ -1,8 +1,10 @@
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:spendly/core/responsive/responsive.dart';
+import 'package:spendly/core/routes/app_router.dart';
 
 import '../../../../core/common/widgets/date_selector_button.dart';
 import '../../../../core/styles/app_colors.dart';
@@ -166,8 +168,14 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
-      appBar: const CustomAppBar(
+      appBar: CustomAppBar(
         title: 'Expense Report',
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_rounded),
+            onPressed: () => context.pushNamed(AppRoutes.settings),
+          ),
+        ],
       ),
       body: Obx(() {
         final startDate = controller.startDate.value;

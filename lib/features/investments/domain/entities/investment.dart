@@ -5,7 +5,6 @@ import '../enums/investment_status.dart';
 
 class Investment {
   final String id;
-  final String userId;
   final String title;
   final double amountInvested;
   final DateTime startDate;
@@ -23,7 +22,6 @@ class Investment {
 
   Investment({
     required this.id,
-    required this.userId,
     required this.title,
     required this.amountInvested,
     required this.startDate,
@@ -46,7 +44,6 @@ class Investment {
 
   Investment copyWith({
     String? id,
-    String? userId,
     String? title,
     double? amountInvested,
     DateTime? startDate,
@@ -64,7 +61,6 @@ class Investment {
   }) {
     return Investment(
       id: id ?? this.id,
-      userId: userId ?? this.userId,
       title: title ?? this.title,
       amountInvested: amountInvested ?? this.amountInvested,
       startDate: startDate ?? this.startDate,

@@ -5,12 +5,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:spendly/core/config/app_config.dart';
 import 'package:spendly/core/enums/expense_category.dart';
 import 'package:intl/intl.dart';
-import 'package:spendly/features/auth/presentation/controller/auth_controller.dart';
 import 'package:spendly/core/services/local_db_service.dart';
 
 class BudgetController extends GetxController {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
-  final AuthController authController = Get.find();
   final LocalDbService localDb = LocalDbService();
 
   // Persistent States
@@ -28,7 +26,7 @@ class BudgetController extends GetxController {
   final categoryTextControllers = <ExpenseCategory, TextEditingController>{};
   late DateTime targetMonth;
 
-  String get userId => authController.user?.email ?? '';
+
 
   void initUi(DateTime month) {
     targetMonth = month;
@@ -115,11 +113,10 @@ class BudgetController extends GetxController {
   }
 
   Future<void> loadBudgetsForMonth(DateTime month) async {
-    if (userId.isEmpty) return;
     isBudgetLoading.value = true;
     try {
-      final String monthDocId = '${userId}_${DateFormat('yyyy-MMMM').format(month)}';
-      final String recurringDocId = '${userId}_recurring';
+      final String monthDocId = DateFormat('yyyy-MMMM').format(month);
+      final String recurringDocId = 'recurring';
 
       // 1. Try loading from local Hive database first
       final localMonthData = localDb.budgetsBox.get(monthDocId);
@@ -206,11 +203,10 @@ class BudgetController extends GetxController {
     required Map<ExpenseCategory, double> categories,
     required bool isRecurring,
   }) async {
-    if (userId.isEmpty) return;
     isBudgetLoading.value = true;
     try {
-      final String monthDocId = '${userId}_${DateFormat('yyyy-MMMM').format(month)}';
-      final String recurringDocId = '${userId}_recurring';
+      final String monthDocId = DateFormat('yyyy-MMMM').format(month);
+      final String recurringDocId = 'recurring';
 
       final categoryMap = <String, double>{};
       categories.forEach((k, v) {
@@ -219,7 +215,6 @@ class BudgetController extends GetxController {
 
       final budgetData = {
         'id': isRecurring ? recurringDocId : monthDocId,
-        'userId': userId,
         'overallBudget': overall,
         'categoryBudgets': categoryMap,
         'isRecurring': isRecurring,
@@ -272,10 +267,9 @@ class BudgetController extends GetxController {
   }
 
   Future<double> getBudgetForMonth(DateTime month) async {
-    if (userId.isEmpty) return 30000.0;
     try {
-      final String monthDocId = '${userId}_${DateFormat('yyyy-MMMM').format(month)}';
-      final String recurringDocId = '${userId}_recurring';
+      final String monthDocId = DateFormat('yyyy-MMMM').format(month);
+      final String recurringDocId = 'recurring';
 
       // Try local cache first
       final localMonthData = localDb.budgetsBox.get(monthDocId);

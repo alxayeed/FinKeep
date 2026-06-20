@@ -20,13 +20,13 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
        _remoteDataSource = remoteDataSource;
 
   @override
-  Future<List<Investment>> getInvestments(String userId) async {
+  Future<List<Investment>> getInvestments() async {
     try {
       if (AppConfig.isPersonal) {
-        final models = await _remoteDataSource.getInvestments(userId);
+        final models = await _remoteDataSource.getInvestments();
         return models.map((m) => m).toList();
       } else {
-        final models = await _localDataSource.getInvestments(userId);
+        final models = await _localDataSource.getInvestments();
         return models.map((m) => m).toList();
       }
     } catch (e, s) {

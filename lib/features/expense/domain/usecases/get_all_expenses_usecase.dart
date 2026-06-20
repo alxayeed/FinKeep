@@ -6,10 +6,7 @@ class GetAllExpensesUseCase {
 
   GetAllExpensesUseCase(this.repository);
 
-  Future<List<ExpenseEntity>> call(String userId) async {
-    if (userId.isEmpty) {
-      throw Exception('User ID cannot be empty');
-    }
-    return await repository.getExpenses(userId);
+  Future<List<ExpenseEntity>> call() async {
+    return await repository.getExpenses();
   }
 }

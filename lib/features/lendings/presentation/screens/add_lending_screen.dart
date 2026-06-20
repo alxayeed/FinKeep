@@ -34,10 +34,8 @@ class _AddLendingScreenState extends State<AddLendingScreen> {
     final lending = LendingEntity(
       id: '',
       personId: '',
-      userId: controller.userId,
       person: LendingPersonEntity(
         id: '',
-        userId: controller.userId,
         name: personName,
         contactNumber: contact.isEmpty ? null : contact,
       ),

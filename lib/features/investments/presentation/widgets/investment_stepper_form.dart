@@ -4,7 +4,6 @@ import 'package:spendly/core/common/widgets/widgets.dart';
 import 'package:spendly/core/enums/payment_type.dart';
 import 'package:spendly/core/responsive/responsive.dart';
 import 'package:spendly/core/styles/app_colors.dart';
-import 'package:spendly/features/auth/presentation/controller/auth_controller.dart';
 
 import '../../domain/entities/investment.dart';
 import '../../domain/enums/investment_status.dart';
@@ -181,7 +180,6 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
       return;
     }
 
-    final AuthController authController = Get.find();
     final investment = Investment(
       id: widget.initialInvestment?.id ?? DateTime.now().toIso8601String(),
       title: _titleController.text.trim(),
@@ -198,7 +196,6 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
       transactionDate: _transactionDate!,
       status: _status,
       returns: widget.initialInvestment?.returns ?? [],
-      userId: authController.user?.email ?? "unknown_user",
     );
 
     if (isEdit) {

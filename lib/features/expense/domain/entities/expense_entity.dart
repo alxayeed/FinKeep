@@ -8,7 +8,6 @@ class ExpenseEntity extends Equatable {
   final String category;
   final DateTime date;
   final String description;
-  final String userId;
   final PaymentType paymentMethod;
   final DateTime createdAt;
 
@@ -18,14 +17,13 @@ class ExpenseEntity extends Equatable {
     required this.category,
     required this.date,
     this.description = '',
-    this.userId = '',
     this.paymentMethod = PaymentType.cash,
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
   @override
   List<Object?> get props =>
-      [id, amount, category, date, description, userId, paymentMethod, createdAt];
+      [id, amount, category, date, description, paymentMethod, createdAt];
 
   ExpenseModel toModel() {
     return ExpenseModel(
@@ -34,7 +32,6 @@ class ExpenseEntity extends Equatable {
       category: category,
       date: date,
       description: description,
-      userId: userId,
       paymentMethod: paymentMethod,
       createdAt: createdAt,
     );
@@ -46,7 +43,6 @@ class ExpenseEntity extends Equatable {
     String? category,
     DateTime? date,
     String? description,
-    String? userId,
     PaymentType? paymentMethod,
     DateTime? createdAt,
   }) {
@@ -56,7 +52,6 @@ class ExpenseEntity extends Equatable {
       category: category ?? this.category,
       date: date ?? this.date,
       description: description ?? this.description,
-      userId: userId ?? this.userId,
       paymentMethod: paymentMethod ?? this.paymentMethod,
       createdAt: createdAt ?? this.createdAt,
     );

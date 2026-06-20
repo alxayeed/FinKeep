@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:spendly/features/expense/domain/usecases/get_monthly_expense.dart';
 import 'package:spendly/core/extensions/double_ext.dart';
 import '../../../../core/enums/expense_category.dart';
-import '../../../auth/presentation/controller/auth_controller.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../../domain/usecases/get_last_month_total_usecase.dart';
 import '../../domain/usecases/usecases.dart';
@@ -42,10 +41,6 @@ class MonthlyExpenseController extends GetxController {
   var lastMonthTotal = 0.0.obs;
   var lastMonthExpenses = <ExpenseEntity>[].obs;
 
-  final AuthController authController = Get.find();
-
-  late String userId;
-
   MonthlyExpenseController({
     required this.getAllExpenses,
     required this.getMonthlyExpensesUseCase,
@@ -58,7 +53,6 @@ class MonthlyExpenseController extends GetxController {
 
   @override
   void onInit() {
-    userId = authController.user?.email ?? 'unknown_user';
     fetchMonthlyExpenses();
     super.onInit();
   }
@@ -79,7 +73,7 @@ class MonthlyExpenseController extends GetxController {
     selectedCategory.value = 'All';
     isLoading.value = true;
     try {
-      expenses.value = await getMonthlyExpensesUseCase(userId, month);
+      expenses.value = await getMonthlyExpensesUseCase(month);
       getTotalExpense();
       filterExpensesByCategory();
 
@@ -95,7 +89,6 @@ class MonthlyExpenseController extends GetxController {
   Future<void> fetchLastMonthTotal() async {
     try {
       lastMonthTotal.value = await getLastMonthTotalUseCase(
-        userId,
         currentMonth: selectedMonth.value,
       );
     } catch (e, stackTrace) {
@@ -111,7 +104,7 @@ class MonthlyExpenseController extends GetxController {
         selectedMonth.value.month == 1 ? 12 : selectedMonth.value.month - 1,
         1,
       );
-      lastMonthExpenses.value = await getMonthlyExpensesUseCase(userId, prevMonth);
+      lastMonthExpenses.value = await getMonthlyExpensesUseCase(prevMonth);
     } catch (e, stackTrace) {
       ExceptionHandler.handle(e, stackTrace, 'MonthlyExpenseController.fetchLastMonthExpenses');
       lastMonthExpenses.value = [];

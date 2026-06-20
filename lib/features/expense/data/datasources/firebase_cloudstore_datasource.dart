@@ -29,10 +29,8 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
   }
 
   @override
-  Future<List<ExpenseModel>> getExpenses(String userId) async {
-    final querySnapshot = await _expensesCollection
-        .where('userId', isEqualTo: userId)
-        .get();
+  Future<List<ExpenseModel>> getExpenses() async {
+    final querySnapshot = await _expensesCollection.get();
 
     final list = querySnapshot.docs
         .map(
@@ -57,7 +55,6 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
 
   @override
   Future<List<ExpenseModel>> getExpensesForMonth(
-    String userId,
     DateTime selectedMonth,
   ) async {
     DateTime startOfMonth = DateTime(
@@ -72,7 +69,6 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
     ).subtract(const Duration(seconds: 1));
 
     final querySnapshot = await _expensesCollection
-        .where('userId', isEqualTo: userId)
         .where('date', isGreaterThanOrEqualTo: startOfMonth)
         .where('date', isLessThanOrEqualTo: endOfMonth)
         .get();
@@ -90,7 +86,6 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
 
   @override
   Future<double> getTotalExpensesForMonth(
-    String userId,
     DateTime selectedMonth,
   ) async {
     DateTime startOfMonth = DateTime(
@@ -105,7 +100,6 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
     ).subtract(const Duration(seconds: 1));
 
     final querySnapshot = await _expensesCollection
-        .where('userId', isEqualTo: userId)
         .where('date', isGreaterThanOrEqualTo: startOfMonth)
         .where('date', isLessThanOrEqualTo: endOfMonth)
         .get();
@@ -124,12 +118,10 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
 
   @override
   Future<List<ExpenseModel>> getExpensesInRange(
-    String userId,
     DateTime start,
     DateTime end,
   ) async {
     final querySnapshot = await _expensesCollection
-        .where('userId', isEqualTo: userId)
         .where('date', isGreaterThanOrEqualTo: start)
         .where('date', isLessThanOrEqualTo: end)
         .get();

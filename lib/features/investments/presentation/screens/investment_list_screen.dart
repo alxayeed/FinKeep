@@ -34,7 +34,15 @@ class _InvestmentListScreenState extends State<InvestmentListScreen> {
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
-      appBar: const CustomAppBar(title: 'Investments'),
+      appBar: CustomAppBar(
+        title: 'Investments',
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_rounded),
+            onPressed: () => context.pushNamed(AppRoutes.settings),
+          ),
+        ],
+      ),
       body: RefreshIndicator(
         color: AppColors.primaryTeal,
         onRefresh: () async {

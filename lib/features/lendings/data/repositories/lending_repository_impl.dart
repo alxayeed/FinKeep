@@ -42,7 +42,6 @@ class LendingRepositoryImpl implements LendingRepository {
 
   @override
   Future<Either<Failure, List<LendingEntity>>> getLendings({
-    required String userId,
     LendingType? typeFilter,
     DateTime? monthFilter,
     LendingStatus? statusFilter,
@@ -52,7 +51,6 @@ class LendingRepositoryImpl implements LendingRepository {
       final List<LendingModel> lendingModels;
       if (AppConfig.useRemote) {
         lendingModels = await remoteDataSource.getLendings(
-          userId: userId,
           typeFilter: typeFilter,
           monthFilter: monthFilter,
           statusFilter: statusFilter,
@@ -60,7 +58,6 @@ class LendingRepositoryImpl implements LendingRepository {
         );
       } else {
         lendingModels = await localDataSource.getLendings(
-          userId: userId,
           typeFilter: typeFilter,
           monthFilter: monthFilter,
           statusFilter: statusFilter,
@@ -105,7 +102,6 @@ class LendingRepositoryImpl implements LendingRepository {
 
   @override
   Future<Either<Failure, double>> getTotalLendingAmount({
-    required String userId,
     LendingType? typeFilter,
     LendingStatus? statusFilter,
     String? personNameFilter,
@@ -114,14 +110,12 @@ class LendingRepositoryImpl implements LendingRepository {
       final double total;
       if (AppConfig.useRemote) {
         total = await remoteDataSource.getTotalLendingAmount(
-          userId: userId,
           typeFilter: typeFilter,
           statusFilter: statusFilter,
           personNameFilter: personNameFilter,
         );
       } else {
         total = await localDataSource.getTotalLendingAmount(
-          userId: userId,
           typeFilter: typeFilter,
           statusFilter: statusFilter,
           personNameFilter: personNameFilter,
@@ -135,7 +129,6 @@ class LendingRepositoryImpl implements LendingRepository {
 
   @override
   Future<Either<Failure, int>> getLendingsCount({
-    required String userId,
     LendingType? typeFilter,
     LendingStatus? statusFilter,
     String? personNameFilter,
@@ -144,14 +137,12 @@ class LendingRepositoryImpl implements LendingRepository {
       final int count;
       if (AppConfig.useRemote) {
         count = await remoteDataSource.getLendingsCount(
-          userId: userId,
           typeFilter: typeFilter,
           statusFilter: statusFilter,
           personNameFilter: personNameFilter,
         );
       } else {
         count = await localDataSource.getLendingsCount(
-          userId: userId,
           typeFilter: typeFilter,
           statusFilter: statusFilter,
           personNameFilter: personNameFilter,
@@ -196,20 +187,17 @@ class LendingRepositoryImpl implements LendingRepository {
   }
 
   @override
-  Future<Either<Failure, List<LendingPersonEntity>>> getUserPersons(
-    String userId, {
+  Future<Either<Failure, List<LendingPersonEntity>>> getUserPersons({
     String? nameFilter,
   }) async {
     try {
       final List<LendingPersonModel> models;
       if (AppConfig.useRemote) {
         models = await remoteDataSource.getUserPersons(
-          userId,
           nameFilter: nameFilter,
         );
       } else {
         models = await localDataSource.getUserPersons(
-          userId,
           nameFilter: nameFilter,
         );
       }
