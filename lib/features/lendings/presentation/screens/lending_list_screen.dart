@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
-import 'package:spendly/core/common/widgets/custom_app_bar.dart';
-import 'package:spendly/core/common/widgets/custom_fab.dart';
-import 'package:spendly/core/extensions/double_ext.dart';
-import 'package:spendly/core/responsive/responsive.dart';
-import 'package:spendly/core/routes/app_router.dart';
-import 'package:spendly/core/styles/app_colors.dart';
-import 'package:spendly/features/lendings/presentation/controllers/lendings_controller.dart';
-import 'package:spendly/features/lendings/presentation/widgets/lending_list_item.dart';
-import 'package:spendly/features/lendings/presentation/widgets/lending_shimmer_list.dart';
+import 'package:finkeep/core/common/widgets/custom_app_bar.dart';
+import 'package:finkeep/core/common/widgets/custom_fab.dart';
+import 'package:finkeep/core/extensions/double_ext.dart';
+import 'package:finkeep/core/responsive/responsive.dart';
+import 'package:finkeep/core/routes/app_router.dart';
+import 'package:finkeep/core/styles/app_colors.dart';
+import 'package:finkeep/features/lendings/presentation/controllers/lendings_controller.dart';
+import 'package:finkeep/features/lendings/presentation/widgets/lending_list_item.dart';
+import 'package:finkeep/features/lendings/presentation/widgets/lending_shimmer_list.dart';
 
 import '../../domain/entity/lending/lending_entity.dart';
 

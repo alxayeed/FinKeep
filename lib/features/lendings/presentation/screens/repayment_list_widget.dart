@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:spendly/core/extensions/double_ext.dart';
-import 'package:spendly/core/responsive/responsive.dart';
-import 'package:spendly/core/styles/app_colors.dart';
+import 'package:finkeep/core/extensions/double_ext.dart';
+import 'package:finkeep/core/responsive/responsive.dart';
+import 'package:finkeep/core/styles/app_colors.dart';
 
 
-import 'package:spendly/core/common/widgets/widgets.dart';
+import 'package:finkeep/core/common/widgets/widgets.dart';
 import '../../domain/entity/lending/lending_entity.dart';
 import '../../domain/entity/repayment/repayment_entity.dart';
 import '../controllers/lendings_controller.dart';

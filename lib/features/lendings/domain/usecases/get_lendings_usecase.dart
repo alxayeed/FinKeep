@@ -1,8 +1,8 @@
 // import 'package:dartz/dartz.dart';
-// import 'package:spendly/core/error/failure.dart';
-// import 'package:spendly/core/usecase/usecase.dart';
-// import 'package:spendly/features/lendings/domain/repositories/lending_repository.dart';
-// import 'package:spendly/features/lendings/domain/usecases/lending_params.dart';
+// import 'package:finkeep/core/error/failure.dart';
+// import 'package:finkeep/core/usecase/usecase.dart';
+// import 'package:finkeep/features/lendings/domain/repositories/lending_repository.dart';
+// import 'package:finkeep/features/lendings/domain/usecases/lending_params.dart';
 //
 // import '../entity/lending/lending_entity.dart';
 //

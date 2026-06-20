@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:spendly/core/enums/payment_type.dart';
-import 'package:spendly/features/expense/data/models/expense_model.dart';
+import 'package:finkeep/core/enums/payment_type.dart';
+import 'package:finkeep/features/expense/data/models/expense_model.dart';
 
 class ExpenseEntity extends Equatable {
   final String id;

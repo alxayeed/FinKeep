@@ -1,27 +1,27 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
-import 'package:spendly/core/error/exception_mapper.dart';
+import 'package:finkeep/core/error/exception_mapper.dart';
 // Expense Feature Dependencies
-import 'package:spendly/features/expense/data/datasources/expense_remote_datasource.dart';
-import 'package:spendly/features/expense/data/datasources/firebase_cloudstore_datasource.dart';
-import 'package:spendly/features/expense/data/repositories/expense_repository_impl.dart';
-import 'package:spendly/features/expense/domain/repositories/expense_repository.dart';
-import 'package:spendly/features/expense/domain/usecases/add_expense_usecase.dart';
-import 'package:spendly/features/expense/domain/usecases/delete_expense_usecase.dart';
-import 'package:spendly/features/expense/domain/usecases/get_all_expenses_usecase.dart';
-import 'package:spendly/features/expense/domain/usecases/get_expense_usecase.dart';
-import 'package:spendly/features/expense/domain/usecases/get_last_month_total_usecase.dart';
-import 'package:spendly/features/expense/domain/usecases/get_monthly_expense.dart';
-import 'package:spendly/features/expense/domain/usecases/update_expense_usecase.dart';
-import 'package:spendly/features/expense/presentation/controllers/monthly_expense_controller.dart';
-import 'package:spendly/features/expense/presentation/controllers/expense_report_controller.dart';
-import 'package:spendly/features/expense/presentation/controllers/budget_controller.dart';
-import 'package:spendly/features/investments/data/repositories/investment_repository.dart';
+import 'package:finkeep/features/expense/data/datasources/expense_remote_datasource.dart';
+import 'package:finkeep/features/expense/data/datasources/firebase_cloudstore_datasource.dart';
+import 'package:finkeep/features/expense/data/repositories/expense_repository_impl.dart';
+import 'package:finkeep/features/expense/domain/repositories/expense_repository.dart';
+import 'package:finkeep/features/expense/domain/usecases/add_expense_usecase.dart';
+import 'package:finkeep/features/expense/domain/usecases/delete_expense_usecase.dart';
+import 'package:finkeep/features/expense/domain/usecases/get_all_expenses_usecase.dart';
+import 'package:finkeep/features/expense/domain/usecases/get_expense_usecase.dart';
+import 'package:finkeep/features/expense/domain/usecases/get_last_month_total_usecase.dart';
+import 'package:finkeep/features/expense/domain/usecases/get_monthly_expense.dart';
+import 'package:finkeep/features/expense/domain/usecases/update_expense_usecase.dart';
+import 'package:finkeep/features/expense/presentation/controllers/monthly_expense_controller.dart';
+import 'package:finkeep/features/expense/presentation/controllers/expense_report_controller.dart';
+import 'package:finkeep/features/expense/presentation/controllers/budget_controller.dart';
+import 'package:finkeep/features/investments/data/repositories/investment_repository.dart';
 // Lending Feature Dependencies
-import 'package:spendly/features/lendings/data/datasources/lending_data_source.dart';
-import 'package:spendly/features/lendings/data/datasources/lending_firestore_data_source.dart';
-import 'package:spendly/features/lendings/data/repositories/lending_repository_impl.dart';
-import 'package:spendly/features/lendings/domain/repositories/lending_repository.dart';
+import 'package:finkeep/features/lendings/data/datasources/lending_data_source.dart';
+import 'package:finkeep/features/lendings/data/datasources/lending_firestore_data_source.dart';
+import 'package:finkeep/features/lendings/data/repositories/lending_repository_impl.dart';
+import 'package:finkeep/features/lendings/domain/repositories/lending_repository.dart';
 
 import 'features/expense/domain/usecases/get_expenses_in_range_usecase.dart';
 import 'features/investments/data/datasources/investment_data_source.dart';
@@ -48,13 +48,13 @@ import 'features/lendings/domain/usecases/repayment/delete_repayment_usecase.dar
 import 'features/lendings/domain/usecases/repayment/get_repayments_for_lending_usecase.dart';
 import 'features/lendings/domain/usecases/repayment/update_repayment_usecase.dart';
 import 'features/lendings/presentation/controllers/lendings_controller.dart';
-import 'package:spendly/core/services/local_db_service.dart';
-import 'package:spendly/features/expense/data/datasources/expense_local_datasource.dart';
-import 'package:spendly/features/expense/data/datasources/expense_hive_datasource.dart';
-import 'package:spendly/features/investments/data/datasources/investment_local_datasource.dart';
-import 'package:spendly/features/investments/data/datasources/investment_hive_datasource.dart';
-import 'package:spendly/features/lendings/data/datasources/lending_local_datasource.dart';
-import 'package:spendly/features/lendings/data/datasources/lending_hive_datasource.dart';
+import 'package:finkeep/core/services/local_db_service.dart';
+import 'package:finkeep/features/expense/data/datasources/expense_local_datasource.dart';
+import 'package:finkeep/features/expense/data/datasources/expense_hive_datasource.dart';
+import 'package:finkeep/features/investments/data/datasources/investment_local_datasource.dart';
+import 'package:finkeep/features/investments/data/datasources/investment_hive_datasource.dart';
+import 'package:finkeep/features/lendings/data/datasources/lending_local_datasource.dart';
+import 'package:finkeep/features/lendings/data/datasources/lending_hive_datasource.dart';
 
 class DependencyInjection {
   static void initDependencies() {

@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:spendly/features/investments/domain/entities/return_entry.dart';
+import 'package:finkeep/features/investments/domain/entities/return_entry.dart';
 
 class ReturnEntryModel extends ReturnEntry {
   ReturnEntryModel({

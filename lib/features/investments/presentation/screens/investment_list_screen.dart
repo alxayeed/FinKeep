@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
-import 'package:spendly/core/common/widgets/no_data_widget.dart';
-import 'package:spendly/core/responsive/responsive.dart';
-import 'package:spendly/core/routes/app_router.dart';
-import 'package:spendly/core/styles/app_colors.dart';
+import 'package:finkeep/core/common/widgets/no_data_widget.dart';
+import 'package:finkeep/core/responsive/responsive.dart';
+import 'package:finkeep/core/routes/app_router.dart';
+import 'package:finkeep/core/styles/app_colors.dart';
 
 import '../../../../core/common/widgets/custom_app_bar.dart';
 import '../../../../core/common/widgets/custom_fab.dart';

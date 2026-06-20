@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:spendly/core/extensions/double_ext.dart';
-import 'package:spendly/core/responsive/responsive.dart';
-import 'package:spendly/core/styles/app_colors.dart';
+import 'package:finkeep/core/extensions/double_ext.dart';
+import 'package:finkeep/core/responsive/responsive.dart';
+import 'package:finkeep/core/styles/app_colors.dart';
 
 import '../../domain/entity/repayment/repayment_entity.dart';
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:spendly/features/lendings/presentation/widgets/loading_indicator_widget.dart';
+import 'package:finkeep/features/lendings/presentation/widgets/loading_indicator_widget.dart';
 
 void main() {
   testWidgets('LoadingIndicator displays a loading spinner', (tester) async {

@@ -3,8 +3,8 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:hive/hive.dart';
-import 'package:spendly/core/services/backup_service.dart';
-import 'package:spendly/core/services/local_db_service.dart';
+import 'package:finkeep/core/services/backup_service.dart';
+import 'package:finkeep/core/services/local_db_service.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 
 class MockLocalDbService extends Mock implements LocalDbService {}

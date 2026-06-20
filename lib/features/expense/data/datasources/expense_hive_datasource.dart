@@ -1,7 +1,7 @@
-import 'package:spendly/features/expense/data/models/expense_model.dart';
-import 'package:spendly/features/expense/data/datasources/expense_local_datasource.dart';
-import 'package:spendly/core/services/local_db_service.dart';
-import 'package:spendly/core/enums/payment_type.dart';
+import 'package:finkeep/features/expense/data/models/expense_model.dart';
+import 'package:finkeep/features/expense/data/datasources/expense_local_datasource.dart';
+import 'package:finkeep/core/services/local_db_service.dart';
+import 'package:finkeep/core/enums/payment_type.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ExpenseHiveDataSource implements ExpenseLocalDataSource {

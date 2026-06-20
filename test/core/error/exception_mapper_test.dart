@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:spendly/core/constants/app_strings.dart';
-import 'package:spendly/core/error/exception_mapper.dart';
-import 'package:spendly/core/error/exceptions.dart';
-import 'package:spendly/core/error/failure.dart';
+import 'package:finkeep/core/constants/app_strings.dart';
+import 'package:finkeep/core/error/exception_mapper.dart';
+import 'package:finkeep/core/error/exceptions.dart';
+import 'package:finkeep/core/error/failure.dart';
 
 void main() {
   late ExceptionMapper exceptionMapper;

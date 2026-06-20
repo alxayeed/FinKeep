@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:spendly/core/constants/app_strings.dart';
-import 'package:spendly/core/error/exceptions.dart';
+import 'package:finkeep/core/constants/app_strings.dart';
+import 'package:finkeep/core/error/exceptions.dart';
 
 import '../../../../core/config/app_config.dart';
 import '../models/investment_model.dart';

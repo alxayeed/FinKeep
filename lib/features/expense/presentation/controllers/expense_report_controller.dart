@@ -1,6 +1,6 @@
-import 'package:spendly/core/error/exception_handler.dart';
+import 'package:finkeep/core/error/exception_handler.dart';
 import 'package:get/get.dart';
-import 'package:spendly/core/enums/expense_category.dart';
+import 'package:finkeep/core/enums/expense_category.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../../domain/usecases/usecases.dart';
 import 'budget_controller.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:spendly/core/responsive/responsive.dart';
-import 'package:spendly/core/styles/app_colors.dart';
+import 'package:finkeep/core/responsive/responsive.dart';
+import 'package:finkeep/core/styles/app_colors.dart';
 
 class LendingShimmerList extends StatelessWidget {
   const LendingShimmerList({super.key});

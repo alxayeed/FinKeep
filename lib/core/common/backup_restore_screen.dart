@@ -1,11 +1,11 @@
-import 'package:spendly/core/error/exception_handler.dart';
+import 'package:finkeep/core/error/exception_handler.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:spendly/core/services/local_db_service.dart';
-import 'package:spendly/core/services/backup_service.dart';
-import 'package:spendly/core/styles/app_colors.dart';
-import 'package:spendly/core/responsive/responsive.dart';
-import 'package:spendly/core/common/widgets/custom_app_bar.dart';
+import 'package:finkeep/core/services/local_db_service.dart';
+import 'package:finkeep/core/services/backup_service.dart';
+import 'package:finkeep/core/styles/app_colors.dart';
+import 'package:finkeep/core/responsive/responsive.dart';
+import 'package:finkeep/core/common/widgets/custom_app_bar.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -55,7 +55,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
       final bytes = await _backupService.exportEncryptedBackup();
       
       final dateStr = DateTime.now().toIso8601String().split('T').first;
-      final fileName = 'spendly_backup_$dateStr.spdb';
+      final fileName = 'finkeep_backup_$dateStr.spdb';
       
       File? file;
       
@@ -92,7 +92,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                     ],
                   ),
                   content: Text(
-                    'To save your encrypted backup file (.spdb) directly to the public Downloads folder without leaving the app, Spendly requires "All Files Access" permission.\n\nYou will be redirected to the system settings page to enable this permission.',
+                    'To save your encrypted backup file (.spdb) directly to the public Downloads folder without leaving the app, FinKeep requires "All Files Access" permission.\n\nYou will be redirected to the system settings page to enable this permission.',
                     style: TextStyle(
                       fontFamily: 'Manrope',
                       fontSize: 13.sp,
@@ -174,7 +174,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
               textColor: Colors.white,
               onPressed: () async {
                 final xFile = XFile(file!.path);
-                await Share.shareXFiles([xFile], text: 'Spendly Encrypted Backup - $dateStr');
+                await Share.shareXFiles([xFile], text: 'FinKeep Encrypted Backup - $dateStr');
               },
             ),
           ),

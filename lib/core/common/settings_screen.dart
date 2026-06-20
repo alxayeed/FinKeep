@@ -2,7 +2,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
-import 'package:spendly/core/routes/app_router.dart';
+import 'package:finkeep/core/routes/app_router.dart';
 import 'backup_restore_screen.dart';
 import 'widgets/custom_app_bar.dart';
 import '../responsive/responsive.dart';

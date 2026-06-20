@@ -1,11 +1,11 @@
-import 'package:spendly/core/error/exception_handler.dart';
+import 'package:finkeep/core/error/exception_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:spendly/core/config/app_config.dart';
-import 'package:spendly/core/enums/expense_category.dart';
+import 'package:finkeep/core/config/app_config.dart';
+import 'package:finkeep/core/enums/expense_category.dart';
 import 'package:intl/intl.dart';
-import 'package:spendly/core/services/local_db_service.dart';
+import 'package:finkeep/core/services/local_db_service.dart';
 
 class BudgetController extends GetxController {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;

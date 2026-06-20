@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:spendly/core/styles/app_colors.dart';
+import 'package:finkeep/core/styles/app_colors.dart';
 
 class StyledElevatedButton extends StatelessWidget {
   final VoidCallback? onPressed;

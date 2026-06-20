@@ -3,11 +3,11 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:spendly/core/extensions/double_ext.dart';
-import 'package:spendly/core/responsive/responsive.dart';
-import 'package:spendly/core/styles/app_colors.dart';
-import 'package:spendly/features/lendings/presentation/controllers/lendings_controller.dart';
-import 'package:spendly/features/lendings/presentation/screens/repayment_list_widget.dart';
+import 'package:finkeep/core/extensions/double_ext.dart';
+import 'package:finkeep/core/responsive/responsive.dart';
+import 'package:finkeep/core/styles/app_colors.dart';
+import 'package:finkeep/features/lendings/presentation/controllers/lendings_controller.dart';
+import 'package:finkeep/features/lendings/presentation/screens/repayment_list_widget.dart';
 
 import '../../../../core/routes/app_router.dart';
 import '../../domain/entity/lending/lending_entity.dart';

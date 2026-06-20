@@ -1,7 +1,7 @@
-import 'package:spendly/features/investments/data/models/investment_model.dart';
-import 'package:spendly/features/investments/data/models/return_entry_model.dart';
-import 'package:spendly/features/investments/data/datasources/investment_local_datasource.dart';
-import 'package:spendly/core/services/local_db_service.dart';
+import 'package:finkeep/features/investments/data/models/investment_model.dart';
+import 'package:finkeep/features/investments/data/models/return_entry_model.dart';
+import 'package:finkeep/features/investments/data/datasources/investment_local_datasource.dart';
+import 'package:finkeep/core/services/local_db_service.dart';
 
 class InvestmentHiveDataSource implements InvestmentLocalDataSource {
   final LocalDbService localDb;

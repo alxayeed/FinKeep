@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:spendly/core/common/widgets/error_widget.dart';
+import 'package:finkeep/core/common/widgets/error_widget.dart';
 
 void main() {
   testWidgets('ErrorIndicator displays the correct error message',

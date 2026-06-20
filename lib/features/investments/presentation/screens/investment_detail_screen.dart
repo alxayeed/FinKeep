@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:spendly/core/responsive/responsive.dart';
-import 'package:spendly/core/routes/app_router.dart';
+import 'package:finkeep/core/responsive/responsive.dart';
+import 'package:finkeep/core/routes/app_router.dart';
 
-import 'package:spendly/core/enums/payment_type.dart';
+import 'package:finkeep/core/enums/payment_type.dart';
 import '../../../../core/common/widgets/custom_app_bar.dart';
 import '../../domain/entities/investment.dart';
 import '../controller/investment_controller.dart';

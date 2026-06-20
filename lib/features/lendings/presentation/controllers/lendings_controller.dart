@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:spendly/features/lendings/domain/usecases/repayment/get_repayments_for_lending_usecase.dart';
+import 'package:finkeep/features/lendings/domain/usecases/repayment/get_repayments_for_lending_usecase.dart';
 import '../../domain/entity/lending/lending_entity.dart';
 import '../../domain/entity/lending_person/lending_person_entity.dart';
 import '../../domain/entity/repayment/repayment_entity.dart';

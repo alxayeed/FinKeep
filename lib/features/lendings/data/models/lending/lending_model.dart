@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:spendly/core/enums/payment_type.dart';
+import 'package:finkeep/core/enums/payment_type.dart';
 
 import '../../../domain/entity/lending/lending_entity.dart';
 import '../lending_person/lending_person_model.dart';
