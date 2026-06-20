@@ -505,25 +505,25 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                 SizedBox(height: 32.h),
 
                 // Mock Data Panel
-                Text(
-                  'MOCK DATA UTILITY',
-                  style: TextStyle(
-                    fontSize: 11.sp,
-                    fontFamily: 'Manrope',
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2,
-                    color: subtitleColor,
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                Text(
-                  'Populate the database with a preset list of realistic expenses, investments, lendings, and budgets. Ideal for store screenshots or UI validation. Note: This will overwrite current local data.',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontFamily: 'Manrope',
-                    color: subtitleColor,
-                  ),
-                ),
+                // Text(
+                //   'MOCK DATA UTILITY',
+                //   style: TextStyle(
+                //     fontSize: 11.sp,
+                //     fontFamily: 'Manrope',
+                //     fontWeight: FontWeight.bold,
+                //     letterSpacing: 1.2,
+                //     color: subtitleColor,
+                //   ),
+                // ),
+                // SizedBox(height: 8.h),
+                // Text(
+                //   'Populate the database with a preset list of realistic expenses, investments, lendings, and budgets. Ideal for store screenshots or UI validation. Note: This will overwrite current local data.',
+                //   style: TextStyle(
+                //     fontSize: 12.sp,
+                //     fontFamily: 'Manrope',
+                //     color: subtitleColor,
+                //   ),
+                // ),
                 // SizedBox(height: 12.h),
                 // ElevatedButton.icon(
                 //   onPressed: _populateMockData,

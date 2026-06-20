@@ -1,15 +1,17 @@
 import 'dart:developer';
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:go_router/go_router.dart';
+
 import 'package:finkeep/core/routes/app_router.dart';
-import 'backup_restore_screen.dart';
-import 'widgets/custom_app_bar.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../features/expense/services/expense_reminder_service.dart';
 import '../responsive/responsive.dart';
 import '../styles/app_colors.dart';
 import '../styles/app_themes.dart';
 import '../styles/theme_provider.dart';
-import '../../features/expense/services/expense_reminder_service.dart';
+import 'backup_restore_screen.dart';
+import 'widgets/custom_app_bar.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -198,7 +200,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         final isDark = mode == ThemeMode.dark;
         final Color cardBg = isDark ? AppColors.cardDark : Colors.white;
         final Color textColor = isDark ? Colors.white : const Color(0xFF0F172A);
-        final Color subtitleColor = isDark ? Colors.white60 : const Color(0xFF64748B);
+        final Color subtitleColor = isDark
+            ? Colors.white60
+            : const Color(0xFF64748B);
 
         return Theme(
           data: isDark ? AppThemes.darkTheme : AppThemes.lightTheme,
@@ -207,17 +211,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
             appBar: CustomAppBar(
               title: 'Settings',
               showBackButton: true,
-              actions: [
-                IconButton(
-                  icon: Icon(
-                    Icons.notifications_active_outlined,
-                    color: isDark ? Colors.white : const Color(0xFF0F172A),
-                    size: 20.sp,
-                  ),
-                  tooltip: 'Send Test Notification',
-                  onPressed: _showTestNotificationNow,
-                ),
-              ],
+              // actions: [
+              //   IconButton(
+              //     icon: Icon(
+              //       Icons.notifications_active_outlined,
+              //       color: isDark ? Colors.white : const Color(0xFF0F172A),
+              //       size: 20.sp,
+              //     ),
+              //     tooltip: 'Send Test Notification',
+              //     onPressed: _showTestNotificationNow,
+              //   ),
+              // ],
             ),
             body: ListView(
               physics: const BouncingScrollPhysics(),
@@ -230,23 +234,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     color: cardBg,
                     borderRadius: BorderRadius.circular(20.r),
                     border: Border.all(
-                      color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                      color: isDark
+                          ? const Color(0xFF1E293B)
+                          : const Color(0xFFE2E8F0),
                       width: 1,
                     ),
                   ),
                   child: Column(
                     children: [
                       ListTile(
-                        leading: Icon(Icons.tune_rounded, size: 20.sp, color: AppColors.primaryTeal),
+                        leading: Icon(
+                          Icons.tune_rounded,
+                          size: 20.sp,
+                          color: AppColors.primaryTeal,
+                        ),
                         title: Text(
                           'Set Monthly Budget',
-                          style: TextStyle(fontSize: 13.sp, fontFamily: 'Manrope', fontWeight: FontWeight.w600, color: textColor),
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            fontFamily: 'Manrope',
+                            fontWeight: FontWeight.w600,
+                            color: textColor,
+                          ),
                         ),
                         subtitle: Text(
                           'Manage your spending limit and goals',
-                          style: TextStyle(fontSize: 11.sp, fontFamily: 'Manrope', color: subtitleColor),
+                          style: TextStyle(
+                            fontSize: 11.sp,
+                            fontFamily: 'Manrope',
+                            color: subtitleColor,
+                          ),
                         ),
-                        trailing: Icon(Icons.chevron_right, size: 20.sp, color: subtitleColor),
+                        trailing: Icon(
+                          Icons.chevron_right,
+                          size: 20.sp,
+                          color: subtitleColor,
+                        ),
                         onTap: () {
                           context.pushNamed(
                             AppRoutes.setMonthlyBudget,
@@ -267,31 +290,48 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     color: cardBg,
                     borderRadius: BorderRadius.circular(20.r),
                     border: Border.all(
-                      color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                      color: isDark
+                          ? const Color(0xFF1E293B)
+                          : const Color(0xFFE2E8F0),
                       width: 1,
                     ),
                   ),
                   child: Column(
                     children: [
                       ListTile(
-                        leading: Icon(Icons.brightness_6_outlined, size: 20.sp, color: AppColors.primaryTeal),
+                        leading: Icon(
+                          Icons.brightness_6_outlined,
+                          size: 20.sp,
+                          color: AppColors.primaryTeal,
+                        ),
                         title: Text(
                           'Theme Mode',
-                          style: TextStyle(fontSize: 13.sp, fontFamily: 'Manrope', fontWeight: FontWeight.w600, color: textColor),
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            fontFamily: 'Manrope',
+                            fontWeight: FontWeight.w600,
+                            color: textColor,
+                          ),
                         ),
                         subtitle: Text(
                           mode == ThemeMode.light
                               ? 'Light Mode'
                               : mode == ThemeMode.dark
-                                  ? 'Dark Mode'
-                                  : 'System Default',
-                          style: TextStyle(fontSize: 11.sp, fontFamily: 'Manrope', color: subtitleColor),
+                              ? 'Dark Mode'
+                              : 'System Default',
+                          style: TextStyle(
+                            fontSize: 11.sp,
+                            fontFamily: 'Manrope',
+                            color: subtitleColor,
+                          ),
                         ),
                         trailing: Container(
                           height: 32.h,
                           padding: EdgeInsets.all(2.r),
                           decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                            color: isDark
+                                ? const Color(0xFF1E293B)
+                                : const Color(0xFFF1F5F9),
                             borderRadius: BorderRadius.circular(8.r),
                           ),
                           child: Row(
@@ -322,57 +362,101 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ),
                       ),
-                      Divider(height: 1, color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+                      Divider(
+                        height: 1,
+                        color: isDark
+                            ? const Color(0xFF1E293B)
+                            : const Color(0xFFE2E8F0),
+                      ),
                       ListTile(
-                        leading: Icon(Icons.language_outlined, size: 20.sp, color: AppColors.primaryTeal),
+                        leading: Icon(
+                          Icons.language_outlined,
+                          size: 20.sp,
+                          color: AppColors.primaryTeal,
+                        ),
                         title: Text(
                           'Language',
-                          style: TextStyle(fontSize: 13.sp, fontFamily: 'Manrope', fontWeight: FontWeight.w600, color: textColor),
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            fontFamily: 'Manrope',
+                            fontWeight: FontWeight.w600,
+                            color: textColor,
+                          ),
                         ),
                         subtitle: Text(
                           'English',
-                          style: TextStyle(fontSize: 11.sp, fontFamily: 'Manrope', color: subtitleColor),
+                          style: TextStyle(
+                            fontSize: 11.sp,
+                            fontFamily: 'Manrope',
+                            color: subtitleColor,
+                          ),
                         ),
-                        trailing: Icon(Icons.chevron_right, size: 20.sp, color: subtitleColor),
+                        trailing: Icon(
+                          Icons.chevron_right,
+                          size: 20.sp,
+                          color: subtitleColor,
+                        ),
                         onTap: () {},
                       ),
-                      Divider(height: 1, color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+                      Divider(
+                        height: 1,
+                        color: isDark
+                            ? const Color(0xFF1E293B)
+                            : const Color(0xFFE2E8F0),
+                      ),
                       ListTile(
-                        leading: Icon(Icons.payments_outlined, size: 20.sp, color: AppColors.primaryTeal),
+                        leading: Icon(
+                          Icons.payments_outlined,
+                          size: 20.sp,
+                          color: AppColors.primaryTeal,
+                        ),
                         title: Text(
                           'Currency',
-                          style: TextStyle(fontSize: 13.sp, fontFamily: 'Manrope', fontWeight: FontWeight.w600, color: textColor),
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            fontFamily: 'Manrope',
+                            fontWeight: FontWeight.w600,
+                            color: textColor,
+                          ),
                         ),
                         subtitle: Text(
                           'BDT (৳)',
-                          style: TextStyle(fontSize: 11.sp, fontFamily: 'Manrope', color: subtitleColor),
+                          style: TextStyle(
+                            fontSize: 11.sp,
+                            fontFamily: 'Manrope',
+                            color: subtitleColor,
+                          ),
                         ),
-                        trailing: Icon(Icons.chevron_right, size: 20.sp, color: subtitleColor),
+                        trailing: Icon(
+                          Icons.chevron_right,
+                          size: 20.sp,
+                          color: subtitleColor,
+                        ),
                         onTap: () {},
                       ),
-                      Divider(height: 1, color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
-                      ListTile(
-                        leading: Icon(Icons.alarm_outlined, size: 20.sp, color: AppColors.primaryTeal),
-                        title: Text(
-                          'Daily Expense Reminder',
-                          style: TextStyle(fontSize: 13.sp, fontFamily: 'Manrope', fontWeight: FontWeight.w600, color: textColor),
-                        ),
-                        subtitle: _reminderEnabled && _selectedTime != null
-                            ? Text(
-                                'Scheduled at ${_selectedTime!.format(context)}',
-                                style: TextStyle(fontSize: 11.sp, fontFamily: 'Manrope', color: subtitleColor),
-                              )
-                            : Text(
-                                'Not scheduled',
-                                style: TextStyle(fontSize: 11.sp, fontFamily: 'Manrope', color: subtitleColor),
-                              ),
-                        trailing: Switch(
-                          value: _reminderEnabled,
-                          onChanged: _toggleReminder,
-                          activeThumbColor: AppColors.primaryTeal,
-                          activeTrackColor: AppColors.primaryTeal.withValues(alpha: 0.3),
-                        ),
-                      ),
+                      // Divider(height: 1, color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+                      // ListTile(
+                      //   leading: Icon(Icons.alarm_outlined, size: 20.sp, color: AppColors.primaryTeal),
+                      //   title: Text(
+                      //     'Daily Expense Reminder',
+                      //     style: TextStyle(fontSize: 13.sp, fontFamily: 'Manrope', fontWeight: FontWeight.w600, color: textColor),
+                      //   ),
+                      //   subtitle: _reminderEnabled && _selectedTime != null
+                      //       ? Text(
+                      //           'Scheduled at ${_selectedTime!.format(context)}',
+                      //           style: TextStyle(fontSize: 11.sp, fontFamily: 'Manrope', color: subtitleColor),
+                      //         )
+                      //       : Text(
+                      //           'Not scheduled',
+                      //           style: TextStyle(fontSize: 11.sp, fontFamily: 'Manrope', color: subtitleColor),
+                      //         ),
+                      //   trailing: Switch(
+                      //     value: _reminderEnabled,
+                      //     onChanged: _toggleReminder,
+                      //     activeThumbColor: AppColors.primaryTeal,
+                      //     activeTrackColor: AppColors.primaryTeal.withValues(alpha: 0.3),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -386,19 +470,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     color: cardBg,
                     borderRadius: BorderRadius.circular(20.r),
                     border: Border.all(
-                      color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                      color: isDark
+                          ? const Color(0xFF1E293B)
+                          : const Color(0xFFE2E8F0),
                       width: 1,
                     ),
                   ),
                   child: Column(
                     children: [
                       ListTile(
-                        leading: Icon(Icons.cloud_upload_outlined, size: 20.sp, color: AppColors.primaryTeal),
+                        leading: Icon(
+                          Icons.cloud_upload_outlined,
+                          size: 20.sp,
+                          color: AppColors.primaryTeal,
+                        ),
                         title: Text(
                           'Backup & Restore',
-                          style: TextStyle(fontSize: 13.sp, fontFamily: 'Manrope', fontWeight: FontWeight.w600, color: textColor),
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            fontFamily: 'Manrope',
+                            fontWeight: FontWeight.w600,
+                            color: textColor,
+                          ),
                         ),
-                        trailing: Icon(Icons.chevron_right, size: 20.sp, color: subtitleColor),
+                        trailing: Icon(
+                          Icons.chevron_right,
+                          size: 20.sp,
+                          color: subtitleColor,
+                        ),
                         onTap: () {
                           Navigator.push(
                             context,
@@ -408,14 +507,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           );
                         },
                       ),
-                      Divider(height: 1, color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+                      Divider(
+                        height: 1,
+                        color: isDark
+                            ? const Color(0xFF1E293B)
+                            : const Color(0xFFE2E8F0),
+                      ),
                       ListTile(
-                        leading: Icon(Icons.info_outline, size: 20.sp, color: AppColors.primaryTeal),
+                        leading: Icon(
+                          Icons.info_outline,
+                          size: 20.sp,
+                          color: AppColors.primaryTeal,
+                        ),
                         title: Text(
                           'About & Version',
-                          style: TextStyle(fontSize: 13.sp, fontFamily: 'Manrope', fontWeight: FontWeight.w600, color: textColor),
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            fontFamily: 'Manrope',
+                            fontWeight: FontWeight.w600,
+                            color: textColor,
+                          ),
                         ),
-                        trailing: Icon(Icons.chevron_right, size: 20.sp, color: subtitleColor),
+                        trailing: Icon(
+                          Icons.chevron_right,
+                          size: 20.sp,
+                          color: subtitleColor,
+                        ),
                         onTap: () {},
                       ),
                     ],
