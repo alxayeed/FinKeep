@@ -1,5 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:finkeep/core/config/app_config.dart';
+import 'package:finkeep/core/error/exception_handler.dart';
 
 import '../../domain/entities/investment.dart';
 import '../../domain/entities/return_entry.dart';
@@ -30,7 +30,7 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
         return models.map((m) => m).toList();
       }
     } catch (e, s) {
-      debugPrint('InvestmentRepositoryImpl.getInvestments error: $e\n$s');
+      ExceptionHandler.handle(e, s, 'InvestmentRepositoryImpl.getInvestments');
       rethrow;
     }
   }
@@ -49,7 +49,7 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
         await _localDataSource.addInvestment(model);
       }
     } catch (e, s) {
-      debugPrint('InvestmentRepositoryImpl.addInvestment error: $e\n$s');
+      ExceptionHandler.handle(e, s, 'InvestmentRepositoryImpl.addInvestment');
       rethrow;
     }
   }
@@ -68,7 +68,7 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
         await _localDataSource.updateInvestment(model);
       }
     } catch (e, s) {
-      debugPrint('InvestmentRepositoryImpl.updateInvestment error: $e\n$s');
+      ExceptionHandler.handle(e, s, 'InvestmentRepositoryImpl.updateInvestment');
       rethrow;
     }
   }
@@ -90,7 +90,7 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
         await _localDataSource.addReturnEntry(investmentId, model);
       }
     } catch (e, s) {
-      debugPrint('InvestmentRepositoryImpl.addReturnEntry error: $e\n$s');
+      ExceptionHandler.handle(e, s, 'InvestmentRepositoryImpl.addReturnEntry');
       rethrow;
     }
   }

@@ -27,6 +27,8 @@ class ExceptionHandler {
       return NetworkFailure(message: exception.message);
     } else if (exception is ServerException) {
       return ServerFailure(message: exception.message);
+    } else if (exception is ParsingException) {
+      return ParsingFailure(message: exception.message);
     } else if (exception is AuthenticationException) {
       return AuthenticationFailure(message: exception.message);
     } else if (exception is UnknownException) {

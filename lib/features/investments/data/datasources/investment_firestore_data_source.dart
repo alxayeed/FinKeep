@@ -27,6 +27,9 @@ class InvestmentFirestoreDataSource implements InvestmentDataSource {
       data.remove('id'); // Firestore generates ID
       await _investmentsCollection.add(data);
     } catch (e) {
+      if (e is TypeError || e is FormatException) {
+        throw ParsingException(message: '${AppStrings.operationFailed}: $e');
+      }
       throw ServerException(message: '${AppStrings.operationFailed}: $e');
     }
   }
@@ -48,6 +51,9 @@ class InvestmentFirestoreDataSource implements InvestmentDataSource {
       list.sort((a, b) => b.startDate.compareTo(a.startDate));
       return list;
     } catch (e) {
+      if (e is TypeError || e is FormatException) {
+        throw ParsingException(message: '${AppStrings.fetchFailed}: $e');
+      }
       throw ServerException(message: '${AppStrings.fetchFailed}: $e');
     }
   }
@@ -61,6 +67,9 @@ class InvestmentFirestoreDataSource implements InvestmentDataSource {
       data['id'] = doc.id;
       return InvestmentModel.fromFirestoreMap(data);
     } catch (e) {
+      if (e is TypeError || e is FormatException) {
+        throw ParsingException(message: '${AppStrings.fetchFailed}: $e');
+      }
       throw ServerException(message: '${AppStrings.fetchFailed}: $e');
     }
   }
@@ -75,6 +84,9 @@ class InvestmentFirestoreDataSource implements InvestmentDataSource {
       }
       await _investmentsCollection.doc(docId).update(data);
     } catch (e) {
+      if (e is TypeError || e is FormatException) {
+        throw ParsingException(message: '${AppStrings.updateFailed}: $e');
+      }
       throw ServerException(message: '${AppStrings.updateFailed}: $e');
     }
   }
@@ -103,6 +115,9 @@ class InvestmentFirestoreDataSource implements InvestmentDataSource {
 
       await investmentDoc.update(updates);
     } catch (e) {
+      if (e is TypeError || e is FormatException) {
+        throw ParsingException(message: '${AppStrings.operationFailed}: $e');
+      }
       throw ServerException(message: '${AppStrings.operationFailed}: $e');
     }
   }

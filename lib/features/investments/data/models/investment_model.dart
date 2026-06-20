@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:finkeep/core/enums/payment_type.dart';
+import 'package:finkeep/core/utils/date_parser.dart';
 import 'package:finkeep/features/investments/domain/entities/investment.dart';
 
 import '../../domain/enums/investment_status.dart';
@@ -30,8 +31,8 @@ class InvestmentModel extends Investment {
       id: json['id'] as String,
       title: json['title'] as String,
       amountInvested: (json['amountInvested'] as num).toDouble(),
-      startDate: json['startDate'] as DateTime,
-      expectedEndDate: json['expectedEndDate'] as DateTime,
+      startDate: DateParser.parse(json['startDate']),
+      expectedEndDate: DateParser.parse(json['expectedEndDate']),
       platformName: json['platformName'] as String,
       profitRate: json['profitRate'],
       expectedROI: (json['expectedROI'] as num).toDouble(),
@@ -40,7 +41,7 @@ class InvestmentModel extends Investment {
       transactionId: json['transactionId'] as String,
       transactionMedium: PaymentTypeExtension.fromString(
           json['transactionMedium'] as String? ?? 'CASH'),
-      transactionDate: json['transactionDate'] as DateTime,
+      transactionDate: DateParser.parse(json['transactionDate']),
       status: InvestmentStatus.values.firstWhere(
         (e) => e.toString() == 'InvestmentStatus.${json['status']}',
       ),
@@ -58,8 +59,8 @@ class InvestmentModel extends Investment {
       id: json['id'] as String,
       title: json['title'] as String,
       amountInvested: (json['amountInvested'] as num).toDouble(),
-      startDate: (json['startDate'] as Timestamp).toDate(),
-      expectedEndDate: (json['expectedEndDate'] as Timestamp).toDate(),
+      startDate: DateParser.parse(json['startDate']),
+      expectedEndDate: DateParser.parse(json['expectedEndDate']),
       platformName: json['platformName'] as String,
       profitRate: json['profitRate'],
       expectedROI: (json['expectedROI'] as num).toDouble(),
@@ -68,7 +69,7 @@ class InvestmentModel extends Investment {
       transactionId: json['transactionId'] as String,
       transactionMedium: PaymentTypeExtension.fromString(
           json['transactionMedium'] as String? ?? 'CASH'),
-      transactionDate: (json['transactionDate'] as Timestamp).toDate(),
+      transactionDate: DateParser.parse(json['transactionDate']),
       status: InvestmentStatus.values.firstWhere(
         (e) => e.toString() == 'InvestmentStatus.${json['status']}',
       ),

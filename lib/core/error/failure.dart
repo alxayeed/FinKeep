@@ -48,3 +48,13 @@ class UnknownFailure extends Failure {
   @override
   List<Object?> get props => [];
 }
+
+class ParsingFailure extends Failure {
+  @override
+  final String message;
+
+  const ParsingFailure({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}

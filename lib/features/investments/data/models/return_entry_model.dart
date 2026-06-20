@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:finkeep/core/utils/date_parser.dart';
 import 'package:finkeep/features/investments/domain/entities/return_entry.dart';
 
 class ReturnEntryModel extends ReturnEntry {
@@ -16,7 +17,7 @@ class ReturnEntryModel extends ReturnEntry {
     return ReturnEntryModel(
       id: json['id'] as String,
       amountReceived: (json['amountReceived'] as num).toDouble(),
-      date: json['date'] as DateTime,
+      date: DateParser.parse(json['date']),
       transactionId: json['transactionId'] as String,
       medium: json['medium'] as String,
       notes: json['notes'] as String? ?? '',
@@ -28,7 +29,7 @@ class ReturnEntryModel extends ReturnEntry {
     return ReturnEntryModel(
       id: json['id'] as String,
       amountReceived: (json['amountReceived'] as num).toDouble(),
-      date: (json['date'] as Timestamp).toDate(),
+      date: DateParser.parse(json['date']),
       transactionId: json['transactionId'] as String,
       medium: json['medium'] as String,
       notes: json['notes'] as String? ?? '',

@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import '../../../../core/responsive/responsive.dart';
 
 class MonthSelector extends StatefulWidget {
   final ValueChanged<DateTime> onMonthChanged;
-  final VoidCallback? onSearchPressed;
   final VoidCallback? onSettingsPressed;
   final bool showSearchButton;
 
   const MonthSelector({
     super.key,
     required this.onMonthChanged,
-    this.onSearchPressed,
     this.onSettingsPressed,
     this.showSearchButton = true,
   });
@@ -42,7 +41,9 @@ class _MonthSelectorState extends State<MonthSelector> {
   void _previousMonth() {
     setState(() {
       _selectedMonth = DateTime(
-        _selectedMonth.month == 1 ? _selectedMonth.year - 1 : _selectedMonth.year,
+        _selectedMonth.month == 1
+            ? _selectedMonth.year - 1
+            : _selectedMonth.year,
         _selectedMonth.month == 1 ? 12 : _selectedMonth.month - 1,
       );
       widget.onMonthChanged(_selectedMonth);
@@ -52,7 +53,9 @@ class _MonthSelectorState extends State<MonthSelector> {
   void _nextMonth() {
     setState(() {
       _selectedMonth = DateTime(
-        _selectedMonth.month == 12 ? _selectedMonth.year + 1 : _selectedMonth.year,
+        _selectedMonth.month == 12
+            ? _selectedMonth.year + 1
+            : _selectedMonth.year,
         _selectedMonth.month == 12 ? 1 : _selectedMonth.month + 1,
       );
       widget.onMonthChanged(_selectedMonth);
@@ -97,7 +100,9 @@ class _MonthSelectorState extends State<MonthSelector> {
                   height: 36.r,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: isDark ? const Color(0xFF1E293B) : Colors.transparent,
+                    color: isDark
+                        ? const Color(0xFF1E293B)
+                        : Colors.transparent,
                   ),
                   child: Icon(
                     Icons.chevron_left,
@@ -114,9 +119,13 @@ class _MonthSelectorState extends State<MonthSelector> {
                   height: 36.h,
                   padding: EdgeInsets.symmetric(horizontal: 12.w),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+                    color: isDark
+                        ? const Color(0xFF1E293B)
+                        : const Color(0xFFF8FAFC),
                     border: Border.all(
-                      color: isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9),
+                      color: isDark
+                          ? const Color(0xFF334155)
+                          : const Color(0xFFF1F5F9),
                       width: 1,
                     ),
                     borderRadius: BorderRadius.circular(9999.r),
@@ -137,14 +146,18 @@ class _MonthSelectorState extends State<MonthSelector> {
                           fontSize: 14.sp,
                           fontFamily: 'Manrope',
                           fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF0F172A),
                         ),
                       ),
                       SizedBox(width: 6.w),
                       Icon(
                         Icons.keyboard_arrow_down,
                         size: 16.sp,
-                        color: isDark ? Colors.white60 : const Color(0xFF94A3B8),
+                        color: isDark
+                            ? Colors.white60
+                            : const Color(0xFF94A3B8),
                       ),
                     ],
                   ),
@@ -160,7 +173,9 @@ class _MonthSelectorState extends State<MonthSelector> {
                   height: 36.r,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: isDark ? const Color(0xFF1E293B) : Colors.transparent,
+                    color: isDark
+                        ? const Color(0xFF1E293B)
+                        : Colors.transparent,
                   ),
                   child: Icon(
                     Icons.chevron_right,
@@ -171,48 +186,21 @@ class _MonthSelectorState extends State<MonthSelector> {
               ),
             ],
           ),
-
-          // Right search & filter cluster
-          Row(
-            children: [
-              // Search Button
-              if (widget.showSearchButton) ...[
-                GestureDetector(
-                  onTap: widget.onSearchPressed,
-                  child: Container(
-                    width: 36.r,
-                    height: 36.r,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: isDark ? const Color(0xFF1E293B) : Colors.transparent,
-                    ),
-                    child: Icon(
-                      Icons.search_rounded,
-                      size: 22.sp,
-                      color: isDark ? Colors.white70 : const Color(0xFF64748B),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 4.w),
-              ],
-              // Settings Button
-              GestureDetector(
-                onTap: widget.onSettingsPressed,
-                child: Container(
-                  width: 36.r,
-                  height: 36.r,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isDark ? const Color(0xFF1E293B) : Colors.transparent,
-                  ),
-                  child: Icon(
-                    Icons.settings_rounded,
-                    size: 22.sp,
-                    color: isDark ? Colors.white70 : const Color(0xFF64748B),
-                  ),
-                ),
+          GestureDetector(
+            onTap: widget.onSettingsPressed,
+            child: Container(
+              width: 36.r,
+              height: 36.r,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isDark ? const Color(0xFF1E293B) : Colors.transparent,
               ),
-            ],
+              child: Icon(
+                Icons.settings_rounded,
+                size: 22.sp,
+                color: isDark ? Colors.white70 : const Color(0xFF64748B),
+              ),
+            ),
           ),
         ],
       ),

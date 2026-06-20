@@ -1,16 +1,16 @@
+import 'package:finkeep/core/routes/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
-import 'package:finkeep/core/routes/app_router.dart';
-import '../../../../core/responsive/responsive.dart';
-import '../../../../core/enums/expense_category.dart';
 
 import '../../../../core/common/widgets/custom_fab.dart';
+import '../../../../core/enums/expense_category.dart';
+import '../../../../core/responsive/responsive.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../controllers/monthly_expense_controller.dart';
 import '../widgets/widgets.dart';
-import 'monthly_expense_summary_screen.dart';
 import 'monthly_expense_list_screen.dart';
+import 'monthly_expense_summary_screen.dart';
 
 class MonthlyExpenseScreen extends StatefulWidget {
   const MonthlyExpenseScreen({super.key});
@@ -40,9 +40,6 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
                 onMonthChanged: (selectedMonth) {
                   controller.updateSelectedMonth(selectedMonth);
                 },
-                onSearchPressed: () {
-                  _showSearchDialog(context);
-                },
                 onSettingsPressed: () {
                   context.pushNamed(AppRoutes.settings);
                 },
@@ -62,16 +59,18 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
               Expanded(
                 child: _selectedTab == 0
                     ? (controller.isLoading.value
-                        ? const MonthlyExpenseShimmer(selectedTab: 0)
-                        : MonthlyExpenseSummaryScreen(
-                            controller: controller,
-                            onCategoryTap: (category) {
-                              setState(() {
-                                _selectedTab = 1; // Switch to Details tab
-                              });
-                              controller.updateSelectedCategory(category.displayName);
-                            },
-                          ))
+                          ? const MonthlyExpenseShimmer(selectedTab: 0)
+                          : MonthlyExpenseSummaryScreen(
+                              controller: controller,
+                              onCategoryTap: (category) {
+                                setState(() {
+                                  _selectedTab = 1; // Switch to Details tab
+                                });
+                                controller.updateSelectedCategory(
+                                  category.displayName,
+                                );
+                              },
+                            ))
                     : MonthlyExpenseListScreen(controller: controller),
               ),
             ],
@@ -181,4 +180,3 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
     );
   }
 }
-

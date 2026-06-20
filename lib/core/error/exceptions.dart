@@ -2,6 +2,9 @@ abstract class CustomException implements Exception {
   final String message;
 
   const CustomException({required this.message});
+
+  @override
+  String toString() => '$runtimeType: $message';
 }
 
 class NetworkException extends CustomException {
@@ -24,6 +27,10 @@ class ValidationException extends CustomException {
 
 class CacheException extends CustomException {
   const CacheException({required super.message});
+}
+
+class ParsingException extends CustomException {
+  const ParsingException({required super.message});
 }
 
 class UnknownException extends CustomException {
