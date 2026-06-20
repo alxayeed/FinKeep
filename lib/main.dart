@@ -1,3 +1,4 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -37,6 +38,11 @@ void main() async {
   // Get the singleton ThemeProvider instance
   final themeProvider = ThemeProvider();
   await themeProvider.loadTheme();
+
+  // Read onboarding preference and initialize router
+  final prefs = await SharedPreferences.getInstance();
+  final seenOnboarding = prefs.getBool('seen_onboarding') ?? false;
+  AppRouter.init(seenOnboarding);
 
   runApp(MainApp(themeProvider: themeProvider));
 }
