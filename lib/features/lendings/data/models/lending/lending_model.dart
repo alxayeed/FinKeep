@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:finkeep/core/enums/payment_type.dart';
+import 'package:finkeep/core/utils/date_parser.dart';
 
 import '../../../domain/entity/lending/lending_entity.dart';
 import '../lending_person/lending_person_model.dart';
@@ -46,9 +47,9 @@ abstract class LendingModel with _$LendingModel {
       amount: (json['amount'] as num).toDouble(),
       repaidAmount: (json['repaidAmount'] as num?)?.toDouble() ?? 0.0,
       description: json['description'] as String?,
-      createdDate: (json['createdDate'] as Timestamp).toDate(),
+      createdDate: DateParser.parse(json['createdDate']),
       dueDate: json['dueDate'] != null
-          ? (json['dueDate'] as Timestamp).toDate()
+          ? DateParser.parse(json['dueDate'])
           : null,
       status: $enumDecode(_$LendingStatusEnumMap, json['status']),
       paymentMethod: _fromJsonPaymentMethod(json['paymentMethod']),
@@ -97,6 +98,17 @@ abstract class LendingModel with _$LendingModel {
     );
   }
 
+  /// Plain Dart serialization — used by Hive.
+  @override
+  Map<String, dynamic> toJson() {
+    final json = _$LendingModelToJson(this as _LendingModel);
+    if (repayments != null) {
+      json['repayments'] = repayments!.map((r) => r.toJson()).toList();
+    }
+    json['person'] = person.toJson();
+    return json;
+  }
+
   /// Firestore-specific serialization — stores dates as Timestamps.
   Map<String, dynamic> toFirestoreMap() {
     return {
@@ -121,10 +133,7 @@ abstract class LendingModel with _$LendingModel {
 
 /// Reads a DateTime from Hive (DateTime) or legacy formats (Timestamp, String).
 DateTime _fromJsonDate(dynamic value) {
-  if (value is DateTime) return value;
-  if (value is Timestamp) return value.toDate();
-  if (value is String) return DateTime.parse(value);
-  throw Exception('Invalid date: $value');
+  return DateParser.parse(value);
 }
 
 /// Writes a plain DateTime — safe for Hive.
@@ -132,10 +141,7 @@ DateTime _toJsonDate(DateTime value) => value;
 
 DateTime? _fromJsonNullableDate(dynamic value) {
   if (value == null) return null;
-  if (value is DateTime) return value;
-  if (value is Timestamp) return value.toDate();
-  if (value is String) return DateTime.parse(value);
-  throw Exception('Invalid nullable date: $value');
+  return DateParser.parse(value);
 }
 
 DateTime? _toJsonNullableDate(DateTime? value) => value;

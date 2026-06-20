@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:finkeep/core/utils/date_parser.dart';
 
 import '../../../domain/entity/repayment/repayment_entity.dart';
 
@@ -29,7 +30,7 @@ abstract class RepaymentModel with _$RepaymentModel {
       id: json['id'] as String,
       lendingId: json['lendingId'] as String,
       amount: (json['amount'] as num).toDouble(),
-      paidDate: (json['paidDate'] as Timestamp).toDate(),
+      paidDate: DateParser.parse(json['paidDate']),
       notes: json['notes'] as String?,
     );
   }
@@ -74,10 +75,7 @@ abstract class RepaymentModel with _$RepaymentModel {
 
 /// Reads a DateTime from Hive (DateTime) or legacy formats (Timestamp, String).
 DateTime _fromJsonDate(dynamic value) {
-  if (value is DateTime) return value;
-  if (value is Timestamp) return value.toDate();
-  if (value is String) return DateTime.parse(value);
-  throw Exception('Invalid date: $value');
+  return DateParser.parse(value);
 }
 
 /// Writes a plain DateTime — safe for Hive.

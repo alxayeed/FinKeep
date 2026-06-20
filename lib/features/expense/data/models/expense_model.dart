@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:finkeep/core/utils/date_parser.dart';
 import 'package:finkeep/core/enums/payment_type.dart';
 import '../../domain/entities/expense_entity.dart';
 
@@ -18,10 +19,10 @@ class ExpenseModel extends ExpenseEntity {
       id: json['id'] as String,
       amount: (json['amount'] as num).toDouble(),
       category: json['category'] as String,
-      date: json['date'] as DateTime,
+      date: DateParser.parse(json['date']),
       description: json['description'] as String? ?? '',
       paymentMethod: PaymentTypeExtension.fromString(json['paymentMethod'] as String? ?? 'CASH'),
-      createdAt: json['createdAt'] as DateTime,
+      createdAt: DateParser.parse(json['createdAt']),
     );
   }
 
@@ -31,10 +32,10 @@ class ExpenseModel extends ExpenseEntity {
       id: json['id'] as String,
       amount: (json['amount'] as num).toDouble(),
       category: json['category'] as String,
-      date: (json['date'] as Timestamp).toDate(),
+      date: DateParser.parse(json['date']),
       description: json['description'] as String? ?? '',
       paymentMethod: PaymentTypeExtension.fromString(json['paymentMethod'] as String? ?? 'CASH'),
-      createdAt: (json['createdAt'] as Timestamp).toDate(),
+      createdAt: DateParser.parse(json['createdAt']),
     );
   }
 

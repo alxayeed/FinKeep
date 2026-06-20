@@ -28,6 +28,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
   int _personCount = 0;
   int _repaymentCount = 0;
   bool _isLoading = false;
+  String _loadingText = '';
 
   @override
   void initState() {
@@ -49,10 +50,17 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
   Future<void> _exportBackup() async {
     setState(() {
       _isLoading = true;
+      _loadingText = 'Generating backup...';
     });
     String? savePath;
     try {
-      final bytes = await _backupService.exportEncryptedBackup();
+      final bytes = await _backupService.exportEncryptedBackup(
+        onProgress: (progress) {
+          setState(() {
+            _loadingText = progress;
+          });
+        },
+      );
       
       final dateStr = DateTime.now().toIso8601String().split('T').first;
       final fileName = 'finkeep_backup_$dateStr.spdb';
@@ -207,6 +215,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
   Future<void> _importBackup() async {
     setState(() {
       _isLoading = true;
+      _loadingText = 'Preparing import...';
     });
 
     String? selectedFilePath;
@@ -230,6 +239,9 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
       final file = File(selectedFilePath);
       final bytes = await file.readAsBytes();
 
+      setState(() {
+        _loadingText = 'Decrypting and importing backup into local database...';
+      });
       await _backupService.importEncryptedBackup(bytes);
       _loadStats();
       if (mounted) {
@@ -323,7 +335,25 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
         showBackButton: true,
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primaryTeal))
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CircularProgressIndicator(color: AppColors.primaryTeal),
+                  SizedBox(height: 16.h),
+                  Text(
+                    _loadingText,
+                    style: TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            )
           : ListView(
               physics: const BouncingScrollPhysics(),
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
