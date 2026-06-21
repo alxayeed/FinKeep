@@ -434,29 +434,53 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         onTap: () {},
                       ),
-                      // Divider(height: 1, color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
-                      // ListTile(
-                      //   leading: Icon(Icons.alarm_outlined, size: 20.sp, color: AppColors.primaryTeal),
-                      //   title: Text(
-                      //     'Daily Expense Reminder',
-                      //     style: TextStyle(fontSize: 13.sp, fontFamily: 'Manrope', fontWeight: FontWeight.w600, color: textColor),
-                      //   ),
-                      //   subtitle: _reminderEnabled && _selectedTime != null
-                      //       ? Text(
-                      //           'Scheduled at ${_selectedTime!.format(context)}',
-                      //           style: TextStyle(fontSize: 11.sp, fontFamily: 'Manrope', color: subtitleColor),
-                      //         )
-                      //       : Text(
-                      //           'Not scheduled',
-                      //           style: TextStyle(fontSize: 11.sp, fontFamily: 'Manrope', color: subtitleColor),
-                      //         ),
-                      //   trailing: Switch(
-                      //     value: _reminderEnabled,
-                      //     onChanged: _toggleReminder,
-                      //     activeThumbColor: AppColors.primaryTeal,
-                      //     activeTrackColor: AppColors.primaryTeal.withValues(alpha: 0.3),
-                      //   ),
-                      // ),
+                      Divider(
+                        height: 1,
+                        color: isDark
+                            ? const Color(0xFF1E293B)
+                            : const Color(0xFFE2E8F0),
+                      ),
+                      ListTile(
+                        leading: Icon(
+                          Icons.alarm_outlined,
+                          size: 20.sp,
+                          color: AppColors.primaryTeal,
+                        ),
+                        title: Text(
+                          'Daily Expense Reminder',
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            fontFamily: 'Manrope',
+                            fontWeight: FontWeight.w600,
+                            color: textColor,
+                          ),
+                        ),
+                        subtitle: _reminderEnabled && _selectedTime != null
+                            ? Text(
+                                'Scheduled at ${_selectedTime!.format(context)}',
+                                style: TextStyle(
+                                  fontSize: 11.sp,
+                                  fontFamily: 'Manrope',
+                                  color: subtitleColor,
+                                ),
+                              )
+                            : Text(
+                                'Not scheduled',
+                                style: TextStyle(
+                                  fontSize: 11.sp,
+                                  fontFamily: 'Manrope',
+                                  color: subtitleColor,
+                                ),
+                              ),
+                        trailing: Switch(
+                          value: _reminderEnabled,
+                          onChanged: _toggleReminder,
+                          activeThumbColor: AppColors.primaryTeal,
+                          activeTrackColor: AppColors.primaryTeal.withValues(
+                            alpha: 0.3,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:finkeep/core/routes/app_router.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
+import '../../../features/expense/presentation/controllers/budget_controller.dart';
+import '../../../features/expense/services/expense_reminder_service.dart';
 import 'widgets/onboarding_slide.dart';
 import 'widgets/animated_illustration.dart';
 
@@ -18,14 +21,67 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
+  // Setup form states
+  late final TextEditingController _budgetTextController;
+  bool _isRecurring = true;
+  bool _reminderEnabled = true;
+  TimeOfDay _reminderTime = const TimeOfDay(hour: 21, minute: 0);
+  final ExpenseReminderService _reminderService = createExpenseReminderService();
+
+  @override
+  void initState() {
+    super.initState();
+    _budgetTextController = TextEditingController(text: '30000');
+    _reminderService.init(onTap: (payload) {});
+  }
+
   @override
   void dispose() {
     _pageController.dispose();
+    _budgetTextController.dispose();
     super.dispose();
   }
 
   Future<void> _completeOnboarding(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
+
+    // 1. Save Monthly Budget
+    final budgetVal = double.tryParse(_budgetTextController.text) ?? 30000.0;
+    try {
+      final budgetController = Get.find<BudgetController>();
+      await budgetController.saveBudgetsForMonth(
+        month: DateTime.now(),
+        overall: budgetVal,
+        categories: {},
+        isRecurring: _isRecurring,
+      );
+    } catch (e) {
+      debugPrint('Error saving budget in onboarding: $e');
+    }
+
+    // 2. Save Reminder Configuration
+    await prefs.setBool('reminder_enabled', _reminderEnabled);
+    if (_reminderEnabled) {
+      await prefs.setInt('reminder_hour', _reminderTime.hour);
+      await prefs.setInt('reminder_minute', _reminderTime.minute);
+      try {
+        await _reminderService.scheduleDailyReminder(
+          hour: _reminderTime.hour,
+          minute: _reminderTime.minute,
+        );
+      } catch (e) {
+        debugPrint('Error scheduling reminder in onboarding: $e');
+      }
+    } else {
+      await prefs.remove('reminder_hour');
+      await prefs.remove('reminder_minute');
+      try {
+        await _reminderService.cancelReminder();
+      } catch (e) {
+        debugPrint('Error cancelling reminder in onboarding: $e');
+      }
+    }
+
     await prefs.setBool('seen_onboarding', true);
     if (context.mounted) {
       context.go(AppRoutes.home);
@@ -40,6 +96,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final backgroundColor = isDark ? AppColors.bgDark : const Color(0xFFF2FDEC);
     final textCol = isDark ? Colors.white : const Color(0xFF0F172A);
     final borderCol = isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0);
+    final subtitleColor = isDark ? Colors.white70 : const Color(0xFF475569);
+    final cardBg = isDark ? AppColors.cardDark : Colors.white;
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -76,6 +134,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   subtitle: 'FinKeep is fully offline. All your financial data is stored locally on your device and never leaves it. You can securely backup your data using AES-256 encrypted files.',
                   extra: _buildSecurityFeatures(borderCol, textCol, isDark),
                 ),
+                _buildSetupSlide(cardBg, borderCol, textCol, subtitleColor, isDark),
               ],
             ),
 
@@ -118,18 +177,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ],
                   ),
                   // Skip Button
-                  TextButton(
-                    onPressed: () => _completeOnboarding(context),
-                    child: Text(
-                      'Skip',
-                      style: TextStyle(
-                        fontFamily: 'Manrope',
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w700,
-                        color: isDark ? Colors.white60 : const Color(0xFF475569),
+                  if (_currentPage < 4)
+                    TextButton(
+                      onPressed: () => _completeOnboarding(context),
+                      child: Text(
+                        'Skip',
+                        style: TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? Colors.white60 : const Color(0xFF475569),
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -145,7 +205,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   // Page indicator dots
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(4, (index) {
+                    children: List.generate(5, (index) {
                       final bool isActive = _currentPage == index;
                       return AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
@@ -175,15 +235,377 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
+  Widget _buildSetupSlide(
+    Color cardBg,
+    Color borderCol,
+    Color textCol,
+    Color subtitleColor,
+    bool isDark,
+  ) {
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 70.h),
+          Center(
+            child: Text(
+              'Customize Your Setup',
+              style: TextStyle(
+                fontFamily: 'Manrope',
+                fontSize: 24.sp,
+                fontWeight: FontWeight.w800,
+                color: textCol,
+                letterSpacing: -0.5,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Center(
+            child: Text(
+              'Configure your initial budget and reminders.\nYou can change these anytime in Settings.',
+              style: TextStyle(
+                fontFamily: 'Manrope',
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w500,
+                color: subtitleColor,
+                height: 1.4,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          SizedBox(height: 24.h),
+
+          // Section 1: Budgeting
+          _buildSetupSectionHeader('BUDGET & PLANNING', isDark),
+          Container(
+            padding: EdgeInsets.all(16.w),
+            decoration: BoxDecoration(
+              color: cardBg,
+              borderRadius: BorderRadius.circular(20.r),
+              border: Border.all(color: borderCol, width: 1),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.tune_rounded,
+                      size: 20.sp,
+                      color: AppColors.primaryTeal,
+                    ),
+                    SizedBox(width: 10.w),
+                    Text(
+                      'Monthly Budget Limit',
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        fontFamily: 'Manrope',
+                        fontWeight: FontWeight.w600,
+                        color: textCol,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 12.h),
+                Container(
+                  height: 52.h,
+                  padding: EdgeInsets.symmetric(horizontal: 14.w),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(12.r),
+                    border: Border.all(color: borderCol),
+                  ),
+                  child: Row(
+                    children: [
+                      Text(
+                        '৳',
+                        style: TextStyle(
+                          fontSize: 20.sp,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white60 : Colors.black45,
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      Expanded(
+                        child: TextField(
+                          controller: _budgetTextController,
+                          keyboardType: TextInputType.number,
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontFamily: 'Manrope',
+                            fontWeight: FontWeight.w800,
+                            color: textCol,
+                          ),
+                          decoration: const InputDecoration(
+                            border: InputBorder.none,
+                            hintText: '30,000',
+                            hintStyle: TextStyle(color: Colors.grey),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 12.h),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [10000, 20000, 30000, 50000].map((preset) {
+                    final String displayVal = '${(preset / 1000).toStringAsFixed(0)}k';
+                    return Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 4.w),
+                        child: OutlinedButton(
+                          onPressed: () {
+                            setState(() {
+                              _budgetTextController.text = preset.toString();
+                            });
+                          },
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(
+                              color: _budgetTextController.text == preset.toString()
+                                  ? AppColors.primaryTeal
+                                  : borderCol,
+                            ),
+                            backgroundColor: _budgetTextController.text == preset.toString()
+                                ? AppColors.primaryTeal.withValues(alpha: 0.1)
+                                : Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.r),
+                            ),
+                            padding: EdgeInsets.symmetric(vertical: 8.h),
+                          ),
+                          child: Text(
+                            '$displayVal ৳',
+                            style: TextStyle(
+                              fontFamily: 'Manrope',
+                              fontSize: 11.sp,
+                              fontWeight: FontWeight.bold,
+                              color: _budgetTextController.text == preset.toString()
+                                  ? AppColors.primaryTeal
+                                  : textCol,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+                SizedBox(height: 12.h),
+                Divider(color: borderCol, height: 1),
+                SizedBox(height: 8.h),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Recurring Budget',
+                          style: TextStyle(
+                            fontFamily: 'Manrope',
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12.sp,
+                            color: textCol,
+                          ),
+                        ),
+                        SizedBox(height: 2.h),
+                        Text(
+                          'Apply settings to following months',
+                          style: TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 10.sp,
+                            color: subtitleColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Switch.adaptive(
+                      value: _isRecurring,
+                      activeTrackColor: AppColors.primaryTeal,
+                      onChanged: (val) {
+                        setState(() {
+                          _isRecurring = val;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          SizedBox(height: 16.h),
+
+          // Section 2: Reminders
+          _buildSetupSectionHeader('ALERTS & REMINDERS', isDark),
+          Container(
+            padding: EdgeInsets.all(16.w),
+            decoration: BoxDecoration(
+              color: cardBg,
+              borderRadius: BorderRadius.circular(20.r),
+              border: Border.all(color: borderCol, width: 1),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.notifications_active_outlined,
+                          size: 20.sp,
+                          color: AppColors.primaryTeal,
+                        ),
+                        SizedBox(width: 10.w),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Daily Expense Reminder',
+                              style: TextStyle(
+                                fontSize: 13.sp,
+                                fontFamily: 'Manrope',
+                                fontWeight: FontWeight.w600,
+                                color: textCol,
+                              ),
+                            ),
+                            SizedBox(height: 2.h),
+                            Text(
+                              'Remind me to log today\'s expenses',
+                              style: TextStyle(
+                                fontSize: 10.sp,
+                                fontFamily: 'Manrope',
+                                color: subtitleColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Switch.adaptive(
+                      value: _reminderEnabled,
+                      activeTrackColor: AppColors.primaryTeal,
+                      onChanged: (val) {
+                        setState(() {
+                          _reminderEnabled = val;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+                if (_reminderEnabled) ...[
+                  SizedBox(height: 12.h),
+                  Divider(color: borderCol, height: 1),
+                  SizedBox(height: 12.h),
+                  InkWell(
+                    onTap: () async {
+                      final pickedTime = await showTimePicker(
+                        context: context,
+                        initialTime: _reminderTime,
+                        builder: (context, child) {
+                          return Theme(
+                            data: isDark
+                                ? ThemeData.dark().copyWith(
+                                    colorScheme: const ColorScheme.dark(
+                                      primary: AppColors.primaryTeal,
+                                      onPrimary: Colors.white,
+                                      surface: AppColors.cardDark,
+                                      onSurface: Colors.white,
+                                    ),
+                                  )
+                                : ThemeData.light().copyWith(
+                                    colorScheme: const ColorScheme.light(
+                                      primary: AppColors.primaryTeal,
+                                      onPrimary: Colors.white,
+                                      surface: Colors.white,
+                                      onSurface: Color(0xFF0F172A),
+                                    ),
+                                  ),
+                            child: child!,
+                          );
+                        },
+                      );
+                      if (pickedTime != null) {
+                        setState(() {
+                          _reminderTime = pickedTime;
+                        });
+                      }
+                    },
+                    borderRadius: BorderRadius.circular(10.r),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(10.r),
+                        border: Border.all(color: borderCol),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.alarm_outlined, size: 18.sp, color: subtitleColor),
+                              SizedBox(width: 8.w),
+                              Text(
+                                'Scheduled reminder time',
+                                style: TextStyle(
+                                  fontFamily: 'Manrope',
+                                  fontSize: 12.sp,
+                                  color: textCol,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            _reminderTime.format(context),
+                            style: TextStyle(
+                              fontFamily: 'Manrope',
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primaryTeal,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          
+          SizedBox(height: 180.h),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSetupSectionHeader(String title, bool isDark) {
+    return Padding(
+      padding: EdgeInsets.only(left: 4.w, bottom: 8.h, top: 12.h),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 10.sp,
+          fontFamily: 'Manrope',
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.2,
+          color: isDark ? Colors.white54 : const Color(0xFF64748B),
+        ),
+      ),
+    );
+  }
+
   Widget _buildActionsRow(BuildContext context, bool isDark) {
     if (_currentPage == 0) {
-      // Screen 1: Full-width Next
       return _buildNextButton(fullWidth: true);
-    } else if (_currentPage == 3) {
-      // Screen 4: Full-width Get Started
+    } else if (_currentPage == 4) {
       return _buildGetStartedButton();
     } else {
-      // Screen 2 & 3: Back + Next
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
