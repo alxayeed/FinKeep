@@ -22,40 +22,6 @@ class InvestmentSummaryScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Obx(() {
-      if (controller.investments.isEmpty) {
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.pie_chart_outline_rounded,
-                size: 64.sp,
-                color: isDark ? Colors.white10 : Colors.black12,
-              ),
-              SizedBox(height: 16.h),
-              Text(
-                'No investments to summarize',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontFamily: 'Manrope',
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white38 : const Color(0xFF64748B),
-                ),
-              ),
-              SizedBox(height: 6.h),
-              Text(
-                'Add an investment to view the dashboard summary.',
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  fontFamily: 'Manrope',
-                  color: isDark ? Colors.white24 : const Color(0xFF94A3B8),
-                ),
-              ),
-            ],
-          ),
-        );
-      }
-
       final totalInvested = controller.totalMoneyInvested;
       final totalReceived = controller.totalMoneyReceived;
       final totalCount = controller.totalInvestmentsCount;
@@ -381,22 +347,31 @@ class InvestmentSummaryScreen extends StatelessWidget {
                       PieChartData(
                         sectionsSpace: 2,
                         centerSpaceRadius: 45.r,
-                        sections: InvestmentStatus.values.map((status) {
-                          final count = counts[status] ?? 0;
-                          final percentage = total == 0 ? 0.0 : (count / total) * 100;
-                          return PieChartSectionData(
-                            color: status.color,
-                            value: count.toDouble(),
-                            title: count > 0 ? '${percentage.toStringAsFixed(0)}%' : '',
-                            radius: 18.r,
-                            titleStyle: TextStyle(
-                              fontSize: 9.sp,
-                              fontFamily: 'Manrope',
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          );
-                        }).toList(),
+                        sections: total == 0
+                            ? [
+                                PieChartSectionData(
+                                  color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                                  value: 1,
+                                  title: '',
+                                  radius: 18.r,
+                                ),
+                              ]
+                            : InvestmentStatus.values.map((status) {
+                                final count = counts[status] ?? 0;
+                                final percentage = total == 0 ? 0.0 : (count / total) * 100;
+                                return PieChartSectionData(
+                                  color: status.color,
+                                  value: count.toDouble(),
+                                  title: count > 0 ? '${percentage.toStringAsFixed(0)}%' : '',
+                                  radius: 18.r,
+                                  titleStyle: TextStyle(
+                                    fontSize: 9.sp,
+                                    fontFamily: 'Manrope',
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                );
+                              }).toList(),
                       ),
                     ),
                   ),
