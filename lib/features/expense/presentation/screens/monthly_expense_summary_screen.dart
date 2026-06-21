@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:finkeep/core/config/app_config.dart';
 import 'package:finkeep/core/enums/expense_category.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/routes/app_router.dart';
@@ -52,6 +53,9 @@ class MonthlyExpenseSummaryScreen extends StatelessWidget {
           await controller.fetchMonthlyExpenses();
         },
         color: AppColors.primaryTeal,
+        notificationPredicate: (notification) =>
+            AppConfig.useRemote &&
+            defaultScrollNotificationPredicate(notification),
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
           child: ListView(

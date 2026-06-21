@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:finkeep/core/config/app_config.dart';
 import 'package:finkeep/core/common/widgets/no_data_widget.dart';
 import 'package:finkeep/core/extensions/double_ext.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
@@ -110,6 +111,9 @@ class MonthlyExpenseListScreen extends StatelessWidget {
               return RefreshIndicator(
                 onRefresh: _handleRefresh,
                 color: AppColors.primaryTeal,
+                notificationPredicate: (notification) =>
+                    AppConfig.useRemote &&
+                    defaultScrollNotificationPredicate(notification),
                 child: ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   children: [
@@ -123,6 +127,9 @@ class MonthlyExpenseListScreen extends StatelessWidget {
             return RefreshIndicator(
               onRefresh: _handleRefresh,
               color: AppColors.primaryTeal,
+              notificationPredicate: (notification) =>
+                  AppConfig.useRemote &&
+                  defaultScrollNotificationPredicate(notification),
               child: ListView.builder(
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: EdgeInsets.only(bottom: 100.h),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:finkeep/core/config/app_config.dart';
 import 'package:finkeep/core/common/widgets/custom_app_bar.dart';
 import 'package:finkeep/core/common/widgets/custom_fab.dart';
 import 'package:finkeep/core/extensions/double_ext.dart';
@@ -95,6 +96,9 @@ class _LendingListScreenState extends State<LendingListScreen> {
           return RefreshIndicator(
             color: AppColors.primaryTeal,
             onRefresh: controller.refreshLendings,
+            notificationPredicate: (notification) =>
+                AppConfig.useRemote &&
+                defaultScrollNotificationPredicate(notification),
             child: CustomScrollView(
               physics: const BouncingScrollPhysics(
                 parent: AlwaysScrollableScrollPhysics(),

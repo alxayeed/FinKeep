@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:finkeep/core/config/app_config.dart';
 import 'package:finkeep/core/common/widgets/no_data_widget.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/routes/app_router.dart';
@@ -48,6 +49,9 @@ class _InvestmentListScreenState extends State<InvestmentListScreen> {
         onRefresh: () async {
           await controller.fetchInvestments();
         },
+        notificationPredicate: (notification) =>
+            AppConfig.useRemote &&
+            defaultScrollNotificationPredicate(notification),
         child: Column(
           children: [
             SegmentedTabBar(

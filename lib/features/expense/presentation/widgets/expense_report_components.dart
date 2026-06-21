@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:finkeep/core/config/app_config.dart';
 import 'package:finkeep/core/common/widgets/expense_monthly_analysis.dart';
 import 'package:finkeep/core/common/widgets/loader_widget.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
@@ -43,8 +44,10 @@ class ExpenseSummeryWidget extends StatelessWidget {
         if (controller.isLoading.value) {
           return const Center(child: LoaderWidget());
         } else {
-          return SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
+          final scrollView = SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
             child: Column(
               children: [
                 ExpenseSummery(expenses: data, isReport: isReport),
@@ -62,6 +65,24 @@ class ExpenseSummeryWidget extends StatelessWidget {
               ],
             ),
           );
+
+          if (isReport) {
+            return RefreshIndicator(
+              onRefresh: () async {
+                final start = controller.startDate.value;
+                final end = controller.endDate.value;
+                if (start != null && end != null) {
+                  await controller.fetchExpensesInRange(start, end);
+                }
+              },
+              color: AppColors.primaryTeal,
+              notificationPredicate: (notification) =>
+                  AppConfig.useRemote &&
+                  defaultScrollNotificationPredicate(notification),
+              child: scrollView,
+            );
+          }
+          return scrollView;
         }
       }),
     );
