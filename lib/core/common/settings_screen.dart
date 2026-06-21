@@ -22,6 +22,7 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _reminderEnabled = false;
+  bool _biometricEnabled = false;
   TimeOfDay? _selectedTime;
   final ExpenseReminderService _reminderService =
       createExpenseReminderService();
@@ -40,6 +41,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     try {
       final prefs = await SharedPreferences.getInstance();
       _reminderEnabled = prefs.getBool('reminder_enabled') ?? false;
+      _biometricEnabled = prefs.getBool('biometric_enabled') ?? false;
       final hour = prefs.getInt('reminder_hour');
       final minute = prefs.getInt('reminder_minute');
       if (hour != null && minute != null) {
@@ -277,6 +279,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           );
                         },
                       ),
+                      Divider(
+                        height: 1,
+                        color: isDark
+                            ? const Color(0xFF1E293B)
+                            : const Color(0xFFE2E8F0),
+                      ),
+                      ListTile(
+                        leading: Icon(
+                          Icons.category_outlined,
+                          size: 20.sp,
+                          color: AppColors.primaryTeal,
+                        ),
+                        title: Text(
+                          'Configure Categories',
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            fontFamily: 'Manrope',
+                            fontWeight: FontWeight.w600,
+                            color: textColor,
+                          ),
+                        ),
+                        subtitle: Text(
+                          'Enable or disable expense categories',
+                          style: TextStyle(
+                            fontSize: 11.sp,
+                            fontFamily: 'Manrope',
+                            color: subtitleColor,
+                          ),
+                        ),
+                        trailing: Icon(
+                          Icons.chevron_right,
+                          size: 20.sp,
+                          color: subtitleColor,
+                        ),
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Configure Categories (Coming Soon)'),
+                              backgroundColor: AppColors.primaryTeal,
+                            ),
+                          );
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -480,6 +525,114 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             alpha: 0.3,
                           ),
                         ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                SizedBox(height: 12.h),
+
+                // Settings section: Security & Privacy
+                _buildSectionTitle('SECURITY & PRIVACY', isDark),
+                Container(
+                  decoration: BoxDecoration(
+                    color: cardBg,
+                    borderRadius: BorderRadius.circular(20.r),
+                    border: Border.all(
+                      color: isDark
+                          ? const Color(0xFF1E293B)
+                          : const Color(0xFFE2E8F0),
+                      width: 1,
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      ListTile(
+                        leading: Icon(
+                          Icons.fingerprint_rounded,
+                          size: 20.sp,
+                          color: AppColors.primaryTeal,
+                        ),
+                        title: Text(
+                          'Biometric App Lock',
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            fontFamily: 'Manrope',
+                            fontWeight: FontWeight.w600,
+                            color: textColor,
+                          ),
+                        ),
+                        subtitle: Text(
+                          'Unlock app using fingerprint or Face ID',
+                          style: TextStyle(
+                            fontSize: 11.sp,
+                            fontFamily: 'Manrope',
+                            color: subtitleColor,
+                          ),
+                        ),
+                        trailing: Switch(
+                          value: _biometricEnabled,
+                          onChanged: (value) async {
+                            final prefs = await SharedPreferences.getInstance();
+                            setState(() {
+                              _biometricEnabled = value;
+                            });
+                            await prefs.setBool('biometric_enabled', value);
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  value
+                                      ? 'Biometric App Lock enabled (visual mockup)'
+                                      : 'Biometric App Lock disabled (visual mockup)',
+                                ),
+                                backgroundColor: AppColors.primaryTeal,
+                              ),
+                            );
+                          },
+                          activeThumbColor: AppColors.primaryTeal,
+                          activeTrackColor: AppColors.primaryTeal.withValues(
+                            alpha: 0.3,
+                          ),
+                        ),
+                      ),
+                      Divider(
+                        height: 1,
+                        color: isDark
+                            ? const Color(0xFF1E293B)
+                            : const Color(0xFFE2E8F0),
+                      ),
+                      ListTile(
+                        leading: Icon(
+                          Icons.privacy_tip_outlined,
+                          size: 20.sp,
+                          color: AppColors.primaryTeal,
+                        ),
+                        title: Text(
+                          'Privacy Policy',
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            fontFamily: 'Manrope',
+                            fontWeight: FontWeight.w600,
+                            color: textColor,
+                          ),
+                        ),
+                        subtitle: Text(
+                          'Read our offline data policy',
+                          style: TextStyle(
+                            fontSize: 11.sp,
+                            fontFamily: 'Manrope',
+                            color: subtitleColor,
+                          ),
+                        ),
+                        trailing: Icon(
+                          Icons.chevron_right,
+                          size: 20.sp,
+                          color: subtitleColor,
+                        ),
+                        onTap: () {
+                          context.pushNamed(AppRoutes.privacyPolicy);
+                        },
                       ),
                     ],
                   ),

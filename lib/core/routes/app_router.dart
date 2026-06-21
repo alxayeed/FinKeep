@@ -7,6 +7,8 @@ import 'package:finkeep/features/investments/presentation/screens/investment_det
 import 'package:finkeep/features/investments/presentation/screens/investment_list_screen.dart';
 
 import '../common/settings_screen.dart';
+import '../common/privacy_policy_screen.dart';
+import '../constants/app_strings.dart';
 import '../../features/expense/domain/entities/expense_entity.dart';
 import '../../features/expense/presentation/screens/screens.dart';
 import '../../features/lendings/domain/entity/lending/lending_entity.dart';
@@ -42,6 +44,7 @@ class AppRoutes {
 
   // Settings
   static const String settings = '/settings';
+  static const String privacyPolicy = '/privacyPolicy';
 
   // Onboarding
   static const String onboarding = '/onboarding';
@@ -98,6 +101,14 @@ class AppRouter {
           name: AppRoutes.settings,
           pageBuilder: (context, state) =>
               const NoTransitionPage(child: SettingsScreen()),
+        ),
+        GoRoute(
+          path: AppRoutes.privacyPolicy,
+          name: AppRoutes.privacyPolicy,
+          pageBuilder: (context, state) {
+            final String url = state.extra as String? ?? AppStrings.privacyPolicyUrl;
+            return NoTransitionPage(child: PrivacyPolicyScreen(url: url));
+          },
         ),
         GoRoute(
           path: AppRoutes.addExpense,

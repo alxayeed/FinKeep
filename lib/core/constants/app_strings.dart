@@ -14,6 +14,7 @@ class AppStrings {
 
   //UI
   static const String notAvailable = 'Not Available';
+  static const String privacyPolicyUrl = 'https://drive.google.com/file/d/1YzWPnWm7yZ-n8i8sJe6tSJpEO6FWgU-Z/view?usp=sharing';
 
   //DB
   static const String lendingsCollection = 'lendings';
