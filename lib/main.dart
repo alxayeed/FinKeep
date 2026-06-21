@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:finkeep/core/routes/app_router.dart';
+import 'core/common/biometric_lock_screen.dart';
 
 import 'core/responsive/responsive.dart';
 import 'core/services/local_db_service.dart';
@@ -42,15 +43,30 @@ void main() async {
   // Read onboarding preference and initialize router
   final prefs = await SharedPreferences.getInstance();
   final seenOnboarding = prefs.getBool('seen_onboarding') ?? false;
+  final requiresUnlock = prefs.getBool('biometric_enabled') ?? false;
   AppRouter.init(seenOnboarding);
 
-  runApp(MainApp(themeProvider: themeProvider));
+  runApp(MainApp(themeProvider: themeProvider, requiresUnlock: requiresUnlock));
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends StatefulWidget {
   final ThemeProvider themeProvider;
+  final bool requiresUnlock;
 
-  const MainApp({required this.themeProvider, super.key});
+  const MainApp({required this.themeProvider, required this.requiresUnlock, super.key});
+
+  @override
+  State<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+  late bool _isLocked;
+
+  @override
+  void initState() {
+    super.initState();
+    _isLocked = widget.requiresUnlock;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +77,7 @@ class MainApp extends StatelessWidget {
     );
 
     return ValueListenableBuilder<ThemeMode>(
-      valueListenable: themeProvider,
+      valueListenable: widget.themeProvider,
       builder: (context, themeMode, _) {
         final isDark = themeMode == ThemeMode.dark ||
             (themeMode == ThemeMode.system &&
@@ -76,6 +92,23 @@ class MainApp extends StatelessWidget {
             systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
           ),
         );
+
+        if (_isLocked) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'FinKeep',
+            theme: AppThemes.lightTheme,
+            darkTheme: AppThemes.darkTheme,
+            themeMode: themeMode,
+            home: BiometricLockScreen(
+              onUnlocked: () {
+                setState(() {
+                  _isLocked = false;
+                });
+              },
+            ),
+          );
+        }
 
         return MaterialApp.router(
           debugShowCheckedModeBanner: false,

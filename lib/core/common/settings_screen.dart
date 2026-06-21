@@ -8,6 +8,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:get/get.dart';
 import 'package:finkeep/core/services/app_update_service.dart';
+import 'package:finkeep/core/services/biometric_service.dart';
 
 import '../../features/expense/services/expense_reminder_service.dart';
 import '../responsive/responsive.dart';
@@ -723,22 +724,57 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         trailing: Switch(
                           value: _biometricEnabled,
                           onChanged: (value) async {
+                            final biometricService = Get.find<BiometricService>();
                             final prefs = await SharedPreferences.getInstance();
-                            setState(() {
-                              _biometricEnabled = value;
-                            });
-                            await prefs.setBool('biometric_enabled', value);
-                            if (!context.mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  value
-                                      ? 'Biometric App Lock enabled (visual mockup)'
-                                      : 'Biometric App Lock disabled (visual mockup)',
+
+                            if (value) {
+                              final isSupported = await biometricService.isBiometricsAvailable();
+                              if (!isSupported) {
+                                if (!context.mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Biometrics are not supported or setup on this device.'),
+                                    backgroundColor: AppColors.error,
+                                  ),
+                                );
+                                return;
+                              }
+
+                              final success = await biometricService.authenticate();
+                              if (success) {
+                                setState(() {
+                                  _biometricEnabled = true;
+                                });
+                                await prefs.setBool('biometric_enabled', true);
+                                if (!context.mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Biometric App Lock enabled successfully.'),
+                                    backgroundColor: AppColors.success,
+                                  ),
+                                );
+                              } else {
+                                if (!context.mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Verification failed. Biometric Lock not enabled.'),
+                                    backgroundColor: AppColors.error,
+                                  ),
+                                );
+                              }
+                            } else {
+                              setState(() {
+                                _biometricEnabled = false;
+                              });
+                              await prefs.setBool('biometric_enabled', false);
+                              if (!context.mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Biometric App Lock disabled.'),
+                                  backgroundColor: AppColors.primaryTeal,
                                 ),
-                                backgroundColor: AppColors.primaryTeal,
-                              ),
-                            );
+                              );
+                            }
                           },
                           activeThumbColor: AppColors.primaryTeal,
                           activeTrackColor: AppColors.primaryTeal.withValues(
