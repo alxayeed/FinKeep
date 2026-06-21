@@ -4,6 +4,10 @@ import 'package:finkeep/core/routes/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:get/get.dart';
+import 'package:finkeep/core/services/app_update_service.dart';
 
 import '../../features/expense/services/expense_reminder_service.dart';
 import '../responsive/responsive.dart';
@@ -24,6 +28,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _reminderEnabled = false;
   bool _biometricEnabled = false;
   TimeOfDay? _selectedTime;
+  String _appVersion = '';
+  bool _checkingForUpdates = false;
   final ExpenseReminderService _reminderService =
       createExpenseReminderService();
   final ThemeProvider _themeProvider = ThemeProvider();
@@ -52,6 +58,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           hour: _selectedTime!.hour,
           minute: _selectedTime!.minute,
         );
+      }
+      try {
+        final packageInfo = await PackageInfo.fromPlatform();
+        _appVersion = '${packageInfo.version} (${packageInfo.buildNumber})';
+      } catch (e) {
+        log('Error getting PackageInfo: $e');
       }
       setState(() {});
     } catch (e, st) {
@@ -165,6 +177,144 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _checkForUpdates() async {
+    if (_checkingForUpdates) return;
+    setState(() {
+      _checkingForUpdates = true;
+    });
+
+    try {
+      final updateService = Get.find<AppUpdateService>();
+      final result = await updateService.checkForUpdates();
+
+      if (!mounted) return;
+      setState(() {
+        _checkingForUpdates = false;
+      });
+
+      if (result.canUpdate) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            final isDark = Theme.of(context).brightness == Brightness.dark;
+            return AlertDialog(
+              backgroundColor: isDark ? AppColors.cardDark : Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16.r),
+              ),
+              title: Text(
+                'Update Available',
+                style: TextStyle(
+                  fontFamily: 'Manrope',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16.sp,
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                ),
+              ),
+              content: Text(
+                'A new version of FinKeep (v${result.storeVersion ?? "unknown"}) is available. Update now to get the latest features and stability improvements.',
+                style: TextStyle(
+                  fontFamily: 'Manrope',
+                  fontSize: 13.sp,
+                  color: isDark ? Colors.white70 : const Color(0xFF475569),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    'Later',
+                    style: TextStyle(
+                      fontFamily: 'Manrope',
+                      color: isDark ? Colors.white54 : const Color(0xFF64748B),
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    if (result.storeUrl != null) {
+                      final Uri uri = Uri.parse(result.storeUrl!);
+                      try {
+                        await launchUrl(uri, mode: LaunchMode.platformDefault);
+                      } catch (e) {
+                        log('Error launching update URL: $e');
+                      }
+                    }
+                  },
+                  child: const Text(
+                    'Update Now',
+                    style: TextStyle(
+                      fontFamily: 'Manrope',
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryTeal,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) {
+            final isDark = Theme.of(context).brightness == Brightness.dark;
+            return AlertDialog(
+              backgroundColor: isDark ? AppColors.cardDark : Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16.r),
+              ),
+              title: Text(
+                'Check for Updates',
+                style: TextStyle(
+                  fontFamily: 'Manrope',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16.sp,
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                ),
+              ),
+              content: Text(
+                'Your app is up to date! You are using the latest version.',
+                style: TextStyle(
+                  fontFamily: 'Manrope',
+                  fontSize: 13.sp,
+                  color: isDark ? Colors.white70 : const Color(0xFF475569),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text(
+                    'OK',
+                    style: TextStyle(
+                      fontFamily: 'Manrope',
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryTeal,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e, st) {
+      log('Error checking updates: $e\n$st');
+      if (mounted) {
+        setState(() {
+          _checkingForUpdates = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not check for updates: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _showTestNotificationNow() async {
@@ -692,12 +842,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       ListTile(
                         leading: Icon(
-                          Icons.info_outline,
+                          Icons.system_update_rounded,
                           size: 20.sp,
                           color: AppColors.primaryTeal,
                         ),
                         title: Text(
-                          'About & Version',
+                          'Check for Updates',
                           style: TextStyle(
                             fontSize: 13.sp,
                             fontFamily: 'Manrope',
@@ -705,14 +855,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             color: textColor,
                           ),
                         ),
-                        trailing: Icon(
-                          Icons.chevron_right,
-                          size: 20.sp,
-                          color: subtitleColor,
-                        ),
-                        onTap: () {},
+                        trailing: _checkingForUpdates
+                            ? SizedBox(
+                                width: 20.w,
+                                height: 20.h,
+                                child: const CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppColors.primaryTeal,
+                                ),
+                              )
+                            : Icon(
+                                Icons.chevron_right,
+                                size: 20.sp,
+                                color: subtitleColor,
+                              ),
+                        onTap: _checkingForUpdates ? null : _checkForUpdates,
                       ),
                     ],
+                  ),
+                ),
+                SizedBox(height: 24.h),
+                Center(
+                  child: Text(
+                    _appVersion.isNotEmpty ? 'Version $_appVersion' : '',
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      fontFamily: 'Manrope',
+                      color: subtitleColor,
+                    ),
                   ),
                 ),
                 SizedBox(height: 100.h),

@@ -49,6 +49,7 @@ import 'features/lendings/domain/usecases/repayment/get_repayments_for_lending_u
 import 'features/lendings/domain/usecases/repayment/update_repayment_usecase.dart';
 import 'features/lendings/presentation/controllers/lendings_controller.dart';
 import 'package:finkeep/core/services/local_db_service.dart';
+import 'package:finkeep/core/services/app_update_service.dart';
 import 'package:finkeep/features/expense/data/datasources/expense_local_datasource.dart';
 import 'package:finkeep/features/expense/data/datasources/expense_hive_datasource.dart';
 import 'package:finkeep/features/investments/data/datasources/investment_local_datasource.dart';
@@ -66,6 +67,7 @@ class DependencyInjection {
 
     // --- Local DB Service Reference ---
     Get.lazyPut<LocalDbService>(() => LocalDbService(), fenix: true);
+    Get.lazyPut<AppUpdateService>(() => AppUpdateService(), fenix: true);
 
     // --- Expense Feature ---
     Get.lazyPut<ExpenseLocalDataSource>(

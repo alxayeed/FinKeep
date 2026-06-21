@@ -39,6 +39,8 @@ dependencies:
   timezone: ^0.11.0
   url_launcher: ^6.3.2
   webview_flutter: ^4.8.0
+  package_info_plus: ^8.0.0
+  app_version_update: ^6.1.0
   encrypt: ^5.0.3
   share_plus: ^10.0.0
   file_picker: ^8.0.0
