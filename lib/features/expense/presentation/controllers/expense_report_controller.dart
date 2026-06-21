@@ -74,24 +74,13 @@ class ExpenseReportController extends GetxController {
     final budgetController = Get.find<BudgetController>();
     double totalBudget = 0.0;
 
-    var current = DateTime(start.year, start.month, start.day);
-    final limitDate = DateTime(end.year, end.month, end.day);
+    var current = DateTime(start.year, start.month, 1);
+    final limitDate = DateTime(end.year, end.month, 1);
 
-    final Map<DateTime, int> monthDaysCount = {};
     while (!current.isAfter(limitDate)) {
-      final monthKey = DateTime(current.year, current.month);
-      monthDaysCount[monthKey] = (monthDaysCount[monthKey] ?? 0) + 1;
-      current = current.add(const Duration(days: 1));
-    }
-
-    for (final entry in monthDaysCount.entries) {
-      final month = entry.key;
-      final daysCovered = entry.value;
-
-      final monthBudget = await budgetController.getBudgetForMonth(month);
-      final totalDaysInMonth = DateTime(month.year, month.month + 1, 0).day;
-      
-      totalBudget += monthBudget * (daysCovered / totalDaysInMonth);
+      final monthBudget = await budgetController.getBudgetForMonth(current);
+      totalBudget += monthBudget;
+      current = DateTime(current.year, current.month + 1, 1);
     }
 
     reportRangeBudget.value = totalBudget;
