@@ -1,2 +1,8 @@
-1.0.0+3
- - ADD: Onboarding screen
+1.0.0+4
+ - IN PROGRESS: biometric verification
+ - ADD: app update checker
+ - UPDATE: settings screen updated with new menu. privacy policy added
+ - UPDATE: pull to refresh disabled for local db
+ - UPDATE: investment summary to show empty charts for no data
+ - ADD: monthly budget breakdown
+ - ADD: configuration step in onboarding
