@@ -36,6 +36,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   TimeOfDay? _selectedTime;
   String _appVersion = '';
   bool _checkingForUpdates = false;
+  bool _isPreferencesLoaded = false;
   final ExpenseReminderService _reminderService =
       createExpenseReminderService();
   final ThemeProvider _themeProvider = ThemeProvider();
@@ -44,9 +45,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
     _reminderService.init(onTap: handleNotificationTap);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadPreferences();
-    });
+    _loadPreferences();
   }
 
   Future<void> _loadPreferences() async {
@@ -71,9 +70,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
       } catch (e) {
         log('Error getting PackageInfo: $e');
       }
-      setState(() {});
+      setState(() {
+        _isPreferencesLoaded = true;
+      });
     } catch (e, st) {
       log('Error loading SharedPreferences: $e\n$st');
+      setState(() {
+        _isPreferencesLoaded = true;
+      });
     }
   }
 
@@ -564,10 +568,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
               //   ),
               // ],
             ),
-            body: ListView(
-              physics: const BouncingScrollPhysics(),
-              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-              children: [
+            body: !_isPreferencesLoaded
+                ? const Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryTeal),
+                    ),
+                  )
+                : ListView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+                    children: [
                 // Settings section: Budgeting
                 _buildSectionTitle('BUDGET & PLANNING', isDark),
                 Container(
