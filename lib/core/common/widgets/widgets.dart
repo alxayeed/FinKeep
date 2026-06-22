@@ -7,4 +7,5 @@ export 'styled_elevated_button.dart';
 export 'styled_text_form_field.dart';
 export 'custom_bottom_nav_bar.dart';
 export 'custom_fab.dart';
+export 'custom_permission_dialog.dart';
 

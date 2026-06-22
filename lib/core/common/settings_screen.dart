@@ -17,6 +17,7 @@ import '../styles/app_themes.dart';
 import '../styles/theme_provider.dart';
 import 'backup_restore_screen.dart';
 import 'widgets/custom_app_bar.dart';
+import 'widgets/custom_permission_dialog.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -467,7 +468,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         onTap: () {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Configure Categories (Coming Soon)'),
+                              content: Text(
+                                'Configure Categories (Coming Soon)',
+                              ),
                               backgroundColor: AppColors.primaryTeal,
                             ),
                           );
@@ -724,23 +727,60 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         trailing: Switch(
                           value: _biometricEnabled,
                           onChanged: (value) async {
-                            final biometricService = Get.find<BiometricService>();
+                            final biometricService =
+                                Get.find<BiometricService>();
                             final prefs = await SharedPreferences.getInstance();
 
                             if (value) {
-                              final isSupported = await biometricService.isBiometricsAvailable();
-                              if (!isSupported) {
+                              final hasHardware = await biometricService
+                                  .isBiometricHardwareAvailable();
+                              if (!hasHardware) {
                                 if (!context.mounted) return;
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text('Biometrics are not supported or setup on this device.'),
+                                    content: Text(
+                                      'Biometrics are not supported on this device.',
+                                    ),
                                     backgroundColor: AppColors.error,
                                   ),
                                 );
                                 return;
                               }
 
-                              final success = await biometricService.authenticate();
+                              final hasEnrolled = await biometricService
+                                  .hasEnrolledBiometrics();
+                              if (!hasEnrolled) {
+                                if (!context.mounted) return;
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => CustomPermissionDialog(
+                                    title: 'Setup Biometrics',
+                                    description: 'No biometrics (fingerprints/Face ID) are enrolled on this device. Would you like to set up biometric authentication in system settings?',
+                                    actionText: 'Go to Settings',
+                                    cancelText: 'Cancel',
+                                    icon: Icons.fingerprint_rounded,
+                                    onActionPressed: () async {
+                                      Navigator.pop(context);
+                                      final success = await biometricService.openBiometricSettings();
+                                      if (!success) {
+                                        if (!context.mounted) return;
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Could not open settings automatically. Please open device settings manually.',
+                                            ),
+                                            backgroundColor: AppColors.error,
+                                          ),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                );
+                                return;
+                              }
+
+                              final success = await biometricService
+                                  .authenticate();
                               if (success) {
                                 setState(() {
                                   _biometricEnabled = true;
@@ -749,7 +789,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 if (!context.mounted) return;
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text('Biometric App Lock enabled successfully.'),
+                                    content: Text(
+                                      'Biometric App Lock enabled successfully.',
+                                    ),
                                     backgroundColor: AppColors.success,
                                   ),
                                 );
@@ -757,23 +799,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 if (!context.mounted) return;
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text('Verification failed. Biometric Lock not enabled.'),
+                                    content: Text(
+                                      'Verification failed. Biometric Lock not enabled.',
+                                    ),
                                     backgroundColor: AppColors.error,
                                   ),
                                 );
                               }
                             } else {
-                              setState(() {
-                                _biometricEnabled = false;
-                              });
-                              await prefs.setBool('biometric_enabled', false);
-                              if (!context.mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Biometric App Lock disabled.'),
-                                  backgroundColor: AppColors.primaryTeal,
-                                ),
-                              );
+                              final success = await biometricService.authenticate();
+                              if (success) {
+                                setState(() {
+                                  _biometricEnabled = false;
+                                });
+                                await prefs.setBool('biometric_enabled', false);
+                                if (!context.mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Biometric App Lock disabled.'),
+                                    backgroundColor: AppColors.primaryTeal,
+                                  ),
+                                );
+                              } else {
+                                if (!context.mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Verification failed. Biometric Lock remains enabled.',
+                                    ),
+                                    backgroundColor: AppColors.error,
+                                  ),
+                                );
+                              }
                             }
                           },
                           activeThumbColor: AppColors.primaryTeal,
@@ -870,43 +927,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           );
                         },
                       ),
-                      Divider(
-                        height: 1,
-                        color: isDark
-                            ? const Color(0xFF1E293B)
-                            : const Color(0xFFE2E8F0),
-                      ),
-                      ListTile(
-                        leading: Icon(
-                          Icons.system_update_rounded,
-                          size: 20.sp,
-                          color: AppColors.primaryTeal,
-                        ),
-                        title: Text(
-                          'Check for Updates',
-                          style: TextStyle(
-                            fontSize: 13.sp,
-                            fontFamily: 'Manrope',
-                            fontWeight: FontWeight.w600,
-                            color: textColor,
-                          ),
-                        ),
-                        trailing: _checkingForUpdates
-                            ? SizedBox(
-                                width: 20.w,
-                                height: 20.h,
-                                child: const CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: AppColors.primaryTeal,
-                                ),
-                              )
-                            : Icon(
-                                Icons.chevron_right,
-                                size: 20.sp,
-                                color: subtitleColor,
-                              ),
-                        onTap: _checkingForUpdates ? null : _checkForUpdates,
-                      ),
+                      // Divider(
+                      //   height: 1,
+                      //   color: isDark
+                      //       ? const Color(0xFF1E293B)
+                      //       : const Color(0xFFE2E8F0),
+                      // ),
+                      // ListTile(
+                      //   leading: Icon(
+                      //     Icons.system_update_rounded,
+                      //     size: 20.sp,
+                      //     color: AppColors.primaryTeal,
+                      //   ),
+                      //   title: Text(
+                      //     'Check for Updates',
+                      //     style: TextStyle(
+                      //       fontSize: 13.sp,
+                      //       fontFamily: 'Manrope',
+                      //       fontWeight: FontWeight.w600,
+                      //       color: textColor,
+                      //     ),
+                      //   ),
+                      //   trailing: _checkingForUpdates
+                      //       ? SizedBox(
+                      //           width: 20.w,
+                      //           height: 20.h,
+                      //           child: const CircularProgressIndicator(
+                      //             strokeWidth: 2,
+                      //             color: AppColors.primaryTeal,
+                      //           ),
+                      //         )
+                      //       : Icon(
+                      //           Icons.chevron_right,
+                      //           size: 20.sp,
+                      //           color: subtitleColor,
+                      //         ),
+                      //   onTap: _checkingForUpdates ? null : _checkForUpdates,
+                      // ),
                     ],
                   ),
                 ),

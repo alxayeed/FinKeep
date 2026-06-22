@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:finkeep/core/routes/app_router.dart';
 import 'core/common/biometric_lock_screen.dart';
+import 'core/services/biometric_service.dart';
 
 import 'core/responsive/responsive.dart';
 import 'core/services/local_db_service.dart';
@@ -43,7 +44,17 @@ void main() async {
   // Read onboarding preference and initialize router
   final prefs = await SharedPreferences.getInstance();
   final seenOnboarding = prefs.getBool('seen_onboarding') ?? false;
-  final requiresUnlock = prefs.getBool('biometric_enabled') ?? false;
+  bool requiresUnlock = prefs.getBool('biometric_enabled') ?? false;
+
+  if (requiresUnlock) {
+    final biometricService = BiometricService();
+    final isAvailable = await biometricService.isBiometricsAvailable();
+    if (!isAvailable) {
+      requiresUnlock = false;
+      await prefs.setBool('biometric_enabled', false);
+    }
+  }
+
   AppRouter.init(seenOnboarding);
 
   runApp(MainApp(themeProvider: themeProvider, requiresUnlock: requiresUnlock));
