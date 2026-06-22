@@ -8,7 +8,6 @@ import 'package:finkeep/features/investments/presentation/screens/investment_lis
 
 import '../common/settings_screen.dart';
 import '../common/privacy_policy_screen.dart';
-import '../constants/app_strings.dart';
 import '../../features/expense/domain/entities/expense_entity.dart';
 import '../../features/expense/presentation/screens/screens.dart';
 import '../../features/lendings/domain/entity/lending/lending_entity.dart';
@@ -106,8 +105,7 @@ class AppRouter {
           path: AppRoutes.privacyPolicy,
           name: AppRoutes.privacyPolicy,
           pageBuilder: (context, state) {
-            final String url = state.extra as String? ?? AppStrings.privacyPolicyUrl;
-            return NoTransitionPage(child: PrivacyPolicyScreen(url: url));
+            return const NoTransitionPage(child: PrivacyPolicyScreen());
           },
         ),
         GoRoute(

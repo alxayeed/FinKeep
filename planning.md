@@ -1,28 +1,24 @@
-# Biometric Verification Enhancement Plan
+# Local Privacy Policy PDF Plan
 
-A streamlined overview of the biometric improvements.
+A streamlined plan to display the privacy policy locally from assets.
 
 ---
 
 ## User Journeys (Non-Technical)
 
-- [x] **Enable Lock**: Prompts for fingerprint/Face ID to turn on.
-- [x] **No Hardware**: Displays error: "Biometrics are not supported on this device."
-- [x] **Hardware exists but not configured**: Shows setup dialog that links to system settings.
-- [x] **Disable Lock**: Requires biometric validation before turning security off.
-- [x] **Lockout Prevention**: Auto-disables app lock if device credentials are deleted from OS settings.
+- [x] **Open Privacy Policy**: User clicks on "Privacy Policy" in settings and sees the local PDF file rendered.
+- [x] **Offline Access**: User can open the privacy policy without an internet connection.
 
 ---
 
 ## Code Changes (Technical)
 
-- [x] **[biometric_service.dart](file:///Volumes/DEV/Projects/FinKeep/FinKeep/lib/core/services/biometric_service.dart)**: Add capability/enrollment check methods and launch settings using `android_intent_plus` and `url_launcher`.
-- [x] **[main.dart](file:///Volumes/DEV/Projects/FinKeep/FinKeep/lib/main.dart)**: Bypass lock screen and reset preference if device credentials are completely missing on startup.
-- [x] **[settings_screen.dart](file:///Volumes/DEV/Projects/FinKeep/FinKeep/lib/core/common/settings_screen.dart)**: Update switch toggle to check setup status, show settings dialog if unconfigured, and authenticate on disable.
+- [x] **[pubspec.yaml](file:///Volumes/DEV/Projects/FinKeep/FinKeep/pubspec.yaml)**: Register local asset files directory and add `syncfusion_flutter_pdfviewer` dependency.
+- [x] **[privacy_policy_screen.dart](file:///Volumes/DEV/Projects/FinKeep/FinKeep/lib/core/common/privacy_policy_screen.dart)**: Render PDF using `SfPdfViewer.asset`.
+- [x] **[app_router.dart](file:///Volumes/DEV/Projects/FinKeep/FinKeep/lib/core/routes/app_router.dart)**: Update route definition for privacy policy to load local screen directly without web URL parameter.
 
 ---
 
 ## Verification
 
-- [x] **Manual Testing**: Validate behavior with setup, unconfigured, and no-hardware setups on Android and iOS.
-- [x] **Lockout Test**: Ensure app is accessible if OS security is removed while app lock is active.
+- [x] **Manual Verification**: Run `flutter analyze` and confirm there are no errors in our modifications.
