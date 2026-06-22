@@ -5,6 +5,7 @@ import 'package:finkeep/core/extensions/double_ext.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 
+import 'package:finkeep/core/styles/currency_provider.dart';
 import '../../domain/entities/return_entry.dart';
 import '../controller/investment_controller.dart';
 import '../screens/add_roi_bottom_sheet.dart';
@@ -103,7 +104,7 @@ class ReturnEntryItem extends StatelessWidget {
                 fontWeight: FontWeight.bold,
                 color: isDark ? Colors.white : const Color(0xFF0F172A))),
         content: Text(
-          'Remove this return entry of ${entry.amountReceived.toCurrency()} ৳?',
+          'Remove this return entry of ${entry.amountReceived.toCurrency()} ${context.currency.symbol}?',
           style: TextStyle(
               fontSize: 13.sp,
               fontFamily: 'Manrope',
@@ -197,7 +198,7 @@ class ReturnEntryItem extends StatelessWidget {
                 ),
               ),
               Text(
-                '${entry.amountReceived.toCurrency()} ৳',
+                '${entry.amountReceived.toCurrency()} ${context.currency.symbol}',
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontFamily: 'Manrope',

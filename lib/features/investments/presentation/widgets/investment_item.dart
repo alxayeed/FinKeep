@@ -4,6 +4,7 @@ import '../../../../core/styles/app_colors.dart';
 import '../../../../core/styles/app_text_styles.dart';
 
 import '../../domain/entities/investment.dart';
+import 'package:finkeep/core/styles/currency_provider.dart';
 import '../../domain/enums/investment_status.dart';
 
 class InvestmentItem extends StatelessWidget {
@@ -181,7 +182,7 @@ class InvestmentItem extends StatelessWidget {
         ),
         SizedBox(height: 4.h),
         Text(
-          '৳${amount.toStringAsFixed(0)}',
+          '${context.currency.symbol}${amount.toStringAsFixed(0)}',
           style: AppTextStyles.cardTitle(context).copyWith(
             color: amountColor ?? (isDark ? Colors.white : const Color(0xFF0F172A)),
           ),

@@ -9,6 +9,7 @@ import '../../../../core/routes/app_router.dart';
 import '../../../../core/styles/app_colors.dart';
 import 'package:finkeep/core/extensions/double_ext.dart';
 import 'package:finkeep/core/enums/payment_type.dart';
+import 'package:finkeep/core/styles/currency_provider.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../controllers/monthly_expense_controller.dart';
 
@@ -180,7 +181,7 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
                       ),
                       SizedBox(width: 2.w),
                       FaIcon(
-                        FontAwesomeIcons.bangladeshiTakaSign,
+                        context.currency.icon,
                         size: 18.sp,
                         color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
                       ),

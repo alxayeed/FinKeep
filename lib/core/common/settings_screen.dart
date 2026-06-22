@@ -9,6 +9,11 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:get/get.dart';
 import 'package:finkeep/core/services/app_update_service.dart';
 import 'package:finkeep/core/services/biometric_service.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:finkeep/core/styles/currency_provider.dart';
+import 'package:finkeep/core/enums/currency.dart';
+import 'package:finkeep/core/common/widgets/widgets.dart';
+import 'package:finkeep/core/utils/app_localizations.dart';
 
 import '../../features/expense/services/expense_reminder_service.dart';
 import '../responsive/responsive.dart';
@@ -17,7 +22,6 @@ import '../styles/app_themes.dart';
 import '../styles/theme_provider.dart';
 import 'backup_restore_screen.dart';
 import 'widgets/custom_app_bar.dart';
-import 'widgets/custom_permission_dialog.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -139,6 +143,189 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await prefs.remove('reminder_hour');
       await prefs.remove('reminder_minute');
     }
+  }
+
+  void _showCurrencySelector(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.cardDark : Colors.white;
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: cardBg,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Select Currency',
+                style: TextStyle(
+                  fontFamily: 'Manrope',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16.sp,
+                  color: textColor,
+                ),
+              ),
+              SizedBox(height: 12.h),
+              Flexible(
+                child: SingleChildScrollView(
+                  child: StyledSingleSelectWidget<Currency>(
+                    items: Currency.values,
+                    selectedItem: context.currency,
+                    onSelected: (currency) {
+                      CurrencyProvider().setCurrency(currency);
+                      Navigator.pop(context);
+                    },
+                    titleExtractor: (currency) => currency.name,
+                    leadingBuilder: (context, currency, isSelected) {
+                      return Container(
+                        padding: EdgeInsets.all(8.r),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? const Color(0xFF1E293B)
+                              : const Color(0xFFF1F5F9),
+                          shape: BoxShape.circle,
+                        ),
+                        child: FaIcon(
+                          currency.icon,
+                          size: 14.sp,
+                          color: isSelected
+                              ? AppColors.primaryTeal
+                              : (isDark
+                                    ? Colors.white70
+                                    : const Color(0xFF475569)),
+                        ),
+                      );
+                    },
+                    trailingBuilder: (context, currency, isSelected) {
+                      return Text(
+                        '${currency.code} (${currency.symbol})',
+                        style: TextStyle(
+                          fontFamily: 'Manrope',
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          fontSize: 12.sp,
+                          color: isSelected
+                              ? AppColors.primaryTeal
+                              : (isDark
+                                    ? Colors.white70
+                                    : const Color(0xFF475569)),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showLanguageSelector(BuildContext context, String currentLocale) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.cardDark : Colors.white;
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: cardBg,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+      ),
+      builder: (sheetContext) {
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Select Language',
+                style: TextStyle(
+                  fontFamily: 'Manrope',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16.sp,
+                  color: textColor,
+                ),
+              ),
+              SizedBox(height: 12.h),
+              Flexible(
+                child: SingleChildScrollView(
+                  child: StyledSingleSelectWidget<String>(
+                    items: const ['en', 'bn'],
+                    selectedItem: currentLocale,
+                    onSelected: (localeCode) {
+                      if (localeCode == 'bn') {
+                        Navigator.pop(sheetContext);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'বাংলা (Bangla) translation is coming soon!',
+                            ),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      } else {
+                        AppLocalizations.setLocale(localeCode);
+                        Navigator.pop(sheetContext);
+                      }
+                    },
+                    titleExtractor: (localeCode) =>
+                        localeCode == 'bn' ? 'বাংলা (Bangla)' : 'English',
+                    leadingBuilder: (context, localeCode, isSelected) {
+                      return Container(
+                        padding: EdgeInsets.all(8.r),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? const Color(0xFF1E293B)
+                              : const Color(0xFFF1F5F9),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.language_outlined,
+                          size: 14.sp,
+                          color: isSelected
+                              ? AppColors.primaryTeal
+                              : (isDark
+                                    ? Colors.white70
+                                    : const Color(0xFF475569)),
+                        ),
+                      );
+                    },
+                    trailingBuilder: (context, localeCode, isSelected) {
+                      return Text(
+                        localeCode.toUpperCase(),
+                        style: TextStyle(
+                          fontFamily: 'Manrope',
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          fontSize: 12.sp,
+                          color: isSelected
+                              ? AppColors.primaryTeal
+                              : (isDark
+                                    ? Colors.white70
+                                    : const Color(0xFF475569)),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildThemeSegmentButton(
@@ -567,35 +754,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ? const Color(0xFF1E293B)
                             : const Color(0xFFE2E8F0),
                       ),
-                      ListTile(
-                        leading: Icon(
-                          Icons.language_outlined,
-                          size: 20.sp,
-                          color: AppColors.primaryTeal,
-                        ),
-                        title: Text(
-                          'Language',
-                          style: TextStyle(
-                            fontSize: 13.sp,
-                            fontFamily: 'Manrope',
-                            fontWeight: FontWeight.w600,
-                            color: textColor,
-                          ),
-                        ),
-                        subtitle: Text(
-                          'English',
-                          style: TextStyle(
-                            fontSize: 11.sp,
-                            fontFamily: 'Manrope',
-                            color: subtitleColor,
-                          ),
-                        ),
-                        trailing: Icon(
-                          Icons.chevron_right,
-                          size: 20.sp,
-                          color: subtitleColor,
-                        ),
-                        onTap: () {},
+                      ValueListenableBuilder<String>(
+                        valueListenable: AppLocalizations.localeListenable,
+                        builder: (context, currentLocale, _) {
+                          final languageName = currentLocale == 'bn'
+                              ? 'বাংলা (Bangla)'
+                              : 'English';
+                          return ListTile(
+                            leading: Icon(
+                              Icons.language_outlined,
+                              size: 20.sp,
+                              color: AppColors.primaryTeal,
+                            ),
+                            title: Text(
+                              'Language',
+                              style: TextStyle(
+                                fontSize: 13.sp,
+                                fontFamily: 'Manrope',
+                                fontWeight: FontWeight.w600,
+                                color: textColor,
+                              ),
+                            ),
+                            subtitle: Text(
+                              languageName,
+                              style: TextStyle(
+                                fontSize: 11.sp,
+                                fontFamily: 'Manrope',
+                                color: subtitleColor,
+                              ),
+                            ),
+                            trailing: Icon(
+                              Icons.chevron_right,
+                              size: 20.sp,
+                              color: subtitleColor,
+                            ),
+                            onTap: () =>
+                                _showLanguageSelector(context, currentLocale),
+                          );
+                        },
                       ),
                       Divider(
                         height: 1,
@@ -619,7 +815,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ),
                         subtitle: Text(
-                          'BDT (৳)',
+                          '${context.currency.name} (${context.currency.symbol})',
                           style: TextStyle(
                             fontSize: 11.sp,
                             fontFamily: 'Manrope',
@@ -631,7 +827,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           size: 20.sp,
                           color: subtitleColor,
                         ),
-                        onTap: () {},
+                        onTap: () => _showCurrencySelector(context),
                       ),
                       Divider(
                         height: 1,
@@ -755,16 +951,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   context: context,
                                   builder: (context) => CustomPermissionDialog(
                                     title: 'Setup Biometrics',
-                                    description: 'No biometrics (fingerprints/Face ID) are enrolled on this device. Would you like to set up biometric authentication in system settings?',
+                                    description:
+                                        'No biometrics (fingerprints/Face ID) are enrolled on this device. Would you like to set up biometric authentication in system settings?',
                                     actionText: 'Go to Settings',
                                     cancelText: 'Cancel',
                                     icon: Icons.fingerprint_rounded,
                                     onActionPressed: () async {
                                       Navigator.pop(context);
-                                      final success = await biometricService.openBiometricSettings();
+                                      final success = await biometricService
+                                          .openBiometricSettings();
                                       if (!success) {
                                         if (!context.mounted) return;
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
                                           const SnackBar(
                                             content: Text(
                                               'Could not open settings automatically. Please open device settings manually.',
@@ -807,7 +1007,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 );
                               }
                             } else {
-                              final success = await biometricService.authenticate();
+                              final success = await biometricService
+                                  .authenticate();
                               if (success) {
                                 setState(() {
                                   _biometricEnabled = false;
@@ -816,7 +1017,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 if (!context.mounted) return;
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text('Biometric App Lock disabled.'),
+                                    content: Text(
+                                      'Biometric App Lock disabled.',
+                                    ),
                                     backgroundColor: AppColors.primaryTeal,
                                   ),
                                 );

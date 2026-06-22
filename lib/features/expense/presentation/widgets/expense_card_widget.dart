@@ -7,6 +7,7 @@ import '../../../../core/responsive/responsive.dart';
 import '../../../../core/routes/app_router.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../../../../core/styles/app_text_styles.dart';
+import 'package:finkeep/core/styles/currency_provider.dart';
 import '../../domain/entities/expense_entity.dart';
 
 class ExpenseCardWidget extends StatelessWidget {
@@ -142,7 +143,7 @@ class ExpenseCardWidget extends StatelessWidget {
                   ),
                   SizedBox(width: 2.w),
                   FaIcon(
-                    FontAwesomeIcons.bangladeshiTakaSign,
+                    context.currency.icon,
                     size: 11.sp,
                     color: isDark ? Colors.white70 : const Color(0xFF0F172A),
                   ),

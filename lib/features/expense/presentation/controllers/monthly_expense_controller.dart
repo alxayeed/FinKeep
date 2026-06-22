@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:get/get.dart';
 import 'package:finkeep/features/expense/domain/usecases/get_monthly_expense.dart';
 import 'package:finkeep/core/extensions/double_ext.dart';
+import 'package:finkeep/core/styles/currency_provider.dart';
 import '../../../../core/enums/expense_category.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../../domain/usecases/get_last_month_total_usecase.dart';
@@ -267,14 +268,14 @@ class MonthlyExpenseController extends GetxController {
       final double diff = totalCurrent - totalLast;
       final double percent = (diff / totalLast * 100).abs();
       if (diff > 0) {
-        overallInsight = "Your total spending is ${percent.toStringAsFixed(0)}% higher than last month (increased by ${diff.toCurrency()} ৳). ";
+        overallInsight = "Your total spending is ${percent.toStringAsFixed(0)}% higher than last month (increased by ${diff.toCurrency()} ${CurrencyProvider().value.symbol}). ";
       } else if (diff < 0) {
-        overallInsight = "Great job! Your total spending is ${percent.toStringAsFixed(0)}% lower than last month (saved ${diff.abs().toCurrency()} ৳). ";
+        overallInsight = "Great job! Your total spending is ${percent.toStringAsFixed(0)}% lower than last month (saved ${diff.abs().toCurrency()} ${CurrencyProvider().value.symbol}). ";
       } else {
         overallInsight = "Your total spending is exactly the same as last month. ";
       }
     } else {
-      overallInsight = "You spent a total of ${totalCurrent.toCurrency()} ৳ this month. ";
+      overallInsight = "You spent a total of ${totalCurrent.toCurrency()} ${CurrencyProvider().value.symbol} this month. ";
     }
 
     // 2. Dynamic significant category comparison
@@ -319,11 +320,11 @@ class MonthlyExpenseController extends GetxController {
       if (significantCategory != null && maxAbsoluteChange > 0) {
         if (chosenChange > 0) {
           final double percent = lastAmount > 0 ? (chosenChange / lastAmount * 100) : 100.0;
-          categoryInsight = "Watch out for $significantCategory: you spent ${currentAmount.toCurrency()} ৳, which is ${percent.toStringAsFixed(0)}% higher than last month (an increase of ${chosenChange.toCurrency()} ৳).";
+          categoryInsight = "Watch out for $significantCategory: you spent ${currentAmount.toCurrency()} ${CurrencyProvider().value.symbol}, which is ${percent.toStringAsFixed(0)}% higher than last month (an increase of ${chosenChange.toCurrency()} ${CurrencyProvider().value.symbol}).";
         } else {
           final double savings = chosenChange.abs();
           final double percent = lastAmount > 0 ? (savings / lastAmount * 100) : 100.0;
-          categoryInsight = "Superb control on $significantCategory! You spent ${currentAmount.toCurrency()} ৳, which is ${percent.toStringAsFixed(0)}% lower than last month (saved ${savings.toCurrency()} ৳).";
+          categoryInsight = "Superb control on $significantCategory! You spent ${currentAmount.toCurrency()} ${CurrencyProvider().value.symbol}, which is ${percent.toStringAsFixed(0)}% lower than last month (saved ${savings.toCurrency()} ${CurrencyProvider().value.symbol}).";
         }
       } else {
         categoryInsight = "Your category spending remains very stable compared to last month.";
@@ -345,7 +346,7 @@ class MonthlyExpenseController extends GetxController {
       });
 
       if (highestCategory != null) {
-        categoryInsight = "Your highest spending category this month is $highestCategory, totaling ${maxCategorySpent.toCurrency()} ৳.";
+        categoryInsight = "Your highest spending category this month is $highestCategory, totaling ${maxCategorySpent.toCurrency()} ${CurrencyProvider().value.symbol}.";
       }
     }
 

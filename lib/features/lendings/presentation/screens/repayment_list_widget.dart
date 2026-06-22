@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:finkeep/core/extensions/double_ext.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
-
+import 'package:finkeep/core/styles/currency_provider.dart';
 
 import 'package:finkeep/core/common/widgets/widgets.dart';
 import '../../domain/entity/lending/lending_entity.dart';
@@ -256,7 +256,7 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
                   ),
                 ),
                 Text(
-                  '${repayment.amount.toCurrency()} ৳',
+                  '${repayment.amount.toCurrency()} ${context.currency.symbol}',
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontFamily: 'Manrope',
@@ -488,7 +488,7 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
                 fontWeight: FontWeight.bold,
                 color: isDark ? Colors.white : const Color(0xFF0F172A))),
         content: Text(
-          'Remove this repayment of ${repayment.amount.toCurrency()} ৳?',
+          'Remove this repayment of ${repayment.amount.toCurrency()} ${context.currency.symbol}?',
           style: TextStyle(
               fontSize: 13.sp,
               fontFamily: 'Manrope',
@@ -710,8 +710,8 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
         builder: (ctx) => AlertDialog(
           title: const Text('Overpayment Warning'),
           content: Text(
-            'Due amount is ${dueAmount.toCurrency()} ৳ but you entered '
-            '${enteredAmount.toCurrency()} ৳. Proceed?',
+            'Due amount is ${dueAmount.toCurrency()} ${context.currency.symbol} but you entered '
+            '${enteredAmount.toCurrency()} ${context.currency.symbol}. Proceed?',
           ),
           actions: [
             TextButton(

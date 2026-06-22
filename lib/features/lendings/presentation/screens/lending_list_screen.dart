@@ -11,6 +11,7 @@ import 'package:finkeep/core/routes/app_router.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 import 'package:finkeep/features/lendings/presentation/controllers/lendings_controller.dart';
 import 'package:finkeep/features/lendings/presentation/widgets/lending_list_item.dart';
+import 'package:finkeep/core/styles/currency_provider.dart';
 import 'package:finkeep/features/lendings/presentation/widgets/lending_shimmer_list.dart';
 
 import '../../domain/entity/lending/lending_entity.dart';
@@ -331,7 +332,7 @@ class _LendingListScreenState extends State<LendingListScreen> {
                       Padding(
                         padding: EdgeInsets.only(bottom: 4.h),
                         child: FaIcon(
-                          FontAwesomeIcons.bangladeshiTakaSign,
+                          context.currency.icon,
                           size: 24.sp,
                           color: isDark
                               ? const Color(0xFF6EE7B7)

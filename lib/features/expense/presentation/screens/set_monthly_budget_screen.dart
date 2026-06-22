@@ -5,6 +5,7 @@ import 'package:finkeep/core/enums/expense_category.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 import 'package:finkeep/core/extensions/double_ext.dart';
+import 'package:finkeep/core/styles/currency_provider.dart';
 import '../controllers/budget_controller.dart';
 
 class SetMonthlyBudgetScreen extends StatelessWidget {
@@ -189,7 +190,7 @@ class SetMonthlyBudgetScreen extends StatelessWidget {
                         child: Row(
                           children: [
                             Text(
-                              '৳',
+                              context.currency.symbol,
                               style: TextStyle(
                                 fontSize: 24.sp,
                                 fontWeight: FontWeight.bold,
@@ -239,7 +240,7 @@ class SetMonthlyBudgetScreen extends StatelessWidget {
                           SizedBox(width: 10.w),
                           Expanded(
                             child: Text(
-                              'Category budgets (${controller.totalCategorySum.toCurrency()} ৳) exceed overall budget (${controller.overallBudget.value.toCurrency()} ৳). Overall budget will be auto-increased on save.',
+                              'Category budgets (${controller.totalCategorySum.toCurrency()} ${context.currency.symbol}) exceed overall budget (${controller.overallBudget.value.toCurrency()} ${context.currency.symbol}). Overall budget will be auto-increased on save.',
                               style: TextStyle(
                                 fontSize: 10.5.sp,
                                 fontFamily: 'Manrope',
@@ -408,7 +409,7 @@ class SetMonthlyBudgetScreen extends StatelessWidget {
                                       child: Row(
                                         children: [
                                           Text(
-                                            '৳',
+                                            context.currency.symbol,
                                             style: TextStyle(
                                               fontSize: 16.sp,
                                               fontWeight: FontWeight.bold,

@@ -8,4 +8,4 @@ export 'styled_text_form_field.dart';
 export 'custom_bottom_nav_bar.dart';
 export 'custom_fab.dart';
 export 'custom_permission_dialog.dart';
-
+export 'styled_single_select_widget.dart';

@@ -4,6 +4,7 @@ import 'package:finkeep/core/extensions/double_ext.dart';
 import '../../../../core/enums/expense_category.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/styles/app_colors.dart';
+import '../../../../core/styles/currency_provider.dart';
 import '../../../../core/utils/app_localizations.dart';
 
 class CategorySummaryList extends StatelessWidget {
@@ -147,7 +148,7 @@ class CategorySummaryList extends StatelessWidget {
                         ),
                         // Total Amount
                         Text(
-                          '${spent.toCurrency()} ৳',
+                          '${spent.toCurrency()} ${context.currency.symbol}',
                           style: TextStyle(
                             fontSize: 12.sp,
                             fontFamily: 'Manrope',
@@ -212,7 +213,7 @@ class CategorySummaryList extends StatelessWidget {
                                   textBaseline: TextBaseline.alphabetic,
                                   children: [
                                     Text(
-                                      '${spent.toCurrency()} ৳',
+                                      '${spent.toCurrency()} ${context.currency.symbol}',
                                       style: TextStyle(
                                         fontSize: 12.sp,
                                         fontFamily: 'Manrope',
@@ -224,7 +225,7 @@ class CategorySummaryList extends StatelessWidget {
                                     ),
                                     if (hasBudget)
                                       Text(
-                                        ' / ${budget.toCurrency()} ৳',
+                                        ' / ${budget.toCurrency()} ${context.currency.symbol}',
                                         style: TextStyle(
                                           fontSize: 9.sp,
                                           fontFamily: 'Manrope',

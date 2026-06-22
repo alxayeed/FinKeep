@@ -1,3 +1,5 @@
+import 'package:finkeep/core/styles/currency_provider.dart';
+import 'package:finkeep/core/utils/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +42,10 @@ void main() async {
   // Get the singleton ThemeProvider instance
   final themeProvider = ThemeProvider();
   await themeProvider.loadTheme();
+
+  // Initialize currency provider
+  final currencyProvider = CurrencyProvider();
+  await currencyProvider.loadCurrency();
 
   // Read onboarding preference and initialize router
   final prefs = await SharedPreferences.getInstance();
@@ -104,30 +110,42 @@ class _MainAppState extends State<MainApp> {
           ),
         );
 
-        if (_isLocked) {
-          return MaterialApp(
-            debugShowCheckedModeBanner: false,
-            title: 'FinKeep',
-            theme: AppThemes.lightTheme,
-            darkTheme: AppThemes.darkTheme,
-            themeMode: themeMode,
-            home: BiometricLockScreen(
-              onUnlocked: () {
-                setState(() {
-                  _isLocked = false;
-                });
-              },
-            ),
-          );
-        }
+        return ValueListenableBuilder<String>(
+          valueListenable: AppLocalizations.localeListenable,
+          builder: (context, locale, _) {
+            return CurrencyTheme(
+              notifier: CurrencyProvider(),
+              child: Builder(
+                builder: (context) {
+                  if (_isLocked) {
+                    return MaterialApp(
+                      debugShowCheckedModeBanner: false,
+                      title: 'FinKeep',
+                      theme: AppThemes.lightTheme,
+                      darkTheme: AppThemes.darkTheme,
+                      themeMode: themeMode,
+                      home: BiometricLockScreen(
+                        onUnlocked: () {
+                          setState(() {
+                            _isLocked = false;
+                          });
+                        },
+                      ),
+                    );
+                  }
 
-        return MaterialApp.router(
-          debugShowCheckedModeBanner: false,
-          routerConfig: AppRouter.router,
-          title: 'FinKeep',
-          theme: AppThemes.lightTheme,
-          darkTheme: AppThemes.darkTheme,
-          themeMode: themeMode,
+                  return MaterialApp.router(
+                    debugShowCheckedModeBanner: false,
+                    routerConfig: AppRouter.router,
+                    title: 'FinKeep',
+                    theme: AppThemes.lightTheme,
+                    darkTheme: AppThemes.darkTheme,
+                    themeMode: themeMode,
+                  );
+                },
+              ),
+            );
+          },
         );
       },
     );

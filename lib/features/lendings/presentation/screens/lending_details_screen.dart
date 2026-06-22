@@ -9,6 +9,7 @@ import 'package:finkeep/core/styles/app_colors.dart';
 import 'package:finkeep/features/lendings/presentation/controllers/lendings_controller.dart';
 import 'package:finkeep/features/lendings/presentation/screens/repayment_list_widget.dart';
 
+import 'package:finkeep/core/styles/currency_provider.dart';
 import '../../../../core/routes/app_router.dart';
 import '../../domain/entity/lending/lending_entity.dart';
 
@@ -353,8 +354,7 @@ class _LendingDetailsScreenState extends State<LendingDetailsScreen> {
                                               bottom: 3.h,
                                             ),
                                             child: FaIcon(
-                                              FontAwesomeIcons
-                                                  .bangladeshiTakaSign,
+                                              context.currency.icon,
                                               size: 18.sp,
                                               color: isDark
                                                   ? Colors.white38
@@ -440,7 +440,7 @@ class _LendingDetailsScreenState extends State<LendingDetailsScreen> {
                                                 ),
                                                 SizedBox(height: 3.h),
                                                 Text(
-                                                  '${paid.toCurrency()} ৳',
+                                                  '${paid.toCurrency()} ${context.currency.symbol}',
                                                   style: TextStyle(
                                                     fontSize: 16.sp,
                                                     fontFamily: 'Manrope',
@@ -485,7 +485,7 @@ class _LendingDetailsScreenState extends State<LendingDetailsScreen> {
                                                   ),
                                                   SizedBox(height: 3.h),
                                                   Text(
-                                                    '${remaining.toCurrency()} ৳',
+                                                    '${remaining.toCurrency()} ${context.currency.symbol}',
                                                     style: TextStyle(
                                                       fontSize: 16.sp,
                                                       fontFamily: 'Manrope',

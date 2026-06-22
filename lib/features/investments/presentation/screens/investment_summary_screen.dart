@@ -7,6 +7,7 @@ import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 import 'package:finkeep/features/investments/domain/enums/investment_status.dart';
 
+import 'package:finkeep/core/styles/currency_provider.dart';
 import '../controller/investment_controller.dart';
 
 class InvestmentSummaryScreen extends StatelessWidget {
@@ -42,6 +43,7 @@ class InvestmentSummaryScreen extends StatelessWidget {
             _buildSectionHeader(isDark, 'OVERALL SUMMARY (ALL-TIME)'),
             SizedBox(height: 8.h),
             _buildOverallSummaryCard(
+              context,
               isDark: isDark,
               totalInvested: totalInvested,
               totalReceived: totalReceived,
@@ -54,6 +56,7 @@ class InvestmentSummaryScreen extends StatelessWidget {
             _buildSectionHeader(isDark, 'ACTIVE INVESTMENTS SUMMARY'),
             SizedBox(height: 8.h),
             _buildActiveSummaryCard(
+              context,
               isDark: isDark,
               activeInvested: controller.activeMoneyInvested,
               expectedROI: controller.totalExpectedROI,
@@ -68,11 +71,11 @@ class InvestmentSummaryScreen extends StatelessWidget {
   }
 
   // --------------------------------------------------
-  // Helper: Section Header Text
+  // Helper: Section Header text
   // --------------------------------------------------
   Widget _buildSectionHeader(bool isDark, String title) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 4.w),
+    return Align(
+      alignment: Alignment.centerLeft,
       child: Text(
         title,
         style: TextStyle(
@@ -89,7 +92,8 @@ class InvestmentSummaryScreen extends StatelessWidget {
   // --------------------------------------------------
   // Helper: Overall Summary Card (All-Time)
   // --------------------------------------------------
-  Widget _buildOverallSummaryCard({
+  Widget _buildOverallSummaryCard(
+    BuildContext context, {
     required bool isDark,
     required double totalInvested,
     required double totalReceived,
@@ -121,6 +125,7 @@ class InvestmentSummaryScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: _buildFinancialItem(
+                  context,
                   label: "TOTAL INVESTED",
                   value: totalInvested,
                   isDark: isDark,
@@ -130,6 +135,7 @@ class InvestmentSummaryScreen extends StatelessWidget {
               ),
               Expanded(
                 child: _buildFinancialItem(
+                  context,
                   label: "TOTAL RECEIVED",
                   value: totalReceived,
                   isDark: isDark,
@@ -144,6 +150,7 @@ class InvestmentSummaryScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: _buildFinancialItem(
+                  context,
                   label: "TOTAL PROFIT",
                   value: totalProfit,
                   isDark: isDark,
@@ -152,6 +159,7 @@ class InvestmentSummaryScreen extends StatelessWidget {
               ),
               Expanded(
                 child: _buildFinancialItem(
+                  context,
                   label: "TOTAL LOSS",
                   value: totalLoss,
                   isDark: isDark,
@@ -168,7 +176,8 @@ class InvestmentSummaryScreen extends StatelessWidget {
   // --------------------------------------------------
   // Helper: Active Summary Card (Ongoing)
   // --------------------------------------------------
-  Widget _buildActiveSummaryCard({
+  Widget _buildActiveSummaryCard(
+    BuildContext context, {
     required bool isDark,
     required double activeInvested,
     required double expectedROI,
@@ -198,6 +207,7 @@ class InvestmentSummaryScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: _buildFinancialItem(
+                  context,
                   label: "ACTIVE INVESTED",
                   value: activeInvested,
                   isDark: isDark,
@@ -206,6 +216,7 @@ class InvestmentSummaryScreen extends StatelessWidget {
               ),
               Expanded(
                 child: _buildFinancialItem(
+                  context,
                   label: "EXPECTED ROI",
                   value: expectedROI,
                   isDark: isDark,
@@ -219,6 +230,7 @@ class InvestmentSummaryScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: _buildFinancialItem(
+                  context,
                   label: "RECEIVED (ACTIVE)",
                   value: activeReceived,
                   isDark: isDark,
@@ -227,6 +239,7 @@ class InvestmentSummaryScreen extends StatelessWidget {
               ),
               Expanded(
                 child: _buildFinancialItem(
+                  context,
                   label: "OUTSTANDING CAPITAL",
                   value: capitalAtRisk,
                   isDark: isDark,
@@ -243,7 +256,8 @@ class InvestmentSummaryScreen extends StatelessWidget {
   // --------------------------------------------------
   // Helper: Financial Item Unit
   // --------------------------------------------------
-  Widget _buildFinancialItem({
+  Widget _buildFinancialItem(
+    BuildContext context, {
     required String label,
     required double value,
     required bool isDark,
@@ -284,7 +298,7 @@ class InvestmentSummaryScreen extends StatelessWidget {
             Padding(
               padding: EdgeInsets.only(bottom: isBig ? 3.h : 2.h),
               child: FaIcon(
-                FontAwesomeIcons.bangladeshiTakaSign,
+                context.currency.icon,
                 size: isBig ? 12.sp : 10.sp,
                 color: valColor,
               ),

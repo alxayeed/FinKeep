@@ -10,6 +10,7 @@ import 'package:finkeep/core/styles/app_colors.dart';
 import 'package:finkeep/features/expense/domain/entities/expense_entity.dart';
 import 'package:finkeep/features/expense/presentation/controllers/expense_report_controller.dart';
 import 'package:finkeep/features/expense/presentation/widgets/category_filter_pills.dart';
+import 'package:finkeep/core/styles/currency_provider.dart';
 import '../../../../core/enums/expense_category.dart';
 import '../../../../core/common/widgets/loader_widget.dart';
 import '../widgets/expense_card_widget.dart';
@@ -64,7 +65,7 @@ class ExpenseReportListScreen extends StatelessWidget {
               ),
               SizedBox(width: 2.w),
               FaIcon(
-                FontAwesomeIcons.bangladeshiTakaSign,
+                context.currency.icon,
                 size: 8.sp,
                 color: isDark ? Colors.white30 : const Color(0xFF64748B),
               ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:finkeep/core/extensions/double_ext.dart';
 
+import 'package:finkeep/core/styles/currency_provider.dart';
 import '../../domain/entities/expense_entity.dart';
 
 class ExpenseBarChart extends StatelessWidget {
@@ -17,13 +18,13 @@ class ExpenseBarChart extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 60.0, top: 20),
         child: BarChart(
-          _buildChartData(),
+          _buildChartData(context),
         ),
       ),
     );
   }
 
-  BarChartData _buildChartData() {
+  BarChartData _buildChartData(BuildContext context) {
     final List<BarChartGroupData> barGroups = _generateBarGroups(expenses);
 
     return BarChartData(
@@ -75,7 +76,7 @@ class ExpenseBarChart extends StatelessWidget {
                 DateTime(DateTime.now().year, DateTime.now().month, group.x);
             final formattedDate = DateFormat('d MMM, yyyy').format(date);
             return BarTooltipItem(
-              '$formattedDate\nExpense: ${rod.toY.toInt()} ৳',
+              '$formattedDate\nExpense: ${rod.toY.toInt()} ${context.currency.symbol}',
               const TextStyle(color: Colors.white),
             );
           },

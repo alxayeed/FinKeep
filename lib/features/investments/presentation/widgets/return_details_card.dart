@@ -3,6 +3,7 @@ import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 
 import '../../domain/entities/investment.dart';
+import 'package:finkeep/core/styles/currency_provider.dart';
 import '../../domain/enums/investment_status.dart';
 
 class ROIDetailsCard extends StatelessWidget {
@@ -79,18 +80,21 @@ class ROIDetailsCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       _amountColumn(
+                        context,
                         label: 'Invested',
                         amount: investment.amountInvested,
                         textColor: textColor,
                         labelColor: labelColor,
                       ),
                       _amountColumn(
+                        context,
                         label: 'Returned',
                         amount: totalReturns,
                         textColor: textColor,
                         labelColor: labelColor,
                       ),
                       _amountColumn(
+                        context,
                         label: label,
                         amount: profitLoss.abs(),
                         amountColor: statusColor,
@@ -111,6 +115,7 @@ class ROIDetailsCard extends StatelessWidget {
                         labelColor: labelColor,
                       ),
                       _amountColumn(
+                        context,
                         label: 'Expected ROI',
                         amount: investment.expectedROI,
                         isPercentage: true,
@@ -128,7 +133,8 @@ class ROIDetailsCard extends StatelessWidget {
     );
   }
 
-  Widget _amountColumn({
+  Widget _amountColumn(
+    BuildContext context, {
     required String label,
     required double amount,
     Color? amountColor,
@@ -153,7 +159,7 @@ class ROIDetailsCard extends StatelessWidget {
         Text(
           isPercentage
               ? '${amount.toStringAsFixed(0)}%'
-              : '৳${amount.toStringAsFixed(0)}',
+              : '${context.currency.symbol}${amount.toStringAsFixed(0)}',
           style: TextStyle(
             fontSize: 15.sp,
             fontFamily: 'Manrope',

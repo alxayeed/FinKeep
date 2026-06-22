@@ -7,6 +7,7 @@ import 'package:finkeep/core/common/widgets/loader_widget.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 import 'package:finkeep/core/extensions/double_ext.dart';
+import 'package:finkeep/core/styles/currency_provider.dart';
 
 import '../../../../core/enums/expense_category.dart';
 import '../../domain/entities/expense_entity.dart';
@@ -207,7 +208,7 @@ class ExpenseSummery extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              '${monthlyBudget.toCurrency()} ৳',
+                              '${monthlyBudget.toCurrency()} ${context.currency.symbol}',
                               style: TextStyle(
                                 fontFamily: 'Manrope',
                                 fontSize: 13.sp,
@@ -236,7 +237,7 @@ class ExpenseSummery extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '${totalBudget.toCurrency()} ৳',
+                      '${totalBudget.toCurrency()} ${context.currency.symbol}',
                       style: TextStyle(
                         fontFamily: 'Manrope',
                         fontSize: 16.sp,

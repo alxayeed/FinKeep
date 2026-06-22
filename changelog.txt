@@ -1,3 +1,4 @@
 1.0.0+5
  - FIX: biometric verification
  - UPDATE: Privacy policy shown from assets instead of Google Drive
+ - ADD: Currency Changing option

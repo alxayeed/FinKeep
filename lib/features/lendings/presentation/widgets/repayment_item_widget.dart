@@ -4,6 +4,7 @@ import 'package:finkeep/core/extensions/double_ext.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 
+import 'package:finkeep/core/styles/currency_provider.dart';
 import '../../domain/entity/repayment/repayment_entity.dart';
 
 /// Standalone repayment card — used when embedding repayment tiles outside
@@ -115,7 +116,7 @@ class RepaymentItemWidget extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${repayment.amount.toCurrency()} ৳',
+                  '${repayment.amount.toCurrency()} ${context.currency.symbol}',
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontFamily: 'Manrope',

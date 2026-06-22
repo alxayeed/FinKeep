@@ -3,6 +3,7 @@ import 'package:finkeep/core/extensions/double_ext.dart';
 
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/styles/app_colors.dart';
+import '../../../../core/styles/currency_provider.dart';
 import '../../../../core/utils/app_localizations.dart';
 
 class BudgetProgressCard extends StatelessWidget {
@@ -98,7 +99,7 @@ class BudgetProgressCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '/$budgetText ৳',
+                          '/$budgetText ${context.currency.symbol}',
                           style: TextStyle(
                             fontSize: 10,
                             fontFamily: 'Manrope',
@@ -138,7 +139,7 @@ class BudgetProgressCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '$remainingText ৳',
+                      '$remainingText ${context.currency.symbol}',
                       style: TextStyle(
                         fontSize: 15,
                         fontFamily: 'Manrope',
@@ -224,7 +225,7 @@ class BudgetProgressCard extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '/$budgetText ৳',
+                            '/$budgetText ${context.currency.symbol}',
                             style: TextStyle(
                               fontSize: 11,
                               fontFamily: 'Manrope',
@@ -268,7 +269,7 @@ class BudgetProgressCard extends StatelessWidget {
                       ),
                       SizedBox(height: 4.h),
                       Text(
-                        '$remainingText ৳',
+                        '$remainingText ${context.currency.symbol}',
                         style: TextStyle(
                           fontSize: 18,
                           fontFamily: 'Manrope',

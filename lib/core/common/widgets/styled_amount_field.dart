@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
+import 'package:finkeep/core/styles/currency_provider.dart';
 
 class StyledAmountField extends StatelessWidget {
   final TextEditingController controller;
@@ -40,7 +41,7 @@ class StyledAmountField extends StatelessWidget {
           textBaseline: TextBaseline.alphabetic,
           children: [
             Text(
-              '৳',
+              context.currency.symbol,
               style: TextStyle(
                 fontSize: 32.sp,
                 fontWeight: FontWeight.bold,

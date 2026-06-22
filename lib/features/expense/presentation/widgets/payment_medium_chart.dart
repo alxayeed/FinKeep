@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:finkeep/core/enums/payment_type.dart';
 import 'package:finkeep/core/extensions/double_ext.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
+import 'package:finkeep/core/styles/currency_provider.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 
 import '../../domain/entities/expense_entity.dart';
@@ -136,7 +137,7 @@ class PaymentMediumChart extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'Spent (৳)',
+                        'Spent (${context.currency.symbol})',
                         style: TextStyle(
                           fontSize: 8.sp,
                           fontFamily: 'Manrope',
@@ -186,7 +187,7 @@ class PaymentMediumChart extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '${value.toCurrency()} ৳',
+                            '${value.toCurrency()} ${context.currency.symbol}',
                             style: TextStyle(
                               fontSize: 11.sp,
                               fontFamily: 'Manrope',
