@@ -14,17 +14,24 @@ class AndroidExpenseReminderService implements ExpenseReminderService {
   static const _testNotificationId = 9999; // Separate ID for immediate test
 
   final FlutterLocalNotificationsPlugin _plugin;
+  bool _initialized = false;
+  Future<void>? _initFuture;
 
   AndroidExpenseReminderService({FlutterLocalNotificationsPlugin? plugin})
       : _plugin = plugin ?? FlutterLocalNotificationsPlugin();
 
   @override
   Future<void> init({required void Function(String?) onTap}) async {
+    if (_initFuture != null) return _initFuture!;
+    _initFuture = _doInit(onTap);
+    return _initFuture!;
+  }
+
+  Future<void> _doInit(void Function(String?) onTap) async {
     tz.initializeTimeZones();
 
     try {
-      final TimezoneInfo timezoneInfo =
-          await FlutterTimezone.getLocalTimezone();
+      final TimezoneInfo timezoneInfo = await FlutterTimezone.getLocalTimezone();
       final String currentTimeZone = timezoneInfo.identifier;
       tz.setLocalLocation(tz.getLocation(currentTimeZone));
       log("Local timezone set to: $currentTimeZone");
@@ -57,7 +64,14 @@ class AndroidExpenseReminderService implements ExpenseReminderService {
       },
     );
 
+    _initialized = true;
     log("Flutter Local Notifications initialized successfully");
+  }
+
+  Future<void> _ensureInitialized() async {
+    if (!_initialized && _initFuture != null) {
+      await _initFuture;
+    }
   }
 
   @override
@@ -65,6 +79,8 @@ class AndroidExpenseReminderService implements ExpenseReminderService {
     required int hour,
     required int minute,
   }) async {
+    await _ensureInitialized();
+
     final granted = await AppPermissionHandler.request(Permission.notification);
     if (!granted) {
       log("Notification permission denied");
@@ -88,6 +104,15 @@ class AndroidExpenseReminderService implements ExpenseReminderService {
 
     log('📅 Scheduling daily expense reminder at: $scheduledDate (local time)');
 
+    // Use exact timing if permission is granted, otherwise inexact fallback
+    AndroidScheduleMode scheduleMode = AndroidScheduleMode.inexactAllowWhileIdle;
+    if (await Permission.scheduleExactAlarm.isGranted) {
+      scheduleMode = AndroidScheduleMode.exactAllowWhileIdle;
+      log('using exact alarm mode for scheduled reminder');
+    } else {
+      log('exact alarm permission not granted, using inexact fallback');
+    }
+
     await _plugin.zonedSchedule(
       id: _notificationId,
       title: 'Add today’s expense',
@@ -105,7 +130,7 @@ class AndroidExpenseReminderService implements ExpenseReminderService {
           icon: '@mipmap/ic_launcher',
         ),
       ),
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      androidScheduleMode: scheduleMode,
       matchDateTimeComponents: DateTimeComponents.time,
       payload: 'add_expense',
     );
@@ -115,16 +140,21 @@ class AndroidExpenseReminderService implements ExpenseReminderService {
 
   @override
   Future<void> cancelReminder() async {
+    await _ensureInitialized();
     await _plugin.cancel(id: _notificationId);
     log('📌 Expense reminder canceled');
   }
 
-  // ================================================
-  // NEW: Test method to show notification IMMEDIATELY
-  // ================================================
   @override
   Future<void> showTestNotificationNow() async {
+    await _ensureInitialized();
     log("🔥 Showing immediate test notification");
+    
+    final granted = await AppPermissionHandler.request(Permission.notification);
+    if (!granted) {
+      log("Notification permission denied");
+      return;
+    }
 
     await _plugin.show(
       id: _testNotificationId,

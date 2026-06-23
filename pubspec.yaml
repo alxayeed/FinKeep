@@ -63,3 +63,7 @@ flutter:
     - assets/img/
     - assets/lottie/
     - assets/files/
+
+dependency_overrides:
+  device_info_plus: 11.1.0
+

@@ -556,17 +556,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
             appBar: CustomAppBar(
               title: 'Settings',
               showBackButton: true,
-              // actions: [
-              //   IconButton(
-              //     icon: Icon(
-              //       Icons.notifications_active_outlined,
-              //       color: isDark ? Colors.white : const Color(0xFF0F172A),
-              //       size: 20.sp,
-              //     ),
-              //     tooltip: 'Send Test Notification',
-              //     onPressed: _showTestNotificationNow,
-              //   ),
-              // ],
+              actions: [
+                IconButton(
+                  icon: Icon(
+                    Icons.notifications_active_outlined,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    size: 20.sp,
+                  ),
+                  tooltip: 'Send Test Notification',
+                  onPressed: _showTestNotificationNow,
+                ),
+              ],
             ),
             body: !_isPreferencesLoaded
                 ? const Center(
