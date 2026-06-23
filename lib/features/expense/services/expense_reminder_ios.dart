@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -64,17 +65,21 @@ class IosExpenseReminderService implements ExpenseReminderService {
   }
 
   @override
+  Future<bool> requestPermissions(BuildContext context) async {
+    final granted = await AppPermissionHandler.request(Permission.notification);
+    if (!granted) {
+      log("Notification permission denied on iOS");
+      return false;
+    }
+    return true;
+  }
+
+  @override
   Future<void> scheduleDailyReminder({
     required int hour,
     required int minute,
   }) async {
     await _ensureInitialized();
-
-    final granted = await AppPermissionHandler.request(Permission.notification);
-    if (!granted) {
-      log("Notification permission denied");
-      return;
-    }
 
     final now = tz.TZDateTime.now(tz.local);
 

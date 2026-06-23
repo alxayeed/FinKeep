@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/widgets.dart';
 
 import 'expense_reminder_android.dart';
 import 'expense_reminder_ios.dart';
@@ -11,6 +12,8 @@ abstract class ExpenseReminderService {
   Future<void> cancelReminder();
 
   Future<void> showTestNotificationNow();
+
+  Future<bool> requestPermissions(BuildContext context);
 }
 
 /// Factory method to create platform-specific implementation

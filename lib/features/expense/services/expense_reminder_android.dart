@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -7,6 +8,7 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 import '../../../core/permissions/app_permission_handler.dart';
+import '../../../core/common/widgets/custom_permission_dialog.dart';
 import 'expense_reminder_service.dart';
 
 class AndroidExpenseReminderService implements ExpenseReminderService {
@@ -75,17 +77,46 @@ class AndroidExpenseReminderService implements ExpenseReminderService {
   }
 
   @override
+  Future<bool> requestPermissions(BuildContext context) async {
+    // 1. Request standard notification permission
+    final notificationGranted = await AppPermissionHandler.request(Permission.notification);
+    if (!notificationGranted) {
+      log("Notification permission denied");
+      return false;
+    }
+
+    // 2. Request exact alarm permission if needed
+    final status = await Permission.scheduleExactAlarm.status;
+    if (status.isDenied || status.isPermanentlyDenied) {
+      if (!context.mounted) return true;
+      final bool? requestExact = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => CustomPermissionDialog(
+          title: 'Enable Exact Reminders',
+          description: 'To ensure your daily reminder arrives exactly at the scheduled time (even when the app is in the background), FinKeep needs the "Alarms & Reminders" permission.',
+          actionText: 'Go to Settings',
+          cancelText: 'Not Now',
+          icon: Icons.alarm_rounded,
+          onActionPressed: () => Navigator.pop(context, true),
+          onCancelPressed: () => Navigator.pop(context, false),
+        ),
+      );
+
+      if (requestExact == true) {
+        await Permission.scheduleExactAlarm.request();
+      }
+    }
+
+    return true;
+  }
+
+  @override
   Future<void> scheduleDailyReminder({
     required int hour,
     required int minute,
   }) async {
     await _ensureInitialized();
-
-    final granted = await AppPermissionHandler.request(Permission.notification);
-    if (!granted) {
-      log("Notification permission denied");
-      return;
-    }
 
     final now = tz.TZDateTime.now(tz.local);
 
