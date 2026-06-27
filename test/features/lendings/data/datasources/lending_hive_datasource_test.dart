@@ -54,5 +54,45 @@ void main() {
       expect(result.first.person.id, 'non_existent_person_id');
       expect(result.first.person.name, 'Unknown Person');
     });
+
+    test('should heal lending record and restore person info from nested person map when personId is empty', () async {
+      // Arrange
+      final lendingMap = {
+        'id': 'lend_2',
+        'type': 'given',
+        'personId': '', // empty personId
+        'amount': 1500.0,
+        'repaidAmount': 0.0,
+        'description': 'Test healing',
+        'createdDate': DateTime(2026, 6, 27).toIso8601String(),
+        'status': 'due',
+        'paymentMethod': 'cash',
+        'repayments': [],
+        'person': {
+          'id': 'p_recovered_1',
+          'name': 'Recovered Person Name',
+          'contactNumber': '+88012345',
+        },
+      };
+
+      when(() => mockLendingsBox.values).thenReturn([lendingMap]);
+      when(() => mockPersonsBox.get('p_recovered_1')).thenReturn({
+        'id': 'p_recovered_1',
+        'name': 'Recovered Person Name',
+        'contactNumber': '+88012345',
+      });
+      when(() => mockLendingsBox.put('lend_2', any())).thenAnswer((_) async {});
+
+      // Act
+      final result = await dataSource.getLendings();
+
+      // Assert
+      expect(result, isNotEmpty);
+      expect(result.first.id, 'lend_2');
+      expect(result.first.personId, 'p_recovered_1'); // Should be healed
+      expect(result.first.person.name, 'Recovered Person Name');
+      expect(result.first.person.contactNumber, '+88012345');
+      verify(() => mockLendingsBox.put('lend_2', any())).called(1);
+    });
   });
 }

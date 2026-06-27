@@ -5,6 +5,8 @@ import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 import 'package:finkeep/core/enums/payment_type.dart';
 
+import 'package:finkeep/features/lendings/domain/entity/lending_person/lending_person_entity.dart';
+
 import '../../../../core/routes/app_router.dart';
 import '../../domain/entity/lending/lending_entity.dart';
 import '../controllers/lendings_controller.dart';
@@ -24,8 +26,7 @@ class _UpdateLendingScreenState extends State<UpdateLendingScreen> {
 
   Future<void> _update(
     double amount,
-    String personName,
-    String contact,
+    LendingPersonEntity person,
     LendingType type,
     LendingStatus status,
     DateTime createdDate,
@@ -35,8 +36,8 @@ class _UpdateLendingScreenState extends State<UpdateLendingScreen> {
   ) async {
     final updated = LendingEntity(
       id: widget.lending.id,
-      personId: widget.lending.person.id,
-      person: widget.lending.person,
+      personId: person.id,
+      person: person,
       amount: amount,
       repaidAmount: widget.lending.repaidAmount,
       description: description,
@@ -210,8 +211,8 @@ class _UpdateLendingScreenState extends State<UpdateLendingScreen> {
                           initialLending: widget.lending,
                           submitButtonText: 'Update Record',
                           isLoading: controller.isLoading.value,
-                          onSubmit: (amount, personName, contact, type, status, createdDate, dueDate, description, paymentMethod) {
-                            _update(amount, personName, contact, type, status, createdDate, dueDate, description, paymentMethod);
+                          onSubmit: (amount, person, type, status, createdDate, dueDate, description, paymentMethod) {
+                            _update(amount, person, type, status, createdDate, dueDate, description, paymentMethod);
                           },
                         ),
                         // ── Delete Record button ──

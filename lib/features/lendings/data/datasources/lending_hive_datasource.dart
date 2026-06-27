@@ -43,15 +43,37 @@ class LendingHiveDataSource implements LendingLocalDataSource {
       }
 
       // Populate person object
-      final String personId = data['personId'];
+      String personId = data['personId'] ?? '';
       LendingPersonModel person;
       try {
+        if (personId.isEmpty && data['person'] != null) {
+          final nestedPerson = LendingPersonModel.fromJson(
+              Map<String, dynamic>.from(data['person'] as Map));
+          if (nestedPerson.id.isNotEmpty) {
+            personId = nestedPerson.id;
+            data['personId'] = personId;
+            // Persist the healed record back to Hive box
+            await localDb.lendingsBox.put(data['id'] ?? personId, data);
+          }
+        }
         person = await getPersonById(personId);
       } catch (_) {
-        person = LendingPersonModel(
-          id: personId,
-          name: 'Unknown Person',
-        );
+        if (data['person'] != null) {
+          try {
+            person = LendingPersonModel.fromJson(
+                Map<String, dynamic>.from(data['person'] as Map));
+          } catch (_) {
+            person = LendingPersonModel(
+              id: personId,
+              name: 'Unknown Person',
+            );
+          }
+        } else {
+          person = LendingPersonModel(
+            id: personId,
+            name: 'Unknown Person',
+          );
+        }
       }
       data['person'] = person.toJson();
 

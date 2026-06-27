@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:finkeep/core/common/widgets/widgets.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 import 'package:finkeep/core/enums/payment_type.dart';
+import 'package:finkeep/features/lendings/presentation/controllers/lendings_controller.dart';
+import 'package:finkeep/features/lendings/domain/entity/lending_person/lending_person_entity.dart';
 
 import '../../domain/entity/lending/lending_entity.dart';
 
@@ -12,8 +15,7 @@ class LendingFormWidget extends StatefulWidget {
   final bool isLoading;
   final void Function(
     double amount,
-    String personName,
-    String contact,
+    LendingPersonEntity person,
     LendingType type,
     LendingStatus status,
     DateTime createdDate,
@@ -56,9 +58,73 @@ class _LendingFormWidgetState extends State<LendingFormWidget> {
     LendingStatus.paid: 'Fully Repaid',
   };
 
+  List<LendingPersonEntity> _filteredPersons = [];
+  bool _showSuggestions = false;
+  String? _selectedPersonId;
+  final personNameFocusNode = FocusNode();
+  final LendingsController _lendingsController = Get.find();
+
+  void _onPersonNameChanged() {
+    final query = personNameController.text.trim();
+    if (_selectedPersonId != null) {
+      final selectedPerson = _lendingsController.personsList.firstWhereOrNull((p) => p.id == _selectedPersonId);
+      if (selectedPerson == null || selectedPerson.name != query) {
+        _selectedPersonId = null;
+      }
+    }
+    _filterSuggestions(query);
+  }
+
+  void _filterSuggestions(String text) {
+    final query = text.trim().toLowerCase();
+    if (query.isEmpty) {
+      setState(() {
+        _filteredPersons = _lendingsController.personsList.toList();
+        _showSuggestions = _filteredPersons.isNotEmpty && personNameFocusNode.hasFocus;
+      });
+      return;
+    }
+
+    final matched = _lendingsController.personsList.where((p) {
+      return p.name.toLowerCase().contains(query);
+    }).toList();
+
+    setState(() {
+      _filteredPersons = matched;
+      _showSuggestions = matched.isNotEmpty && personNameFocusNode.hasFocus;
+    });
+  }
+
+  void _selectPerson(LendingPersonEntity person) {
+    personNameController.removeListener(_onPersonNameChanged);
+    setState(() {
+      personNameController.text = person.name;
+      personContactController.text = person.contactNumber ?? '';
+      _selectedPersonId = person.id;
+      _showSuggestions = false;
+      _filteredPersons = [];
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      personNameController.addListener(_onPersonNameChanged);
+    });
+  }
+
+  void _onFocusChanged() {
+    if (personNameFocusNode.hasFocus) {
+      _filterSuggestions(personNameController.text);
+    } else {
+      Future.delayed(const Duration(milliseconds: 200), () {
+        if (mounted) {
+          setState(() => _showSuggestions = false);
+        }
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    personNameFocusNode.addListener(_onFocusChanged);
     final l = widget.initialLending;
     if (l != null) {
       amountController.text = l.amount.toStringAsFixed(0);
@@ -70,13 +136,19 @@ class _LendingFormWidgetState extends State<LendingFormWidget> {
       _transactionDate = l.createdDate;
       _dueDate = l.dueDate;
       _paymentMethod = l.paymentMethod;
+      _selectedPersonId = l.person.id;
+      personNameController.addListener(_onPersonNameChanged);
     } else {
       _paymentMethod = PaymentType.cash;
+      personNameController.addListener(_onPersonNameChanged);
     }
   }
 
   @override
   void dispose() {
+    personNameFocusNode.removeListener(_onFocusChanged);
+    personNameFocusNode.dispose();
+    personNameController.removeListener(_onPersonNameChanged);
     personNameController.dispose();
     personContactController.dispose();
     amountController.dispose();
@@ -215,8 +287,11 @@ class _LendingFormWidgetState extends State<LendingFormWidget> {
 
     widget.onSubmit(
       parsedAmount,
-      personNameController.text.trim(),
-      personContactController.text.trim(),
+      LendingPersonEntity(
+        id: _selectedPersonId ?? '',
+        name: personNameController.text.trim(),
+        contactNumber: personContactController.text.trim().isEmpty ? null : personContactController.text.trim(),
+      ),
       _selectedType == 0 ? LendingType.given : LendingType.taken,
       _selectedStatus,
       _transactionDate,
@@ -268,11 +343,82 @@ class _LendingFormWidgetState extends State<LendingFormWidget> {
           // ── Person Name ──
           StyledTextFormField(
             controller: personNameController,
+            focusNode: personNameFocusNode,
             labelText: 'Person Name',
             hintText: 'Who is this record for?',
             prefixIcon: Icons.person_outline_rounded,
-            readOnly: widget.initialLending != null,
           ),
+
+          if (_showSuggestions) ...[
+            SizedBox(height: 6.h),
+            Container(
+              constraints: BoxConstraints(maxHeight: 180.h),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                borderRadius: BorderRadius.circular(16.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 6.r,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+                border: Border.all(
+                  color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                  width: 1,
+                ),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16.r),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  physics: const BouncingScrollPhysics(),
+                  padding: EdgeInsets.symmetric(vertical: 4.h),
+                  itemCount: _filteredPersons.length,
+                  separatorBuilder: (context, index) => Divider(
+                    height: 1,
+                    color: isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9),
+                  ),
+                  itemBuilder: (context, index) {
+                    final person = _filteredPersons[index];
+                    return ListTile(
+                      dense: true,
+                      leading: CircleAvatar(
+                        radius: 12.r,
+                        backgroundColor: AppColors.primaryTeal.withValues(alpha: 0.1),
+                        child: Text(
+                          person.name.isNotEmpty ? person.name[0].toUpperCase() : 'P',
+                          style: TextStyle(
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primaryTeal,
+                          ),
+                        ),
+                      ),
+                      title: Text(
+                        person.name,
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white : const Color(0xFF334155),
+                        ),
+                      ),
+                      subtitle: person.contactNumber != null && person.contactNumber!.isNotEmpty
+                          ? Text(
+                              person.contactNumber!,
+                              style: TextStyle(
+                                fontSize: 9.sp,
+                                color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+                              ),
+                            )
+                          : null,
+                      onTap: () => _selectPerson(person),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
 
           SizedBox(height: 12.h),
 
@@ -283,7 +429,6 @@ class _LendingFormWidgetState extends State<LendingFormWidget> {
             hintText: '+880 1XXX-XXXXXX',
             prefixIcon: Icons.phone_outlined,
             keyboardType: TextInputType.phone,
-            readOnly: widget.initialLending != null,
           ),
 
           SizedBox(height: 12.h),

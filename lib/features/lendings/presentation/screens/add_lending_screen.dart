@@ -22,8 +22,7 @@ class _AddLendingScreenState extends State<AddLendingScreen> {
 
   Future<void> _saveLending(
     double amount,
-    String personName,
-    String contact,
+    LendingPersonEntity person,
     LendingType type,
     LendingStatus status,
     DateTime createdDate,
@@ -33,12 +32,8 @@ class _AddLendingScreenState extends State<AddLendingScreen> {
   ) async {
     final lending = LendingEntity(
       id: '',
-      personId: '',
-      person: LendingPersonEntity(
-        id: '',
-        name: personName,
-        contactNumber: contact.isEmpty ? null : contact,
-      ),
+      personId: person.id,
+      person: person,
       amount: amount,
       repaidAmount: 0.0,
       description: description,
@@ -137,8 +132,8 @@ class _AddLendingScreenState extends State<AddLendingScreen> {
                 child: Obx(() => LendingFormWidget(
                       submitButtonText: 'Save Record',
                       isLoading: controller.isLoading.value,
-                      onSubmit: (amount, personName, contact, type, status, createdDate, dueDate, description, paymentMethod) {
-                        _saveLending(amount, personName, contact, type, status, createdDate, dueDate, description, paymentMethod);
+                      onSubmit: (amount, person, type, status, createdDate, dueDate, description, paymentMethod) {
+                        _saveLending(amount, person, type, status, createdDate, dueDate, description, paymentMethod);
                       },
                     )),
               ),

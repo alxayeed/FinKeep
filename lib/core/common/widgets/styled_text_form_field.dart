@@ -16,6 +16,8 @@ class StyledTextFormField extends StatelessWidget {
   final bool readOnly;
   final String? hintText;
 
+  final FocusNode? focusNode;
+
   const StyledTextFormField({
     super.key,
     required this.controller,
@@ -28,6 +30,7 @@ class StyledTextFormField extends StatelessWidget {
     this.prefixIcon,
     this.readOnly = false,
     this.hintText,
+    this.focusNode,
   });
 
   @override
@@ -59,6 +62,7 @@ class StyledTextFormField extends StatelessWidget {
           ),
         ),
         TextFormField(
+          focusNode: focusNode,
           controller: controller,
           readOnly: readOnly,
           enableInteractiveSelection: !readOnly,
