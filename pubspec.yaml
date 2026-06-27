@@ -69,11 +69,9 @@ flutter:
     - assets/img/
     - assets/lottie/
     - assets/files/
-<<<<<<< HEAD
+    - .env.prod
+
 
 dependency_overrides:
   device_info_plus: 11.1.0
 
-=======
-    - .env.prod
->>>>>>> e75cc7a (ADD: feedback_github added)
