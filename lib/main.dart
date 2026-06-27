@@ -1,14 +1,17 @@
+import 'package:feedback_github/feedback_github.dart';
+import 'package:finkeep/core/common/widgets/global_feedback_overlay.dart';
+import 'package:finkeep/core/routes/app_router.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
 import 'package:finkeep/core/utils/app_localizations.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:finkeep/core/routes/app_router.dart';
-import 'core/common/biometric_lock_screen.dart';
-import 'core/services/biometric_service.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import 'core/common/biometric_lock_screen.dart';
 import 'core/responsive/responsive.dart';
+import 'core/services/biometric_service.dart';
 import 'core/services/local_db_service.dart';
 import 'core/styles/app_themes.dart';
 import 'core/styles/theme_provider.dart';
@@ -20,6 +23,9 @@ void main() async {
 
   // Enable edge-to-edge mode so Flutter can render behind the system bars
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+
+  // Load environment variables
+  await dotenv.load(fileName: ".env.prod");
 
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -70,7 +76,11 @@ class MainApp extends StatefulWidget {
   final ThemeProvider themeProvider;
   final bool requiresUnlock;
 
-  const MainApp({required this.themeProvider, required this.requiresUnlock, super.key});
+  const MainApp({
+    required this.themeProvider,
+    required this.requiresUnlock,
+    super.key,
+  });
 
   @override
   State<MainApp> createState() => _MainAppState();
@@ -96,17 +106,23 @@ class _MainAppState extends State<MainApp> {
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: widget.themeProvider,
       builder: (context, themeMode, _) {
-        final isDark = themeMode == ThemeMode.dark ||
+        final isDark =
+            themeMode == ThemeMode.dark ||
             (themeMode == ThemeMode.system &&
-                WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.dark);
+                WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+                    Brightness.dark);
 
         SystemChrome.setSystemUIOverlayStyle(
           SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
-            statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+            statusBarIconBrightness: isDark
+                ? Brightness.light
+                : Brightness.dark,
             statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
             systemNavigationBarColor: Colors.transparent,
-            systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+            systemNavigationBarIconBrightness: isDark
+                ? Brightness.light
+                : Brightness.dark,
           ),
         );
 
@@ -117,30 +133,43 @@ class _MainAppState extends State<MainApp> {
               notifier: CurrencyProvider(),
               child: Builder(
                 builder: (context) {
-                  if (_isLocked) {
-                    return MaterialApp(
-                      debugShowCheckedModeBanner: false,
-                      title: 'FinKeep',
-                      theme: AppThemes.lightTheme,
-                      darkTheme: AppThemes.darkTheme,
-                      themeMode: themeMode,
-                      home: BiometricLockScreen(
-                        onUnlocked: () {
-                          setState(() {
-                            _isLocked = false;
-                          });
-                        },
+                  return GithubFeedback(
+                    config: FeedbackConfig(
+                      enabled: true,
+                      backend: GitHubFeedbackBackend(
+                        token: dotenv.env['GITHUB_TOKEN'] ?? '',
+                        repoOwner: 'alxayeed',
+                        repoName: 'finkeep',
+                        branch: 'feedback',
                       ),
-                    );
-                  }
-
-                  return MaterialApp.router(
-                    debugShowCheckedModeBanner: false,
-                    routerConfig: AppRouter.router,
-                    title: 'FinKeep',
-                    theme: AppThemes.lightTheme,
-                    darkTheme: AppThemes.darkTheme,
-                    themeMode: themeMode,
+                    ),
+                    child: _isLocked
+                        ? MaterialApp(
+                            debugShowCheckedModeBanner: false,
+                            title: 'FinKeep',
+                            theme: AppThemes.lightTheme,
+                            darkTheme: AppThemes.darkTheme,
+                            themeMode: themeMode,
+                            home: BiometricLockScreen(
+                              onUnlocked: () {
+                                setState(() {
+                                  _isLocked = false;
+                                });
+                              },
+                            ),
+                          )
+                        : MaterialApp.router(
+                            debugShowCheckedModeBanner: false,
+                            routerConfig: AppRouter.router,
+                            title: 'FinKeep',
+                            theme: AppThemes.lightTheme,
+                            darkTheme: AppThemes.darkTheme,
+                            themeMode: themeMode,
+                            builder: (context, child) {
+                              if (child == null) return const SizedBox.shrink();
+                              return GlobalFeedbackOverlay(child: child);
+                            },
+                          ),
                   );
                 },
               ),

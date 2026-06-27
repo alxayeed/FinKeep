@@ -9,6 +9,7 @@ environment:
   sdk: '>=3.10.0 <4.0.0'
 
 dependencies:
+  flutter_dotenv: ^6.0.1
   android_intent_plus: ^6.0.0
   calendar_date_picker2: ^3.0.0
   cloud_firestore: ^6.4.1
@@ -47,6 +48,11 @@ dependencies:
   path_provider: ^2.1.6
   syncfusion_flutter_pdfviewer: ^33.2.13
 
+  feedback_github:
+    git:
+      url: https://github.com/alxayeed/feedback_github.git
+#      ref: v1.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -63,7 +69,11 @@ flutter:
     - assets/img/
     - assets/lottie/
     - assets/files/
+<<<<<<< HEAD
 
 dependency_overrides:
   device_info_plus: 11.1.0
 
+=======
+    - .env.prod
+>>>>>>> e75cc7a (ADD: feedback_github added)

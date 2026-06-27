@@ -1,2 +1,2 @@
 1.0.0+6
- - FIX: Scheduled notification
+ - ADD: Feedback button added
