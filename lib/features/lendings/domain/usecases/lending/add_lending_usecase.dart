@@ -31,7 +31,10 @@ class AddLendingUseCase {
                       ServerFailure(message: 'Failed to create person'));
                 }
                 final createdPerson = persons.first;
-                final updatedLending = lending.copyWith(person: createdPerson);
+                final updatedLending = lending.copyWith(
+                  person: createdPerson,
+                  personId: createdPerson.id,
+                );
                 return repository.addLending(updatedLending);
               },
             );

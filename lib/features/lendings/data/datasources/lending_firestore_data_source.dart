@@ -97,7 +97,15 @@ class LendingFirestoreDataSource implements LendingDataSource {
         data['id'] = doc.id;
 
         final String personId = data['personId'];
-        final person = await getPersonById(personId);
+        LendingPersonModel person;
+        try {
+          person = await getPersonById(personId);
+        } catch (_) {
+          person = LendingPersonModel(
+            id: personId,
+            name: 'Unknown Person',
+          );
+        }
         data['person'] = person.toJson(); // no dates, plain toJson() is fine
 
         lendings.add(LendingModel.fromFirestoreMap(data));
