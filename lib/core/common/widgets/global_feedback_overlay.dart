@@ -39,7 +39,9 @@ class GlobalFeedbackOverlay extends StatelessWidget {
             return Positioned(
               right: 16,
               bottom: bottomOffset,
-              child: const FeedbackButton(),
+              child: const FeedbackButton(
+                backgroundColor: Colors.deepPurpleAccent,
+              ),
             );
           },
         ),
