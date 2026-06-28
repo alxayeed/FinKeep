@@ -26,7 +26,22 @@ class PushNotificationService {
     // 1. Set background messaging handler
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-    // 2. Setup Foreground Notifications presentation options
+    // 2. Initialize local notifications plugin for foreground alerts
+    const AndroidInitializationSettings androidSettings =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    const DarwinInitializationSettings iosSettings =
+        DarwinInitializationSettings();
+    await _localNotificationsPlugin.initialize(
+      settings: const InitializationSettings(
+        android: androidSettings,
+        iOS: iosSettings,
+      ),
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        log("Local notification tapped: ${response.payload}");
+      },
+    );
+
+    // 3. Setup Foreground Notifications presentation options
     await _fcm.setForegroundNotificationPresentationOptions(
       alert: true,
       badge: true,
@@ -40,25 +55,33 @@ class PushNotificationService {
       sound: true,
     );
 
-    // 3. Handle messages when app is in foreground
+    // 4. Handle messages when app is in foreground
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       log("Foreground Message received: ${message.notification?.title}");
       _showLocalNotification(message);
     });
 
-    // 4. Handle notification tap when app is in background but not terminated
+    // 5. Handle notification tap when app is in background but not terminated
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       log("Notification tapped and opened app: ${message.messageId}");
     });
 
-    // 5. Handle notification when app is opened from terminated state
+    // 6. Handle notification when app is opened from terminated state
     RemoteMessage? initialMessage = await _fcm.getInitialMessage();
     if (initialMessage != null) {
       log("App opened from terminated state by notification: ${initialMessage.messageId}");
     }
 
-    // 6. Get and log the FCM token in the console
+    // 7. Get and log the FCM token in the console
     await logFcmToken();
+
+    // 7. Subscribe to global topic for closed testing announcements
+    try {
+      await _fcm.subscribeToTopic('testers');
+      log("Subscribed to 'testers' topic successfully");
+    } catch (e) {
+      log("Error subscribing to topic: $e");
+    }
   }
 
   Future<void> logFcmToken() async {
