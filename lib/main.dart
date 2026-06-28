@@ -7,12 +7,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/common/biometric_lock_screen.dart';
 import 'core/responsive/responsive.dart';
 import 'core/services/biometric_service.dart';
 import 'core/services/local_db_service.dart';
+import 'core/services/push_notification_service.dart';
 import 'core/styles/app_themes.dart';
 import 'core/styles/theme_provider.dart';
 import 'dependency_injection.dart';
@@ -44,6 +46,9 @@ void main() async {
   await localDb.init();
 
   DependencyInjection.initDependencies();
+
+  // Initialize FCM Push Notifications and log token
+  await Get.find<PushNotificationService>().init();
 
   // Get the singleton ThemeProvider instance
   final themeProvider = ThemeProvider();

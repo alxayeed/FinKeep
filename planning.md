@@ -186,3 +186,26 @@ Before any restore overwrites local data:
 - [ ] **Mid-upload kill test**: Force-kill app during upload → relaunch → confirm Drive committed backup is intact.
 - [ ] **`flutter analyze`**: No new warnings or errors.
 
+---
+
+# FCM Push Notifications Plan
+
+Implement FCM Push Notifications to support foreground, background, and terminated app state messaging for testing.
+
+## User Journeys (Non-Technical)
+- [x] **Notification permission**: User is prompted to allow notifications on startup or when testing notifications.
+- [x] **FCM token display**: Logged in the console (no UI card as per user preference).
+- [x] **Foreground notifications**: User receives and sees notifications locally when the app is open.
+- [x] **Background / Terminated notifications**: User receives notifications when the app is in the background or closed.
+
+## Code Changes (Technical)
+- [x] **[pubspec.yaml](file:///Volumes/DEV/Projects/FinKeep/FinKeep/pubspec.yaml)**: Add `firebase_messaging` dependency.
+- [x] **[push_notification_service.dart](file:///Volumes/DEV/Projects/FinKeep/FinKeep/lib/core/services/push_notification_service.dart)** [NEW]: Implement FCM messaging init, background handlers, local notification presentation, and token access.
+- [x] **[dependency_injection.dart](file:///Volumes/DEV/Projects/FinKeep/FinKeep/lib/dependency_injection.dart)**: Register `PushNotificationService` as a singleton.
+- [x] **[main.dart](file:///Volumes/DEV/Projects/FinKeep/FinKeep/lib/main.dart)**: Initialize `PushNotificationService`.
+- [x] **[settings_screen.dart](file:///Volumes/DEV/Projects/FinKeep/FinKeep/lib/core/common/settings_screen.dart)**: Skipped UI card as per user request (logs token to console instead).
+
+## Verification
+- [x] **Verification**: Run `flutter analyze` and verify FCM push notifications trigger on devices in foreground, background, and terminated states.
+
+
