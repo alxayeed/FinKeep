@@ -1,3 +1,7 @@
+1.0.0+9
+[27/06/2026]
+- ADD: push notification
+
 1.0.0+8
  - ADD: Lending by person
  - FIX: #50 lending record vanishes issue
