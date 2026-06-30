@@ -31,7 +31,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   void initState() {
     super.initState();
-    _budgetTextController = TextEditingController(text: '30000');
+    _budgetTextController = TextEditingController(text: '0');
     _reminderService.init(onTap: (payload) {});
   }
 
@@ -46,7 +46,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final prefs = await SharedPreferences.getInstance();
 
     // 1. Save Monthly Budget
-    final budgetVal = double.tryParse(_budgetTextController.text) ?? 30000.0;
+    final budgetVal = double.tryParse(_budgetTextController.text) ?? 0.0;
     try {
       final budgetController = Get.find<BudgetController>();
       await budgetController.saveBudgetsForMonth(

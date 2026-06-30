@@ -131,8 +131,21 @@ class BudgetController extends GetxController {
       if (!targetMonthStart.isBefore(currentMonthStart)) {
         final localRecurData = localDb.budgetsBox.get(recurringDocId);
         if (localRecurData != null) {
-          _applyBudgetData(Map<String, dynamic>.from(localRecurData));
-          return;
+          final String? startMonthStr = localRecurData['month'] as String?;
+          bool shouldApply = true;
+          if (startMonthStr != null) {
+            try {
+              final startMonth = DateFormat('yyyy-MMMM').parse(startMonthStr);
+              final startMonthStart = DateTime(startMonth.year, startMonth.month);
+              if (targetMonthStart.isBefore(startMonthStart)) {
+                shouldApply = false;
+              }
+            } catch (_) {}
+          }
+          if (shouldApply) {
+            _applyBudgetData(Map<String, dynamic>.from(localRecurData));
+            return;
+          }
         }
       }
 
@@ -152,9 +165,22 @@ class BudgetController extends GetxController {
           final recurringDoc = await firestore.collection(collectionName).doc(recurringDocId).get();
           if (recurringDoc.exists && recurringDoc.data() != null) {
             final data = recurringDoc.data()!;
-            await localDb.budgetsBox.put(recurringDocId, data);
-            _applyBudgetData(data);
-            return;
+            final String? startMonthStr = data['month'] as String?;
+            bool shouldApply = true;
+            if (startMonthStr != null) {
+              try {
+                final startMonth = DateFormat('yyyy-MMMM').parse(startMonthStr);
+                final startMonthStart = DateTime(startMonth.year, startMonth.month);
+                if (targetMonthStart.isBefore(startMonthStart)) {
+                  shouldApply = false;
+                }
+              } catch (_) {}
+            }
+            if (shouldApply) {
+              await localDb.budgetsBox.put(recurringDocId, data);
+              _applyBudgetData(data);
+              return;
+            }
           }
         }
       }
@@ -283,7 +309,20 @@ class BudgetController extends GetxController {
       if (!targetMonthStart.isBefore(currentMonthStart)) {
         final localRecurData = localDb.budgetsBox.get(recurringDocId);
         if (localRecurData != null) {
-          return (localRecurData['overallBudget'] as num?)?.toDouble() ?? 30000.0;
+          final String? startMonthStr = localRecurData['month'] as String?;
+          bool shouldApply = true;
+          if (startMonthStr != null) {
+            try {
+              final startMonth = DateFormat('yyyy-MMMM').parse(startMonthStr);
+              final startMonthStart = DateTime(startMonth.year, startMonth.month);
+              if (targetMonthStart.isBefore(startMonthStart)) {
+                shouldApply = false;
+              }
+            } catch (_) {}
+          }
+          if (shouldApply) {
+            return (localRecurData['overallBudget'] as num?)?.toDouble() ?? 30000.0;
+          }
         }
       }
     } catch (e, stackTrace) {

@@ -1,3 +1,8 @@
+1.0.0+10
+[30/06/2026]
+- UPDATE: initial budget is 0 in the onboarding step
+
+
 1.0.0+9
 [27/06/2026]
 - ADD: push notification
