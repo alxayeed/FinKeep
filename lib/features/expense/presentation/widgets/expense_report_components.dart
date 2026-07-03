@@ -103,12 +103,12 @@ class ExpenseSummery extends StatelessWidget {
   final List<ExpenseEntity> expenses;
   final bool isReport;
 
-  void _showBudgetBreakdownBottomSheet(
+  Future<void> _showBudgetBreakdownBottomSheet(
     BuildContext context,
     double totalBudget,
     DateTime start,
     DateTime end,
-  ) {
+  ) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textCol = isDark ? Colors.white : const Color(0xFF0F172A);
     final borderCol = isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0);
@@ -122,15 +122,7 @@ class ExpenseSummery extends StatelessWidget {
     final limitDate = DateTime(end.year, end.month, 1);
 
     while (!current.isAfter(limitDate)) {
-      final monthDocId = DateFormat('yyyy-MMMM').format(current);
-      final localMonthData = budgetController.localDb.budgetsBox.get(monthDocId) ??
-          budgetController.localDb.budgetsBox.get('recurring');
-
-      double overallBudget = 30000.0;
-      if (localMonthData != null) {
-        final data = Map<String, dynamic>.from(localMonthData);
-        overallBudget = (data['overallBudget'] as num?)?.toDouble() ?? 30000.0;
-      }
+      final overallBudget = await budgetController.getBudgetForMonth(current);
 
       breakdown.add({
         'monthLabel': DateFormat('MMMM yyyy').format(current),
@@ -140,6 +132,7 @@ class ExpenseSummery extends StatelessWidget {
       current = DateTime(current.year, current.month + 1, 1);
     }
 
+    if (!context.mounted) return;
     showModalBottomSheet(
       context: context,
       backgroundColor: isDark ? AppColors.bgDark : Colors.white,
@@ -276,11 +269,11 @@ class ExpenseSummery extends StatelessWidget {
         // 💳 Total Spent Card
         GestureDetector(
           onTap: isReport
-              ? () {
+              ? () async {
                   final start = reportController.startDate.value;
                   final end = reportController.endDate.value;
                   if (start != null && end != null) {
-                    _showBudgetBreakdownBottomSheet(
+                    await _showBudgetBreakdownBottomSheet(
                       context,
                       calculatedBudget,
                       start,
@@ -289,7 +282,12 @@ class ExpenseSummery extends StatelessWidget {
                   }
                 }
               : null,
-          child: BudgetProgressCard(spent: totalSpending, budget: calculatedBudget),
+          child: Obx(() {
+            final budgetVal = isReport
+                ? reportController.reportRangeBudget.value
+                : budgetController.monthlyBudget.value;
+            return BudgetProgressCard(spent: totalSpending, budget: budgetVal);
+          }),
         ),
 
         // 💳 Spending Medium Chart

@@ -13,6 +13,7 @@ class ExpenseReportController extends GetxController {
   var reportFilteredExpenses = <ExpenseEntity>[].obs;
   var reportTotalExpense = 0.0.obs;
   var reportRangeBudget = 0.0.obs;
+  var missingBudgetMonths = <DateTime>[].obs;
 
   final categories = <String>[
     'All',
@@ -44,6 +45,7 @@ class ExpenseReportController extends GetxController {
     selectedCategory.value = 'All';
     searchQuery.value = '';
     reportRangeBudget.value = 0.0;
+    missingBudgetMonths.clear();
   }
 
   Future<void> fetchExpensesInRange(DateTime start, DateTime end) async {
@@ -62,11 +64,63 @@ class ExpenseReportController extends GetxController {
       updateReportTotalExpense();
       filterReportExpensesByCategory();
       await calculateBudgetForRange(start, end);
+      await checkMissingBudgets();
     } catch (e, stackTrace) {
       ExceptionHandler.handle(e, stackTrace, 'ExpenseReportController.fetchExpensesInRange');
       reportExpenses.value = [];
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> checkMissingBudgets() async {
+    final start = startDate.value;
+    final end = endDate.value;
+    if (start == null || end == null) return;
+
+    final budgetController = Get.find<BudgetController>();
+    final Map<DateTime, double> monthlyExpenses = {};
+    for (var expense in reportExpenses) {
+      final monthStart = DateTime(expense.date.year, expense.date.month, 1);
+      monthlyExpenses[monthStart] = (monthlyExpenses[monthStart] ?? 0.0) + expense.amount;
+    }
+
+    final DateTime now = DateTime.now();
+    final DateTime currentMonthStart = DateTime(now.year, now.month, 1);
+
+    final List<DateTime> missing = [];
+    for (var monthStart in monthlyExpenses.keys) {
+      if (monthStart.isBefore(currentMonthStart)) {
+        final budget = await budgetController.getBudgetForMonth(monthStart);
+        if (budget <= 0.0) {
+          missing.add(monthStart);
+        }
+      }
+    }
+
+    if (missing.isNotEmpty) {
+      missing.sort((a, b) => a.compareTo(b));
+      missingBudgetMonths.value = missing;
+    } else {
+      missingBudgetMonths.clear();
+    }
+  }
+
+  Future<void> saveBudgetForMonths(List<DateTime> months, double amount) async {
+    final budgetController = Get.find<BudgetController>();
+    for (var month in months) {
+      await budgetController.saveBudgetsForMonth(
+        month: month,
+        overall: amount,
+        categories: {},
+        isRecurring: false,
+      );
+    }
+    missingBudgetMonths.clear();
+    final start = startDate.value;
+    final end = endDate.value;
+    if (start != null && end != null) {
+      await calculateBudgetForRange(start, end);
     }
   }
 
