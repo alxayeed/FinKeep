@@ -1,19 +1,19 @@
 import 'dart:developer';
 
+import 'package:finkeep/core/common/widgets/widgets.dart';
+import 'package:finkeep/core/enums/currency.dart';
 import 'package:finkeep/core/routes/app_router.dart';
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:get/get.dart';
 import 'package:finkeep/core/services/app_update_service.dart';
 import 'package:finkeep/core/services/biometric_service.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
-import 'package:finkeep/core/enums/currency.dart';
-import 'package:finkeep/core/common/widgets/widgets.dart';
 import 'package:finkeep/core/utils/app_localizations.dart';
+import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../features/expense/services/expense_reminder_service.dart';
 import '../responsive/responsive.dart';
@@ -896,12 +896,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         color: subtitleColor,
                                       ),
                                     ),
-                              trailing: Switch(
+                              trailing: AppSwitchButton(
                                 value: _reminderEnabled,
                                 onChanged: _toggleReminder,
-                                activeThumbColor: AppColors.primaryTeal,
-                                activeTrackColor: AppColors.primaryTeal
-                                    .withValues(alpha: 0.3),
                               ),
                             ),
                           ],
@@ -948,7 +945,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   color: subtitleColor,
                                 ),
                               ),
-                              trailing: Switch(
+                              trailing: AppSwitchButton(
                                 value: _biometricEnabled,
                                 onChanged: (value) async {
                                   final biometricService =
@@ -1084,9 +1081,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     }
                                   }
                                 },
-                                activeThumbColor: AppColors.primaryTeal,
-                                activeTrackColor: AppColors.primaryTeal
-                                    .withValues(alpha: 0.3),
                               ),
                             ),
                             Divider(

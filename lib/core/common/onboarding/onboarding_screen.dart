@@ -1,14 +1,16 @@
+import 'package:finkeep/core/common/widgets/app_switch_button.dart';
+import 'package:finkeep/core/responsive/responsive.dart';
+import 'package:finkeep/core/routes/app_router.dart';
+import 'package:finkeep/core/styles/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:finkeep/core/routes/app_router.dart';
-import 'package:finkeep/core/responsive/responsive.dart';
-import 'package:finkeep/core/styles/app_colors.dart';
+
 import '../../../features/expense/presentation/controllers/budget_controller.dart';
 import '../../../features/expense/services/expense_reminder_service.dart';
-import 'widgets/onboarding_slide.dart';
 import 'widgets/animated_illustration.dart';
+import 'widgets/onboarding_slide.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -26,7 +28,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   bool _isRecurring = true;
   bool _reminderEnabled = true;
   TimeOfDay _reminderTime = const TimeOfDay(hour: 21, minute: 0);
-  final ExpenseReminderService _reminderService = createExpenseReminderService();
+  final ExpenseReminderService _reminderService =
+      createExpenseReminderService();
 
   @override
   void initState() {
@@ -91,11 +94,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     // Background style: Dark Slate or very light mint green
     final backgroundColor = isDark ? AppColors.bgDark : const Color(0xFFF2FDEC);
     final textCol = isDark ? Colors.white : const Color(0xFF0F172A);
-    final borderCol = isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0);
+    final borderCol = isDark
+        ? const Color(0xFF1E293B)
+        : const Color(0xFFE2E8F0);
     final subtitleColor = isDark ? Colors.white70 : const Color(0xFF475569);
     final cardBg = isDark ? AppColors.cardDark : Colors.white;
 
@@ -114,27 +119,49 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               },
               children: [
                 OnboardingSlide(
-                  illustration: AnimatedIllustration(index: 0, isActive: _currentPage == 0),
+                  illustration: AnimatedIllustration(
+                    index: 0,
+                    isActive: _currentPage == 0,
+                  ),
                   title: 'Track Expenses Smartly',
-                  subtitle: 'Log your daily expenses, set budget limits, and analyze your spending habits with intuitive category breakdowns.',
+                  subtitle:
+                      'Log your daily expenses, set budget limits, and analyze your spending habits with intuitive category breakdowns.',
                 ),
                 OnboardingSlide(
-                  illustration: AnimatedIllustration(index: 1, isActive: _currentPage == 1),
+                  illustration: AnimatedIllustration(
+                    index: 1,
+                    isActive: _currentPage == 1,
+                  ),
                   title: 'Manage Loans & Debts',
-                  subtitle: 'Keep a structured log of personal lendings, borrowings, and repayments. Never lose track of money owed or due.',
+                  subtitle:
+                      'Keep a structured log of personal lendings, borrowings, and repayments. Never lose track of money owed or due.',
                 ),
                 OnboardingSlide(
-                  illustration: AnimatedIllustration(index: 2, isActive: _currentPage == 2),
+                  illustration: AnimatedIllustration(
+                    index: 2,
+                    isActive: _currentPage == 2,
+                  ),
                   title: 'Monitor Investments',
-                  subtitle: 'Keep all your active investments in view. Check your portfolio valuation and track growth over time.',
+                  subtitle:
+                      'Keep all your active investments in view. Check your portfolio valuation and track growth over time.',
                 ),
                 OnboardingSlide(
-                  illustration: AnimatedIllustration(index: 3, isActive: _currentPage == 3),
+                  illustration: AnimatedIllustration(
+                    index: 3,
+                    isActive: _currentPage == 3,
+                  ),
                   title: 'Your Data, Safe and Private',
-                  subtitle: 'FinKeep is fully offline. All your financial data is stored locally on your device and never leaves it. You can securely backup your data using AES-256 encrypted files.',
+                  subtitle:
+                      'FinKeep is fully offline. All your financial data is stored locally on your device and never leaves it. You can securely backup your data using AES-256 encrypted files.',
                   extra: _buildSecurityFeatures(borderCol, textCol, isDark),
                 ),
-                _buildSetupSlide(cardBg, borderCol, textCol, subtitleColor, isDark),
+                _buildSetupSlide(
+                  cardBg,
+                  borderCol,
+                  textCol,
+                  subtitleColor,
+                  isDark,
+                ),
               ],
             ),
 
@@ -186,7 +213,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           fontFamily: 'Manrope',
                           fontSize: 13.sp,
                           fontWeight: FontWeight.w700,
-                          color: isDark ? Colors.white60 : const Color(0xFF475569),
+                          color: isDark
+                              ? Colors.white60
+                              : const Color(0xFF475569),
                         ),
                       ),
                     ),
@@ -215,7 +244,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         decoration: BoxDecoration(
                           color: isActive
                               ? const Color(0xFF006E25)
-                              : (isDark ? const Color(0xFF334155) : const Color(0xFFBACBB6)),
+                              : (isDark
+                                    ? const Color(0xFF334155)
+                                    : const Color(0xFFBACBB6)),
                           borderRadius: BorderRadius.circular(4.r),
                         ),
                       );
@@ -314,7 +345,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   height: 52.h,
                   padding: EdgeInsets.symmetric(horizontal: 14.w),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+                    color: isDark
+                        ? const Color(0xFF0F172A)
+                        : const Color(0xFFF8FAFC),
                     borderRadius: BorderRadius.circular(12.r),
                     border: Border.all(color: borderCol),
                   ),
@@ -353,7 +386,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [10000, 20000, 30000, 50000].map((preset) {
-                    final String displayVal = '${(preset / 1000).toStringAsFixed(0)}k';
+                    final String displayVal =
+                        '${(preset / 1000).toStringAsFixed(0)}k';
                     return Expanded(
                       child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: 4.w),
@@ -365,11 +399,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           },
                           style: OutlinedButton.styleFrom(
                             side: BorderSide(
-                              color: _budgetTextController.text == preset.toString()
+                              color:
+                                  _budgetTextController.text ==
+                                      preset.toString()
                                   ? AppColors.primaryTeal
                                   : borderCol,
                             ),
-                            backgroundColor: _budgetTextController.text == preset.toString()
+                            backgroundColor:
+                                _budgetTextController.text == preset.toString()
                                 ? AppColors.primaryTeal.withValues(alpha: 0.1)
                                 : Colors.transparent,
                             shape: RoundedRectangleBorder(
@@ -383,7 +420,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               fontFamily: 'Manrope',
                               fontSize: 11.sp,
                               fontWeight: FontWeight.bold,
-                              color: _budgetTextController.text == preset.toString()
+                              color:
+                                  _budgetTextController.text ==
+                                      preset.toString()
                                   ? AppColors.primaryTeal
                                   : textCol,
                             ),
@@ -422,9 +461,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                       ],
                     ),
-                    Switch.adaptive(
+                    AppSwitchButton(
                       value: _isRecurring,
-                      activeTrackColor: AppColors.primaryTeal,
                       onChanged: (val) {
                         setState(() {
                           _isRecurring = val;
@@ -486,9 +524,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                       ],
                     ),
-                    Switch.adaptive(
+                    AppSwitchButton(
                       value: _reminderEnabled,
-                      activeTrackColor: AppColors.primaryTeal,
                       onChanged: (val) {
                         setState(() {
                           _reminderEnabled = val;
@@ -537,9 +574,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     },
                     borderRadius: BorderRadius.circular(10.r),
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12.w,
+                        vertical: 10.h,
+                      ),
                       decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+                        color: isDark
+                            ? const Color(0xFF0F172A)
+                            : const Color(0xFFF8FAFC),
                         borderRadius: BorderRadius.circular(10.r),
                         border: Border.all(color: borderCol),
                       ),
@@ -548,7 +590,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         children: [
                           Row(
                             children: [
-                              Icon(Icons.alarm_outlined, size: 18.sp, color: subtitleColor),
+                              Icon(
+                                Icons.alarm_outlined,
+                                size: 18.sp,
+                                color: subtitleColor,
+                              ),
                               SizedBox(width: 8.w),
                               Text(
                                 'Scheduled reminder time',
@@ -577,7 +623,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ],
             ),
           ),
-          
+
           SizedBox(height: 180.h),
         ],
       ),
@@ -673,11 +719,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ),
           SizedBox(width: 8.w),
-          Icon(
-            Icons.arrow_forward_rounded,
-            color: Colors.white,
-            size: 16.sp,
-          ),
+          Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 16.sp),
         ],
       ),
     );
@@ -689,7 +731,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           curve: Curves.easeInOut,
         );
       },
-      child: fullWidth ? SizedBox(width: double.infinity, child: button) : button,
+      child: fullWidth
+          ? SizedBox(width: double.infinity, child: button)
+          : button,
     );
   }
 
@@ -723,11 +767,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ),
             SizedBox(width: 8.w),
-            Icon(
-              Icons.arrow_forward_rounded,
-              color: Colors.white,
-              size: 16.sp,
-            ),
+            Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 16.sp),
           ],
         ),
       ),
@@ -753,7 +793,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     color: AppColors.success.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8.r),
                   ),
-                  child: Icon(Icons.lock_rounded, color: AppColors.success, size: 16.sp),
+                  child: Icon(
+                    Icons.lock_rounded,
+                    color: AppColors.success,
+                    size: 16.sp,
+                  ),
                 ),
                 SizedBox(width: 10.w),
                 Expanded(
@@ -804,7 +848,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     color: Colors.blue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8.r),
                   ),
-                  child: Icon(Icons.cloud_off_rounded, color: Colors.blue, size: 16.sp),
+                  child: Icon(
+                    Icons.cloud_off_rounded,
+                    color: Colors.blue,
+                    size: 16.sp,
+                  ),
                 ),
                 SizedBox(width: 10.w),
                 Expanded(

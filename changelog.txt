@@ -5,6 +5,8 @@
 - UPDATE: Closed #52 Previous months won't have budget.
 - ADD: Set missing budget for previous month. Closed #65
 - ADD: Historical budget
+- UPDATE: Expense summary shimmer adjusted
+- ADD: common app switch button added. #Closed #55
 
 
 1.0.0+9

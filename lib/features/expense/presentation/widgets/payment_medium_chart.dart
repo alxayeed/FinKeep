@@ -1,10 +1,10 @@
-import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/material.dart';
 import 'package:finkeep/core/enums/payment_type.dart';
 import 'package:finkeep/core/extensions/double_ext.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
-import 'package:finkeep/core/styles/currency_provider.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
+import 'package:finkeep/core/styles/currency_provider.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
 
 import '../../domain/entities/expense_entity.dart';
 
@@ -220,8 +220,9 @@ class PaymentMediumChartShimmer extends StatelessWidget {
     final itemBg = isDark ? AppColors.cardDark : AppColors.cardLight;
 
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 10.h),
-      padding: EdgeInsets.symmetric(vertical: 18.h),
+      height: 150.h,
+      // margin: EdgeInsets.symmetric(vertical: 10.h),
+      // padding: EdgeInsets.symmetric(vertical: 18.h),
       decoration: BoxDecoration(
         color: itemBg,
         borderRadius: BorderRadius.circular(16.r),
@@ -229,61 +230,6 @@ class PaymentMediumChartShimmer extends StatelessWidget {
           color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
           width: 1,
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(width: 120.w, height: 10.h, color: Colors.white),
-          SizedBox(height: 16.h),
-          Row(
-            children: [
-              Container(
-                width: 120.w,
-                height: 120.w,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              SizedBox(width: 20.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(4, (index) {
-                    return Padding(
-                      padding: EdgeInsets.symmetric(vertical: 6.h),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 8.r,
-                            height: 8.r,
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          SizedBox(width: 8.w),
-                          Container(
-                            width: 50.w,
-                            height: 10.h,
-                            color: Colors.white,
-                          ),
-                          const Spacer(),
-                          Container(
-                            width: 40.w,
-                            height: 10.h,
-                            color: Colors.white,
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }

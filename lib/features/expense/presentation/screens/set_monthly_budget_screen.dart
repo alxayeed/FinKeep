@@ -1,3 +1,4 @@
+import 'package:finkeep/core/common/widgets/app_switch_button.dart';
 import 'package:finkeep/core/enums/expense_category.dart';
 import 'package:finkeep/core/extensions/double_ext.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
@@ -340,9 +341,8 @@ class SetMonthlyBudgetScreen extends StatelessWidget {
                           ],
                         ),
                         Obx(
-                          () => Switch.adaptive(
+                          () => AppSwitchButton(
                             value: controller.isRecurring.value,
-                            activeTrackColor: AppColors.primaryTeal,
                             onChanged: (val) {
                               controller.isRecurring.value = val;
                             },
@@ -442,12 +442,11 @@ class SetMonthlyBudgetScreen extends StatelessWidget {
                                     ],
                                   ),
                                   Obx(
-                                    () => Switch.adaptive(
+                                    () => AppSwitchButton(
                                       value:
                                           controller
                                               .enabledCategories[category] ??
                                           false,
-                                      activeTrackColor: AppColors.primaryTeal,
                                       onChanged: (val) {
                                         controller.toggleCategory(
                                           category,
