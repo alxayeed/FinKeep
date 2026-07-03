@@ -5,6 +5,7 @@ import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
 import 'package:get/get.dart';
+import 'package:finkeep/core/services/local_db_service.dart';
 import '../../../features/expense/presentation/controllers/expense_report_controller.dart';
 import '../../../features/expense/domain/entities/expense_entity.dart';
 
@@ -31,6 +32,42 @@ class _ExpenseMonthlyAnalysisState extends State<ExpenseMonthlyAnalysis> {
     _currentPage = 0;
   }
 
+  double _getBudgetForMonthSync(DateTime month) {
+    try {
+      final String monthDocId = DateFormat('yyyy-MMMM').format(month);
+      final String recurringDocId = 'recurring';
+
+      final localMonthData = LocalDbService().budgetsBox.get(monthDocId);
+      if (localMonthData != null) {
+        return (localMonthData['overallBudget'] as num?)?.toDouble() ?? 0.0;
+      }
+
+      final now = DateTime.now();
+      final currentMonthStart = DateTime(now.year, now.month);
+      final targetMonthStart = DateTime(month.year, month.month);
+      if (!targetMonthStart.isBefore(currentMonthStart)) {
+        final localRecurData = LocalDbService().budgetsBox.get(recurringDocId);
+        if (localRecurData != null) {
+          final String? startMonthStr = localRecurData['month'] as String?;
+          bool shouldApply = true;
+          if (startMonthStr != null) {
+            try {
+              final startMonth = DateFormat('yyyy-MMMM').parse(startMonthStr);
+              final startMonthStart = DateTime(startMonth.year, startMonth.month);
+              if (targetMonthStart.isBefore(startMonthStart)) {
+                shouldApply = false;
+              }
+            } catch (_) {}
+          }
+          if (shouldApply) {
+            return (localRecurData['overallBudget'] as num?)?.toDouble() ?? 0.0;
+          }
+        }
+      }
+    } catch (_) {}
+    return 0.0;
+  }
+
   Map<String, double> _getMonthlyAggregates() {
     final Map<String, double> monthlyTotals = {};
     final DateFormat formatter = DateFormat('MMM yyyy');
@@ -55,20 +92,26 @@ class _ExpenseMonthlyAnalysisState extends State<ExpenseMonthlyAnalysis> {
       targetEnd = currentMonthStart;
     }
 
+    // Pre-calculate expense totals for check
+    final Map<String, double> expenseTotals = {};
+    for (var expense in widget.expenses) {
+      final monthYearKey = formatter.format(expense.date);
+      expenseTotals[monthYearKey] = (expenseTotals[monthYearKey] ?? 0.0) + expense.amount;
+    }
+
     while (!current.isAfter(targetEnd)) {
       final key = formatter.format(current);
-      monthlyTotals[key] = 0.0;
+      final hasExpenses = (expenseTotals[key] ?? 0.0) > 0;
+      final budget = _getBudgetForMonthSync(current);
+      final hasBudget = budget > 0;
+      final isCurrentMonth = current.year == now.year && current.month == now.month;
+
+      if (isCurrentMonth || hasExpenses || hasBudget) {
+        monthlyTotals[key] = expenseTotals[key] ?? 0.0;
+      }
       current = DateTime(current.year, current.month + 1, 1);
     }
 
-    for (var expense in widget.expenses) {
-      final monthYearKey = formatter.format(expense.date);
-      monthlyTotals.update(
-        monthYearKey,
-        (value) => value + expense.amount,
-        ifAbsent: () => expense.amount,
-      );
-    }
     return monthlyTotals;
   }
 

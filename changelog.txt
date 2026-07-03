@@ -1,7 +1,8 @@
 1.0.0+10
 [30/06/2026]
-- UPDATE: initial budget is 0 in the onboarding step
+- UPDATE: Closed #54 initial budget is 0 in the onboarding step
 - UPDATE: Closed #64 spent card added in expense list.
+- UPDATE: Closed #52 Previous months won't have budget.
 
 
 1.0.0+9

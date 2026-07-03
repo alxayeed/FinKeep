@@ -12,12 +12,12 @@ class BudgetController extends GetxController {
   final LocalDbService localDb = LocalDbService();
 
   // Persistent States
-  var monthlyBudget = 30000.0.obs;
+  var monthlyBudget = 0.0.obs;
   var categoryBudgets = <ExpenseCategory, double>{}.obs;
   var isBudgetLoading = false.obs;
 
   // UI / Form States for SetMonthlyBudgetScreen
-  var overallBudget = 30000.0.obs;
+  var overallBudget = 0.0.obs;
   var isRecurring = true.obs;
   var enabledCategories = <ExpenseCategory, bool>{}.obs;
   var tempCategoryBudgets = <ExpenseCategory, double>{}.obs;
@@ -31,8 +31,8 @@ class BudgetController extends GetxController {
   void initUi(DateTime month) {
     targetMonth = month;
     final initialOverall = monthlyBudget.value;
-    overallBudget.value = initialOverall > 0 ? initialOverall : 30000.0;
-    overallTextController = TextEditingController(text: overallBudget.value.toStringAsFixed(0));
+    overallBudget.value = initialOverall;
+    overallTextController = TextEditingController(text: overallBudget.value > 0 ? overallBudget.value.toStringAsFixed(0) : '0');
     overallTextController.addListener(() {
       overallBudget.value = double.tryParse(overallTextController.text) ?? 0.0;
     });
@@ -84,10 +84,7 @@ class BudgetController extends GetxController {
   }
 
   Future<void> saveBudget() async {
-    double overall = double.tryParse(overallTextController.text) ?? 30000.0;
-    if (overall <= 0) {
-      overall = 30000.0;
-    }
+    double overall = double.tryParse(overallTextController.text) ?? 0.0;
 
     final Map<ExpenseCategory, double> categories = {};
     enabledCategories.forEach((cat, enabled) {
@@ -196,7 +193,7 @@ class BudgetController extends GetxController {
   }
 
   void _applyBudgetData(Map<String, dynamic> data) {
-    monthlyBudget.value = (data['overallBudget'] as num?)?.toDouble() ?? 30000.0;
+    monthlyBudget.value = (data['overallBudget'] as num?)?.toDouble() ?? 0.0;
     final catBudgets = <ExpenseCategory, double>{};
     if (data['categoryBudgets'] is Map) {
       final map = data['categoryBudgets'] as Map;
@@ -209,18 +206,8 @@ class BudgetController extends GetxController {
   }
 
   void _applyDefaultBudgets() {
-    monthlyBudget.value = 30000.0;
-    categoryBudgets.value = {
-      ExpenseCategory.family: 12000.0,
-      ExpenseCategory.personal: 5000.0,
-      ExpenseCategory.transport: 3000.0,
-      ExpenseCategory.food: 2500.0,
-      ExpenseCategory.utilities: 1500.0,
-      ExpenseCategory.lend: 1500.0,
-      ExpenseCategory.clothing: 1500.0,
-      ExpenseCategory.hangout: 1500.0,
-      ExpenseCategory.other: 1500.0,
-    };
+    monthlyBudget.value = 0.0;
+    categoryBudgets.value = {};
   }
 
   Future<void> saveBudgetsForMonth({
@@ -300,7 +287,7 @@ class BudgetController extends GetxController {
       // Try local cache first
       final localMonthData = localDb.budgetsBox.get(monthDocId);
       if (localMonthData != null) {
-        return (localMonthData['overallBudget'] as num?)?.toDouble() ?? 30000.0;
+        return (localMonthData['overallBudget'] as num?)?.toDouble() ?? 0.0;
       }
 
       final now = DateTime.now();
@@ -321,13 +308,13 @@ class BudgetController extends GetxController {
             } catch (_) {}
           }
           if (shouldApply) {
-            return (localRecurData['overallBudget'] as num?)?.toDouble() ?? 30000.0;
+            return (localRecurData['overallBudget'] as num?)?.toDouble() ?? 0.0;
           }
         }
       }
     } catch (e, stackTrace) {
       ExceptionHandler.handle(e, stackTrace, 'BudgetController.getBudgetForMonth');
     }
-    return 30000.0;
+    return 0.0;
   }
 }
