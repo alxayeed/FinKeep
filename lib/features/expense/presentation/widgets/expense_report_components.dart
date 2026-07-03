@@ -282,7 +282,12 @@ class ExpenseSummery extends StatelessWidget {
                   }
                 }
               : null,
-          child: BudgetProgressCard(spent: totalSpending, budget: calculatedBudget),
+          child: Obx(() {
+            final budgetVal = isReport
+                ? reportController.reportRangeBudget.value
+                : budgetController.monthlyBudget.value;
+            return BudgetProgressCard(spent: totalSpending, budget: budgetVal);
+          }),
         ),
 
         // 💳 Spending Medium Chart

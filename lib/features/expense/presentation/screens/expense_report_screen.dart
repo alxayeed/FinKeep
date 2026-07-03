@@ -22,6 +22,7 @@ class ExpenseReportScreen extends StatefulWidget {
 class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
   final ExpenseReportController controller = Get.find<ExpenseReportController>();
   int _selectedTab = 0; // 0 for Summary, 1 for Details
+  late final Worker _missingBudgetWorker;
 
   @override
   void initState() {
@@ -34,10 +35,31 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
     controller.startDate.value = DateTime(now.year, 1, 1);
     controller.endDate.value = DateTime(now.year, now.month, now.day, 23, 59, 59);
 
+    _missingBudgetWorker = ever(controller.missingBudgetMonths, (List<DateTime> missing) {
+      if (missing.isNotEmpty && mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: true,
+          builder: (context) => MissingBudgetDialog(
+            missingMonths: missing,
+            onSave: (amount) {
+              controller.saveBudgetForMonths(missing, amount);
+            },
+          ),
+        );
+      }
+    });
+
     controller.fetchExpensesInRange(
       controller.startDate.value!,
       controller.endDate.value!,
     );
+  }
+
+  @override
+  void dispose() {
+    _missingBudgetWorker.dispose();
+    super.dispose();
   }
 
   Future<void> _selectDate(BuildContext context,
