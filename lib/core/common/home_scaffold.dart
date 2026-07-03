@@ -1,7 +1,8 @@
+import 'package:finkeep/core/common/widgets/custom_bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:finkeep/core/common/widgets/custom_bottom_nav_bar.dart';
 
+import '../config/app_config.dart';
 import '../routes/app_router.dart';
 
 class HomeScaffold extends StatelessWidget {
@@ -22,27 +23,29 @@ class HomeScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final index = _currentIndex(context);
 
-    final navItems = const [
-      CustomNavBarItem(
+    final navItems = [
+      const CustomNavBarItem(
         icon: Icons.monetization_on_outlined,
         activeIcon: Icons.monetization_on,
         label: 'Expenses',
       ),
-      CustomNavBarItem(
+      const CustomNavBarItem(
         icon: Icons.handshake_outlined,
         activeIcon: Icons.handshake,
         label: 'Lendings',
       ),
-      CustomNavBarItem(
+      const CustomNavBarItem(
         icon: Icons.bar_chart_outlined,
         activeIcon: Icons.bar_chart,
         label: 'Reports',
       ),
-      CustomNavBarItem(
-        icon: Icons.trending_up_outlined,
-        activeIcon: Icons.trending_up,
-        label: 'Investments',
-      ),
+      if (AppConfig.isPersonal) ...const [
+        CustomNavBarItem(
+          icon: Icons.trending_up_outlined,
+          activeIcon: Icons.trending_up,
+          label: 'Investments',
+        ),
+      ],
     ];
 
     return Scaffold(
@@ -56,7 +59,9 @@ class HomeScaffold extends StatelessWidget {
           if (i == 0) context.goNamed(AppRoutes.expenses);
           if (i == 1) context.goNamed(AppRoutes.lendings);
           if (i == 2) context.goNamed(AppRoutes.expenseReport);
-          if (i == 3) context.goNamed(AppRoutes.investments);
+          if (i == 3 && AppConfig.isPersonal) {
+            context.goNamed(AppRoutes.investments);
+          }
         },
       ),
     );

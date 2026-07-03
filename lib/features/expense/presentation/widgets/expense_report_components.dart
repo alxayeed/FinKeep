@@ -140,108 +140,111 @@ class ExpenseSummery extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
       builder: (context) {
-        return SafeArea(
-          child: Padding(
-            padding: EdgeInsets.all(20.r),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Budget Breakdown',
-                      style: TextStyle(
-                        fontFamily: 'Manrope',
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.bold,
-                        color: textCol,
-                      ),
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 20.r,
+            right: 20.r,
+            top: 20.r,
+            bottom: MediaQuery.of(context).padding.bottom + 20.r,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Budget Breakdown',
+                    style: TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                      color: textCol,
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 8.h),
-                Text(
-                  'Range: ${DateFormat('dd MMM yyyy').format(start)} - ${DateFormat('dd MMM yyyy').format(end)}',
-                  style: TextStyle(
-                    fontFamily: 'Manrope',
-                    fontSize: 12.sp,
-                    color: subtitleColor,
                   ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              SizedBox(height: 8.h),
+              Text(
+                'Range: ${DateFormat('dd MMM yyyy').format(start)} - ${DateFormat('dd MMM yyyy').format(end)}',
+                style: TextStyle(
+                  fontFamily: 'Manrope',
+                  fontSize: 12.sp,
+                  color: subtitleColor,
                 ),
-                SizedBox(height: 16.h),
-                ConstrainedBox(
-                  constraints: BoxConstraints(maxHeight: 250.h),
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: breakdown.length,
-                    separatorBuilder: (context, index) => Divider(color: borderCol),
-                    itemBuilder: (context, index) {
-                      final item = breakdown[index];
-                      final monthLabel = item['monthLabel'] as String;
-                      final monthlyBudget = item['monthlyBudget'] as double;
+              ),
+              SizedBox(height: 16.h),
+              ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: 250.h),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: breakdown.length,
+                  separatorBuilder: (context, index) => Divider(color: borderCol),
+                  itemBuilder: (context, index) {
+                    final item = breakdown[index];
+                    final monthLabel = item['monthLabel'] as String;
+                    final monthlyBudget = item['monthlyBudget'] as double;
 
-                      return Padding(
-                        padding: EdgeInsets.symmetric(vertical: 6.h),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              monthLabel,
-                              style: TextStyle(
-                                fontFamily: 'Manrope',
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.bold,
-                                color: textCol,
-                              ),
+                    return Padding(
+                      padding: EdgeInsets.symmetric(vertical: 6.h),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            monthLabel,
+                            style: TextStyle(
+                              fontFamily: 'Manrope',
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.bold,
+                              color: textCol,
                             ),
-                            Text(
-                              '${monthlyBudget.toCurrency()} ${context.currency.symbol}',
-                              style: TextStyle(
-                                fontFamily: 'Manrope',
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.primaryTeal,
-                              ),
+                          ),
+                          Text(
+                            '${monthlyBudget.toCurrency()} ${context.currency.symbol}',
+                            style: TextStyle(
+                              fontFamily: 'Manrope',
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.primaryTeal,
                             ),
-                          ],
-                        ),
-                      );
-                    },
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+              Divider(color: borderCol, thickness: 1.5),
+              SizedBox(height: 8.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Total Budget',
+                    style: TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.bold,
+                      color: textCol,
+                    ),
                   ),
-                ),
-                Divider(color: borderCol, thickness: 1.5),
-                SizedBox(height: 8.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Total Range Budget',
-                      style: TextStyle(
-                        fontFamily: 'Manrope',
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.bold,
-                        color: textCol,
-                      ),
+                  Text(
+                    '${totalBudget.toCurrency()} ${context.currency.symbol}',
+                    style: TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.primaryTeal,
                     ),
-                    Text(
-                      '${totalBudget.toCurrency()} ${context.currency.symbol}',
-                      style: TextStyle(
-                        fontFamily: 'Manrope',
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.primaryTeal,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           ),
         );
       },

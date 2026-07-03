@@ -1,5 +1,9 @@
 1.0.0+10
-[30/06/2026]
+[03/07/2026]
+- Investment hidden
+
+1.0.0+10
+[02/07/2026]
 - UPDATE: Closed #54 initial budget is 0 in the onboarding step
 - UPDATE: Closed #64 spent card added in expense list.
 - UPDATE: Closed #52 Previous months won't have budget.
