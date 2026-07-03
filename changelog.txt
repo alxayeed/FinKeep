@@ -4,6 +4,7 @@
 - UPDATE: Closed #64 spent card added in expense list.
 - UPDATE: Closed #52 Previous months won't have budget.
 - ADD: Set missing budget for previous month. Closed #65
+- ADD: Historical budget
 
 
 1.0.0+9

@@ -6,6 +6,22 @@ import 'package:finkeep/core/config/app_config.dart';
 import 'package:finkeep/core/enums/expense_category.dart';
 import 'package:intl/intl.dart';
 import 'package:finkeep/core/services/local_db_service.dart';
+import 'package:finkeep/features/expense/domain/repositories/expense_repository.dart';
+import 'package:finkeep/features/expense/domain/entities/expense_entity.dart';
+
+class PastMonthBudgetModel {
+  final DateTime month;
+  final double totalExpense;
+  final TextEditingController budgetTextController;
+
+  PastMonthBudgetModel({
+    required this.month,
+    required this.totalExpense,
+    required double initialBudget,
+  }) : budgetTextController = TextEditingController(
+          text: initialBudget > 0 ? initialBudget.toStringAsFixed(0) : '',
+        );
+}
 
 class BudgetController extends GetxController {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -15,6 +31,10 @@ class BudgetController extends GetxController {
   var monthlyBudget = 0.0.obs;
   var categoryBudgets = <ExpenseCategory, double>{}.obs;
   var isBudgetLoading = false.obs;
+
+  // Historical Budgets States
+  var pastMonthsBudgets = <PastMonthBudgetModel>[].obs;
+  var isPastMonthsLoading = false.obs;
 
   // UI / Form States for SetMonthlyBudgetScreen
   var overallBudget = 0.0.obs;
@@ -316,5 +336,69 @@ class BudgetController extends GetxController {
       ExceptionHandler.handle(e, stackTrace, 'BudgetController.getBudgetForMonth');
     }
     return 0.0;
+  }
+
+  void initPastMonthsBudgets() {
+    isPastMonthsLoading.value = true;
+    pastMonthsBudgets.clear();
+  }
+
+  Future<void> loadPastMonthsBudgets() async {
+    isPastMonthsLoading.value = true;
+    try {
+      final now = DateTime.now();
+      final currentMonthStart = DateTime(now.year, now.month, 1);
+
+      // Fetch all expenses from repository (handles local vs remote)
+      final repository = Get.find<ExpenseRepository>();
+      final List<ExpenseEntity> allExpenses = await repository.getExpenses();
+
+      // Group expenses by month (only previous months)
+      final Map<DateTime, double> monthlyExpenses = {};
+      for (var expense in allExpenses) {
+        final monthStart = DateTime(expense.date.year, expense.date.month, 1);
+        if (monthStart.isBefore(currentMonthStart)) {
+          monthlyExpenses[monthStart] = (monthlyExpenses[monthStart] ?? 0.0) + expense.amount;
+        }
+      }
+
+      // Sort months descending
+      final sortedMonths = monthlyExpenses.keys.toList()..sort((a, b) => b.compareTo(a));
+
+      final List<PastMonthBudgetModel> list = [];
+      for (var month in sortedMonths) {
+        final budget = await getBudgetForMonth(month);
+        list.add(PastMonthBudgetModel(
+          month: month,
+          totalExpense: monthlyExpenses[month] ?? 0.0,
+          initialBudget: budget,
+        ));
+      }
+
+      pastMonthsBudgets.value = list;
+    } catch (e, stackTrace) {
+      ExceptionHandler.handle(e, stackTrace, 'BudgetController.loadPastMonthsBudgets');
+    } finally {
+      isPastMonthsLoading.value = false;
+    }
+  }
+
+  Future<void> savePastMonthsBudgets() async {
+    isPastMonthsLoading.value = true;
+    try {
+      for (var item in pastMonthsBudgets) {
+        final budgetVal = double.tryParse(item.budgetTextController.text) ?? 0.0;
+        await saveBudgetsForMonth(
+          month: item.month,
+          overall: budgetVal,
+          categories: {},
+          isRecurring: false,
+        );
+      }
+    } catch (e, stackTrace) {
+      ExceptionHandler.handle(e, stackTrace, 'BudgetController.savePastMonthsBudgets');
+    } finally {
+      isPastMonthsLoading.value = false;
+    }
   }
 }
