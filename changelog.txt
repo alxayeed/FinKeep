@@ -1,6 +1,7 @@
 1.0.0+10
 [30/06/2026]
 - UPDATE: initial budget is 0 in the onboarding step
+- UPDATE: Closed #64 spent card added in expense list.
 
 
 1.0.0+9

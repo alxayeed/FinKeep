@@ -9,11 +9,13 @@ import '../../../../core/utils/app_localizations.dart';
 class BudgetProgressCard extends StatelessWidget {
   final double spent;
   final double budget;
+  final bool showProgressBar;
 
   const BudgetProgressCard({
     super.key,
     required this.spent,
     required this.budget,
+    this.showProgressBar = true,
   });
 
   @override
@@ -321,27 +323,31 @@ class BudgetProgressCard extends StatelessWidget {
             );
           }
 
+          final shouldShowProgress = showProgressBar && budget > 0;
+
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               infoLayout,
-              SizedBox(height: 16.h),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(9999.r),
-                child: SizedBox(
-                  height: 8.h,
-                  width: double.infinity,
-                  child: LinearProgressIndicator(
-                    value: usagePercent.clamp(0.0, 1.0),
-                    backgroundColor: isDark
-                        ? const Color(0xFF1E293B)
-                        : const Color(0xFFF1F5F9),
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      isOverspent ? AppColors.error : AppColors.success,
+              if (shouldShowProgress) ...[
+                SizedBox(height: 16.h),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(9999.r),
+                  child: SizedBox(
+                    height: 8.h,
+                    width: double.infinity,
+                    child: LinearProgressIndicator(
+                      value: usagePercent.clamp(0.0, 1.0),
+                      backgroundColor: isDark
+                          ? const Color(0xFF1E293B)
+                          : const Color(0xFFF1F5F9),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        isOverspent ? AppColors.error : AppColors.success,
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ],
           );
         },

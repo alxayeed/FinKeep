@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:finkeep/core/config/app_config.dart';
 import 'package:finkeep/core/common/widgets/no_data_widget.dart';
@@ -9,11 +10,11 @@ import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 import 'package:finkeep/features/expense/domain/entities/expense_entity.dart';
 import 'package:finkeep/features/expense/presentation/controllers/monthly_expense_controller.dart';
-import 'package:finkeep/features/expense/presentation/widgets/category_filter_pills.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
 import '../../../../core/enums/expense_category.dart';
 import '../../../../core/common/widgets/loader_widget.dart';
-import '../widgets/expense_card_widget.dart';
+import '../../../../core/routes/app_router.dart';
+import '../widgets/widgets.dart';
 
 class MonthlyExpenseListScreen extends StatelessWidget {
   final MonthlyExpenseController controller;
@@ -77,6 +78,37 @@ class MonthlyExpenseListScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // Total budget vs spent slider card (without progress bar)
+        Obx(() {
+          final double totalSpent = controller.totalExpense.value;
+          final double totalBudget = controller.monthlyBudget.value;
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+            child: GestureDetector(
+              onTap: () {
+                final now = DateTime.now();
+                final currentMonthStart = DateTime(now.year, now.month);
+                final selected = DateTime(
+                  controller.selectedMonth.value.year,
+                  controller.selectedMonth.value.month,
+                );
+                final targetMonth = selected.isBefore(currentMonthStart)
+                    ? now
+                    : controller.selectedMonth.value;
+                context.pushNamed(
+                  AppRoutes.setMonthlyBudget,
+                  extra: targetMonth,
+                );
+              },
+              child: BudgetProgressCard(
+                spent: totalSpent,
+                budget: totalBudget,
+                showProgressBar: false,
+              ),
+            ),
+          );
+        }),
+
         // Category Filter Pills
         Obx(() {
           final selectedCategoryStr = controller.selectedCategory.value;
