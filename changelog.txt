@@ -1,4 +1,9 @@
 1.0.0+11
+[04/07/2026]
+- Income Feature added
+
+
+1.0.0+11
 [03/07/2026]
 - Investment hidden for unless personal
 - Spacing added in Budget summary total budget
