@@ -18,6 +18,7 @@ import '../../features/lendings/presentation/screens/lending_list_screen.dart';
 import '../../features/lendings/presentation/screens/update_lending_screen.dart';
 import '../common/home_scaffold.dart';
 import '../common/onboarding/onboarding_screen.dart';
+import 'package:finkeep/features/dashboard/presentation/screens/dashboard_screen.dart';
 
 class AppRoutes {
   static const String home = '/';
@@ -76,7 +77,7 @@ class AppRouter {
               path: AppRoutes.home,
               name: AppRoutes.home,
               pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: MonthlyExpenseScreen()),
+                  const NoTransitionPage(child: DashboardScreen()),
             ),
             GoRoute(
               path: AppRoutes.expenses,

@@ -13,11 +13,12 @@ class HomeScaffold extends StatelessWidget {
   int _currentIndex(BuildContext context) {
     final currentRouteName = GoRouterState.of(context).matchedLocation;
 
-    if (currentRouteName.startsWith(AppRoutes.income)) return 1;
-    if (currentRouteName.startsWith(AppRoutes.lendings)) return 2;
-    if (currentRouteName.startsWith(AppRoutes.expenseReport)) return 3;
-    if (currentRouteName.startsWith(AppRoutes.investments)) return 4;
-    return 0;
+    if (currentRouteName.startsWith(AppRoutes.expenses)) return 1;
+    if (currentRouteName.startsWith(AppRoutes.income)) return 2;
+    if (currentRouteName.startsWith(AppRoutes.lendings)) return 3;
+    if (currentRouteName.startsWith(AppRoutes.expenseReport)) return 4;
+    if (currentRouteName.startsWith(AppRoutes.investments)) return 5;
+    return 0; // Dashboard
   }
 
   @override
@@ -25,6 +26,11 @@ class HomeScaffold extends StatelessWidget {
     final index = _currentIndex(context);
 
     final navItems = [
+      const CustomNavBarItem(
+        icon: Icons.dashboard_outlined,
+        activeIcon: Icons.dashboard,
+        label: 'Dashboard',
+      ),
       const CustomNavBarItem(
         icon: Icons.monetization_on_outlined,
         activeIcon: Icons.monetization_on,
@@ -56,17 +62,17 @@ class HomeScaffold extends StatelessWidget {
 
     return Scaffold(
       body: child,
-      // Let's use the floatingPill variation first as requested
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: index,
         style: CustomNavBarStyle.floatingPill,
         items: navItems,
         onTap: (i) {
-          if (i == 0) context.goNamed(AppRoutes.expenses);
-          if (i == 1) context.goNamed(AppRoutes.income);
-          if (i == 2) context.goNamed(AppRoutes.lendings);
-          if (i == 3) context.goNamed(AppRoutes.expenseReport);
-          if (i == 4 && AppConfig.isPersonal) {
+          if (i == 0) context.goNamed(AppRoutes.home);
+          if (i == 1) context.goNamed(AppRoutes.expenses);
+          if (i == 2) context.goNamed(AppRoutes.income);
+          if (i == 3) context.goNamed(AppRoutes.lendings);
+          if (i == 4) context.goNamed(AppRoutes.expenseReport);
+          if (i == 5 && AppConfig.isPersonal) {
             context.goNamed(AppRoutes.investments);
           }
         },
