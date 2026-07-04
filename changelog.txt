@@ -1,8 +1,9 @@
-1.0.0+12
+1.0.0+3
 [04/07/2026]
 - FIX #70 - Default categories added
 - FIX #57, #71, #72, #74 -Widget alignment issue
 - Closes #73 - custom category quota count added
+- UPDATE: Income category selector widget
 
 
 1.0.0+12
