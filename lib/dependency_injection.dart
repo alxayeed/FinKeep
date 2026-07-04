@@ -64,6 +64,14 @@ import 'package:finkeep/features/investments/data/datasources/investment_hive_da
 import 'package:finkeep/features/lendings/data/datasources/lending_local_datasource.dart';
 import 'package:finkeep/features/lendings/data/datasources/lending_hive_datasource.dart';
 import 'package:finkeep/features/income/income.dart';
+import 'package:finkeep/features/dashboard/data/datasources/dashboard_local_datasource.dart';
+import 'package:finkeep/features/dashboard/data/datasources/dashboard_hive_datasource.dart';
+import 'package:finkeep/features/dashboard/data/datasources/dashboard_remote_datasource.dart';
+import 'package:finkeep/features/dashboard/data/datasources/dashboard_firestore_datasource.dart';
+import 'package:finkeep/features/dashboard/domain/repositories/dashboard_repository.dart';
+import 'package:finkeep/features/dashboard/data/repositories/dashboard_repository_impl.dart';
+import 'package:finkeep/features/dashboard/domain/usecases/usecases.dart';
+import 'package:finkeep/features/dashboard/presentation/controllers/dashboard_controller.dart';
 
 class DependencyInjection {
   static void initDependencies() {
@@ -277,6 +285,38 @@ class DependencyInjection {
         updateIncomeUseCase: Get.find(),
         deleteIncomeUseCase: Get.find(),
         categoryController: Get.find(),
+      ),
+      fenix: true,
+    );
+
+    // --- Dashboard Feature ---
+    Get.lazyPut<DashboardLocalDataSource>(
+      () => DashboardHiveDataSource(localDb: Get.find()),
+      fenix: true,
+    );
+    Get.lazyPut<DashboardRemoteDataSource>(
+      () => DashboardFirestoreDataSource(fireStore: Get.find()),
+      fenix: true,
+    );
+    Get.lazyPut<DashboardRepository>(
+      () => DashboardRepositoryImpl(
+        localDataSource: Get.find(),
+        remoteDataSource: Get.find(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut(() => GetAggregateStatsUseCase(Get.find()), fenix: true);
+    Get.lazyPut(() => GetExpenseCategoryBreakdownUseCase(Get.find()), fenix: true);
+    Get.lazyPut(() => GetIncomeCategoryBreakdownUseCase(Get.find()), fenix: true);
+    Get.lazyPut(() => GetTrendPointsUseCase(Get.find()), fenix: true);
+    Get.lazyPut(() => GetRecentActivitiesUseCase(Get.find()), fenix: true);
+    Get.lazyPut(
+      () => DashboardController(
+        getAggregateStatsUseCase: Get.find(),
+        getExpenseCategoryBreakdownUseCase: Get.find(),
+        getIncomeCategoryBreakdownUseCase: Get.find(),
+        getTrendPointsUseCase: Get.find(),
+        getRecentActivitiesUseCase: Get.find(),
       ),
       fenix: true,
     );
