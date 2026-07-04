@@ -1,3 +1,13 @@
+1.0.0+15
+[04/07/2026]
+Dashboard feature
+- monthly standing
+- net lending
+- investments
+- expense allocation
+- cumulative cash balance trend
+- inflow vs outflow
+
 1.0.0+14
 [04/07/2026]
 - ADD: Expense category customization
