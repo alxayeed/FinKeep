@@ -233,15 +233,31 @@ class _IncomeCategorySettingsScreenState extends State<IncomeCategorySettingsScr
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    'ADD CUSTOM CATEGORY',
-                    style: TextStyle(
-                      fontSize: 10.sp,
-                      fontFamily: 'Manrope',
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white30 : const Color(0xFF94A3B8),
-                      letterSpacing: 0.5,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'ADD CUSTOM CATEGORY',
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          fontFamily: 'Manrope',
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white30 : const Color(0xFF94A3B8),
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      Obx(() => Text(
+                        '${categoryController.customCategoryCount}/${categoryController.maxCustomCategoryLimit}',
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          fontFamily: 'Manrope',
+                          fontWeight: FontWeight.bold,
+                          color: categoryController.customCategoryCount >= categoryController.maxCustomCategoryLimit
+                              ? AppColors.error
+                              : (isDark ? Colors.white30 : const Color(0xFF94A3B8)),
+                        ),
+                      )),
+                    ],
                   ),
                   SizedBox(height: 12.h),
                    Row(

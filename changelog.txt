@@ -2,6 +2,7 @@
 [04/07/2026]
 - FIX #70 - Default categories added
 - FIX #57, #71, #72, #74 -Widget alignment issue
+- Closes #73 - custom category quota count added
 
 
 1.0.0+12
