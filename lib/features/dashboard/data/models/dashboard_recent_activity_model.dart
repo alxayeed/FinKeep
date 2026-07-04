@@ -1,11 +1,12 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../../domain/entities/dashboard_data_entity.dart';
+import '../../domain/entities/dashboard_recent_activity_entity.dart';
 
 part 'dashboard_recent_activity_model.freezed.dart';
 part 'dashboard_recent_activity_model.g.dart';
 
 @freezed
-abstract class DashboardRecentActivityModel with _$DashboardRecentActivityModel {
+abstract class DashboardRecentActivityModel
+    with _$DashboardRecentActivityModel {
   const DashboardRecentActivityModel._();
 
   const factory DashboardRecentActivityModel({
@@ -21,20 +22,8 @@ abstract class DashboardRecentActivityModel with _$DashboardRecentActivityModel 
   factory DashboardRecentActivityModel.fromJson(Map<String, dynamic> json) =>
       _$DashboardRecentActivityModelFromJson(json);
 
-  factory DashboardRecentActivityModel.fromEntity(DashboardRecentActivity entity) {
-    return DashboardRecentActivityModel(
-      id: entity.id,
-      title: entity.title,
-      category: entity.category,
-      amount: entity.amount,
-      date: entity.date,
-      type: entity.type,
-      emoji: entity.emoji,
-    );
-  }
-
-  DashboardRecentActivity toEntity() {
-    return DashboardRecentActivity(
+  DashboardRecentActivityEntity toEntity() {
+    return DashboardRecentActivityEntity(
       id: id,
       title: title,
       category: category,

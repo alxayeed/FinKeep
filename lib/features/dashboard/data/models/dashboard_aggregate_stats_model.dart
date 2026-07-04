@@ -1,10 +1,12 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import '../../domain/entities/dashboard_aggregate_stats_entity.dart';
 
 part 'dashboard_aggregate_stats_model.freezed.dart';
 part 'dashboard_aggregate_stats_model.g.dart';
 
 @freezed
-abstract class DashboardAggregateStatsModel with _$DashboardAggregateStatsModel {
+abstract class DashboardAggregateStatsModel
+    with _$DashboardAggregateStatsModel {
   const DashboardAggregateStatsModel._();
 
   const factory DashboardAggregateStatsModel({
@@ -21,4 +23,18 @@ abstract class DashboardAggregateStatsModel with _$DashboardAggregateStatsModel 
 
   factory DashboardAggregateStatsModel.fromJson(Map<String, dynamic> json) =>
       _$DashboardAggregateStatsModelFromJson(json);
+
+  DashboardAggregateStatsEntity toEntity() {
+    return DashboardAggregateStatsEntity(
+      totalIncome: totalIncome,
+      totalExpense: totalExpense,
+      netSavings: netSavings,
+      savingsRate: savingsRate,
+      monthlyBudget: monthlyBudget,
+      totalGivenDue: totalGivenDue,
+      totalReceivedDue: totalReceivedDue,
+      totalInvested: totalInvested,
+      totalInvestmentProfit: totalInvestmentProfit,
+    );
+  }
 }

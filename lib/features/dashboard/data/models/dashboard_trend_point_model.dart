@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../../domain/entities/dashboard_data_entity.dart';
+import '../../domain/entities/dashboard_trend_point_entity.dart';
 
 part 'dashboard_trend_point_model.freezed.dart';
 part 'dashboard_trend_point_model.g.dart';
@@ -18,17 +18,8 @@ abstract class DashboardTrendPointModel with _$DashboardTrendPointModel {
   factory DashboardTrendPointModel.fromJson(Map<String, dynamic> json) =>
       _$DashboardTrendPointModelFromJson(json);
 
-  factory DashboardTrendPointModel.fromEntity(DashboardTrendPoint entity) {
-    return DashboardTrendPointModel(
-      date: entity.date,
-      income: entity.income,
-      expense: entity.expense,
-      balance: entity.balance,
-    );
-  }
-
-  DashboardTrendPoint toEntity() {
-    return DashboardTrendPoint(
+  DashboardTrendPointEntity toEntity() {
+    return DashboardTrendPointEntity(
       date: date,
       income: income,
       expense: expense,
