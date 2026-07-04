@@ -58,6 +58,7 @@ import 'package:finkeep/features/investments/data/datasources/investment_local_d
 import 'package:finkeep/features/investments/data/datasources/investment_hive_datasource.dart';
 import 'package:finkeep/features/lendings/data/datasources/lending_local_datasource.dart';
 import 'package:finkeep/features/lendings/data/datasources/lending_hive_datasource.dart';
+import 'package:finkeep/features/income/income.dart';
 
 class DependencyInjection {
   static void initDependencies() {
@@ -205,6 +206,59 @@ class DependencyInjection {
         updateInvestmentUseCase: Get.find(),
         addReturnEntryUseCase: Get.find(),
       ),
+    );
+
+    // --- Income Feature ---
+    Get.lazyPut<IncomeLocalDataSource>(
+      () => IncomeHiveDataSource(localDb: Get.find()),
+      fenix: true,
+    );
+    Get.lazyPut<IncomeRemoteDataSource>(
+      () => IncomeFirestoreDataSource(firestore: Get.find()),
+      fenix: true,
+    );
+    Get.lazyPut<IncomeRepository>(
+      () => IncomeRepositoryImpl(
+        localDataSource: Get.find(),
+        remoteDataSource: Get.find(),
+      ),
+    );
+
+    // Use cases
+    Get.lazyPut(() => AddIncomeUseCase(Get.find()));
+    Get.lazyPut(() => GetIncomeUseCase(Get.find()));
+    Get.lazyPut(() => GetIncomesUseCase(Get.find()));
+    Get.lazyPut(() => GetIncomesForMonthUseCase(Get.find()));
+    Get.lazyPut(() => GetIncomesInRangeUseCase(Get.find()));
+    Get.lazyPut(() => UpdateIncomeUseCase(Get.find()));
+    Get.lazyPut(() => DeleteIncomeUseCase(Get.find()));
+    Get.lazyPut(() => AddIncomeCategoryUseCase(Get.find()));
+    Get.lazyPut(() => GetIncomeCategoriesUseCase(Get.find()));
+    Get.lazyPut(() => UpdateIncomeCategoryUseCase(Get.find()));
+    Get.lazyPut(() => DeleteIncomeCategoryUseCase(Get.find()));
+
+    // Controllers
+    Get.lazyPut(
+      () => IncomeCategoryController(
+        addCategoryUseCase: Get.find(),
+        getCategoriesUseCase: Get.find(),
+        updateCategoryUseCase: Get.find(),
+        deleteCategoryUseCase: Get.find(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut(
+      () => IncomeController(
+        addIncomeUseCase: Get.find(),
+        getIncomeUseCase: Get.find(),
+        getIncomesUseCase: Get.find(),
+        getIncomesForMonthUseCase: Get.find(),
+        getIncomesInRangeUseCase: Get.find(),
+        updateIncomeUseCase: Get.find(),
+        deleteIncomeUseCase: Get.find(),
+        categoryController: Get.find(),
+      ),
+      fenix: true,
     );
   }
 }
