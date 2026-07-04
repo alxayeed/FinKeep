@@ -4,7 +4,7 @@ import '../../../../core/styles/app_colors.dart';
 import '../controllers/dashboard_controller.dart';
 import '../widgets/cash_flow_line_chart.dart';
 import '../widgets/expense_doughnut_chart.dart';
-// import '../widgets/income_expense_bar_chart.dart';
+import '../widgets/income_expense_bar_chart.dart';
 // import '../widgets/recent_activity_list.dart';
 import '../widgets/summary_cards.dart';
 import '../widgets/timeframe_selector.dart';
@@ -93,8 +93,7 @@ class DashboardScreen extends StatelessWidget {
                   }),
                   const SizedBox(height: 12),
 
-                  // 2. Inflow vs Outflow Bar Chart (Hidden for now)
-                  /*
+                  // 2. Inflow vs Outflow Bar Chart
                   Obx(() {
                     if (controller.statsLoading.value) {
                       return const IncomeExpenseBarChartShimmer();
@@ -106,7 +105,6 @@ class DashboardScreen extends StatelessWidget {
                     if (data == null) return const SizedBox();
                     return IncomeExpenseBarChart(data: data);
                   }),
-                  */
 
                   // 3. Expense Allocation Doughnut Chart
                   Obx(() {
