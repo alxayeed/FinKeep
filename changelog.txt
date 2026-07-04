@@ -1,4 +1,10 @@
-1.0.0+11
+1.0.0+12
+[04/07/2026]
+- FIX #70 - Default categories added
+- FIX #57, #71, #72, #74 -Widget alignment issue
+
+
+1.0.0+12
 [04/07/2026]
 - Income Feature added
 

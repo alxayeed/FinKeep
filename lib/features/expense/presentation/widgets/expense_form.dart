@@ -263,31 +263,55 @@ class _ExpenseFormState extends State<ExpenseForm> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildLabel('Time', labelColor),
-                  GestureDetector(
-                    onTap: () => _pickTime(context),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
-                      decoration: BoxDecoration(
-                        color: inputBg,
-                        borderRadius: BorderRadius.circular(16.r),
+                  Padding(
+                    padding: EdgeInsets.only(left: 4.w, bottom: 6.h),
+                    child: Text(
+                      'Time',
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        fontFamily: 'Manrope',
+                        fontWeight: FontWeight.bold,
+                        color: labelColor,
                       ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.schedule_rounded, size: 18.sp, color: isDark ? Colors.white38 : const Color(0xFF94A3B8)),
-                          SizedBox(width: 10.w),
-                          Expanded(
-                            child: Text(
-                              _selectedTime.format(context),
-                              style: TextStyle(
-                                fontSize: 13.sp,
-                                fontFamily: 'Manrope',
-                                fontWeight: FontWeight.w600,
-                                color: isDark ? Colors.white : const Color(0xFF334155),
-                              ),
-                            ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () => _pickTime(context),
+                    borderRadius: BorderRadius.circular(16.r),
+                    child: InputDecorator(
+                      decoration: InputDecoration(
+                        prefixIcon: Icon(
+                          Icons.schedule_rounded,
+                          color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+                          size: 18.sp,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: BorderSide.none,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: BorderSide.none,
+                        ),
+                        filled: true,
+                        fillColor: inputBg,
+                        contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 4.w),
+                        child: Text(
+                          _selectedTime.format(context),
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            fontFamily: 'Manrope',
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white : const Color(0xFF334155),
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ),

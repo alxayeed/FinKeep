@@ -103,6 +103,7 @@ class _IncomeCategorySettingsScreenState extends State<IncomeCategorySettingsScr
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final Color primaryColor = AppColors.primaryTeal;
+    final Color labelColor = isDark ? Colors.white60 : const Color(0xFF64748B);
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
@@ -243,37 +244,61 @@ class _IncomeCategorySettingsScreenState extends State<IncomeCategorySettingsScr
                     ),
                   ),
                   SizedBox(height: 12.h),
-                  Row(
+                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Emoji button selector
-                      SizedBox(
-                        width: 48.r,
-                        height: 48.r,
-                        child: TextField(
-                          controller: _emojiController,
-                          textAlign: TextAlign.center,
-                          maxLength: 1,
-                          style: TextStyle(
-                            fontSize: 20.sp,
-                            fontFamily: 'Manrope',
-                          ),
-                          keyboardType: TextInputType.text,
-                          decoration: InputDecoration(
-                            counterText: '',
-                            contentPadding: EdgeInsets.zero,
-                            filled: true,
-                            fillColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                              borderSide: BorderSide.none,
-                            ),
-                            hintText: '💰',
-                            hintStyle: TextStyle(
-                              fontSize: 20.sp,
-                              color: isDark ? Colors.white30 : const Color(0xFF94A3B8),
+                      // Emoji button selector Column
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(left: 4.w, bottom: 6.h),
+                            child: Text(
+                              'Emoji',
+                              style: TextStyle(
+                                fontSize: 11.sp,
+                                fontFamily: 'Manrope',
+                                fontWeight: FontWeight.bold,
+                                color: labelColor,
+                              ),
                             ),
                           ),
-                        ),
+                          SizedBox(
+                            width: 54.w,
+                            height: 52.h,
+                            child: TextField(
+                              controller: _emojiController,
+                              textAlign: TextAlign.center,
+                              textAlignVertical: TextAlignVertical.center,
+                              maxLength: 1,
+                              maxLines: null,
+                              minLines: null,
+                              expands: true,
+                              style: TextStyle(
+                                fontSize: 18.sp,
+                                fontFamily: 'Manrope',
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? Colors.white : const Color(0xFF334155),
+                              ),
+                              keyboardType: TextInputType.text,
+                              decoration: InputDecoration(
+                                counterText: '',
+                                contentPadding: EdgeInsets.zero,
+                                filled: true,
+                                fillColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16.r),
+                                  borderSide: BorderSide.none,
+                                ),
+                                hintText: '💰',
+                                hintStyle: TextStyle(
+                                  fontSize: 18.sp,
+                                  color: isDark ? Colors.white30 : const Color(0xFF94A3B8),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       SizedBox(width: 12.w),
                       // Text label field

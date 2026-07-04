@@ -19,6 +19,15 @@ class IncomeCategoryController extends GetxController {
     required this.deleteCategoryUseCase,
   });
 
+  static const List<IncomeCategoryEntity> defaultCategories = [
+    IncomeCategoryEntity(id: 'cat_salary', displayLabel: 'Salary', emoji: '💼', isCustom: false),
+    IncomeCategoryEntity(id: 'cat_freelance', displayLabel: 'Freelance', emoji: '💻', isCustom: false),
+    IncomeCategoryEntity(id: 'cat_business', displayLabel: 'Business', emoji: '📈', isCustom: false),
+    IncomeCategoryEntity(id: 'cat_allowance', displayLabel: 'Allowance', emoji: '🎁', isCustom: false),
+    IncomeCategoryEntity(id: 'cat_investment', displayLabel: 'Investment', emoji: '🪙', isCustom: false),
+    IncomeCategoryEntity(id: 'cat_other', displayLabel: 'Other', emoji: '💰', isCustom: false),
+  ];
+
   var categories = <IncomeCategoryEntity>[].obs;
   var isLoading = false.obs;
 
@@ -35,7 +44,9 @@ class IncomeCategoryController extends GetxController {
     isLoading.value = true;
     try {
       final list = await getCategoriesUseCase();
-      categories.assignAll(list);
+      // Keep only custom categories from DB (to prevent duplicates with hardcoded defaults)
+      final customList = list.where((c) => c.isCustom).toList();
+      categories.assignAll([...defaultCategories, ...customList]);
     } catch (e, stackTrace) {
       ExceptionHandler.handle(e, stackTrace, 'IncomeCategoryController.fetchCategories');
     } finally {
