@@ -4,6 +4,7 @@ import '../../../../core/common/widgets/widgets.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../../domain/entities/income/income_entity.dart';
+import '../../domain/entities/income_category/income_category_entity.dart';
 import '../controllers/income_category_controller.dart';
 
 class IncomeForm extends StatefulWidget {
@@ -171,23 +172,29 @@ class _IncomeFormState extends State<IncomeForm> {
 
           SizedBox(height: 28.h),
 
-          // Category Dropdown
-          StyledDropdownFormField<String>(
-            value: _selectedCategoryId,
+          // Category Selector
+          StyledCategorySelectorField<IncomeCategoryEntity>(
+            value: active.firstWhereOrNull((c) => c.id == _selectedCategoryId),
             labelText: 'Category',
-            prefixIcon: Icons.category_rounded,
-            items: active.map((cat) {
-              return DropdownMenuItem(
-                value: cat.id,
-                child: Text('${cat.emoji}  ${cat.displayLabel}'),
+            items: active,
+            titleExtractor: (cat) => cat.displayLabel,
+            leadingBuilder: (context, cat, isSelected) {
+              return Container(
+                padding: EdgeInsets.all(8.r),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                  shape: BoxShape.circle,
+                ),
+                child: Text(
+                  cat.emoji,
+                  style: TextStyle(fontSize: 16.sp),
+                ),
               );
-            }).toList(),
-            onChanged: (catId) {
-              if (catId != null) {
-                setState(() {
-                  _selectedCategoryId = catId;
-                });
-              }
+            },
+            onSelected: (cat) {
+              setState(() {
+                _selectedCategoryId = cat.id;
+              });
             },
           ),
 

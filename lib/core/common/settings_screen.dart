@@ -597,7 +597,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _buildSectionTitle('BUDGET & PLANNING', isDark),
                       Container(
                         decoration: BoxDecoration(
-                          color: cardBg,
                           borderRadius: BorderRadius.circular(20.r),
                           border: Border.all(
                             color: isDark
@@ -606,7 +605,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             width: 1,
                           ),
                         ),
-                        child: Column(
+                        child: Material(
+                          color: cardBg,
+                          borderRadius: BorderRadius.circular(20.r),
+                          clipBehavior: Clip.antiAlias,
+                          child: Column(
                           children: [
                             ListTile(
                               leading: Icon(
@@ -729,6 +732,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ],
                         ),
                       ),
+                    ),
 
                       SizedBox(height: 12.h),
 
@@ -736,7 +740,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _buildSectionTitle('APP SETTINGS', isDark),
                       Container(
                         decoration: BoxDecoration(
-                          color: cardBg,
                           borderRadius: BorderRadius.circular(20.r),
                           border: Border.all(
                             color: isDark
@@ -745,7 +748,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             width: 1,
                           ),
                         ),
-                        child: Column(
+                        child: Material(
+                          color: cardBg,
+                          borderRadius: BorderRadius.circular(20.r),
+                          clipBehavior: Clip.antiAlias,
+                          child: Column(
                           children: [
                             ListTile(
                               leading: Icon(
@@ -942,6 +949,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ],
                         ),
                       ),
+                    ),
 
                       SizedBox(height: 12.h),
 
@@ -949,7 +957,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _buildSectionTitle('SECURITY & PRIVACY', isDark),
                       Container(
                         decoration: BoxDecoration(
-                          color: cardBg,
                           borderRadius: BorderRadius.circular(20.r),
                           border: Border.all(
                             color: isDark
@@ -958,7 +965,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             width: 1,
                           ),
                         ),
-                        child: Column(
+                        child: Material(
+                          color: cardBg,
+                          borderRadius: BorderRadius.circular(20.r),
+                          clipBehavior: Clip.antiAlias,
+                          child: Column(
                           children: [
                             ListTile(
                               leading: Icon(
@@ -1162,6 +1173,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ],
                         ),
                       ),
+                    ),
 
                       SizedBox(height: 12.h),
 
@@ -1169,7 +1181,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _buildSectionTitle('DATA & UTILITIES', isDark),
                       Container(
                         decoration: BoxDecoration(
-                          color: cardBg,
                           borderRadius: BorderRadius.circular(20.r),
                           border: Border.all(
                             color: isDark
@@ -1178,7 +1189,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             width: 1,
                           ),
                         ),
-                        child: Column(
+                        child: Material(
+                          color: cardBg,
+                          borderRadius: BorderRadius.circular(20.r),
+                          clipBehavior: Clip.antiAlias,
+                          child: Column(
                           children: [
                             ListTile(
                               leading: Icon(
@@ -1250,6 +1265,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ],
                         ),
                       ),
+                    ),
                       SizedBox(height: 24.h),
                       Center(
                         child: Text(
