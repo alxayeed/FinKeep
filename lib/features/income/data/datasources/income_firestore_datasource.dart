@@ -115,6 +115,20 @@ class IncomeFirestoreDataSource implements IncomeRemoteDataSource {
   @override
   Future<List<IncomeCategoryModel>> getCategories() async {
     final snapshot = await _categoriesCollection.get();
+    if (snapshot.docs.isEmpty) {
+      final defaults = [
+        const IncomeCategoryModel(id: 'cat_salary', displayLabel: 'Salary', emoji: '💼', isCustom: false),
+        const IncomeCategoryModel(id: 'cat_freelance', displayLabel: 'Freelance', emoji: '💻', isCustom: false),
+        const IncomeCategoryModel(id: 'cat_business', displayLabel: 'Business', emoji: '📈', isCustom: false),
+        const IncomeCategoryModel(id: 'cat_allowance', displayLabel: 'Allowance', emoji: '🎁', isCustom: false),
+        const IncomeCategoryModel(id: 'cat_investment', displayLabel: 'Investment', emoji: '🪙', isCustom: false),
+        const IncomeCategoryModel(id: 'cat_other', displayLabel: 'Other', emoji: '💰', isCustom: false),
+      ];
+      for (final cat in defaults) {
+        await _categoriesCollection.doc(cat.id).set(cat.toFirestoreMap());
+      }
+      return defaults;
+    }
     return snapshot.docs
         .map((doc) => IncomeCategoryModel.fromFirestoreMap(doc.data()..['id'] = doc.id))
         .toList();

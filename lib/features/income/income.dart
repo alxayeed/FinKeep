@@ -28,3 +28,10 @@ export 'domain/usecases/delete_income_category_usecase.dart';
 // Controllers
 export 'presentation/controllers/income_controller.dart';
 export 'presentation/controllers/income_category_controller.dart';
+
+// Screens
+export 'presentation/screens/income_screen.dart';
+export 'presentation/screens/create_income_screen.dart';
+export 'presentation/screens/edit_income_screen.dart';
+export 'presentation/screens/income_details_screen.dart';
+export 'presentation/screens/income_category_settings_screen.dart';

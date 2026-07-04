@@ -11,16 +11,16 @@ class IncomeHiveDataSource implements IncomeLocalDataSource {
   }
 
   Future<void> _seedDefaultCategoriesIfNeeded() async {
-    if (localDb.incomeCategoriesBox.isEmpty) {
-      final defaults = [
-        const IncomeCategoryModel(id: 'cat_salary', displayLabel: 'Salary', emoji: '💼', isCustom: false),
-        const IncomeCategoryModel(id: 'cat_freelance', displayLabel: 'Freelance', emoji: '💻', isCustom: false),
-        const IncomeCategoryModel(id: 'cat_business', displayLabel: 'Business', emoji: '📈', isCustom: false),
-        const IncomeCategoryModel(id: 'cat_allowance', displayLabel: 'Allowance', emoji: '🎁', isCustom: false),
-        const IncomeCategoryModel(id: 'cat_investment', displayLabel: 'Investment', emoji: '🪙', isCustom: false),
-        const IncomeCategoryModel(id: 'cat_other', displayLabel: 'Other', emoji: '💰', isCustom: false),
-      ];
-      for (final cat in defaults) {
+    final defaults = [
+      const IncomeCategoryModel(id: 'cat_salary', displayLabel: 'Salary', emoji: '💼', isCustom: false),
+      const IncomeCategoryModel(id: 'cat_freelance', displayLabel: 'Freelance', emoji: '💻', isCustom: false),
+      const IncomeCategoryModel(id: 'cat_business', displayLabel: 'Business', emoji: '📈', isCustom: false),
+      const IncomeCategoryModel(id: 'cat_allowance', displayLabel: 'Allowance', emoji: '🎁', isCustom: false),
+      const IncomeCategoryModel(id: 'cat_investment', displayLabel: 'Investment', emoji: '🪙', isCustom: false),
+      const IncomeCategoryModel(id: 'cat_other', displayLabel: 'Other', emoji: '💰', isCustom: false),
+    ];
+    for (final cat in defaults) {
+      if (!localDb.incomeCategoriesBox.containsKey(cat.id)) {
         await localDb.incomeCategoriesBox.put(cat.id, cat.toJson());
       }
     }

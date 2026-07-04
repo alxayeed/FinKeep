@@ -13,9 +13,10 @@ class HomeScaffold extends StatelessWidget {
   int _currentIndex(BuildContext context) {
     final currentRouteName = GoRouterState.of(context).matchedLocation;
 
-    if (currentRouteName.startsWith(AppRoutes.lendings)) return 1;
-    if (currentRouteName.startsWith(AppRoutes.expenseReport)) return 2;
-    if (currentRouteName.startsWith(AppRoutes.investments)) return 3;
+    if (currentRouteName.startsWith(AppRoutes.income)) return 1;
+    if (currentRouteName.startsWith(AppRoutes.lendings)) return 2;
+    if (currentRouteName.startsWith(AppRoutes.expenseReport)) return 3;
+    if (currentRouteName.startsWith(AppRoutes.investments)) return 4;
     return 0;
   }
 
@@ -28,6 +29,11 @@ class HomeScaffold extends StatelessWidget {
         icon: Icons.monetization_on_outlined,
         activeIcon: Icons.monetization_on,
         label: 'Expenses',
+      ),
+      const CustomNavBarItem(
+        icon: Icons.account_balance_wallet_outlined,
+        activeIcon: Icons.account_balance_wallet,
+        label: 'Income',
       ),
       const CustomNavBarItem(
         icon: Icons.handshake_outlined,
@@ -57,9 +63,10 @@ class HomeScaffold extends StatelessWidget {
         items: navItems,
         onTap: (i) {
           if (i == 0) context.goNamed(AppRoutes.expenses);
-          if (i == 1) context.goNamed(AppRoutes.lendings);
-          if (i == 2) context.goNamed(AppRoutes.expenseReport);
-          if (i == 3 && AppConfig.isPersonal) {
+          if (i == 1) context.goNamed(AppRoutes.income);
+          if (i == 2) context.goNamed(AppRoutes.lendings);
+          if (i == 3) context.goNamed(AppRoutes.expenseReport);
+          if (i == 4 && AppConfig.isPersonal) {
             context.goNamed(AppRoutes.investments);
           }
         },

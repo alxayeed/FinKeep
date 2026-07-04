@@ -688,6 +688,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 );
                               },
                             ),
+                            Divider(
+                              height: 1,
+                              color: isDark
+                                  ? const Color(0xFF1E293B)
+                                  : const Color(0xFFE2E8F0),
+                            ),
+                            ListTile(
+                              leading: Icon(
+                                Icons.account_balance_wallet_outlined,
+                                size: 20.sp,
+                                color: AppColors.primaryTeal,
+                              ),
+                              title: Text(
+                                'Configure Income Categories',
+                                style: TextStyle(
+                                  fontSize: 13.sp,
+                                  fontFamily: 'Manrope',
+                                  fontWeight: FontWeight.w600,
+                                  color: textColor,
+                                ),
+                              ),
+                              subtitle: Text(
+                                'Manage income categories and emojis',
+                                style: TextStyle(
+                                  fontSize: 11.sp,
+                                  fontFamily: 'Manrope',
+                                  color: subtitleColor,
+                                ),
+                              ),
+                              trailing: Icon(
+                                Icons.chevron_right,
+                                size: 20.sp,
+                                color: subtitleColor,
+                              ),
+                              onTap: () {
+                                context.pushNamed(AppRoutes.incomeCategorySettings);
+                              },
+                            ),
                           ],
                         ),
                       ),

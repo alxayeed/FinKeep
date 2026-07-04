@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:finkeep/features/investments/domain/entities/investment.dart';
+import 'package:finkeep/features/income/income.dart';
 import 'package:finkeep/features/investments/presentation/screens/add_investment_screen.dart';
 import 'package:finkeep/features/investments/presentation/screens/edit_investment_screen.dart';
 import 'package:finkeep/features/investments/presentation/screens/investment_detail_screen.dart';
@@ -41,6 +42,13 @@ class AppRoutes {
   static const String investmentDetails = '/investmentDetails';
   static const String addInvestment = '/addInvestment';
   static const String updateInvestment = '/updateInvestment';
+
+  // Income Routes
+  static const String income = '/income';
+  static const String addIncome = '/addIncome';
+  static const String incomeDetails = '/incomeDetails';
+  static const String editIncome = '/editIncome';
+  static const String incomeCategorySettings = '/incomeCategorySettings';
 
   // Settings
   static const String settings = '/settings';
@@ -92,6 +100,12 @@ class AppRouter {
               name: AppRoutes.expenseReport,
               pageBuilder: (context, state) =>
                   const NoTransitionPage(child: ExpenseReportScreen()),
+            ),
+            GoRoute(
+              path: AppRoutes.income,
+              name: AppRoutes.income,
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: IncomeScreen()),
             ),
           ],
         ),
@@ -239,6 +253,44 @@ class AppRouter {
           name: AppRoutes.onboarding,
           pageBuilder: (context, state) =>
               const NoTransitionPage(child: OnboardingScreen()),
+        ),
+        GoRoute(
+          path: AppRoutes.addIncome,
+          name: AppRoutes.addIncome,
+          pageBuilder: (context, state) =>
+              const NoTransitionPage(child: CreateIncomeScreen()),
+        ),
+        GoRoute(
+          path: AppRoutes.incomeCategorySettings,
+          name: AppRoutes.incomeCategorySettings,
+          pageBuilder: (context, state) =>
+              const NoTransitionPage(child: IncomeCategorySettingsScreen()),
+        ),
+        GoRoute(
+          path: AppRoutes.incomeDetails,
+          name: AppRoutes.incomeDetails,
+          pageBuilder: (context, state) {
+            final extra = state.extra;
+            if (extra is! IncomeEntity) {
+              return const NoTransitionPage(
+                child: ErrorScreen(message: 'Invalid Income data.'),
+              );
+            }
+            return NoTransitionPage(child: IncomeDetailsScreen(income: extra));
+          },
+        ),
+        GoRoute(
+          path: AppRoutes.editIncome,
+          name: AppRoutes.editIncome,
+          pageBuilder: (context, state) {
+            final extra = state.extra;
+            if (extra is! IncomeEntity) {
+              return const NoTransitionPage(
+                child: ErrorScreen(message: 'Invalid Income data for editing.'),
+              );
+            }
+            return NoTransitionPage(child: EditIncomeScreen(income: extra));
+          },
         ),
       ],
     );

@@ -23,7 +23,7 @@ class IncomeCategoryController extends GetxController {
   var isLoading = false.obs;
 
   // Premium configurations limit gates
-  final int maxCustomCategoryLimit = 5;
+  final int maxCustomCategoryLimit = 3;
 
   @override
   void onInit() {
