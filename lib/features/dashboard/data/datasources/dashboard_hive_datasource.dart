@@ -6,12 +6,65 @@ import '../models/dashboard_aggregate_stats_model.dart';
 import '../models/dashboard_category_breakdown_model.dart';
 import '../models/dashboard_recent_activity_model.dart';
 import '../models/dashboard_trend_point_model.dart';
+import '../models/monthly_standing_model.dart';
 import 'dashboard_local_datasource.dart';
 
 class DashboardHiveDataSource implements DashboardLocalDataSource {
   final LocalDbService localDb;
 
   DashboardHiveDataSource({required this.localDb});
+
+  @override
+  Future<MonthlyStandingModel> getMonthlyStanding(DateTime month) async {
+    final start = DateTime(month.year, month.month, 1);
+    final end = DateTime(month.year, month.month + 1, 0, 23, 59, 59);
+
+    double totalIncome = 0.0;
+    double totalExpense = 0.0;
+    double totalLendGiven = 0.0;
+    double totalLendTaken = 0.0;
+
+    // Expenses
+    for (final raw in localDb.expensesBox.values) {
+      final map = Map<String, dynamic>.from(raw);
+      final date = _parseDate(map['date']);
+      if (_inRange(date, start, end)) {
+        totalExpense += (map['amount'] as num? ?? 0).toDouble();
+      }
+    }
+
+    // Income
+    for (final raw in localDb.incomeBox.values) {
+      final map = Map<String, dynamic>.from(raw);
+      final date = _parseDate(map['date']);
+      if (_inRange(date, start, end)) {
+        totalIncome += (map['amount'] as num? ?? 0).toDouble();
+      }
+    }
+
+    // Lendings
+    for (final raw in localDb.lendingsBox.values) {
+      final map = Map<String, dynamic>.from(raw);
+      final date = _parseDate(map['createdDate']);
+      if (_inRange(date, start, end)) {
+        final amount = (map['amount'] as num? ?? 0).toDouble();
+        final type = map['type'] as String? ?? '';
+        if (type == 'given') {
+          totalLendGiven += amount;
+        } else if (type == 'taken') {
+          totalLendTaken += amount;
+        }
+      }
+    }
+
+    return MonthlyStandingModel(
+      month: month,
+      totalIncome: totalIncome,
+      totalExpense: totalExpense,
+      totalLendGiven: totalLendGiven,
+      totalLendTaken: totalLendTaken,
+    );
+  }
 
   // ---------------------------------------------------------------------------
   // Helpers

@@ -2,8 +2,12 @@ import '../models/dashboard_aggregate_stats_model.dart';
 import '../models/dashboard_category_breakdown_model.dart';
 import '../models/dashboard_recent_activity_model.dart';
 import '../models/dashboard_trend_point_model.dart';
+import '../models/monthly_standing_model.dart';
 
 abstract class DashboardRemoteDataSource {
+  /// Returns the financial standing (income, expense, lend given, lend taken) for a specific month.
+  Future<MonthlyStandingModel> getMonthlyStanding(DateTime month);
+
   /// Returns aggregate financial stats (totals, savings rate, net lendings, etc.)
   /// for the given date range.
   Future<DashboardAggregateStatsModel> getAggregateStats(

@@ -4,10 +4,11 @@ import '../../../../core/styles/app_colors.dart';
 import '../controllers/dashboard_controller.dart';
 import '../widgets/cash_flow_line_chart.dart';
 import '../widgets/expense_doughnut_chart.dart';
-import '../widgets/income_expense_bar_chart.dart';
-import '../widgets/recent_activity_list.dart';
+// import '../widgets/income_expense_bar_chart.dart';
+// import '../widgets/recent_activity_list.dart';
 import '../widgets/summary_cards.dart';
 import '../widgets/timeframe_selector.dart';
+import '../widgets/monthly_standing_chart.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -33,6 +34,7 @@ class DashboardScreen extends StatelessWidget {
       body: RefreshIndicator(
         onRefresh: () async {
           controller.fetchAllDashboardData();
+          controller.fetchMonthlyStanding();
         },
         color: AppColors.primaryTeal,
         child: Column(
@@ -43,10 +45,34 @@ class DashboardScreen extends StatelessWidget {
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.only(bottom: 24),
                 children: [
-                  // 1. Stats and Overview Hero Card
+                  // 0. Monthly Standing Donut Chart Overview
+                  Obx(() {
+                    if (controller.monthlyStandingLoading.value) {
+                      return const MonthlyStandingChartShimmer();
+                    }
+                    if (controller.monthlyStandingError.isNotEmpty) {
+                      return _buildErrorTile(
+                        context,
+                        title: 'Monthly Standing',
+                        error: controller.monthlyStandingError.value,
+                        onRetry: () => controller.fetchMonthlyStanding(),
+                      );
+                    }
+                    final data = controller.monthlyStanding.value;
+                    if (data == null) {
+                      return const SizedBox();
+                    }
+                    return MonthlyStandingChart(
+                      data: data,
+                      onPrevious: () => controller.prevMonthStanding(),
+                      onNext: () => controller.nextMonthStanding(),
+                    );
+                  }),
+                  const SizedBox(height: 12),
+                  // 1. Stats and Overview Hero Card (Showing Lending & Investing mini cards only)
                   Obx(() {
                     if (controller.statsLoading.value) {
-                      return const SummaryCardsShimmer();
+                      return const SummaryCardsShimmer(showOnlyLendingAndInvesting: true);
                     }
                     if (controller.statsError.isNotEmpty) {
                       return _buildErrorTile(
@@ -59,15 +85,16 @@ class DashboardScreen extends StatelessWidget {
                     final data = controller.stats.value;
                     if (data == null) {
                       return const SizedBox(
-                        height: 220,
+                        height: 98,
                         child: Center(child: Text('No overview stats loaded')),
                       );
                     }
-                    return SummaryCards(data: data);
+                    return SummaryCards(data: data, showOnlyLendingAndInvesting: true);
                   }),
                   const SizedBox(height: 12),
 
-                  // 2. Inflow vs Outflow Bar Chart
+                  // 2. Inflow vs Outflow Bar Chart (Hidden for now)
+                  /*
                   Obx(() {
                     if (controller.statsLoading.value) {
                       return const IncomeExpenseBarChartShimmer();
@@ -79,6 +106,7 @@ class DashboardScreen extends StatelessWidget {
                     if (data == null) return const SizedBox();
                     return IncomeExpenseBarChart(data: data);
                   }),
+                  */
 
                   // 3. Expense Allocation Doughnut Chart
                   Obx(() {
@@ -120,7 +148,8 @@ class DashboardScreen extends StatelessWidget {
                   }),
                   const SizedBox(height: 12),
 
-                  // 5. Recent Activity Feed
+                  // 5. Recent Activity Feed (Hidden for now)
+                  /*
                   Obx(() {
                     if (controller.recentActivitiesLoading.value) {
                       return const RecentActivityListShimmer();
@@ -136,6 +165,7 @@ class DashboardScreen extends StatelessWidget {
                     final activities = controller.recentActivities;
                     return RecentActivityList(activities: activities);
                   }),
+                  */
                 ],
               ),
             ),

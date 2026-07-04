@@ -9,14 +9,50 @@ import '../../domain/entities/dashboard_aggregate_stats_entity.dart';
 
 class SummaryCards extends StatelessWidget {
   final DashboardAggregateStatsEntity data;
+  final bool showOnlyLendingAndInvesting;
 
-  const SummaryCards({super.key, required this.data});
+  const SummaryCards({
+    super.key,
+    required this.data,
+    this.showOnlyLendingAndInvesting = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final symbol = context.currency.symbol;
 
-    // Estimate Cash Balance / Cash Net Worth
+    if (showOnlyLendingAndInvesting) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Row(
+          children: [
+            Expanded(
+              child: _buildMiniCard(
+                context,
+                title: 'Net Lendings',
+                value: '${(data.totalGivenDue - data.totalReceivedDue).toCurrency()} $symbol',
+                icon: FontAwesomeIcons.handshake,
+                color: Colors.orange,
+              ),
+            ),
+            if (AppConfig.isPersonal) ...[
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildMiniCard(
+                  context,
+                  title: 'Investments',
+                  value: '${(data.totalInvested + data.totalInvestmentProfit).toCurrency()} $symbol',
+                  icon: FontAwesomeIcons.chartLine,
+                  color: Colors.teal,
+                ),
+              ),
+            ],
+          ],
+        ),
+      );
+    }
+
+    // Full Original Implementation
     final double netWorth = data.totalIncome -
         data.totalExpense +
         data.totalInvested +
@@ -271,6 +307,7 @@ class SummaryCards extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(12),
+      height: 98,
       decoration: BoxDecoration(
         color: isDark ? AppColors.cardDark : AppColors.cardLight,
         borderRadius: BorderRadius.circular(16),
@@ -300,7 +337,7 @@ class SummaryCards extends StatelessWidget {
             value,
             style: TextStyle(
               color: isDark ? Colors.white : Colors.black.withValues(alpha: 0.8),
-              fontSize: 16,
+              fontSize: 15,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -311,7 +348,12 @@ class SummaryCards extends StatelessWidget {
 }
 
 class SummaryCardsShimmer extends StatelessWidget {
-  const SummaryCardsShimmer({super.key});
+  final bool showOnlyLendingAndInvesting;
+
+  const SummaryCardsShimmer({
+    super.key,
+    this.showOnlyLendingAndInvesting = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -319,6 +361,39 @@ class SummaryCardsShimmer extends StatelessWidget {
     final baseColor = isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0);
     final highlightColor = isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9);
     final itemBg = isDark ? AppColors.cardDark : AppColors.cardLight;
+
+    if (showOnlyLendingAndInvesting) {
+      return Shimmer.fromColors(
+        baseColor: baseColor,
+        highlightColor: highlightColor,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: Container(
+                  height: 98,
+                  decoration: BoxDecoration(
+                    color: itemBg,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Container(
+                  height: 98,
+                  decoration: BoxDecoration(
+                    color: itemBg,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Shimmer.fromColors(
       baseColor: baseColor,

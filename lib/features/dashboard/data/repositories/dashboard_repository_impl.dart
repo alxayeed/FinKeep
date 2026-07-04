@@ -4,6 +4,7 @@ import '../../domain/entities/dashboard_aggregate_stats_entity.dart';
 import '../../domain/entities/dashboard_category_breakdown_entity.dart';
 import '../../domain/entities/dashboard_trend_point_entity.dart';
 import '../../domain/entities/dashboard_recent_activity_entity.dart';
+import '../../domain/entities/monthly_standing_entity.dart';
 import '../../domain/repositories/dashboard_repository.dart';
 import '../datasources/dashboard_local_datasource.dart';
 import '../datasources/dashboard_remote_datasource.dart';
@@ -16,6 +17,14 @@ class DashboardRepositoryImpl implements DashboardRepository {
     required this.localDataSource,
     required this.remoteDataSource,
   });
+
+  @override
+  Future<MonthlyStandingEntity> getMonthlyStanding(DateTime month) async {
+    final model = AppConfig.useRemote
+        ? await remoteDataSource.getMonthlyStanding(month)
+        : await localDataSource.getMonthlyStanding(month);
+    return model.toEntity();
+  }
 
   @override
   Future<DashboardAggregateStatsEntity> getAggregateStats(

@@ -7,6 +7,7 @@ import '../models/dashboard_aggregate_stats_model.dart';
 import '../models/dashboard_category_breakdown_model.dart';
 import '../models/dashboard_recent_activity_model.dart';
 import '../models/dashboard_trend_point_model.dart';
+import '../models/monthly_standing_model.dart';
 import 'dashboard_remote_datasource.dart';
 
 /// Firestore collection names used across other features — defined here
@@ -36,6 +37,65 @@ class DashboardFirestoreDataSource implements DashboardRemoteDataSource {
 
   DashboardFirestoreDataSource({required this.fireStore}) {
     _isPersonal = AppConfig.isPersonal;
+  }
+
+  @override
+  Future<MonthlyStandingModel> getMonthlyStanding(DateTime month) async {
+    final start = DateTime(month.year, month.month, 1);
+    final end = DateTime(month.year, month.month + 1, 0, 23, 59, 59);
+    final startTs = Timestamp.fromDate(start);
+    final endTs = Timestamp.fromDate(end);
+
+    // Query collections in parallel
+    final expenseFuture = fireStore
+        .collection(_Collections.expenses(_isPersonal))
+        .where('date', isGreaterThanOrEqualTo: startTs)
+        .where('date', isLessThanOrEqualTo: endTs)
+        .get();
+
+    final incomeFuture = fireStore
+        .collection(_Collections.income(_isPersonal))
+        .where('date', isGreaterThanOrEqualTo: startTs)
+        .where('date', isLessThanOrEqualTo: endTs)
+        .get();
+
+    final lendingsFuture = fireStore
+        .collection(_Collections.lendings(_isPersonal))
+        .where('createdDate', isGreaterThanOrEqualTo: startTs)
+        .where('createdDate', isLessThanOrEqualTo: endTs)
+        .get();
+
+    final results = await Future.wait([expenseFuture, incomeFuture, lendingsFuture]);
+
+    double totalExpense = 0.0;
+    for (final doc in results[0].docs) {
+      totalExpense += (doc['amount'] as num? ?? 0).toDouble();
+    }
+
+    double totalIncome = 0.0;
+    for (final doc in results[1].docs) {
+      totalIncome += (doc['amount'] as num? ?? 0).toDouble();
+    }
+
+    double totalLendGiven = 0.0;
+    double totalLendTaken = 0.0;
+    for (final doc in results[2].docs) {
+      final amount = (doc['amount'] as num? ?? 0).toDouble();
+      final type = doc['type'] as String? ?? '';
+      if (type == 'given') {
+        totalLendGiven += amount;
+      } else if (type == 'taken') {
+        totalLendTaken += amount;
+      }
+    }
+
+    return MonthlyStandingModel(
+      month: month,
+      totalIncome: totalIncome,
+      totalExpense: totalExpense,
+      totalLendGiven: totalLendGiven,
+      totalLendTaken: totalLendTaken,
+    );
   }
 
   DateTime _parseDate(dynamic val) => DateParser.parse(val);

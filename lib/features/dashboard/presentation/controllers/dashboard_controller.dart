@@ -3,6 +3,7 @@ import '../../domain/entities/dashboard_aggregate_stats_entity.dart';
 import '../../domain/entities/dashboard_category_breakdown_entity.dart';
 import '../../domain/entities/dashboard_trend_point_entity.dart';
 import '../../domain/entities/dashboard_recent_activity_entity.dart';
+import '../../domain/entities/monthly_standing_entity.dart';
 import '../../domain/entities/dashboard_timeframe.dart';
 import '../../domain/usecases/usecases.dart';
 
@@ -12,6 +13,7 @@ class DashboardController extends GetxController {
   final GetIncomeCategoryBreakdownUseCase getIncomeCategoryBreakdownUseCase;
   final GetTrendPointsUseCase getTrendPointsUseCase;
   final GetRecentActivitiesUseCase getRecentActivitiesUseCase;
+  final GetMonthlyStandingUseCase getMonthlyStandingUseCase;
 
   DashboardController({
     required this.getAggregateStatsUseCase,
@@ -19,12 +21,19 @@ class DashboardController extends GetxController {
     required this.getIncomeCategoryBreakdownUseCase,
     required this.getTrendPointsUseCase,
     required this.getRecentActivitiesUseCase,
+    required this.getMonthlyStandingUseCase,
   });
 
   // Timeframe selection states
   final timeframe = DashboardTimeframe.currentMonth.obs;
   final customStartDate = Rxn<DateTime>();
   final customEndDate = Rxn<DateTime>();
+
+  // Monthly standing states (with independent navigation)
+  final monthlyStanding = Rxn<MonthlyStandingEntity>();
+  final monthlyStandingLoading = false.obs;
+  final monthlyStandingError = ''.obs;
+  final monthlyStandingMonth = DateTime.now().obs;
 
   // 1. Stats state
   final stats = Rxn<DashboardAggregateStatsEntity>();
@@ -55,8 +64,11 @@ class DashboardController extends GetxController {
   void onInit() {
     super.onInit();
     fetchAllDashboardData();
+    fetchMonthlyStanding();
     // React to changes in timeframe
     ever(timeframe, (_) => fetchAllDashboardData());
+    // React to changes in monthly standing selected month
+    ever(monthlyStandingMonth, (_) => fetchMonthlyStanding());
   }
 
   void fetchAllDashboardData() {
@@ -71,6 +83,29 @@ class DashboardController extends GetxController {
     fetchIncomeCategoryBreakdown(start, end);
     fetchTrendPoints(start, end);
     fetchRecentActivities(start, end);
+  }
+
+  Future<void> fetchMonthlyStanding() async {
+    monthlyStandingLoading.value = true;
+    monthlyStandingError.value = '';
+    try {
+      final result = await getMonthlyStandingUseCase(monthlyStandingMonth.value);
+      monthlyStanding.value = result;
+    } catch (e) {
+      monthlyStandingError.value = 'Failed to load monthly standing: $e';
+    } finally {
+      monthlyStandingLoading.value = false;
+    }
+  }
+
+  void nextMonthStanding() {
+    final current = monthlyStandingMonth.value;
+    monthlyStandingMonth.value = DateTime(current.year, current.month + 1, 1);
+  }
+
+  void prevMonthStanding() {
+    final current = monthlyStandingMonth.value;
+    monthlyStandingMonth.value = DateTime(current.year, current.month - 1, 1);
   }
 
   Future<void> fetchAggregateStats(DateTime start, DateTime end) async {

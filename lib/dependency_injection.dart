@@ -310,6 +310,7 @@ class DependencyInjection {
     Get.lazyPut(() => GetIncomeCategoryBreakdownUseCase(Get.find()), fenix: true);
     Get.lazyPut(() => GetTrendPointsUseCase(Get.find()), fenix: true);
     Get.lazyPut(() => GetRecentActivitiesUseCase(Get.find()), fenix: true);
+    Get.lazyPut(() => GetMonthlyStandingUseCase(Get.find()), fenix: true);
     Get.lazyPut(
       () => DashboardController(
         getAggregateStatsUseCase: Get.find(),
@@ -317,6 +318,7 @@ class DependencyInjection {
         getIncomeCategoryBreakdownUseCase: Get.find(),
         getTrendPointsUseCase: Get.find(),
         getRecentActivitiesUseCase: Get.find(),
+        getMonthlyStandingUseCase: Get.find(),
       ),
       fenix: true,
     );
