@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/common/widgets/custom_fab.dart';
-import '../../../../core/enums/expense_category.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../controllers/monthly_expense_controller.dart';
@@ -62,12 +61,12 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
                           ? const MonthlyExpenseShimmer(selectedTab: 0)
                           : MonthlyExpenseSummaryScreen(
                               controller: controller,
-                              onCategoryTap: (category) {
+                              onCategoryTap: (categoryName) {
                                 setState(() {
                                   _selectedTab = 1; // Switch to Details tab
                                 });
                                 controller.updateSelectedCategory(
-                                  category.displayName,
+                                  categoryName,
                                 );
                               },
                             ))

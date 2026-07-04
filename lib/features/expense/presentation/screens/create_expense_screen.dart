@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/enums/expense_category.dart';
 import '../../../../core/enums/payment_type.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../../domain/entities/expense_entity.dart';
+import '../../domain/entities/expense_category_entity.dart';
 import '../controllers/monthly_expense_controller.dart';
 import '../widgets/expense_form.dart';
 
@@ -105,7 +105,7 @@ class _CreateExpenseScreenState extends State<CreateExpenseScreen> {
 
   Future<void> _saveExpense(
     double amount,
-    ExpenseCategory category,
+    ExpenseCategoryEntity category,
     DateTime date,
     String description,
     PaymentType paymentMethod,
@@ -113,7 +113,7 @@ class _CreateExpenseScreenState extends State<CreateExpenseScreen> {
     final newExpense = ExpenseEntity(
       id: DateTime.now().toString(),
       amount: amount,
-      category: category.displayName,
+      category: category.displayLabel,
       date: date,
       description: description,
       paymentMethod: paymentMethod,

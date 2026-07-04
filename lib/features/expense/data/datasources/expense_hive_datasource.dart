@@ -1,4 +1,5 @@
 import 'package:finkeep/features/expense/data/models/expense_model.dart';
+import 'package:finkeep/features/expense/data/models/expense_category_model.dart';
 import 'package:finkeep/features/expense/data/datasources/expense_local_datasource.dart';
 import 'package:finkeep/core/services/local_db_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -6,7 +7,27 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class ExpenseHiveDataSource implements ExpenseLocalDataSource {
   final LocalDbService localDb;
 
-  ExpenseHiveDataSource({required this.localDb});
+  ExpenseHiveDataSource({required this.localDb}) {
+    _seedDefaultCategoriesIfNeeded();
+  }
+
+  Future<void> _seedDefaultCategoriesIfNeeded() async {
+    final defaults = [
+      const ExpenseCategoryModel(id: 'exp_food', displayLabel: 'Food', emoji: '🍔', isCustom: false),
+      const ExpenseCategoryModel(id: 'exp_transport', displayLabel: 'Transport', emoji: '🚗', isCustom: false),
+      const ExpenseCategoryModel(id: 'exp_family', displayLabel: 'Family', emoji: '🏠', isCustom: false),
+      const ExpenseCategoryModel(id: 'exp_personal', displayLabel: 'Personal', emoji: '👤', isCustom: false),
+      const ExpenseCategoryModel(id: 'exp_clothing', displayLabel: 'Clothing', emoji: '👕', isCustom: false),
+      const ExpenseCategoryModel(id: 'exp_hangout', displayLabel: 'Travelling', emoji: '✈️', isCustom: false),
+      const ExpenseCategoryModel(id: 'exp_utilities', displayLabel: 'Utilities', emoji: '⚡', isCustom: false),
+      const ExpenseCategoryModel(id: 'exp_other', displayLabel: 'Other', emoji: '📦', isCustom: false),
+    ];
+    for (final cat in defaults) {
+      if (!localDb.expenseCategoriesBox.containsKey(cat.id)) {
+        await localDb.expenseCategoriesBox.put(cat.id, cat.toJson());
+      }
+    }
+  }
 
   DateTime _parseTimestamp(dynamic val) {
     if (val is DateTime) return val;
@@ -24,6 +45,37 @@ class ExpenseHiveDataSource implements ExpenseLocalDataSource {
 
   ExpenseModel _mapJson(Map<String, dynamic> json) =>
       ExpenseModel.fromJson(json);
+
+  ExpenseCategoryModel _mapCategory(Map<dynamic, dynamic> json) =>
+      ExpenseCategoryModel.fromJson(Map<String, dynamic>.from(json));
+
+  // --- ExpenseCategory CRUD ---
+  @override
+  Future<void> createCategory(ExpenseCategoryModel category) async {
+    await localDb.expenseCategoriesBox.put(category.id, category.toJson());
+  }
+
+  @override
+  Future<List<ExpenseCategoryModel>> getCategories() async {
+    return localDb.expenseCategoriesBox.values
+        .map((raw) => _mapCategory(raw))
+        .toList();
+  }
+
+  @override
+  Future<void> updateCategory(ExpenseCategoryModel category) async {
+    await localDb.expenseCategoriesBox.put(category.id, category.toJson());
+  }
+
+  @override
+  Future<void> deleteCategory(String id) async {
+    final raw = localDb.expenseCategoriesBox.get(id);
+    if (raw != null) {
+      final category = _mapCategory(raw);
+      final updated = category.copyWith(isDeleted: true);
+      await localDb.expenseCategoriesBox.put(id, updated.toJson());
+    }
+  }
 
   @override
   Future<void> createExpense(ExpenseModel expense) async {

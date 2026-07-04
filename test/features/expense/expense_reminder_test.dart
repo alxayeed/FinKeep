@@ -1,4 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:finkeep/features/expense/services/expense_reminder_android.dart';
@@ -10,6 +11,14 @@ class MockFlutterLocalNotificationsPlugin extends Mock
 
 void main() {
   setUpAll(() {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    const MethodChannel('flutter.baseflow.com/permissions/methods')
+        .setMockMethodCallHandler((MethodCall methodCall) async {
+      if (methodCall.method == 'checkPermissionStatus') {
+        return 1; // PermissionStatus.granted
+      }
+      return null;
+    });
     tz.initializeTimeZones();
     registerFallbackValue(NotificationDetails());
     registerFallbackValue(tz.TZDateTime.now(tz.UTC));
@@ -73,7 +82,7 @@ void main() {
             body: 'Don’t forget to log today’s expenses 💸',
             scheduledDate: any(named: 'scheduledDate'),
             notificationDetails: any(named: 'notificationDetails'),
-            androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
             matchDateTimeComponents: DateTimeComponents.time,
             payload: 'add_expense',
           )).called(1);

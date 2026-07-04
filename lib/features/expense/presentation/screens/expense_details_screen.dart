@@ -12,6 +12,7 @@ import 'package:finkeep/core/enums/payment_type.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../controllers/monthly_expense_controller.dart';
+import '../controllers/expense_category_controller.dart';
 
 class ExpenseDetailsScreen extends StatefulWidget {
   final ExpenseEntity expense;
@@ -32,41 +33,37 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
     _currentExpense = widget.expense;
   }
 
+  Color _getCategoryColor(String label) {
+    switch (label.toLowerCase()) {
+      case 'food':
+        return Colors.orange.shade600;
+      case 'transport':
+        return const Color(0xFF059669);
+      case 'family':
+        return Colors.blue.shade600;
+      case 'personal':
+        return Colors.purple.shade600;
+      case 'clothing':
+        return Colors.pink.shade600;
+      case 'travelling':
+      case 'hangout':
+        return Colors.amber.shade700;
+      case 'utilities':
+        return Colors.indigo.shade600;
+      default:
+        return AppColors.primaryTeal;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final ExpenseCategoryController categoryController = Get.find();
 
-    Color categoryColor = AppColors.getColorForCategory(_currentExpense.category);
-    IconData categoryIcon;
-
-    switch (_currentExpense.category.toLowerCase()) {
-      case 'food':
-        categoryIcon = Icons.restaurant_rounded;
-        break;
-      case 'transport':
-        categoryIcon = Icons.directions_car_rounded;
-        break;
-      case 'family':
-        categoryIcon = Icons.family_restroom_rounded;
-        break;
-      case 'personal':
-        categoryIcon = Icons.person_rounded;
-        break;
-      case 'lend':
-        categoryIcon = Icons.handshake_rounded;
-        break;
-      case 'clothing':
-        categoryIcon = Icons.shopping_bag_rounded;
-        break;
-      case 'hangout':
-        categoryIcon = Icons.local_activity_rounded;
-        break;
-      case 'utilities':
-        categoryIcon = Icons.bolt_rounded;
-        break;
-      default:
-        categoryIcon = Icons.category_rounded;
-    }
+    final category = categoryController.resolveCategory(_currentExpense.category);
+    final Color categoryColor = _getCategoryColor(category.displayLabel);
+    final String categoryEmoji = category.emoji;
+    final bool isDeleted = category.isDeleted;
 
     final formattedDate = DateFormat('MMMM dd, yyyy').format(_currentExpense.date);
     final formattedTime = DateFormat('hh:mm a').format(_currentExpense.date);
@@ -136,7 +133,7 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
               padding: EdgeInsets.symmetric(vertical: 32.h, horizontal: 24.w),
               child: Column(
                 children: [
-                  Container(
+                   Container(
                     width: 64.r,
                     height: 64.r,
                     decoration: BoxDecoration(
@@ -147,15 +144,15 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
                         width: 1,
                       ),
                     ),
-                    child: Icon(
-                      categoryIcon,
-                      color: categoryColor,
-                      size: 32.sp,
+                    alignment: Alignment.center,
+                    child: Text(
+                      categoryEmoji,
+                      style: TextStyle(fontSize: 32.sp),
                     ),
                   ),
                   SizedBox(height: 12.h),
                   Text(
-                    _currentExpense.category.toUpperCase(),
+                    (isDeleted ? '${category.displayLabel} (Deleted)' : category.displayLabel).toUpperCase(),
                     style: TextStyle(
                       fontSize: 11.sp,
                       fontFamily: 'Manrope',

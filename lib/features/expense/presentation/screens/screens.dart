@@ -9,4 +9,5 @@ export 'expense_report_summary_screen.dart';
 export 'expense_report_list_screen.dart';
 export 'set_monthly_budget_screen.dart';
 export 'missing_budget_screen.dart';
+export 'expense_category_settings_screen.dart';
 

@@ -1,4 +1,5 @@
 import '../models/expense_model.dart';
+import '../models/expense_category_model.dart';
 
 abstract class ExpenseRemoteDataSource {
   Future<void> createExpense(ExpenseModel expense);
@@ -23,4 +24,10 @@ abstract class ExpenseRemoteDataSource {
   Future<double> getTotalExpensesForMonth(
     DateTime selectedMonth,
   );
+
+  // ExpenseCategory CRUD
+  Future<void> createCategory(ExpenseCategoryModel category);
+  Future<List<ExpenseCategoryModel>> getCategories();
+  Future<void> updateCategory(ExpenseCategoryModel category);
+  Future<void> deleteCategory(String id);
 }

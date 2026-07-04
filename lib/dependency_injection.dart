@@ -16,6 +16,11 @@ import 'package:finkeep/features/expense/domain/usecases/update_expense_usecase.
 import 'package:finkeep/features/expense/presentation/controllers/monthly_expense_controller.dart';
 import 'package:finkeep/features/expense/presentation/controllers/expense_report_controller.dart';
 import 'package:finkeep/features/expense/presentation/controllers/budget_controller.dart';
+import 'package:finkeep/features/expense/domain/usecases/add_expense_category_usecase.dart';
+import 'package:finkeep/features/expense/domain/usecases/delete_expense_category_usecase.dart';
+import 'package:finkeep/features/expense/domain/usecases/get_expense_categories_usecase.dart';
+import 'package:finkeep/features/expense/domain/usecases/update_expense_category_usecase.dart';
+import 'package:finkeep/features/expense/presentation/controllers/expense_category_controller.dart';
 import 'package:finkeep/features/investments/data/repositories/investment_repository.dart';
 // Lending Feature Dependencies
 import 'package:finkeep/features/lendings/data/datasources/lending_data_source.dart';
@@ -99,6 +104,21 @@ class DependencyInjection {
     Get.lazyPut(() => DeleteExpenseUseCase(Get.find()));
 
     Get.lazyPut(() => BudgetController());
+
+    Get.lazyPut(() => AddExpenseCategoryUseCase(Get.find()));
+    Get.lazyPut(() => GetExpenseCategoriesUseCase(Get.find()));
+    Get.lazyPut(() => UpdateExpenseCategoryUseCase(Get.find()));
+    Get.lazyPut(() => DeleteExpenseCategoryUseCase(Get.find()));
+
+    Get.lazyPut(
+      () => ExpenseCategoryController(
+        addCategoryUseCase: Get.find(),
+        getCategoriesUseCase: Get.find(),
+        updateCategoryUseCase: Get.find(),
+        deleteCategoryUseCase: Get.find(),
+      ),
+      fenix: true,
+    );
 
     Get.lazyPut(
       () => MonthlyExpenseController(

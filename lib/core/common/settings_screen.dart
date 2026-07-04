@@ -652,14 +652,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   ? const Color(0xFF1E293B)
                                   : const Color(0xFFE2E8F0),
                             ),
-                            ListTile(
+                             ListTile(
                               leading: Icon(
                                 Icons.category_outlined,
                                 size: 20.sp,
                                 color: AppColors.primaryTeal,
                               ),
                               title: Text(
-                                'Configure Categories',
+                                'Configure Expense Categories',
                                 style: TextStyle(
                                   fontSize: 13.sp,
                                   fontFamily: 'Manrope',
@@ -668,7 +668,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ),
                               ),
                               subtitle: Text(
-                                'Enable or disable expense categories',
+                                'Manage expense categories and emojis',
                                 style: TextStyle(
                                   fontSize: 11.sp,
                                   fontFamily: 'Manrope',
@@ -681,14 +681,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 color: subtitleColor,
                               ),
                               onTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Configure Categories (Coming Soon)',
-                                    ),
-                                    backgroundColor: AppColors.primaryTeal,
-                                  ),
-                                );
+                                context.pushNamed(AppRoutes.expenseCategorySettings);
                               },
                             ),
                             Divider(

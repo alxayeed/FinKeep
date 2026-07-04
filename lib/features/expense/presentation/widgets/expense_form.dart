@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../../../core/common/widgets/widgets.dart';
-import '../../../../core/enums/expense_category.dart';
 import '../../../../core/enums/payment_type.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../../domain/entities/expense_entity.dart';
+import '../../domain/entities/expense_category_entity.dart';
+import '../controllers/expense_category_controller.dart';
 
 class ExpenseForm extends StatefulWidget {
   final ExpenseEntity? initialExpense;
   final String submitButtonText;
   final void Function(
     double amount,
-    ExpenseCategory category,
+    ExpenseCategoryEntity category,
     DateTime date,
     String description,
     PaymentType paymentMethod,
@@ -29,12 +31,13 @@ class ExpenseForm extends StatefulWidget {
 }
 
 class _ExpenseFormState extends State<ExpenseForm> {
+  final ExpenseCategoryController categoryController = Get.find();
   final TextEditingController amountController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
 
   late DateTime _selectedDate;
   late TimeOfDay _selectedTime;
-  late ExpenseCategory _selectedCategory;
+  String? _selectedCategoryId;
   late PaymentType _paymentMethod;
 
   @override
@@ -46,15 +49,16 @@ class _ExpenseFormState extends State<ExpenseForm> {
       descriptionController.text = exp.description;
       _selectedDate = exp.date;
       _selectedTime = TimeOfDay.fromDateTime(exp.date);
-      _selectedCategory = ExpenseCategory.values.firstWhere(
-        (cat) => cat.displayName == exp.category,
-        orElse: () => ExpenseCategory.food,
-      );
+      
+      // Resolve category dynamically
+      final resolvedCat = categoryController.resolveCategory(exp.category);
+      _selectedCategoryId = resolvedCat.id;
+      
       _paymentMethod = exp.paymentMethod;
     } else {
       _selectedDate = DateTime.now();
       _selectedTime = TimeOfDay.now();
-      _selectedCategory = ExpenseCategory.food;
+      _selectedCategoryId = 'exp_food';
       _paymentMethod = PaymentType.cash;
     }
   }
@@ -185,9 +189,13 @@ class _ExpenseFormState extends State<ExpenseForm> {
       );
       return;
     }
+    
+    final selectedCat = categoryController.categories.firstWhereOrNull((c) => c.id == _selectedCategoryId)
+        ?? ExpenseCategoryController.defaultCategories.first;
+
     widget.onSubmit(
       parsedAmount,
-      _selectedCategory,
+      selectedCat,
       _selectedDate,
       descriptionController.text,
       _paymentMethod,
@@ -215,24 +223,47 @@ class _ExpenseFormState extends State<ExpenseForm> {
         SizedBox(height: 28.h),
 
         // Category Selection
-        StyledDropdownFormField<ExpenseCategory>(
-          value: _selectedCategory,
-          labelText: 'Category',
-          prefixIcon: Icons.category_rounded,
-          items: ExpenseCategory.values.map((cat) {
-            return DropdownMenuItem(
-              value: cat,
-              child: Text(cat.displayName),
-            );
-          }).toList(),
-          onChanged: (cat) {
-            if (cat != null) {
-              setState(() {
-                _selectedCategory = cat;
-              });
+        Obx(() {
+          final active = categoryController.categories.where((c) => !c.isDeleted).toList();
+
+          if (widget.initialExpense != null) {
+            final legacyResolved = categoryController.resolveCategory(widget.initialExpense!.category);
+            if (legacyResolved.isDeleted && !active.any((c) => c.id == legacyResolved.id)) {
+              active.add(legacyResolved);
             }
-          },
-        ),
+          }
+
+          if (_selectedCategoryId != null && !categoryController.categories.any((c) => c.id == _selectedCategoryId)) {
+            _selectedCategoryId = active.firstOrNull?.id;
+          }
+
+          final selectedCat = active.firstWhereOrNull((c) => c.id == _selectedCategoryId);
+
+          return StyledCategorySelectorField<ExpenseCategoryEntity>(
+            value: selectedCat,
+            labelText: 'Category',
+            items: active,
+            titleExtractor: (cat) => cat.displayLabel,
+            leadingBuilder: (context, cat, isSelected) {
+              return Container(
+                padding: EdgeInsets.all(8.r),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                  shape: BoxShape.circle,
+                ),
+                child: Text(
+                  cat.emoji,
+                  style: TextStyle(fontSize: 16.sp),
+                ),
+              );
+            },
+            onSelected: (cat) {
+              setState(() {
+                _selectedCategoryId = cat.id;
+              });
+            },
+          );
+        }),
 
         SizedBox(height: 16.h),
 

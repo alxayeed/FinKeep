@@ -49,6 +49,7 @@ class AppRoutes {
   static const String incomeDetails = '/incomeDetails';
   static const String editIncome = '/editIncome';
   static const String incomeCategorySettings = '/incomeCategorySettings';
+  static const String expenseCategorySettings = '/expenseCategorySettings';
 
   // Settings
   static const String settings = '/settings';
@@ -265,6 +266,12 @@ class AppRouter {
           name: AppRoutes.incomeCategorySettings,
           pageBuilder: (context, state) =>
               const NoTransitionPage(child: IncomeCategorySettingsScreen()),
+        ),
+        GoRoute(
+          path: AppRoutes.expenseCategorySettings,
+          name: AppRoutes.expenseCategorySettings,
+          pageBuilder: (context, state) =>
+              const NoTransitionPage(child: ExpenseCategorySettingsScreen()),
         ),
         GoRoute(
           path: AppRoutes.incomeDetails,

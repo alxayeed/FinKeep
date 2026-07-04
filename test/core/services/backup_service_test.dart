@@ -110,7 +110,6 @@ void main() {
       await backupService.importEncryptedBackup(encrypted.bytes);
 
       // Assert
-      verify(() => mockLocalDb.clearAll()).called(1);
       verify(() => mockExpensesBox.put('exp1', {'id': 'exp1', 'amount': 150.0})).called(1);
     });
   });

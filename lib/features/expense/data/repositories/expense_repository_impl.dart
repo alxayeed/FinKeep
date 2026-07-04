@@ -1,8 +1,10 @@
 import 'package:finkeep/core/config/app_config.dart';
 import '../../domain/entities/expense_entity.dart';
+import '../../domain/entities/expense_category_entity.dart';
 import '../../domain/repositories/expense_repository.dart';
 import '../datasources/expense_local_datasource.dart';
 import '../datasources/expense_remote_datasource.dart';
+import '../models/expense_category_model.dart';
 
 class ExpenseRepositoryImpl implements ExpenseRepository {
   final ExpenseLocalDataSource localDataSource;
@@ -12,6 +14,47 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
     required this.localDataSource,
     required this.remoteDataSource,
   });
+
+  // --- Category CRUD ---
+  @override
+  Future<void> addCategory(ExpenseCategoryEntity category) async {
+    final model = ExpenseCategoryModel.fromEntity(category);
+    if (AppConfig.useRemote) {
+      await remoteDataSource.createCategory(model);
+    } else {
+      await localDataSource.createCategory(model);
+    }
+  }
+
+  @override
+  Future<List<ExpenseCategoryEntity>> getCategories() async {
+    if (AppConfig.useRemote) {
+      final models = await remoteDataSource.getCategories();
+      return models.map((m) => m.toEntity()).toList();
+    } else {
+      final models = await localDataSource.getCategories();
+      return models.map((m) => m.toEntity()).toList();
+    }
+  }
+
+  @override
+  Future<void> updateCategory(ExpenseCategoryEntity category) async {
+    final model = ExpenseCategoryModel.fromEntity(category);
+    if (AppConfig.useRemote) {
+      await remoteDataSource.updateCategory(model);
+    } else {
+      await localDataSource.updateCategory(model);
+    }
+  }
+
+  @override
+  Future<void> deleteCategory(String id) async {
+    if (AppConfig.useRemote) {
+      await remoteDataSource.deleteCategory(id);
+    } else {
+      await localDataSource.deleteCategory(id);
+    }
+  }
 
   @override
   Future<void> addExpense(ExpenseEntity expense) async {

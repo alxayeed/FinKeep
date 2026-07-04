@@ -173,6 +173,9 @@ class BudgetController extends GetxController {
         final monthDoc = await firestore.collection(collectionName).doc(monthDocId).get();
         if (monthDoc.exists && monthDoc.data() != null) {
           final data = monthDoc.data()!;
+          if (data['updatedAt'] is Timestamp) {
+            data['updatedAt'] = (data['updatedAt'] as Timestamp).toDate().toIso8601String();
+          }
           await localDb.budgetsBox.put(monthDocId, data);
           _applyBudgetData(data);
           return;
@@ -182,6 +185,9 @@ class BudgetController extends GetxController {
           final recurringDoc = await firestore.collection(collectionName).doc(recurringDocId).get();
           if (recurringDoc.exists && recurringDoc.data() != null) {
             final data = recurringDoc.data()!;
+            if (data['updatedAt'] is Timestamp) {
+              data['updatedAt'] = (data['updatedAt'] as Timestamp).toDate().toIso8601String();
+            }
             final String? startMonthStr = data['month'] as String?;
             bool shouldApply = true;
             if (startMonthStr != null) {

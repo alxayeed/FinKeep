@@ -9,9 +9,9 @@ import 'package:finkeep/core/extensions/double_ext.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 import 'package:finkeep/features/expense/domain/entities/expense_entity.dart';
-import 'package:finkeep/features/expense/presentation/controllers/monthly_expense_controller.dart';
+import '../controllers/monthly_expense_controller.dart';
+import '../controllers/expense_category_controller.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
-import '../../../../core/enums/expense_category.dart';
 import '../../../../core/common/widgets/loader_widget.dart';
 import '../../../../core/routes/app_router.dart';
 import '../widgets/widgets.dart';
@@ -111,17 +111,24 @@ class MonthlyExpenseListScreen extends StatelessWidget {
 
         // Category Filter Pills
         Obx(() {
+          final ExpenseCategoryController categoryController = Get.find();
           final selectedCategoryStr = controller.selectedCategory.value;
-          final selectedCategory = selectedCategoryStr == 'All'
-              ? null
-              : ExpenseCategoryExtension.fromString(selectedCategoryStr);
+          final cat = categoryController.categories.firstWhereOrNull(
+            (c) => c.displayLabel.toLowerCase() == selectedCategoryStr.toLowerCase(),
+          );
+          final selectedCategoryId = cat?.id;
 
           return Padding(
             padding: EdgeInsets.only(bottom: 8.h),
             child: CategoryFilterPills(
-              selectedCategory: selectedCategory,
-              onCategorySelected: (cat) {
-                controller.updateSelectedCategory(cat?.displayName ?? 'All');
+              selectedCategoryId: selectedCategoryId,
+              onCategorySelected: (catId) {
+                if (catId == null) {
+                  controller.updateSelectedCategory('All');
+                } else {
+                  final matchedCat = categoryController.categories.firstWhereOrNull((c) => c.id == catId);
+                  controller.updateSelectedCategory(matchedCat?.displayLabel ?? 'All');
+                }
               },
               searchQuery: controller.searchQuery.value,
               onSearchQueryChanged: (query) {

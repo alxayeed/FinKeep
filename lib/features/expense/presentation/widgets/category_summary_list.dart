@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:finkeep/core/extensions/double_ext.dart';
-
-import '../../../../core/enums/expense_category.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../../../../core/styles/currency_provider.dart';
 import '../../../../core/utils/app_localizations.dart';
+import '../controllers/expense_category_controller.dart';
+import '../../domain/entities/expense_category_entity.dart';
 
 class CategorySummaryList extends StatelessWidget {
-  final Map<ExpenseCategory, double> spentByCategory;
-  final Map<ExpenseCategory, double> budgetsByCategory;
-  final ValueChanged<ExpenseCategory>? onCategoryTap;
+  final Map<String, double> spentByCategory;
+  final Map<String, double> budgetsByCategory;
+  final ValueChanged<String>? onCategoryTap;
   final bool isCompact;
 
   const CategorySummaryList.detailed({
@@ -27,17 +28,42 @@ class CategorySummaryList extends StatelessWidget {
   }) : budgetsByCategory = const {},
        isCompact = true;
 
+  Color _getColorForCategory(String label) {
+    switch (label.toLowerCase()) {
+      case 'food':
+        return Colors.orange.shade600;
+      case 'transport':
+        return const Color(0xFF059669);
+      case 'family':
+        return Colors.blue.shade600;
+      case 'personal':
+        return Colors.purple.shade600;
+      case 'clothing':
+        return Colors.pink.shade600;
+      case 'travelling':
+      case 'hangout':
+        return Colors.amber.shade700;
+      case 'utilities':
+        return Colors.indigo.shade600;
+      default:
+        return AppColors.primaryTeal;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final ExpenseCategoryController categoryController = Get.find();
 
-    // Always show all categories
-    final categories = ExpenseCategory.values.toList();
+    // Get active categories
+    final List<ExpenseCategoryEntity> categories = categoryController.categories
+        .where((c) => !c.isDeleted)
+        .toList();
 
     // Sort categories by spending descending
     categories.sort((a, b) {
-      final spentA = spentByCategory[a] ?? 0.0;
-      final spentB = spentByCategory[b] ?? 0.0;
+      final spentA = spentByCategory[a.id] ?? 0.0;
+      final spentB = spentByCategory[b.id] ?? 0.0;
       return spentB.compareTo(spentA);
     });
 
@@ -98,10 +124,8 @@ class CategorySummaryList extends StatelessWidget {
             separatorBuilder: (context, index) => SizedBox(height: 6.h),
             itemBuilder: (context, index) {
               final category = categories[index];
-              final spent = spentByCategory[category] ?? 0.0;
-
-              final iconData = _getIconForCategory(category);
-              final itemColor = _getColorForCategory(category);
+              final spent = spentByCategory[category.id] ?? 0.0;
+              final itemColor = _getColorForCategory(category.displayLabel);
 
               if (isCompact) {
                 final totalSpentSum = spentByCategory.values.fold(
@@ -113,7 +137,7 @@ class CategorySummaryList extends StatelessWidget {
                     : 0.0;
 
                 return GestureDetector(
-                  onTap: () => onCategoryTap?.call(category),
+                  onTap: () => onCategoryTap?.call(category.displayLabel),
                   behavior: HitTestBehavior.opaque,
                   child: Padding(
                     padding: EdgeInsets.symmetric(vertical: 4.h),
@@ -129,13 +153,13 @@ class CategorySummaryList extends StatelessWidget {
                           ),
                         ),
                         SizedBox(width: 8.w),
-                        // Tiny category icon
-                        Icon(iconData, color: itemColor, size: 12.sp),
+                        // Dynamic emoji Text
+                        Text(category.emoji, style: TextStyle(fontSize: 12.sp)),
                         SizedBox(width: 8.w),
                         // Category Name & Percentage
                         Expanded(
                           child: Text(
-                            "${category.displayName} (${percent.toStringAsFixed(0)}%)",
+                            "${category.displayLabel} (${percent.toStringAsFixed(0)}%)",
                             style: TextStyle(
                               fontSize: 12.sp,
                               fontFamily: 'Manrope',
@@ -165,20 +189,20 @@ class CategorySummaryList extends StatelessWidget {
               }
 
               // Detailed variant
-              final double? budget = budgetsByCategory[category];
+              final double? budget = budgetsByCategory[category.id];
               final hasBudget = budget != null && budget > 0;
               final percent = hasBudget ? (spent / budget) : 0.0;
               final percentText = '${(percent * 100).toStringAsFixed(0)}%';
               final isOverBudget = hasBudget && spent > budget;
 
               return GestureDetector(
-                onTap: () => onCategoryTap?.call(category),
+                onTap: () => onCategoryTap?.call(category.displayLabel),
                 behavior: HitTestBehavior.opaque,
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 4.h),
                   child: Row(
                     children: [
-                      // Icon Container
+                      // Emoji Container
                       Container(
                         width: 28.r,
                         height: 28.r,
@@ -186,7 +210,8 @@ class CategorySummaryList extends StatelessWidget {
                           color: itemColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6.r),
                         ),
-                        child: Icon(iconData, color: itemColor, size: 14.sp),
+                        alignment: Alignment.center,
+                        child: Text(category.emoji, style: TextStyle(fontSize: 14.sp)),
                       ),
                       SizedBox(width: 10.w),
                       // Content
@@ -198,7 +223,7 @@ class CategorySummaryList extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  category.displayName,
+                                  category.displayLabel,
                                   style: TextStyle(
                                     fontSize: 12.sp,
                                     fontFamily: 'Manrope',
@@ -306,51 +331,5 @@ class CategorySummaryList extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  IconData _getIconForCategory(ExpenseCategory category) {
-    switch (category) {
-      case ExpenseCategory.food:
-        return Icons.restaurant_rounded;
-      case ExpenseCategory.transport:
-        return Icons.directions_car_rounded;
-      case ExpenseCategory.family:
-        return Icons.family_restroom_rounded;
-      case ExpenseCategory.personal:
-        return Icons.person_rounded;
-      case ExpenseCategory.lend:
-        return Icons.handshake_rounded;
-      case ExpenseCategory.clothing:
-        return Icons.shopping_bag_rounded;
-      case ExpenseCategory.hangout:
-        return Icons.local_activity_rounded;
-      case ExpenseCategory.utilities:
-        return Icons.bolt_rounded;
-      case ExpenseCategory.other:
-        return Icons.category_rounded;
-    }
-  }
-
-  Color _getColorForCategory(ExpenseCategory category) {
-    switch (category) {
-      case ExpenseCategory.food:
-        return Colors.orange.shade600;
-      case ExpenseCategory.transport:
-        return const Color(0xFF059669);
-      case ExpenseCategory.family:
-        return Colors.blue.shade600;
-      case ExpenseCategory.personal:
-        return Colors.purple.shade600;
-      case ExpenseCategory.lend:
-        return Colors.teal.shade600;
-      case ExpenseCategory.clothing:
-        return Colors.pink.shade600;
-      case ExpenseCategory.hangout:
-        return Colors.amber.shade700;
-      case ExpenseCategory.utilities:
-        return Colors.indigo.shade600;
-      case ExpenseCategory.other:
-        return const Color(0xFF475569);
-    }
   }
 }

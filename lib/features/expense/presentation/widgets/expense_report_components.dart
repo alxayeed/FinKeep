@@ -9,10 +9,10 @@ import 'package:finkeep/core/styles/app_colors.dart';
 import 'package:finkeep/core/extensions/double_ext.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
 
-import '../../../../core/enums/expense_category.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../controllers/budget_controller.dart';
 import '../controllers/expense_report_controller.dart';
+import '../controllers/expense_category_controller.dart';
 import 'budget_progress_card.dart';
 import 'category_summary_list.dart';
 import 'expense_bar_chart.dart';
@@ -309,13 +309,14 @@ class SummaryByCategoryWidget extends StatelessWidget {
   final List<ExpenseEntity> expenses;
 
   // Calculate total spending per category
-  Map<ExpenseCategory, double> _calculateCategorySpending() {
-    final Map<ExpenseCategory, double> spending = {};
+  Map<String, double> _calculateCategorySpending() {
+    final Map<String, double> spending = {};
+    final categoryController = Get.find<ExpenseCategoryController>();
 
     for (final expense in expenses) {
-      final cat = ExpenseCategoryExtension.fromString(expense.category);
+      final resolved = categoryController.resolveCategory(expense.category);
       spending.update(
-        cat,
+        resolved.id,
         (value) => value + expense.amount,
         ifAbsent: () => expense.amount,
       );

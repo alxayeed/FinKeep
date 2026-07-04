@@ -1,4 +1,4 @@
-1.0.0+3
+1.0.0+13
 [04/07/2026]
 - FIX #70 - Default categories added
 - FIX #57, #71, #72, #74 -Widget alignment issue

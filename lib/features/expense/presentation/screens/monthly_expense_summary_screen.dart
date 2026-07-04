@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:finkeep/core/config/app_config.dart';
-import 'package:finkeep/core/enums/expense_category.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/routes/app_router.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
+import '../../../../core/enums/expense_category.dart';
 
 import '../controllers/monthly_expense_controller.dart';
+import '../controllers/expense_category_controller.dart';
 import '../widgets/widgets.dart';
 
 class MonthlyExpenseSummaryScreen extends StatelessWidget {
   final MonthlyExpenseController controller;
-  final ValueChanged<ExpenseCategory> onCategoryTap;
+  final ValueChanged<String> onCategoryTap;
 
   const MonthlyExpenseSummaryScreen({
     super.key,
@@ -25,25 +26,31 @@ class MonthlyExpenseSummaryScreen extends StatelessWidget {
     return Obx(() {
       final double totalSpent = controller.totalExpense.value;
       final double totalBudget = controller.monthlyBudget.value;
+      final ExpenseCategoryController categoryController = Get.find();
 
       // Compute dynamic category totals from raw controller.expenses
-      final Map<ExpenseCategory, double> spentByCategory = {};
-      final Map<ExpenseCategory, double> budgetsByCategory = {};
+      final Map<String, double> spentByCategory = {};
+      final Map<String, double> budgetsByCategory = {};
 
-      for (var category in ExpenseCategory.values) {
+      for (var category in categoryController.categories.where((c) => !c.isDeleted)) {
         final spent = controller.expenses
             .where(
               (e) =>
                   e.category.toLowerCase() ==
-                  category.displayName.toLowerCase(),
+                  category.displayLabel.toLowerCase(),
             )
             .fold(0.0, (sum, item) => sum + item.amount);
-        spentByCategory[category] = spent;
+        spentByCategory[category.id] = spent;
 
-        // Retrieve user-configured budget limit from controller
-        final limit = controller.categoryBudgets[category];
-        if (limit != null) {
-          budgetsByCategory[category] = limit;
+        // Retrieve user-configured budget limit from controller matching core category enum
+        final coreEnum = ExpenseCategory.values.firstWhereOrNull(
+          (e) => e.displayName.toLowerCase() == category.displayLabel.toLowerCase(),
+        );
+        if (coreEnum != null) {
+          final limit = controller.categoryBudgets[coreEnum];
+          if (limit != null) {
+            budgetsByCategory[category.id] = limit;
+          }
         }
       }
 
