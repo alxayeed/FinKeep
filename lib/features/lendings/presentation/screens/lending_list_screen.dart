@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:finkeep/core/config/app_config.dart';
 import 'package:finkeep/core/common/widgets/custom_app_bar.dart';
 import 'package:finkeep/core/common/widgets/custom_fab.dart';
-import 'package:finkeep/core/extensions/double_ext.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/routes/app_router.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 import 'package:finkeep/features/lendings/presentation/controllers/lendings_controller.dart';
 import 'package:finkeep/features/lendings/presentation/widgets/lending_list_item.dart';
-import 'package:finkeep/core/styles/currency_provider.dart';
 import 'package:finkeep/features/lendings/presentation/widgets/lending_shimmer_list.dart';
+import 'package:finkeep/features/lendings/presentation/widgets/lending_summary_card.dart';
 
 import '../../domain/entity/lending/lending_entity.dart';
 
@@ -58,11 +56,25 @@ class _LendingListScreenState extends State<LendingListScreen> {
     }).toList();
   }
 
-  double get _totalForTab {
+  double get _totalAmountForTab {
     final type = _selectedTab == 0 ? LendingType.given : LendingType.taken;
     return controller.lendingsList
         .where((l) => l.type == type)
         .fold(0.0, (sum, l) => sum + l.amount);
+  }
+
+  double get _totalRepaidForTab {
+    final type = _selectedTab == 0 ? LendingType.given : LendingType.taken;
+    return controller.lendingsList
+        .where((l) => l.type == type)
+        .fold(0.0, (sum, l) => sum + l.repaidAmount);
+  }
+
+  double get _totalDueForTab {
+    final type = _selectedTab == 0 ? LendingType.given : LendingType.taken;
+    return controller.lendingsList
+        .where((l) => l.type == type)
+        .fold(0.0, (sum, l) => sum + (l.amount - l.repaidAmount));
   }
 
   @override
@@ -86,13 +98,17 @@ class _LendingListScreenState extends State<LendingListScreen> {
             return Column(
               children: [
                 _buildHeader(isDark),
+                const LendingSummaryShimmer(),
+                SizedBox(height: 8.h),
                 const Expanded(child: LendingShimmerList()),
               ],
             );
           }
 
           final filtered = _filteredLendings;
-          final total = _totalForTab;
+          final totalAmount = _totalAmountForTab;
+          final totalRepaid = _totalRepaidForTab;
+          final totalDue = _totalDueForTab;
 
           return RefreshIndicator(
             color: AppColors.primaryTeal,
@@ -109,7 +125,14 @@ class _LendingListScreenState extends State<LendingListScreen> {
                 SliverToBoxAdapter(child: _buildHeader(isDark)),
 
                 // ── Summary card ──
-                SliverToBoxAdapter(child: _buildSummaryCard(isDark, total)),
+                SliverToBoxAdapter(
+                  child: LendingSummaryCard(
+                    totalAmount: totalAmount,
+                    totalRepaid: totalRepaid,
+                    totalDue: totalDue,
+                    isGiven: _selectedTab == 0,
+                  ),
+                ),
 
                 // ── Section label ──
                 SliverToBoxAdapter(
@@ -275,97 +298,7 @@ class _LendingListScreenState extends State<LendingListScreen> {
     );
   }
 
-  // ─────────────────────────────────────────────────────────────
-  // Summary card
-  // ─────────────────────────────────────────────────────────────
-  Widget _buildSummaryCard(bool isDark, double total) {
-    final isGiven = _selectedTab == 0;
-    final cardBg = isDark ? const Color(0xFF022C22) : const Color(0xFFECFDF5);
-    final cardBorder = isDark
-        ? const Color(0xFF047857)
-        : const Color(0xFFA7F3D0);
-    final label = isGiven ? 'TOTAL GIVEN' : 'TOTAL TAKEN';
 
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: Container(
-        padding: EdgeInsets.all(18.r),
-        decoration: BoxDecoration(
-          color: cardBg,
-          borderRadius: BorderRadius.circular(20.r),
-          border: Border.all(color: cardBorder, width: 1),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 11.sp,
-                      fontFamily: 'Manrope',
-                      fontWeight: FontWeight.bold,
-                      color: isDark
-                          ? const Color(0xFF6EE7B7)
-                          : const Color(0xFF065F46),
-                      letterSpacing: 1.0,
-                    ),
-                  ),
-                  SizedBox(height: 6.h),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        total.toCurrency(),
-                        style: TextStyle(
-                          fontSize: 28.sp,
-                          fontFamily: 'Manrope',
-                          fontWeight: FontWeight.bold,
-                          color: isDark
-                              ? Colors.white
-                              : const Color(0xFF0F172A),
-                        ),
-                      ),
-                      SizedBox(width: 4.w),
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 4.h),
-                        child: FaIcon(
-                          context.currency.icon,
-                          size: 24.sp,
-                          color: isDark
-                              ? const Color(0xFF6EE7B7)
-                              : const Color(0xFF059669),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              width: 48.r,
-              height: 48.r,
-              decoration: BoxDecoration(
-                color: isDark
-                    ? const Color(0xFF047857)
-                    : const Color(0xFFD1FAE5),
-                borderRadius: BorderRadius.circular(14.r),
-              ),
-              child: Icon(
-                isGiven
-                    ? Icons.arrow_upward_rounded
-                    : Icons.arrow_downward_rounded,
-                color: AppColors.primaryTeal,
-                size: 24.sp,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   // ─────────────────────────────────────────────────────────────
   // Section header
