@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/common/widgets/custom_app_bar.dart';
+import '../../../../core/routes/app_router.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../controllers/dashboard_controller.dart';
 import '../widgets/cash_flow_line_chart.dart';
@@ -16,20 +19,17 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final DashboardController controller = Get.find();
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Dashboard',
-          style: TextStyle(
-            color: isDark ? Colors.white : Colors.black87,
-            fontWeight: FontWeight.bold,
+      appBar: CustomAppBar(
+        title: 'Dashboard',
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_rounded),
+            onPressed: () => context.pushNamed(AppRoutes.settings),
           ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: false,
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: () async {
