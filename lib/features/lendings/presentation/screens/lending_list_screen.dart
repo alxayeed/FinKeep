@@ -11,6 +11,7 @@ import 'package:finkeep/features/lendings/presentation/controllers/lendings_cont
 import 'package:finkeep/features/lendings/presentation/widgets/lending_list_item.dart';
 import 'package:finkeep/features/lendings/presentation/widgets/lending_shimmer_list.dart';
 import 'package:finkeep/features/lendings/presentation/widgets/lending_summary_card.dart';
+import 'package:finkeep/features/lendings/presentation/widgets/lending_status_filter_pills.dart';
 
 import '../../domain/entity/lending/lending_entity.dart';
 
@@ -23,25 +24,18 @@ class LendingListScreen extends StatefulWidget {
 
 class _LendingListScreenState extends State<LendingListScreen> {
   final LendingsController controller = Get.find();
-  final TextEditingController _searchController = TextEditingController();
-
   // 0 = Given, 1 = Taken
   int _selectedTab = 0;
   String _searchQuery = '';
+  LendingStatus? _selectedStatus;
 
   @override
   void initState() {
     super.initState();
-    _searchController.addListener(() {
-      setState(() {
-        _searchQuery = _searchController.text.trim().toLowerCase();
-      });
-    });
   }
 
   @override
   void dispose() {
-    _searchController.dispose();
     super.dispose();
   }
 
@@ -49,10 +43,11 @@ class _LendingListScreenState extends State<LendingListScreen> {
     final type = _selectedTab == 0 ? LendingType.given : LendingType.taken;
     return controller.lendingsList.where((l) {
       final matchType = l.type == type;
+      final matchStatus = _selectedStatus == null || l.status == _selectedStatus;
       final matchSearch =
           _searchQuery.isEmpty ||
           l.person.name.toLowerCase().contains(_searchQuery);
-      return matchType && matchSearch;
+      return matchType && matchStatus && matchSearch;
     }).toList();
   }
 
@@ -121,16 +116,40 @@ class _LendingListScreenState extends State<LendingListScreen> {
                 parent: AlwaysScrollableScrollPhysics(),
               ),
               slivers: [
-                // ── Header (title + tab switcher + search) ──
+                // ── Header (title + tab switcher) ──
                 SliverToBoxAdapter(child: _buildHeader(isDark)),
 
                 // ── Summary card ──
                 SliverToBoxAdapter(
-                  child: LendingSummaryCard(
-                    totalAmount: totalAmount,
-                    totalRepaid: totalRepaid,
-                    totalDue: totalDue,
-                    isGiven: _selectedTab == 0,
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: 12.h),
+                    child: LendingSummaryCard(
+                      totalAmount: totalAmount,
+                      totalRepaid: totalRepaid,
+                      totalDue: totalDue,
+                      isGiven: _selectedTab == 0,
+                    ),
+                  ),
+                ),
+
+                // ── Status Filter Pills ──
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: 8.h),
+                    child: LendingStatusFilterPills(
+                      selectedStatus: _selectedStatus,
+                      onStatusSelected: (status) {
+                        setState(() {
+                          _selectedStatus = status;
+                        });
+                      },
+                      searchQuery: _searchQuery,
+                      onSearchQueryChanged: (query) {
+                        setState(() {
+                          _searchQuery = query.trim().toLowerCase();
+                        });
+                      },
+                    ),
                   ),
                 ),
 
@@ -190,69 +209,6 @@ class _LendingListScreenState extends State<LendingListScreen> {
             ),
           ),
           SizedBox(height: 12.h),
-
-          // Search bar
-          Container(
-            height: 44.h,
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(12.r),
-              border: Border.all(
-                color: isDark
-                    ? const Color(0xFF334155)
-                    : const Color(0xFFE2E8F0),
-              ),
-            ),
-            child: Row(
-              children: [
-                SizedBox(width: 12.w),
-                Icon(
-                  Icons.search_rounded,
-                  size: 18.sp,
-                  color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
-                ),
-                SizedBox(width: 8.w),
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    style: TextStyle(
-                      fontSize: 13.sp,
-                      fontFamily: 'Manrope',
-                      color: isDark ? Colors.white : const Color(0xFF0F172A),
-                    ),
-                    decoration: InputDecoration(
-                      hintText: 'Search by name...',
-                      hintStyle: TextStyle(
-                        fontSize: 13.sp,
-                        fontFamily: 'Manrope',
-                        color: isDark
-                            ? Colors.white38
-                            : const Color(0xFF94A3B8),
-                      ),
-                      border: InputBorder.none,
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                  ),
-                ),
-                if (_searchQuery.isNotEmpty)
-                  GestureDetector(
-                    onTap: () => _searchController.clear(),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10.w),
-                      child: Icon(
-                        Icons.close_rounded,
-                        size: 16.sp,
-                        color: isDark
-                            ? Colors.white38
-                            : const Color(0xFF94A3B8),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          SizedBox(height: 16.h),
         ],
       ),
     );
