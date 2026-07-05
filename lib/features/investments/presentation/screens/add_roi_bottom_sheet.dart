@@ -106,7 +106,7 @@ class _AddReturnBottomSheetState extends State<AddReturnBottomSheet> {
               SizedBox(height: 8.h),
 
               // Large Centered Amount input
-              StyledAmountField(
+              AppNumberField(
                 controller: _amountController,
                 labelText: 'Amount Received',
                 autofocus: true,
@@ -133,7 +133,7 @@ class _AddReturnBottomSheetState extends State<AddReturnBottomSheet> {
               SizedBox(height: 16.h),
 
               // Transaction ID
-              StyledTextFormField(
+              AppTextField(
                 controller: _transactionIdController,
                 labelText: 'Transaction ID',
                 hintText: 'e.g. TXN102938',
@@ -157,7 +157,7 @@ class _AddReturnBottomSheetState extends State<AddReturnBottomSheet> {
               SizedBox(height: 16.h),
 
               // Notes
-              StyledTextFormField(
+              AppTextField(
                 controller: _notesController,
                 labelText: 'Notes (Optional)',
                 hintText: 'Add brief return notes...',

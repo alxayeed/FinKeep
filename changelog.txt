@@ -2,6 +2,7 @@
 [04/07/2026]
 - Fixes #79 - System theme not working in settings screen
 - Closed #82 - Settings button missing in dashboard screen
+- Closed #81 -  Prefix icon removed for multiline. Widgets renamed to AppTextField and AppNumberField
 
 1.0.0+15
 [04/07/2026]

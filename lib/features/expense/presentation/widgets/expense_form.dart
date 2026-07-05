@@ -214,7 +214,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
         SizedBox(height: 24.h),
 
         // Large Centered Amount input
-        StyledAmountField(
+        AppNumberField(
           controller: amountController,
           labelText: 'Amount Spent',
           autofocus: widget.initialExpense == null,
@@ -355,11 +355,10 @@ class _ExpenseFormState extends State<ExpenseForm> {
         SizedBox(height: 16.h),
 
         // Note description field
-        StyledTextFormField(
+        AppTextField(
           controller: descriptionController,
           labelText: 'Note (Optional)',
           hintText: 'Add details about this expense...',
-          prefixIcon: Icons.description_rounded,
           maxLines: 3,
         ),
 

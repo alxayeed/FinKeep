@@ -332,7 +332,7 @@ class _LendingFormWidgetState extends State<LendingFormWidget> {
           SizedBox(height: 28.h),
 
           // ── Big amount ──
-          StyledAmountField(
+          AppNumberField(
             controller: amountController,
             labelText: 'Amount',
             autofocus: widget.initialLending == null,
@@ -341,7 +341,7 @@ class _LendingFormWidgetState extends State<LendingFormWidget> {
           SizedBox(height: 28.h),
 
           // ── Person Name ──
-          StyledTextFormField(
+          AppTextField(
             controller: personNameController,
             focusNode: personNameFocusNode,
             labelText: 'Person Name',
@@ -423,7 +423,7 @@ class _LendingFormWidgetState extends State<LendingFormWidget> {
           SizedBox(height: 12.h),
 
           // ── Contact ──
-          StyledTextFormField(
+          AppTextField(
             controller: personContactController,
             labelText: 'Contact Number',
             hintText: '+880 1XXX-XXXXXX',
@@ -497,11 +497,10 @@ class _LendingFormWidgetState extends State<LendingFormWidget> {
           SizedBox(height: 16.h),
 
           // ── Notes ──
-          StyledTextFormField(
+          AppTextField(
             controller: descriptionController,
             labelText: 'Notes',
             hintText: 'What was this for? (e.g., Lunch, Project gear)',
-            prefixIcon: Icons.description_rounded,
             maxLines: 3,
           ),
 

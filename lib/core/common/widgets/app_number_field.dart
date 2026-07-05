@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
 
-class StyledAmountField extends StatelessWidget {
+class AppNumberField extends StatelessWidget {
   final TextEditingController controller;
   final String labelText;
   final bool autofocus;
   final String? Function(String?)? validator;
 
-  const StyledAmountField({
+  const AppNumberField({
     super.key,
     required this.controller,
     required this.labelText,

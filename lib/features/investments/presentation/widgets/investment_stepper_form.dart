@@ -287,7 +287,7 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
                       SizedBox(height: 24.h),
 
                       // Large Amount invested at top matching Spendly standard
-                      StyledAmountField(
+                      AppNumberField(
                         controller: _amountController,
                         labelText: 'Amount Invested',
                         autofocus: !isEdit,
@@ -303,7 +303,7 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
                       SizedBox(height: 28.h),
 
                       // Investment Title
-                      StyledTextFormField(
+                      AppTextField(
                         controller: _titleController,
                         labelText: 'Investment Title *',
                         hintText:
@@ -315,7 +315,7 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
                       SizedBox(height: 16.h),
 
                       // Platform Name
-                      StyledTextFormField(
+                      AppTextField(
                         controller: _platformController,
                         labelText: 'Platform Name *',
                         hintText: 'e.g. Bangladesh Bank, LankaBangla, IDLC',
@@ -329,7 +329,7 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
                       Row(
                         children: [
                           Expanded(
-                            child: StyledTextFormField(
+                            child: AppTextField(
                               controller: _profitRateController,
                               labelText: 'Profit Rate *',
                               hintText: 'e.g. 11.04% or 12–15%',
@@ -340,7 +340,7 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
                           ),
                           SizedBox(width: 12.w),
                           Expanded(
-                            child: StyledTextFormField(
+                            child: AppTextField(
                               controller: _expectedROIController,
                               labelText: 'Expected ROI (%)',
                               hintText: 'e.g. 12',
@@ -428,7 +428,7 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
                       SizedBox(height: 16.h),
 
                       // Transaction ID
-                      StyledTextFormField(
+                      AppTextField(
                         controller: _transactionIdController,
                         labelText: 'Transaction ID *',
                         hintText: 'e.g. TXN10023455',
@@ -449,16 +449,15 @@ class _InvestmentStepperFormState extends State<InvestmentStepperForm> {
                       SizedBox(height: 16.h),
 
                       // Notes & Document Links
-                      StyledTextFormField(
+                      AppTextField(
                         controller: _notesController,
                         labelText: 'Notes (Optional)',
                         hintText: 'Additional details or reminders...',
-                        prefixIcon: Icons.notes_outlined,
                         maxLines: 2,
                       ),
                       SizedBox(height: 16.h),
 
-                      StyledTextFormField(
+                      AppTextField(
                         controller: _docLinksController,
                         labelText: 'Document Link (Optional)',
                         hintText: 'e.g. drive.google.com/...',

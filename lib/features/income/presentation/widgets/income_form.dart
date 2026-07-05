@@ -164,7 +164,7 @@ class _IncomeFormState extends State<IncomeForm> {
           SizedBox(height: 24.h),
 
           // Large Amount input
-          StyledAmountField(
+          AppNumberField(
             controller: amountController,
             labelText: 'Amount Received',
             autofocus: widget.initialIncome == null,
@@ -288,11 +288,10 @@ class _IncomeFormState extends State<IncomeForm> {
           SizedBox(height: 16.h),
 
           // Note description
-          StyledTextFormField(
+          AppTextField(
             controller: descriptionController,
             labelText: 'Note (Optional)',
             hintText: 'Add details about this income...',
-            prefixIcon: Icons.description_rounded,
             maxLines: 3,
           ),
 

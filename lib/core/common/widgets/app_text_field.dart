@@ -4,7 +4,7 @@ import 'package:finkeep/core/responsive/responsive.dart';
 
 import '../../styles/app_colors.dart';
 
-class StyledTextFormField extends StatelessWidget {
+class AppTextField extends StatelessWidget {
   final TextEditingController controller;
   final String labelText;
   final TextInputType keyboardType;
@@ -18,7 +18,7 @@ class StyledTextFormField extends StatelessWidget {
 
   final FocusNode? focusNode;
 
-  const StyledTextFormField({
+  const AppTextField({
     super.key,
     required this.controller,
     required this.labelText,
@@ -116,4 +116,3 @@ class StyledTextFormField extends StatelessWidget {
     );
   }
 }
-

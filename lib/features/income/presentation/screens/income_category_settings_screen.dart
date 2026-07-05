@@ -319,7 +319,7 @@ class _IncomeCategorySettingsScreenState extends State<IncomeCategorySettingsScr
                       SizedBox(width: 12.w),
                       // Text label field
                       Expanded(
-                        child: StyledTextFormField(
+                        child: AppTextField(
                           controller: _labelController,
                           labelText: 'Category Name',
                           hintText: 'Category Name (e.g. Rent, Gift)',

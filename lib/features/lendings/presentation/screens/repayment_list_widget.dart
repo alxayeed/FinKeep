@@ -585,7 +585,7 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
                   SizedBox(height: 20.h),
 
                   // Amount input field
-                  StyledAmountField(
+                  AppNumberField(
                     controller: amountCtrl,
                     labelText: 'Amount Paid',
                     autofocus: !isEdit,
@@ -613,7 +613,7 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
                   SizedBox(height: 16.h),
 
                   // Notes
-                  StyledTextFormField(
+                  AppTextField(
                     controller: notesCtrl,
                     labelText: 'Notes (Optional)',
                     hintText: 'e.g. Paid early as promised…',
