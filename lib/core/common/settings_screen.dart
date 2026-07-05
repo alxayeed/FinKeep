@@ -552,7 +552,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: _themeProvider,
       builder: (context, mode, _) {
-        final isDark = mode == ThemeMode.dark;
+        final isDark = mode == ThemeMode.dark ||
+            (mode == ThemeMode.system &&
+                WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+                    Brightness.dark);
         final Color cardBg = isDark ? AppColors.cardDark : Colors.white;
         final Color textColor = isDark ? Colors.white : const Color(0xFF0F172A);
         final Color subtitleColor = isDark

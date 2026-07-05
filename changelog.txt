@@ -1,3 +1,8 @@
+1.0.0+16
+[04/07/2026]
+- Fixes #79 - System theme not working in settings screen
+
+
 1.0.0+15
 [04/07/2026]
 Dashboard feature
