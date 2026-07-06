@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:finkeep/core/error/exception_mapper.dart';
+import 'package:finkeep/features/auth/services/auth_service.dart';
 // Expense Feature Dependencies
 import 'package:finkeep/features/expense/data/datasources/expense_remote_datasource.dart';
 import 'package:finkeep/features/expense/data/datasources/firebase_cloudstore_datasource.dart';
@@ -86,6 +87,7 @@ class DependencyInjection {
     Get.lazyPut<AppUpdateService>(() => AppUpdateService(), fenix: true);
     Get.lazyPut<BiometricService>(() => BiometricService(), fenix: true);
     Get.lazyPut<PushNotificationService>(() => PushNotificationService(), fenix: true);
+    Get.lazyPut<AuthService>(() => AuthService(), fenix: true);
 
     // --- Expense Feature ---
     Get.lazyPut<ExpenseLocalDataSource>(

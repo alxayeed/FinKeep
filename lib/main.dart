@@ -11,6 +11,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/common/biometric_lock_screen.dart';
+import 'core/config/app_config.dart';
 import 'core/responsive/responsive.dart';
 import 'core/services/biometric_service.dart';
 import 'core/services/local_db_service.dart';
@@ -27,7 +28,15 @@ void main() async {
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
   // Load environment variables
-  await dotenv.load(fileName: ".env.prod");
+  String envFile = ".env.prod";
+  if (AppConfig.isPersonal) {
+    envFile = ".env.personal";
+  } else if (AppConfig.isLocal) {
+    envFile = ".env.local";
+  } else if (AppConfig.isDev) {
+    envFile = ".env.dev";
+  }
+  await dotenv.load(fileName: envFile);
 
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(

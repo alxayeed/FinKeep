@@ -1,3 +1,8 @@
+import 'dart:async';
+import 'package:get/get.dart';
+import 'package:finkeep/core/config/app_config.dart';
+import 'package:finkeep/features/auth/services/auth_service.dart';
+import 'package:finkeep/features/auth/presentation/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:finkeep/features/investments/domain/entities/investment.dart';
@@ -58,6 +63,9 @@ class AppRoutes {
 
   // Onboarding
   static const String onboarding = '/onboarding';
+
+  // Auth
+  static const String login = '/login';
 }
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -69,7 +77,31 @@ class AppRouter {
     router = GoRouter(
       navigatorKey: navigatorKey,
       initialLocation: seenOnboarding ? AppRoutes.home : AppRoutes.onboarding,
+      refreshListenable: AppConfig.isPersonal
+          ? GoRouterRefreshStream(Get.find<AuthService>().authStateChanges)
+          : null,
+      redirect: (context, state) {
+        if (!AppConfig.isPersonal) return null;
+
+        final authService = Get.find<AuthService>();
+        final isLoggedIn = authService.currentUser != null;
+        final isLoggingIn = state.matchedLocation == AppRoutes.login;
+
+        if (!isLoggedIn && !isLoggingIn) {
+          return AppRoutes.login;
+        }
+        if (isLoggedIn && isLoggingIn) {
+          return AppRoutes.home;
+        }
+        return null;
+      },
       routes: [
+        GoRoute(
+          path: AppRoutes.login,
+          name: AppRoutes.login,
+          pageBuilder: (context, state) =>
+              const NoTransitionPage(child: LoginScreen()),
+        ),
         ShellRoute(
           builder: (context, state, child) => HomeScaffold(child: child),
           routes: [
@@ -317,5 +349,20 @@ class ErrorScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Error')),
       body: Center(child: Text(message)),
     );
+  }
+}
+
+class GoRouterRefreshStream extends ChangeNotifier {
+  late final StreamSubscription<dynamic> _subscription;
+
+  GoRouterRefreshStream(Stream<dynamic> stream) {
+    notifyListeners();
+    _subscription = stream.asBroadcastStream().listen((_) => notifyListeners());
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
   }
 }
