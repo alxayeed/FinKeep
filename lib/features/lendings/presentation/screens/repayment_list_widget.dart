@@ -7,6 +7,7 @@ import 'package:finkeep/core/styles/app_colors.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
 
 import 'package:finkeep/core/common/widgets/widgets.dart';
+import 'package:finkeep/core/enums/payment_type.dart';
 import '../../domain/entity/lending/lending_entity.dart';
 import '../../domain/entity/repayment/repayment_entity.dart';
 import '../controllers/lendings_controller.dart';
@@ -228,16 +229,39 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: 3.h),
-                  Text(
-                    dateText,
-                    style: TextStyle(
-                      fontSize: 11.sp,
-                      fontFamily: 'Manrope',
-                      fontWeight: FontWeight.w500,
-                      color: isDark
-                          ? Colors.white38
-                          : const Color(0xFF94A3B8),
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        dateText,
+                        style: TextStyle(
+                          fontSize: 11.sp,
+                          fontFamily: 'Manrope',
+                          fontWeight: FontWeight.w500,
+                          color: isDark
+                              ? Colors.white38
+                              : const Color(0xFF94A3B8),
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      Container(
+                        width: 4.r,
+                        height: 4.r,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isDark ? Colors.white24 : const Color(0xFFCBD5E1),
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      Text(
+                        repayment.paymentMethod.displayName,
+                        style: TextStyle(
+                          fontSize: 11.sp,
+                          fontFamily: 'Manrope',
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primaryTeal,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -525,6 +549,7 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
     final notesCtrl =
         TextEditingController(text: repayment?.notes ?? '');
     final dateObs = Rx<DateTime?>(repayment?.paidDate ?? DateTime.now());
+    final paymentMethodObs = Rx<PaymentType>(repayment?.paymentMethod ?? PaymentType.cash);
     final formKey = GlobalKey<FormState>();
 
     showModalBottomSheet(
@@ -619,6 +644,13 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
                     hintText: 'e.g. Paid early as promised…',
                     prefixIcon: Icons.notes_rounded,
                   ),
+                  SizedBox(height: 16.h),
+
+                  // Payment Method Selector
+                  Obx(() => PaymentMethodSelector(
+                        selectedMethod: paymentMethodObs.value,
+                        onChanged: (method) => paymentMethodObs.value = method,
+                      )),
 
                   SizedBox(height: 24.h),
 
@@ -630,6 +662,7 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
                       amountCtrl: amountCtrl,
                       notesCtrl: notesCtrl,
                       dateObs: dateObs,
+                      paymentMethodObs: paymentMethodObs,
                       existing: repayment,
                     ),
                     style: ElevatedButton.styleFrom(
@@ -665,6 +698,7 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
     required TextEditingController amountCtrl,
     required TextEditingController notesCtrl,
     required Rx<DateTime?> dateObs,
+    required Rx<PaymentType> paymentMethodObs,
     RepaymentEntity? existing,
   }) async {
     debugPrint('=== _saveRepayment called ===');
@@ -734,6 +768,7 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
       amount: enteredAmount,
       paidDate: dateObs.value ?? DateTime.now(),
       notes: notesCtrl.text.trim().isEmpty ? null : notesCtrl.text.trim(),
+      paymentMethod: paymentMethodObs.value,
     );
 
     if (isEdit) {

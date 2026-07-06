@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:finkeep/core/utils/date_parser.dart';
+import 'package:finkeep/core/enums/payment_type.dart';
 
 import '../../../domain/entity/repayment/repayment_entity.dart';
 
@@ -18,6 +19,7 @@ abstract class RepaymentModel with _$RepaymentModel {
     @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
     required DateTime paidDate,
     String? notes,
+    @Default(PaymentType.cash) PaymentType paymentMethod,
   }) = _RepaymentModel;
 
   /// Plain Dart deserialization — used by Hive (via json_serializable).
@@ -32,6 +34,7 @@ abstract class RepaymentModel with _$RepaymentModel {
       amount: (json['amount'] as num).toDouble(),
       paidDate: DateParser.parse(json['paidDate']),
       notes: json['notes'] as String?,
+      paymentMethod: PaymentTypeExtension.fromString(json['paymentMethod'] as String? ?? 'CASH'),
     );
   }
 
@@ -43,6 +46,7 @@ abstract class RepaymentModel with _$RepaymentModel {
       amount: entity.amount,
       paidDate: entity.paidDate,
       notes: entity.notes,
+      paymentMethod: entity.paymentMethod,
     );
   }
 
@@ -54,6 +58,7 @@ abstract class RepaymentModel with _$RepaymentModel {
       amount: amount,
       paidDate: paidDate,
       notes: notes,
+      paymentMethod: paymentMethod,
     );
   }
 
@@ -65,6 +70,7 @@ abstract class RepaymentModel with _$RepaymentModel {
       'amount': amount,
       'paidDate': Timestamp.fromDate(paidDate),
       'notes': notes,
+      'paymentMethod': paymentMethod.value,
     };
   }
 }
@@ -80,3 +86,4 @@ DateTime _fromJsonDate(dynamic value) {
 
 /// Writes a plain DateTime — safe for Hive.
 DateTime _toJsonDate(DateTime value) => value;
+

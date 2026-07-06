@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:finkeep/core/enums/payment_type.dart';
 
 part 'repayment_entity.freezed.dart';
 
@@ -10,5 +11,7 @@ abstract class RepaymentEntity with _$RepaymentEntity {
     required double amount,
     required DateTime paidDate,
     String? notes,
+    @Default(PaymentType.cash) PaymentType paymentMethod,
   }) = _RepaymentEntity;
 }
+

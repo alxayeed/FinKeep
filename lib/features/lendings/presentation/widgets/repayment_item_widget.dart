@@ -6,6 +6,7 @@ import 'package:finkeep/core/styles/app_colors.dart';
 
 import 'package:finkeep/core/styles/currency_provider.dart';
 import '../../domain/entity/repayment/repayment_entity.dart';
+import 'package:finkeep/core/enums/payment_type.dart';
 
 /// Standalone repayment card — used when embedding repayment tiles outside
 /// of [RepaymentListWidget] (e.g. in a future summary view).
@@ -87,16 +88,39 @@ class RepaymentItemWidget extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: 3.h),
-                  Text(
-                    dateText,
-                    style: TextStyle(
-                      fontSize: 11.sp,
-                      fontFamily: 'Manrope',
-                      fontWeight: FontWeight.w500,
-                      color: isDark
-                          ? Colors.white38
-                          : const Color(0xFF94A3B8),
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        dateText,
+                        style: TextStyle(
+                          fontSize: 11.sp,
+                          fontFamily: 'Manrope',
+                          fontWeight: FontWeight.w500,
+                          color: isDark
+                              ? Colors.white38
+                              : const Color(0xFF94A3B8),
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      Container(
+                        width: 4.r,
+                        height: 4.r,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isDark ? Colors.white24 : const Color(0xFFCBD5E1),
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      Text(
+                        repayment.paymentMethod.displayName,
+                        style: TextStyle(
+                          fontSize: 11.sp,
+                          fontFamily: 'Manrope',
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primaryTeal,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

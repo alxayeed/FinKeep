@@ -13,6 +13,9 @@ _RepaymentModel _$RepaymentModelFromJson(Map<String, dynamic> json) =>
       amount: (json['amount'] as num).toDouble(),
       paidDate: _fromJsonDate(json['paidDate']),
       notes: json['notes'] as String?,
+      paymentMethod:
+          $enumDecodeNullable(_$PaymentTypeEnumMap, json['paymentMethod']) ??
+          PaymentType.cash,
     );
 
 Map<String, dynamic> _$RepaymentModelToJson(_RepaymentModel instance) =>
@@ -22,4 +25,12 @@ Map<String, dynamic> _$RepaymentModelToJson(_RepaymentModel instance) =>
       'amount': instance.amount,
       'paidDate': _toJsonDate(instance.paidDate),
       'notes': instance.notes,
+      'paymentMethod': _$PaymentTypeEnumMap[instance.paymentMethod]!,
     };
+
+const _$PaymentTypeEnumMap = {
+  PaymentType.cash: 'cash',
+  PaymentType.mfs: 'mfs',
+  PaymentType.card: 'card',
+  PaymentType.transfer: 'transfer',
+};

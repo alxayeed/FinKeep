@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RepaymentModel {
 
- String get id; String get lendingId; double get amount;@JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) DateTime get paidDate; String? get notes;
+ String get id; String get lendingId; double get amount;@JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) DateTime get paidDate; String? get notes; PaymentType get paymentMethod;
 /// Create a copy of RepaymentModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $RepaymentModelCopyWith<RepaymentModel> get copyWith => _$RepaymentModelCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RepaymentModel&&(identical(other.id, id) || other.id == id)&&(identical(other.lendingId, lendingId) || other.lendingId == lendingId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.paidDate, paidDate) || other.paidDate == paidDate)&&(identical(other.notes, notes) || other.notes == notes));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RepaymentModel&&(identical(other.id, id) || other.id == id)&&(identical(other.lendingId, lendingId) || other.lendingId == lendingId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.paidDate, paidDate) || other.paidDate == paidDate)&&(identical(other.notes, notes) || other.notes == notes)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,lendingId,amount,paidDate,notes);
+int get hashCode => Object.hash(runtimeType,id,lendingId,amount,paidDate,notes,paymentMethod);
 
 @override
 String toString() {
-  return 'RepaymentModel(id: $id, lendingId: $lendingId, amount: $amount, paidDate: $paidDate, notes: $notes)';
+  return 'RepaymentModel(id: $id, lendingId: $lendingId, amount: $amount, paidDate: $paidDate, notes: $notes, paymentMethod: $paymentMethod)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $RepaymentModelCopyWith<$Res>  {
   factory $RepaymentModelCopyWith(RepaymentModel value, $Res Function(RepaymentModel) _then) = _$RepaymentModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String lendingId, double amount,@JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) DateTime paidDate, String? notes
+ String id, String lendingId, double amount,@JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) DateTime paidDate, String? notes, PaymentType paymentMethod
 });
 
 
@@ -65,14 +65,15 @@ class _$RepaymentModelCopyWithImpl<$Res>
 
 /// Create a copy of RepaymentModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? lendingId = null,Object? amount = null,Object? paidDate = null,Object? notes = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? lendingId = null,Object? amount = null,Object? paidDate = null,Object? notes = freezed,Object? paymentMethod = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,lendingId: null == lendingId ? _self.lendingId : lendingId // ignore: cast_nullable_to_non_nullable
 as String,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
 as double,paidDate: null == paidDate ? _self.paidDate : paidDate // ignore: cast_nullable_to_non_nullable
 as DateTime,notes: freezed == notes ? _self.notes : notes // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,paymentMethod: null == paymentMethod ? _self.paymentMethod : paymentMethod // ignore: cast_nullable_to_non_nullable
+as PaymentType,
   ));
 }
 
@@ -157,10 +158,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String lendingId,  double amount, @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)  DateTime paidDate,  String? notes)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String lendingId,  double amount, @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)  DateTime paidDate,  String? notes,  PaymentType paymentMethod)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RepaymentModel() when $default != null:
-return $default(_that.id,_that.lendingId,_that.amount,_that.paidDate,_that.notes);case _:
+return $default(_that.id,_that.lendingId,_that.amount,_that.paidDate,_that.notes,_that.paymentMethod);case _:
   return orElse();
 
 }
@@ -178,10 +179,10 @@ return $default(_that.id,_that.lendingId,_that.amount,_that.paidDate,_that.notes
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String lendingId,  double amount, @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)  DateTime paidDate,  String? notes)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String lendingId,  double amount, @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)  DateTime paidDate,  String? notes,  PaymentType paymentMethod)  $default,) {final _that = this;
 switch (_that) {
 case _RepaymentModel():
-return $default(_that.id,_that.lendingId,_that.amount,_that.paidDate,_that.notes);case _:
+return $default(_that.id,_that.lendingId,_that.amount,_that.paidDate,_that.notes,_that.paymentMethod);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +199,10 @@ return $default(_that.id,_that.lendingId,_that.amount,_that.paidDate,_that.notes
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String lendingId,  double amount, @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)  DateTime paidDate,  String? notes)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String lendingId,  double amount, @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)  DateTime paidDate,  String? notes,  PaymentType paymentMethod)?  $default,) {final _that = this;
 switch (_that) {
 case _RepaymentModel() when $default != null:
-return $default(_that.id,_that.lendingId,_that.amount,_that.paidDate,_that.notes);case _:
+return $default(_that.id,_that.lendingId,_that.amount,_that.paidDate,_that.notes,_that.paymentMethod);case _:
   return null;
 
 }
@@ -213,7 +214,7 @@ return $default(_that.id,_that.lendingId,_that.amount,_that.paidDate,_that.notes
 @JsonSerializable()
 
 class _RepaymentModel extends RepaymentModel {
-  const _RepaymentModel({required this.id, required this.lendingId, required this.amount, @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) required this.paidDate, this.notes}): super._();
+  const _RepaymentModel({required this.id, required this.lendingId, required this.amount, @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) required this.paidDate, this.notes, this.paymentMethod = PaymentType.cash}): super._();
   factory _RepaymentModel.fromJson(Map<String, dynamic> json) => _$RepaymentModelFromJson(json);
 
 @override final  String id;
@@ -221,6 +222,7 @@ class _RepaymentModel extends RepaymentModel {
 @override final  double amount;
 @override@JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) final  DateTime paidDate;
 @override final  String? notes;
+@override@JsonKey() final  PaymentType paymentMethod;
 
 /// Create a copy of RepaymentModel
 /// with the given fields replaced by the non-null parameter values.
@@ -235,16 +237,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RepaymentModel&&(identical(other.id, id) || other.id == id)&&(identical(other.lendingId, lendingId) || other.lendingId == lendingId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.paidDate, paidDate) || other.paidDate == paidDate)&&(identical(other.notes, notes) || other.notes == notes));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RepaymentModel&&(identical(other.id, id) || other.id == id)&&(identical(other.lendingId, lendingId) || other.lendingId == lendingId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.paidDate, paidDate) || other.paidDate == paidDate)&&(identical(other.notes, notes) || other.notes == notes)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,lendingId,amount,paidDate,notes);
+int get hashCode => Object.hash(runtimeType,id,lendingId,amount,paidDate,notes,paymentMethod);
 
 @override
 String toString() {
-  return 'RepaymentModel(id: $id, lendingId: $lendingId, amount: $amount, paidDate: $paidDate, notes: $notes)';
+  return 'RepaymentModel(id: $id, lendingId: $lendingId, amount: $amount, paidDate: $paidDate, notes: $notes, paymentMethod: $paymentMethod)';
 }
 
 
@@ -255,7 +257,7 @@ abstract mixin class _$RepaymentModelCopyWith<$Res> implements $RepaymentModelCo
   factory _$RepaymentModelCopyWith(_RepaymentModel value, $Res Function(_RepaymentModel) _then) = __$RepaymentModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String lendingId, double amount,@JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) DateTime paidDate, String? notes
+ String id, String lendingId, double amount,@JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) DateTime paidDate, String? notes, PaymentType paymentMethod
 });
 
 
@@ -272,14 +274,15 @@ class __$RepaymentModelCopyWithImpl<$Res>
 
 /// Create a copy of RepaymentModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? lendingId = null,Object? amount = null,Object? paidDate = null,Object? notes = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? lendingId = null,Object? amount = null,Object? paidDate = null,Object? notes = freezed,Object? paymentMethod = null,}) {
   return _then(_RepaymentModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,lendingId: null == lendingId ? _self.lendingId : lendingId // ignore: cast_nullable_to_non_nullable
 as String,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
 as double,paidDate: null == paidDate ? _self.paidDate : paidDate // ignore: cast_nullable_to_non_nullable
 as DateTime,notes: freezed == notes ? _self.notes : notes // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,paymentMethod: null == paymentMethod ? _self.paymentMethod : paymentMethod // ignore: cast_nullable_to_non_nullable
+as PaymentType,
   ));
 }
 
