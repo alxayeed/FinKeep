@@ -12,6 +12,8 @@ import '../../domain/entities/income/income_entity.dart';
 import '../controllers/income_controller.dart';
 import '../controllers/income_category_controller.dart';
 
+import 'package:finkeep/core/enums/payment_type.dart';
+
 class IncomeDetailsScreen extends StatefulWidget {
   final IncomeEntity income;
 
@@ -219,6 +221,20 @@ class _IncomeDetailsScreenState extends State<IncomeDetailsScreen> {
                                 ),
                               ),
                             ],
+                          ),
+                          showDivider: true,
+                        ),
+                        _buildRowItem(
+                          context,
+                          'Payment Method',
+                          Text(
+                            _currentIncome.paymentMethod.displayName,
+                            style: TextStyle(
+                              fontSize: 13.sp,
+                              fontFamily: 'Manrope',
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? Colors.white : const Color(0xFF0F172A),
+                            ),
                           ),
                           showDivider: false,
                         ),

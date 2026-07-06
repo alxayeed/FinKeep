@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$IncomeEntity {
 
- String get id; double get amount; String get description; DateTime get date; String get categoryId; DateTime get createdAt;
+ String get id; double get amount; String get description; DateTime get date; String get categoryId; PaymentType get paymentMethod; DateTime get createdAt;
 /// Create a copy of IncomeEntity
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $IncomeEntityCopyWith<IncomeEntity> get copyWith => _$IncomeEntityCopyWithImpl<I
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is IncomeEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.description, description) || other.description == description)&&(identical(other.date, date) || other.date == date)&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is IncomeEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.description, description) || other.description == description)&&(identical(other.date, date) || other.date == date)&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,amount,description,date,categoryId,createdAt);
+int get hashCode => Object.hash(runtimeType,id,amount,description,date,categoryId,paymentMethod,createdAt);
 
 @override
 String toString() {
-  return 'IncomeEntity(id: $id, amount: $amount, description: $description, date: $date, categoryId: $categoryId, createdAt: $createdAt)';
+  return 'IncomeEntity(id: $id, amount: $amount, description: $description, date: $date, categoryId: $categoryId, paymentMethod: $paymentMethod, createdAt: $createdAt)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $IncomeEntityCopyWith<$Res>  {
   factory $IncomeEntityCopyWith(IncomeEntity value, $Res Function(IncomeEntity) _then) = _$IncomeEntityCopyWithImpl;
 @useResult
 $Res call({
- String id, double amount, String description, DateTime date, String categoryId, DateTime createdAt
+ String id, double amount, String description, DateTime date, String categoryId, PaymentType paymentMethod, DateTime createdAt
 });
 
 
@@ -62,14 +62,15 @@ class _$IncomeEntityCopyWithImpl<$Res>
 
 /// Create a copy of IncomeEntity
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? amount = null,Object? description = null,Object? date = null,Object? categoryId = null,Object? createdAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? amount = null,Object? description = null,Object? date = null,Object? categoryId = null,Object? paymentMethod = null,Object? createdAt = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
 as double,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
 as DateTime,categoryId: null == categoryId ? _self.categoryId : categoryId // ignore: cast_nullable_to_non_nullable
-as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as String,paymentMethod: null == paymentMethod ? _self.paymentMethod : paymentMethod // ignore: cast_nullable_to_non_nullable
+as PaymentType,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));
 }
@@ -155,10 +156,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  double amount,  String description,  DateTime date,  String categoryId,  DateTime createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  double amount,  String description,  DateTime date,  String categoryId,  PaymentType paymentMethod,  DateTime createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _IncomeEntity() when $default != null:
-return $default(_that.id,_that.amount,_that.description,_that.date,_that.categoryId,_that.createdAt);case _:
+return $default(_that.id,_that.amount,_that.description,_that.date,_that.categoryId,_that.paymentMethod,_that.createdAt);case _:
   return orElse();
 
 }
@@ -176,10 +177,10 @@ return $default(_that.id,_that.amount,_that.description,_that.date,_that.categor
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  double amount,  String description,  DateTime date,  String categoryId,  DateTime createdAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  double amount,  String description,  DateTime date,  String categoryId,  PaymentType paymentMethod,  DateTime createdAt)  $default,) {final _that = this;
 switch (_that) {
 case _IncomeEntity():
-return $default(_that.id,_that.amount,_that.description,_that.date,_that.categoryId,_that.createdAt);case _:
+return $default(_that.id,_that.amount,_that.description,_that.date,_that.categoryId,_that.paymentMethod,_that.createdAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -196,10 +197,10 @@ return $default(_that.id,_that.amount,_that.description,_that.date,_that.categor
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  double amount,  String description,  DateTime date,  String categoryId,  DateTime createdAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  double amount,  String description,  DateTime date,  String categoryId,  PaymentType paymentMethod,  DateTime createdAt)?  $default,) {final _that = this;
 switch (_that) {
 case _IncomeEntity() when $default != null:
-return $default(_that.id,_that.amount,_that.description,_that.date,_that.categoryId,_that.createdAt);case _:
+return $default(_that.id,_that.amount,_that.description,_that.date,_that.categoryId,_that.paymentMethod,_that.createdAt);case _:
   return null;
 
 }
@@ -211,7 +212,7 @@ return $default(_that.id,_that.amount,_that.description,_that.date,_that.categor
 
 
 class _IncomeEntity implements IncomeEntity {
-  const _IncomeEntity({required this.id, required this.amount, required this.description, required this.date, required this.categoryId, required this.createdAt});
+  const _IncomeEntity({required this.id, required this.amount, required this.description, required this.date, required this.categoryId, this.paymentMethod = PaymentType.cash, required this.createdAt});
   
 
 @override final  String id;
@@ -219,6 +220,7 @@ class _IncomeEntity implements IncomeEntity {
 @override final  String description;
 @override final  DateTime date;
 @override final  String categoryId;
+@override@JsonKey() final  PaymentType paymentMethod;
 @override final  DateTime createdAt;
 
 /// Create a copy of IncomeEntity
@@ -231,16 +233,16 @@ _$IncomeEntityCopyWith<_IncomeEntity> get copyWith => __$IncomeEntityCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _IncomeEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.description, description) || other.description == description)&&(identical(other.date, date) || other.date == date)&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _IncomeEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.description, description) || other.description == description)&&(identical(other.date, date) || other.date == date)&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,amount,description,date,categoryId,createdAt);
+int get hashCode => Object.hash(runtimeType,id,amount,description,date,categoryId,paymentMethod,createdAt);
 
 @override
 String toString() {
-  return 'IncomeEntity(id: $id, amount: $amount, description: $description, date: $date, categoryId: $categoryId, createdAt: $createdAt)';
+  return 'IncomeEntity(id: $id, amount: $amount, description: $description, date: $date, categoryId: $categoryId, paymentMethod: $paymentMethod, createdAt: $createdAt)';
 }
 
 
@@ -251,7 +253,7 @@ abstract mixin class _$IncomeEntityCopyWith<$Res> implements $IncomeEntityCopyWi
   factory _$IncomeEntityCopyWith(_IncomeEntity value, $Res Function(_IncomeEntity) _then) = __$IncomeEntityCopyWithImpl;
 @override @useResult
 $Res call({
- String id, double amount, String description, DateTime date, String categoryId, DateTime createdAt
+ String id, double amount, String description, DateTime date, String categoryId, PaymentType paymentMethod, DateTime createdAt
 });
 
 
@@ -268,14 +270,15 @@ class __$IncomeEntityCopyWithImpl<$Res>
 
 /// Create a copy of IncomeEntity
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? amount = null,Object? description = null,Object? date = null,Object? categoryId = null,Object? createdAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? amount = null,Object? description = null,Object? date = null,Object? categoryId = null,Object? paymentMethod = null,Object? createdAt = null,}) {
   return _then(_IncomeEntity(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
 as double,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
 as DateTime,categoryId: null == categoryId ? _self.categoryId : categoryId // ignore: cast_nullable_to_non_nullable
-as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as String,paymentMethod: null == paymentMethod ? _self.paymentMethod : paymentMethod // ignore: cast_nullable_to_non_nullable
+as PaymentType,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));
 }

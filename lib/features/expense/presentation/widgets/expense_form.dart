@@ -112,75 +112,6 @@ class _ExpenseFormState extends State<ExpenseForm> {
     }
   }
 
-  Widget _buildLabel(String text, Color color) {
-    return Padding(
-      padding: EdgeInsets.only(left: 4.w, bottom: 6.h, top: 10.h),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Text(
-          text,
-          style: TextStyle(
-            fontSize: 11.sp,
-            fontFamily: 'Manrope',
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPaymentBtn(String text, IconData icon, PaymentType method, Color primaryColor) {
-    final isSelected = _paymentMethod == method;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            _paymentMethod = method;
-          });
-        },
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 12.h),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? primaryColor.withValues(alpha: 0.05)
-                : (isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9)),
-            border: Border.all(
-              color: isSelected ? primaryColor : Colors.transparent,
-              width: 1.5,
-            ),
-            borderRadius: BorderRadius.circular(16.r),
-          ),
-          child: Column(
-            children: [
-              Icon(
-                icon,
-                size: 20.sp,
-                color: isSelected
-                    ? primaryColor
-                    : (isDark ? Colors.white38 : const Color(0xFF94A3B8)),
-              ),
-              SizedBox(height: 4.h),
-              Text(
-                text.toUpperCase(),
-                style: TextStyle(
-                  fontSize: 9.sp,
-                  fontFamily: 'Manrope',
-                  fontWeight: FontWeight.bold,
-                  color: isSelected
-                      ? primaryColor
-                      : (isDark ? Colors.white38 : const Color(0xFF64748B)),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   void _submitForm() {
     final parsedAmount = double.tryParse(amountController.text);
     if (parsedAmount == null || parsedAmount <= 0) {
@@ -364,18 +295,15 @@ class _ExpenseFormState extends State<ExpenseForm> {
 
         SizedBox(height: 16.h),
 
-        // Payment Method Label and Selector Row
-        _buildLabel('Payment Method', labelColor),
-        Row(
-          children: [
-            _buildPaymentBtn('Cash', Icons.payments_rounded, PaymentType.cash, primaryColor),
-            SizedBox(width: 8.w),
-            _buildPaymentBtn('MFS', Icons.phone_android_rounded, PaymentType.mfs, primaryColor),
-            SizedBox(width: 8.w),
-            _buildPaymentBtn('Card', Icons.credit_card_rounded, PaymentType.card, primaryColor),
-            SizedBox(width: 8.w),
-            _buildPaymentBtn('Transfer', Icons.account_balance_rounded, PaymentType.transfer, primaryColor),
-          ],
+        // Payment Method Selector
+        PaymentMethodSelector(
+          selectedMethod: _paymentMethod,
+          labelColor: labelColor,
+          onChanged: (method) {
+            setState(() {
+              _paymentMethod = method;
+            });
+          },
         ),
 
         SizedBox(height: 32.h),

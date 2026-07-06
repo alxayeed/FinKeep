@@ -7,6 +7,8 @@ import '../../domain/entities/income/income_entity.dart';
 import '../../domain/entities/income_category/income_category_entity.dart';
 import '../controllers/income_category_controller.dart';
 
+import '../../../../core/enums/payment_type.dart';
+
 class IncomeForm extends StatefulWidget {
   final IncomeEntity? initialIncome;
   final String submitButtonText;
@@ -15,6 +17,7 @@ class IncomeForm extends StatefulWidget {
     String categoryId,
     DateTime date,
     String description,
+    PaymentType paymentMethod,
   ) onSubmit;
 
   const IncomeForm({
@@ -36,6 +39,7 @@ class _IncomeFormState extends State<IncomeForm> {
   late DateTime _selectedDate;
   late TimeOfDay _selectedTime;
   String? _selectedCategoryId;
+  late PaymentType _paymentMethod;
 
   @override
   void initState() {
@@ -47,6 +51,7 @@ class _IncomeFormState extends State<IncomeForm> {
       _selectedDate = inc.date;
       _selectedTime = TimeOfDay.fromDateTime(inc.date);
       _selectedCategoryId = inc.categoryId;
+      _paymentMethod = inc.paymentMethod;
     } else {
       _selectedDate = DateTime.now();
       _selectedTime = TimeOfDay.now();
@@ -54,6 +59,7 @@ class _IncomeFormState extends State<IncomeForm> {
       final defaultCat = categoryController.categories.firstWhereOrNull((c) => !c.isDeleted) ??
           categoryController.categories.firstOrNull;
       _selectedCategoryId = defaultCat?.id;
+      _paymentMethod = PaymentType.cash;
     }
   }
 
@@ -106,19 +112,17 @@ class _IncomeFormState extends State<IncomeForm> {
     }
   }
 
-
-
   void _submitForm() {
     final parsedAmount = double.tryParse(amountController.text);
     if (parsedAmount == null || parsedAmount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid amount.')),
+          const SnackBar(content: Text('Please enter a valid amount.')),
       );
       return;
     }
     if (_selectedCategoryId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a category.')),
+          const SnackBar(content: Text('Please select a category.')),
       );
       return;
     }
@@ -127,6 +131,7 @@ class _IncomeFormState extends State<IncomeForm> {
       _selectedCategoryId!,
       _selectedDate,
       descriptionController.text,
+      _paymentMethod,
     );
   }
 
@@ -293,6 +298,19 @@ class _IncomeFormState extends State<IncomeForm> {
             labelText: 'Note (Optional)',
             hintText: 'Add details about this income...',
             maxLines: 3,
+          ),
+
+          SizedBox(height: 16.h),
+
+          // Payment Method Selector
+          PaymentMethodSelector(
+            selectedMethod: _paymentMethod,
+            labelColor: labelColor,
+            onChanged: (method) {
+              setState(() {
+                _paymentMethod = method;
+              });
+            },
           ),
 
           SizedBox(height: 32.h),

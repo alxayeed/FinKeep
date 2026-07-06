@@ -7,6 +7,8 @@ import '../../domain/entities/income/income_entity.dart';
 import '../controllers/income_controller.dart';
 import '../widgets/income_form.dart';
 
+import '../../../../core/enums/payment_type.dart';
+
 class EditIncomeScreen extends StatefulWidget {
   final IncomeEntity income;
 
@@ -86,8 +88,8 @@ class _EditIncomeScreenState extends State<EditIncomeScreen> {
             child: IncomeForm(
               initialIncome: widget.income,
               submitButtonText: 'Update Income',
-              onSubmit: (amount, categoryId, date, description) {
-                _updateIncome(amount, categoryId, date, description);
+              onSubmit: (amount, categoryId, date, description, paymentMethod) {
+                _updateIncome(amount, categoryId, date, description, paymentMethod);
               },
             ),
           ),
@@ -108,12 +110,14 @@ class _EditIncomeScreenState extends State<EditIncomeScreen> {
     String categoryId,
     DateTime date,
     String description,
+    PaymentType paymentMethod,
   ) async {
     final updatedIncome = widget.income.copyWith(
       amount: amount,
       categoryId: categoryId,
       date: date,
       description: description,
+      paymentMethod: paymentMethod,
     );
 
     await controller.editIncome(

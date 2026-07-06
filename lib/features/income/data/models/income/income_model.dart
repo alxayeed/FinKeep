@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:finkeep/core/utils/date_parser.dart';
+import 'package:finkeep/core/enums/payment_type.dart';
 import '../../../domain/entities/income/income_entity.dart';
 
 part 'income_model.freezed.dart';
@@ -17,6 +18,7 @@ abstract class IncomeModel with _$IncomeModel {
     @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
     required DateTime date,
     required String categoryId,
+    @Default(PaymentType.cash) PaymentType paymentMethod,
     @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)
     required DateTime createdAt,
   }) = _IncomeModel;
@@ -31,6 +33,7 @@ abstract class IncomeModel with _$IncomeModel {
       description: (json['description'] ?? '').toString(),
       date: DateParser.parse(json['date']),
       categoryId: (json['categoryId'] ?? '').toString(),
+      paymentMethod: PaymentTypeExtension.fromString(json['paymentMethod'] as String? ?? 'CASH'),
       createdAt: DateParser.parse(json['createdAt'] ?? json['date']),
     );
   }
@@ -42,6 +45,7 @@ abstract class IncomeModel with _$IncomeModel {
       description: entity.description,
       date: entity.date,
       categoryId: entity.categoryId,
+      paymentMethod: entity.paymentMethod,
       createdAt: entity.createdAt,
     );
   }
@@ -53,6 +57,7 @@ abstract class IncomeModel with _$IncomeModel {
       description: description,
       date: date,
       categoryId: categoryId,
+      paymentMethod: paymentMethod,
       createdAt: createdAt,
     );
   }
@@ -64,6 +69,7 @@ abstract class IncomeModel with _$IncomeModel {
       'description': description,
       'date': Timestamp.fromDate(date),
       'categoryId': categoryId,
+      'paymentMethod': paymentMethod.value,
       'createdAt': Timestamp.fromDate(createdAt),
     };
   }
@@ -71,3 +77,4 @@ abstract class IncomeModel with _$IncomeModel {
 
 DateTime _fromJsonDate(dynamic value) => DateParser.parse(value);
 DateTime _toJsonDate(DateTime value) => value;
+

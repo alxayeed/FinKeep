@@ -7,6 +7,8 @@ import '../../domain/entities/income/income_entity.dart';
 import '../controllers/income_controller.dart';
 import '../widgets/income_form.dart';
 
+import '../../../../core/enums/payment_type.dart';
+
 class CreateIncomeScreen extends StatefulWidget {
   const CreateIncomeScreen({super.key});
 
@@ -83,8 +85,8 @@ class _CreateIncomeScreenState extends State<CreateIncomeScreen> {
             padding: EdgeInsets.symmetric(horizontal: 24.w),
             child: IncomeForm(
               submitButtonText: 'Save Income',
-              onSubmit: (amount, categoryId, date, description) {
-                _saveIncome(amount, categoryId, date, description);
+              onSubmit: (amount, categoryId, date, description, paymentMethod) {
+                _saveIncome(amount, categoryId, date, description, paymentMethod);
               },
             ),
           ),
@@ -105,6 +107,7 @@ class _CreateIncomeScreenState extends State<CreateIncomeScreen> {
     String categoryId,
     DateTime date,
     String description,
+    PaymentType paymentMethod,
   ) async {
     final newIncome = IncomeEntity(
       id: 'inc_${DateTime.now().millisecondsSinceEpoch}',
@@ -112,6 +115,7 @@ class _CreateIncomeScreenState extends State<CreateIncomeScreen> {
       categoryId: categoryId,
       date: date,
       description: description,
+      paymentMethod: paymentMethod,
       createdAt: DateTime.now(),
     );
 

@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$IncomeModel {
 
- String get id; double get amount; String get description;@JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) DateTime get date; String get categoryId;@JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) DateTime get createdAt;
+ String get id; double get amount; String get description;@JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) DateTime get date; String get categoryId; PaymentType get paymentMethod;@JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) DateTime get createdAt;
 /// Create a copy of IncomeModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $IncomeModelCopyWith<IncomeModel> get copyWith => _$IncomeModelCopyWithImpl<Inco
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is IncomeModel&&(identical(other.id, id) || other.id == id)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.description, description) || other.description == description)&&(identical(other.date, date) || other.date == date)&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is IncomeModel&&(identical(other.id, id) || other.id == id)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.description, description) || other.description == description)&&(identical(other.date, date) || other.date == date)&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,amount,description,date,categoryId,createdAt);
+int get hashCode => Object.hash(runtimeType,id,amount,description,date,categoryId,paymentMethod,createdAt);
 
 @override
 String toString() {
-  return 'IncomeModel(id: $id, amount: $amount, description: $description, date: $date, categoryId: $categoryId, createdAt: $createdAt)';
+  return 'IncomeModel(id: $id, amount: $amount, description: $description, date: $date, categoryId: $categoryId, paymentMethod: $paymentMethod, createdAt: $createdAt)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $IncomeModelCopyWith<$Res>  {
   factory $IncomeModelCopyWith(IncomeModel value, $Res Function(IncomeModel) _then) = _$IncomeModelCopyWithImpl;
 @useResult
 $Res call({
- String id, double amount, String description,@JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) DateTime date, String categoryId,@JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) DateTime createdAt
+ String id, double amount, String description,@JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) DateTime date, String categoryId, PaymentType paymentMethod,@JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) DateTime createdAt
 });
 
 
@@ -65,14 +65,15 @@ class _$IncomeModelCopyWithImpl<$Res>
 
 /// Create a copy of IncomeModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? amount = null,Object? description = null,Object? date = null,Object? categoryId = null,Object? createdAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? amount = null,Object? description = null,Object? date = null,Object? categoryId = null,Object? paymentMethod = null,Object? createdAt = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
 as double,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
 as DateTime,categoryId: null == categoryId ? _self.categoryId : categoryId // ignore: cast_nullable_to_non_nullable
-as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as String,paymentMethod: null == paymentMethod ? _self.paymentMethod : paymentMethod // ignore: cast_nullable_to_non_nullable
+as PaymentType,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));
 }
@@ -158,10 +159,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  double amount,  String description, @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)  DateTime date,  String categoryId, @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)  DateTime createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  double amount,  String description, @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)  DateTime date,  String categoryId,  PaymentType paymentMethod, @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)  DateTime createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _IncomeModel() when $default != null:
-return $default(_that.id,_that.amount,_that.description,_that.date,_that.categoryId,_that.createdAt);case _:
+return $default(_that.id,_that.amount,_that.description,_that.date,_that.categoryId,_that.paymentMethod,_that.createdAt);case _:
   return orElse();
 
 }
@@ -179,10 +180,10 @@ return $default(_that.id,_that.amount,_that.description,_that.date,_that.categor
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  double amount,  String description, @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)  DateTime date,  String categoryId, @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)  DateTime createdAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  double amount,  String description, @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)  DateTime date,  String categoryId,  PaymentType paymentMethod, @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)  DateTime createdAt)  $default,) {final _that = this;
 switch (_that) {
 case _IncomeModel():
-return $default(_that.id,_that.amount,_that.description,_that.date,_that.categoryId,_that.createdAt);case _:
+return $default(_that.id,_that.amount,_that.description,_that.date,_that.categoryId,_that.paymentMethod,_that.createdAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -199,10 +200,10 @@ return $default(_that.id,_that.amount,_that.description,_that.date,_that.categor
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  double amount,  String description, @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)  DateTime date,  String categoryId, @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)  DateTime createdAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  double amount,  String description, @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)  DateTime date,  String categoryId,  PaymentType paymentMethod, @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate)  DateTime createdAt)?  $default,) {final _that = this;
 switch (_that) {
 case _IncomeModel() when $default != null:
-return $default(_that.id,_that.amount,_that.description,_that.date,_that.categoryId,_that.createdAt);case _:
+return $default(_that.id,_that.amount,_that.description,_that.date,_that.categoryId,_that.paymentMethod,_that.createdAt);case _:
   return null;
 
 }
@@ -214,7 +215,7 @@ return $default(_that.id,_that.amount,_that.description,_that.date,_that.categor
 @JsonSerializable()
 
 class _IncomeModel extends IncomeModel {
-  const _IncomeModel({required this.id, required this.amount, required this.description, @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) required this.date, required this.categoryId, @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) required this.createdAt}): super._();
+  const _IncomeModel({required this.id, required this.amount, required this.description, @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) required this.date, required this.categoryId, this.paymentMethod = PaymentType.cash, @JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) required this.createdAt}): super._();
   factory _IncomeModel.fromJson(Map<String, dynamic> json) => _$IncomeModelFromJson(json);
 
 @override final  String id;
@@ -222,6 +223,7 @@ class _IncomeModel extends IncomeModel {
 @override final  String description;
 @override@JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) final  DateTime date;
 @override final  String categoryId;
+@override@JsonKey() final  PaymentType paymentMethod;
 @override@JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) final  DateTime createdAt;
 
 /// Create a copy of IncomeModel
@@ -237,16 +239,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _IncomeModel&&(identical(other.id, id) || other.id == id)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.description, description) || other.description == description)&&(identical(other.date, date) || other.date == date)&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _IncomeModel&&(identical(other.id, id) || other.id == id)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.description, description) || other.description == description)&&(identical(other.date, date) || other.date == date)&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,amount,description,date,categoryId,createdAt);
+int get hashCode => Object.hash(runtimeType,id,amount,description,date,categoryId,paymentMethod,createdAt);
 
 @override
 String toString() {
-  return 'IncomeModel(id: $id, amount: $amount, description: $description, date: $date, categoryId: $categoryId, createdAt: $createdAt)';
+  return 'IncomeModel(id: $id, amount: $amount, description: $description, date: $date, categoryId: $categoryId, paymentMethod: $paymentMethod, createdAt: $createdAt)';
 }
 
 
@@ -257,7 +259,7 @@ abstract mixin class _$IncomeModelCopyWith<$Res> implements $IncomeModelCopyWith
   factory _$IncomeModelCopyWith(_IncomeModel value, $Res Function(_IncomeModel) _then) = __$IncomeModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, double amount, String description,@JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) DateTime date, String categoryId,@JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) DateTime createdAt
+ String id, double amount, String description,@JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) DateTime date, String categoryId, PaymentType paymentMethod,@JsonKey(fromJson: _fromJsonDate, toJson: _toJsonDate) DateTime createdAt
 });
 
 
@@ -274,14 +276,15 @@ class __$IncomeModelCopyWithImpl<$Res>
 
 /// Create a copy of IncomeModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? amount = null,Object? description = null,Object? date = null,Object? categoryId = null,Object? createdAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? amount = null,Object? description = null,Object? date = null,Object? categoryId = null,Object? paymentMethod = null,Object? createdAt = null,}) {
   return _then(_IncomeModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
 as double,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
 as DateTime,categoryId: null == categoryId ? _self.categoryId : categoryId // ignore: cast_nullable_to_non_nullable
-as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as String,paymentMethod: null == paymentMethod ? _self.paymentMethod : paymentMethod // ignore: cast_nullable_to_non_nullable
+as PaymentType,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));
 }
