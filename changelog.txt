@@ -5,6 +5,8 @@
 - Closed #81 -  Prefix icon removed for multiline. Widgets renamed to AppTextField and AppNumberField
 - Closed #80 - Lending summary widget updated to show meaningful amount instead of the  whole amount
 - Closed #83 - Add filtering option in lending
+
+
 1.0.0+15
 [04/07/2026]
 Dashboard feature

@@ -1,0 +1,67 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:finkeep/core/error/exception_handler.dart';
+import '../../services/auth_service.dart';
+
+class LoginController extends GetxController {
+  final AuthService _authService = Get.find<AuthService>();
+
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  final isLoading = false.obs;
+  final isPasswordVisible = false.obs;
+
+  @override
+  void onClose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.onClose();
+  }
+
+  void togglePasswordVisibility() {
+    isPasswordVisible.value = !isPasswordVisible.value;
+  }
+
+  Future<void> login() async {
+    final email = emailController.text.trim();
+    final password = passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      Get.snackbar(
+        'Validation Error',
+        'Email and password cannot be empty.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent.withValues(alpha: 0.9),
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    isLoading.value = true;
+    try {
+      await _authService.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      Get.snackbar(
+        'Success',
+        'Signed in successfully!',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green.withValues(alpha: 0.9),
+        colorText: Colors.white,
+      );
+    } catch (e, stackTrace) {
+      final failure = ExceptionHandler.handle(e, stackTrace, 'LoginController.login');
+      Get.snackbar(
+        'Login Failed',
+        failure.message ?? 'An unknown error occurred.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent.withValues(alpha: 0.9),
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+}

@@ -71,6 +71,7 @@ flutter:
     - assets/lottie/
     - assets/files/
     - .env.prod
+    - .env.personal
 
 
 dependency_overrides:
