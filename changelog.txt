@@ -2,6 +2,8 @@
 [06/07/2026]
 - ADD: auth guard added for personal data
 - ADD: payment type in income (Closes #87)
+- FIX: Lending given/taken both has same selected status state issue(Fixes #85)
+
 
 1.0.0+16
 [04/07/2026]

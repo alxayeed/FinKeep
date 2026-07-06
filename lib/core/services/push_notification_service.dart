@@ -1,9 +1,11 @@
 import 'dart:developer';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
+
 import '../common/widgets/custom_permission_dialog.dart';
 
 @pragma('vm:entry-point')
@@ -49,11 +51,7 @@ class PushNotificationService {
     );
 
     // Request permissions for push notifications
-    await _fcm.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+    await _fcm.requestPermission(alert: true, badge: true, sound: true);
 
     // 4. Handle messages when app is in foreground
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
@@ -69,7 +67,9 @@ class PushNotificationService {
     // 6. Handle notification when app is opened from terminated state
     RemoteMessage? initialMessage = await _fcm.getInitialMessage();
     if (initialMessage != null) {
-      log("App opened from terminated state by notification: ${initialMessage.messageId}");
+      log(
+        "App opened from terminated state by notification: ${initialMessage.messageId}",
+      );
     }
 
     // 7. Get and log the FCM token in the console
@@ -87,10 +87,10 @@ class PushNotificationService {
   Future<void> logFcmToken() async {
     try {
       String? token = await _fcm.getToken();
-      log("====================================================");
-      log("FCM TOKEN: $token");
-      log("====================================================");
-      print("FCM TOKEN: $token"); // Log to console
+      // log("====================================================");
+      // log("FCM TOKEN: $token");
+      // log("====================================================");
+      // print("FCM TOKEN: $token"); // Log to console
     } catch (e) {
       log("Error getting FCM Token: $e");
     }
@@ -98,7 +98,7 @@ class PushNotificationService {
 
   Future<bool> requestPermissions(BuildContext context) async {
     final status = await Permission.notification.status;
-    
+
     if (status.isGranted) {
       return true;
     }
@@ -111,7 +111,8 @@ class PushNotificationService {
         barrierDismissible: false,
         builder: (context) => CustomPermissionDialog(
           title: 'Enable Notifications',
-          description: 'To receive important updates and notifications, please grant notification permissions.',
+          description:
+              'To receive important updates and notifications, please grant notification permissions.',
           actionText: 'Go to Settings',
           cancelText: 'Not Now',
           icon: Icons.notifications_active_rounded,

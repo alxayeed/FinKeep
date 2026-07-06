@@ -27,7 +27,11 @@ class _LendingListScreenState extends State<LendingListScreen> {
   // 0 = Given, 1 = Taken
   int _selectedTab = 0;
   String _searchQuery = '';
-  LendingStatus? _selectedStatus;
+  LendingStatus? _selectedStatusGiven;
+  LendingStatus? _selectedStatusTaken;
+
+  LendingStatus? get _currentSelectedStatus =>
+      _selectedTab == 0 ? _selectedStatusGiven : _selectedStatusTaken;
 
   @override
   void initState() {
@@ -41,9 +45,10 @@ class _LendingListScreenState extends State<LendingListScreen> {
 
   List<LendingEntity> get _filteredLendings {
     final type = _selectedTab == 0 ? LendingType.given : LendingType.taken;
+    final selectedStatus = _currentSelectedStatus;
     return controller.lendingsList.where((l) {
       final matchType = l.type == type;
-      final matchStatus = _selectedStatus == null || l.status == _selectedStatus;
+      final matchStatus = selectedStatus == null || l.status == selectedStatus;
       final matchSearch =
           _searchQuery.isEmpty ||
           l.person.name.toLowerCase().contains(_searchQuery);
@@ -137,10 +142,14 @@ class _LendingListScreenState extends State<LendingListScreen> {
                   child: Padding(
                     padding: EdgeInsets.only(bottom: 8.h),
                     child: LendingStatusFilterPills(
-                      selectedStatus: _selectedStatus,
+                      selectedStatus: _currentSelectedStatus,
                       onStatusSelected: (status) {
                         setState(() {
-                          _selectedStatus = status;
+                          if (_selectedTab == 0) {
+                            _selectedStatusGiven = status;
+                          } else {
+                            _selectedStatusTaken = status;
+                          }
                         });
                       },
                       searchQuery: _searchQuery,
