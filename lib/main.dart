@@ -1,5 +1,4 @@
-import 'package:feedback_github/feedback_github.dart';
-import 'package:finkeep/core/common/widgets/global_feedback_overlay.dart';
+// import 'package:feedback_github/feedback_github.dart';
 import 'package:finkeep/core/routes/app_router.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
 import 'package:finkeep/core/utils/app_localizations.dart';
@@ -31,10 +30,6 @@ void main() async {
   String envFile = ".env.prod";
   if (AppConfig.isPersonal) {
     envFile = ".env.personal";
-  } else if (AppConfig.isLocal) {
-    envFile = ".env.local";
-  } else if (AppConfig.isDev) {
-    envFile = ".env.dev";
   }
   await dotenv.load(fileName: envFile);
 
@@ -145,48 +140,33 @@ class _MainAppState extends State<MainApp> {
           builder: (context, locale, _) {
             return CurrencyTheme(
               notifier: CurrencyProvider(),
-              child: Builder(
-                builder: (context) {
-                  return GithubFeedback(
-                    config: FeedbackConfig(
-                      enabled: true,
-                      backend: GitHubFeedbackBackend(
-                        token: dotenv.env['GITHUB_TOKEN'] ?? '',
-                        repoOwner: 'alxayeed',
-                        repoName: 'finkeep',
-                        branch: 'feedback',
+              child: _isLocked
+                  ? MaterialApp(
+                      debugShowCheckedModeBanner: false,
+                      title: 'FinKeep',
+                      theme: AppThemes.lightTheme,
+                      darkTheme: AppThemes.darkTheme,
+                      themeMode: themeMode,
+                      home: BiometricLockScreen(
+                        onUnlocked: () {
+                          setState(() {
+                            _isLocked = false;
+                          });
+                        },
                       ),
+                    )
+                  : MaterialApp.router(
+                      debugShowCheckedModeBanner: false,
+                      routerConfig: AppRouter.router,
+                      title: 'FinKeep',
+                      theme: AppThemes.lightTheme,
+                      darkTheme: AppThemes.darkTheme,
+                      themeMode: themeMode,
+                      builder: (context, child) {
+                        if (child == null) return const SizedBox.shrink();
+                        return child;
+                      },
                     ),
-                    child: _isLocked
-                        ? MaterialApp(
-                            debugShowCheckedModeBanner: false,
-                            title: 'FinKeep',
-                            theme: AppThemes.lightTheme,
-                            darkTheme: AppThemes.darkTheme,
-                            themeMode: themeMode,
-                            home: BiometricLockScreen(
-                              onUnlocked: () {
-                                setState(() {
-                                  _isLocked = false;
-                                });
-                              },
-                            ),
-                          )
-                        : MaterialApp.router(
-                            debugShowCheckedModeBanner: false,
-                            routerConfig: AppRouter.router,
-                            title: 'FinKeep',
-                            theme: AppThemes.lightTheme,
-                            darkTheme: AppThemes.darkTheme,
-                            themeMode: themeMode,
-                            builder: (context, child) {
-                              if (child == null) return const SizedBox.shrink();
-                              return GlobalFeedbackOverlay(child: child);
-                            },
-                          ),
-                  );
-                },
-              ),
             );
           },
         );
