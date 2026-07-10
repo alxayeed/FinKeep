@@ -1,11 +1,15 @@
 # FinKeep
 
-![Feature Image](/finkeep/demo/banner.png)
+![Feature Image](/demo/banner.png)
 
+Take complete control of your finances with FinKeep, a secure offline personal finance tracker. It
+keeps your sensitive records on your device without using cloud sync, tracking, or bank credentials.
+The app brings your daily expenses, monthly budgets, debt tracking, and investments into one simple
+dashboard.
 
-Take complete control of your finances with FinKeep, a secure offline personal finance tracker. It keeps your sensitive records on your device without using cloud sync, tracking, or bank credentials. The app brings your daily expenses, monthly budgets, debt tracking, and investments into one simple dashboard.
-
-For tracking expenses, you can record daily transactions quickly using categories like food, transport, and utilities. You can tag items by payment methods like cash, card, or mobile banking, and set daily reminders to log your habits
+For tracking expenses, you can record daily transactions quickly using categories like food,
+transport, and utilities. You can tag items by payment methods like cash, card, or mobile banking,
+and set daily reminders to log your habits
 
 ## 🎥 Preview
 
@@ -55,11 +59,7 @@ For tracking expenses, you can record daily transactions quickly using categorie
 - Local Notification
 - Push Notification
 
-
-
 [//]: # (## 📃 Motivation)
-
-
 
 ## 📦 Packages Used
 
