@@ -1,30 +1,30 @@
 # FinKeep
 
-![Feature Image](/screenshots/banner.png)
+![Feature Image](/finkeep/demo/banner.png)
 
-A personal finance management application built with Flutter and Firebase to track expenses and
-manage budgets efficiently.
 
-## 🎥 Demo
+Take complete control of your finances with FinKeep, a secure offline personal finance tracker. It keeps your sensitive records on your device without using cloud sync, tracking, or bank credentials. The app brings your daily expenses, monthly budgets, debt tracking, and investments into one simple dashboard.
 
-Below are some screenshots showcasing the features of the app:
+For tracking expenses, you can record daily transactions quickly using categories like food, transport, and utilities. You can tag items by payment methods like cash, card, or mobile banking, and set daily reminders to log your habits
+
+## 🎥 Preview
 
 <table>
   <tr>
-    <td><img src="demo/exp_details.png" width="100%" height="70%" alt="Home Page"/></td>
-    <td><img src="demo/register.png" width="100%" height="70%" alt="Mechanic Search Results"/></td>
-    <td><img src="demo/profile.png" width="100%" height="70%" alt="Booking Details"/></td>
+    <td><img src="demo/Expense Summary.png" width="100%" height="70%" alt="Home Page"/></td>
+    <td><img src="demo/exp_list.png" width="100%" height="70%" alt="Expense List"/></td>
+    <td><img src="demo/exp_add.png" width="100%" height="70%" alt="Booking Details"/></td>
   </tr>
   <tr>
-    <td><img src="demo/day.png" width="100%" height="70%" alt="Bookings Overview"/></td>
-    <td><img src="demo/week.png" width="100%" height="70%" alt="Daily/Weekly/Monthly Views"/></td>
-    <td><img src="demo/month.png" width="100%" height="70%" alt="Loading State"/></td>
+    <td><img src="demo/Lend Given.png" width="100%" height="70%" alt="Home Page"/></td>
+    <td><img src="demo/Lend Taken.png" width="100%" height="70%" alt="Expense List"/></td>
+    <td><img src="demo/Settings.png" width="100%" height="70%" alt="Booking Details"/></td>
   </tr>
-  <tr>
-    <td><img src="demo/add.png" width="100%" height="70%" alt="Bookings Overview"/></td>
-    <td><img src="demo/details.png" width="100%" height="70%" alt="Daily/Weekly/Monthly Views"/></td>
-    <td><img src="demo/delete.png" width="100%" height="70%" alt="Loading State"/></td>
-  </tr>
+  <!-- <tr>
+    <td><img src="demo/Expense Summary.png" width="100%" height="70%" alt="Home Page"/></td>
+    <td><img src="demo/exp_list.png" width="100%" height="70%" alt="Expense List"/></td>
+    <td><img src="demo/exp_add.png" width="100%" height="70%" alt="Booking Details"/></td>
+  </tr> -->
 </table>
 <br/>
 
@@ -42,6 +42,10 @@ Below are some screenshots showcasing the features of the app:
 - Keep an eye on your investments
 - Cloud Sync: Securely backup data using Firebase.
 
+### 🏛️ Architecture/Design
+
+- Clean Architecture
+
 ## 🛠️ Tech Stack
 
 - Flutter
@@ -51,18 +55,11 @@ Below are some screenshots showcasing the features of the app:
 - Local Notification
 - Push Notification
 
-## 🚧 Installation & Usage
 
-1. Clone the repository: `git clone https://github.com/your_username/awesome-app.git`
-2. Navigate to the project directory: `cd awesome-app`
-3. Get dependencies: `flutter pub get`
-4. Run the app: `flutter run`
 
-## 📃 Motivation
+[//]: # (## 📃 Motivation)
 
-## 🏛️ Architecture/Design
 
-- Clean Architecture
 
 ## 📦 Packages Used
 
@@ -71,7 +68,14 @@ Below are some screenshots showcasing the features of the app:
 - [Hive](https://pub.dev/packages/hive)
 - [Firebase Messaging](https://pub.dev/packages/firebase_messaging)
 - [Flutter Local Notifications](https://pub.dev/packages/flutter_local_notifications)
-- Firebase messaging
+- firebase_messaging
+
+## 🚧 Installation & Usage
+
+1. Clone the repository: `git clone https://github.com/alxayeed/finkeep.git`
+2. Navigate to the project directory: `cd finkeep`
+3. Get dependencies: `flutter pub get`
+4. Run the app: `flutter run`
 
 ## 📞 Contact
 
@@ -79,10 +83,4 @@ For any inquiries or collaboration requests, feel free to reach out
 via [email](mailto:alxayeed@gmail.com) or connect
 on [LinkedIn](https://www.linkedin.com/in/alxayeed).
 
-## 📌 Other Projects
 
-Check out our other awesome projects:
-
-- [Cool Utility Tools](https://github.com/your_username/cool-utility-tools)
-- []()
-- []()

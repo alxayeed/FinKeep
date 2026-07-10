@@ -144,7 +144,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
             ],
           ),
           content: Text(
-            'This action will clear all current local database entries and load realistic mock transactions, budgets, lendings, and investments for screenshots.\n\nAre you sure you want to proceed?',
+            'This action will clear all current local database entries and load realistic mock transactions, budgets, lendings, and investments for demo.\n\nAre you sure you want to proceed?',
             style: TextStyle(
               fontFamily: 'Manrope',
               fontSize: 13.sp,
