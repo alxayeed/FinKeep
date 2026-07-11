@@ -34,17 +34,17 @@ class MockDataService {
     final String twoMonthsAgoDocId = DateFormat('yyyy-MMMM').format(DateTime(currentYear, currentMonth - 2, 15));
     const String recurringDocId = 'recurring';
 
-    // Current Month Budget (45,000 BDT) - Stays within budget
+    // Current Month Budget (55,000 BDT) - Stays within budget
     final currentBudget = {
       'id': currentMonthDocId,
-      'overallBudget': 45000.0,
+      'overallBudget': 55000.0,
       'categoryBudgets': {
-        ExpenseCategory.food.name: 12000.0,
-        ExpenseCategory.transport.name: 6000.0,
-        ExpenseCategory.family.name: 15000.0,
-        ExpenseCategory.personal.name: 6000.0,
-        ExpenseCategory.utilities.name: 4000.0,
-        ExpenseCategory.hangout.name: 5000.0,
+        ExpenseCategory.food.name: 15000.0,
+        ExpenseCategory.transport.name: 8000.0,
+        ExpenseCategory.family.name: 18000.0,
+        ExpenseCategory.personal.name: 8000.0,
+        ExpenseCategory.utilities.name: 6000.0,
+        ExpenseCategory.hangout.name: 7000.0,
       },
       'isRecurring': false,
       'month': currentMonthDocId,
@@ -122,6 +122,34 @@ class MockDataService {
         email: 'anis@example.com',
         notes: 'Landlord',
       ),
+      const LendingPersonModel(
+        id: 'p_5',
+        name: 'Moinul Islam',
+        contactNumber: '+8801612345682',
+        email: 'moinul@example.com',
+        notes: 'Gym Trainer / Partner',
+      ),
+      const LendingPersonModel(
+        id: 'p_6',
+        name: 'Nusrat Jahan',
+        contactNumber: '+8801312345683',
+        email: 'nusrat@example.com',
+        notes: 'Co-worker at Tech Firm',
+      ),
+      const LendingPersonModel(
+        id: 'p_7',
+        name: 'Tariqul Bashar',
+        contactNumber: '+8801412345684',
+        email: 'tariq@example.com',
+        notes: 'Childhood Friend',
+      ),
+      const LendingPersonModel(
+        id: 'p_8',
+        name: 'Farhana Kabir',
+        contactNumber: '+8801212345685',
+        email: 'farhana@example.com',
+        notes: 'Project Freelance Client',
+      ),
     ];
 
     for (var p in persons) {
@@ -131,7 +159,7 @@ class MockDataService {
     // 4. Populate Expenses (Screenful, distributed across 3 months, covering ALL categories & payment methods)
     final expenses = [
       // ==========================================
-      // MONTH 1: CURRENT MONTH (Stays within Budget - Total: ~31,650 BDT)
+      // MONTH 1: CURRENT MONTH (Stays within Budget - Total: ~39,850 BDT)
       // ==========================================
       ExpenseModel(
         id: 'c_exp_1',
@@ -259,9 +287,45 @@ class MockDataService {
         paymentMethod: PaymentType.cash,
         createdAt: relativeDate(14, hour: 10),
       ),
+      ExpenseModel(
+        id: 'c_exp_15',
+        amount: 1100.0,
+        category: ExpenseCategory.personal.name,
+        date: relativeDate(15, hour: 10),
+        description: 'Netflix Premium Monthly Subscription',
+        paymentMethod: PaymentType.card,
+        createdAt: relativeDate(15, hour: 10),
+      ),
+      ExpenseModel(
+        id: 'c_exp_16',
+        amount: 850.0,
+        category: ExpenseCategory.food.name,
+        date: relativeDate(16, hour: 12),
+        description: 'Lunch at Chillox (Burgers)',
+        paymentMethod: PaymentType.mfs,
+        createdAt: relativeDate(16, hour: 12),
+      ),
+      ExpenseModel(
+        id: 'c_exp_17',
+        amount: 5000.0,
+        category: ExpenseCategory.family.name,
+        date: relativeDate(17, hour: 15),
+        description: 'Parents Anniversary Gift Voucher',
+        paymentMethod: PaymentType.transfer,
+        createdAt: relativeDate(17, hour: 15),
+      ),
+      ExpenseModel(
+        id: 'c_exp_18',
+        amount: 1200.0,
+        category: ExpenseCategory.transport.name,
+        date: relativeDate(18, hour: 8),
+        description: 'CNG Auto Fare Commutes',
+        paymentMethod: PaymentType.cash,
+        createdAt: relativeDate(18, hour: 8),
+      ),
 
       // ==========================================
-      // MONTH 2: LAST MONTH (Exceeds Budget 30,000 BDT - Total: ~43,800 BDT)
+      // MONTH 2: LAST MONTH (Exceeds Budget 30,000 BDT - Total: ~51,900 BDT)
       // ==========================================
       ExpenseModel(
         id: 'l_exp_1',
@@ -335,9 +399,18 @@ class MockDataService {
         paymentMethod: PaymentType.card,
         createdAt: relativeDate(35, hour: 14),
       ),
+      ExpenseModel(
+        id: 'l_exp_9',
+        amount: 8100.0,
+        category: ExpenseCategory.food.name,
+        date: relativeDate(38, hour: 13),
+        description: 'Office catering & dynamic meals',
+        paymentMethod: PaymentType.transfer,
+        createdAt: relativeDate(38, hour: 13),
+      ),
 
       // ==========================================
-      // MONTH 3: TWO MONTHS AGO (Within Budget 35,000 BDT - Total: ~16,400 BDT)
+      // MONTH 3: TWO MONTHS AGO (Within Budget 35,000 BDT - Total: ~24,900 BDT)
       // ==========================================
       ExpenseModel(
         id: '2l_exp_1',
@@ -384,6 +457,15 @@ class MockDataService {
         paymentMethod: PaymentType.card,
         createdAt: relativeDate(70, hour: 20),
       ),
+      ExpenseModel(
+        id: '2l_exp_6',
+        amount: 8500.0,
+        category: ExpenseCategory.family.name,
+        date: relativeDate(75, hour: 16),
+        description: 'Annual home deep cleaning service',
+        paymentMethod: PaymentType.transfer,
+        createdAt: relativeDate(75, hour: 16),
+      ),
     ];
 
     for (var exp in expenses) {
@@ -419,6 +501,20 @@ class MockDataService {
         amount: 3000.0,
         paidDate: relativeDate(3, hour: 16),
         notes: 'Partial repayment returned back',
+      ),
+      RepaymentModel(
+        id: 'rep_5',
+        lendingId: 'lend_6',
+        amount: 3000.0,
+        paidDate: relativeDate(6, hour: 10),
+        notes: 'bKash partial payment',
+      ),
+      RepaymentModel(
+        id: 'rep_6',
+        lendingId: 'lend_7',
+        amount: 5000.0,
+        paidDate: relativeDate(10, hour: 11),
+        notes: 'Full lending amount cleared',
       ),
     ];
 
@@ -501,6 +597,51 @@ class MockDataService {
         dueDate: relativeDate(-25, hour: 18), // Future date
         status: LendingStatus.due,
         paymentMethod: PaymentType.transfer,
+        repayments: [],
+      ),
+      // Lending 6: Given, Partial
+      LendingModel(
+        id: 'lend_6',
+        type: LendingType.given,
+        personId: 'p_5',
+        person: persons[4],
+        amount: 6000.0,
+        repaidAmount: 3000.0,
+        description: 'Gym membership advance loan',
+        createdDate: relativeDate(14, hour: 10),
+        dueDate: relativeDate(-10, hour: 18), // Future date
+        status: LendingStatus.partial,
+        paymentMethod: PaymentType.mfs,
+        repayments: [repayments[4]],
+      ),
+      // Lending 7: Taken, Paid
+      LendingModel(
+        id: 'lend_7',
+        type: LendingType.taken,
+        personId: 'p_6',
+        person: persons[5],
+        amount: 5000.0,
+        repaidAmount: 5000.0,
+        description: 'Office launch catering borrow',
+        createdDate: relativeDate(20, hour: 11),
+        dueDate: relativeDate(10, hour: 18),
+        status: LendingStatus.paid,
+        paymentMethod: PaymentType.transfer,
+        repayments: [repayments[5]],
+      ),
+      // Lending 8: Given, Due
+      LendingModel(
+        id: 'lend_8',
+        type: LendingType.given,
+        personId: 'p_7',
+        person: persons[6],
+        amount: 15000.0,
+        repaidAmount: 0.0,
+        description: 'Bike servicing loan',
+        createdDate: relativeDate(2, hour: 12),
+        dueDate: relativeDate(-45, hour: 18), // Future date
+        status: LendingStatus.due,
+        paymentMethod: PaymentType.cash,
         repayments: [],
       ),
     ];
@@ -593,10 +734,125 @@ class MockDataService {
           ),
         ],
       ),
+      InvestmentModel(
+        id: 'inv_4',
+        title: 'Brac Bank FDR',
+        amountInvested: 100000.0,
+        startDate: relativeDate(80),
+        expectedEndDate: relativeDate(-300),
+        platformName: 'BRAC Bank Limited',
+        profitRate: '7.5%',
+        expectedROI: 7500.0,
+        notes: 'Fixed Deposit Receipt for backup reserves.',
+        docLinks: '',
+        transactionId: 'TXN-FDR-9092',
+        transactionMedium: PaymentType.transfer,
+        transactionDate: relativeDate(80),
+        status: InvestmentStatus.active,
+        returns: [],
+      ),
+      InvestmentModel(
+        id: 'inv_5',
+        title: 'LankaBangla DPS',
+        amountInvested: 15000.0,
+        startDate: relativeDate(200),
+        expectedEndDate: relativeDate(-160),
+        platformName: 'LankaBangla Finance',
+        profitRate: '8.5%',
+        expectedROI: 1275.0,
+        notes: 'Monthly savings scheme.',
+        docLinks: '',
+        transactionId: 'TXN-DPS-1011',
+        transactionMedium: PaymentType.transfer,
+        transactionDate: relativeDate(200),
+        status: InvestmentStatus.active,
+        returns: [],
+      ),
     ];
 
     for (var inv in investments) {
       await _localDb.investmentsBox.put(inv.id, inv.toJson());
+    }
+
+    // 8. Populate Incomes
+    final incomes = [
+      {
+        'id': 'inc_1',
+        'amount': 65000.0,
+        'description': 'Monthly Salary (Software Engineer)',
+        'date': relativeDate(5, hour: 10),
+        'categoryId': 'cat_salary',
+        'paymentMethod': PaymentType.transfer.name,
+        'createdAt': relativeDate(5, hour: 10),
+      },
+      {
+        'id': 'inc_2',
+        'amount': 12000.0,
+        'description': 'Freelance website development project',
+        'date': relativeDate(12, hour: 14),
+        'categoryId': 'cat_freelance',
+        'paymentMethod': PaymentType.mfs.name,
+        'createdAt': relativeDate(12, hour: 14),
+      },
+      {
+        'id': 'inc_3',
+        'amount': 5000.0,
+        'description': 'Bonus / Dividends payout',
+        'date': relativeDate(20, hour: 11),
+        'categoryId': 'cat_investment',
+        'paymentMethod': PaymentType.transfer.name,
+        'createdAt': relativeDate(20, hour: 11),
+      },
+      // Previous Month Incomes
+      {
+        'id': 'inc_4',
+        'amount': 65000.0,
+        'description': 'Monthly Salary (Software Engineer)',
+        'date': relativeDate(35, hour: 10),
+        'categoryId': 'cat_salary',
+        'paymentMethod': PaymentType.transfer.name,
+        'createdAt': relativeDate(35, hour: 10),
+      },
+      {
+        'id': 'inc_5',
+        'amount': 8500.0,
+        'description': 'Consultancy payout',
+        'date': relativeDate(40, hour: 16),
+        'categoryId': 'cat_business',
+        'paymentMethod': PaymentType.mfs.name,
+        'createdAt': relativeDate(40, hour: 16),
+      },
+      {
+        'id': 'inc_6',
+        'amount': 15000.0,
+        'description': 'Freelance landing page UI design',
+        'date': relativeDate(18, hour: 13),
+        'categoryId': 'cat_freelance',
+        'paymentMethod': PaymentType.mfs.name,
+        'createdAt': relativeDate(18, hour: 13),
+      },
+      {
+        'id': 'inc_7',
+        'amount': 65000.0,
+        'description': 'Monthly Salary (Software Engineer)',
+        'date': relativeDate(65, hour: 10),
+        'categoryId': 'cat_salary',
+        'paymentMethod': PaymentType.transfer.name,
+        'createdAt': relativeDate(65, hour: 10),
+      },
+      {
+        'id': 'inc_8',
+        'amount': 22000.0,
+        'description': 'Consulting retainer payment',
+        'date': relativeDate(70, hour: 15),
+        'categoryId': 'cat_business',
+        'paymentMethod': PaymentType.transfer.name,
+        'createdAt': relativeDate(70, hour: 15),
+      },
+    ];
+
+    for (var inc in incomes) {
+      await _localDb.incomeBox.put(inc['id'], inc);
     }
   }
 }

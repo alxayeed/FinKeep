@@ -15,9 +15,16 @@ class InvestmentHiveDataSource implements InvestmentLocalDataSource {
 
   @override
   Future<List<InvestmentModel>> getInvestments() async {
-    final list = localDb.investmentsBox.values
-        .map((raw) => InvestmentModel.fromJson(Map<String, dynamic>.from(raw)))
-        .toList();
+    final list = <InvestmentModel>[];
+    for (final raw in localDb.investmentsBox.values) {
+      final data = Map<String, dynamic>.from(raw);
+      if (data['returns'] != null) {
+        data['returns'] = (data['returns'] as List<dynamic>)
+            .map((e) => Map<String, dynamic>.from(e as Map))
+            .toList();
+      }
+      list.add(InvestmentModel.fromJson(data));
+    }
     list.sort((a, b) => b.startDate.compareTo(a.startDate));
     return list;
   }
@@ -26,7 +33,13 @@ class InvestmentHiveDataSource implements InvestmentLocalDataSource {
   Future<InvestmentModel?> getInvestmentById(String id) async {
     final raw = localDb.investmentsBox.get(id);
     if (raw != null) {
-      return InvestmentModel.fromJson(Map<String, dynamic>.from(raw));
+      final data = Map<String, dynamic>.from(raw);
+      if (data['returns'] != null) {
+        data['returns'] = (data['returns'] as List<dynamic>)
+            .map((e) => Map<String, dynamic>.from(e as Map))
+            .toList();
+      }
+      return InvestmentModel.fromJson(data);
     }
     return null;
   }

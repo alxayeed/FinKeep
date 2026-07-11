@@ -77,6 +77,12 @@ class LendingHiveDataSource implements LendingLocalDataSource {
       }
       data['person'] = person.toJson();
 
+      if (data['repayments'] != null) {
+        data['repayments'] = (data['repayments'] as List<dynamic>)
+            .map((e) => Map<String, dynamic>.from(e as Map))
+            .toList();
+      }
+
       list.add(LendingModel.fromJson(data));
     }
 
