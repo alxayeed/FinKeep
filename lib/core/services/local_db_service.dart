@@ -20,19 +20,57 @@ class LocalDbService {
   Future<void> init() async {
     await Hive.initFlutter();
 
+    // Open single, unified boxes without environment suffix
+    _expensesBox = await Hive.openBox<Map>('expenses');
+    _investmentsBox = await Hive.openBox<Map>('investments');
+    _lendingsBox = await Hive.openBox<Map>('lendings');
+    _personsBox = await Hive.openBox<Map>('persons');
+    _repaymentsBox = await Hive.openBox<Map>('repayments');
+    _syncQueueBox = await Hive.openBox<Map>('pending_sync_operations');
+    _budgetsBox = await Hive.openBox<Map>('budgets');
+    _incomeBox = await Hive.openBox<Map>('income');
+    _incomeCategoriesBox = await Hive.openBox<Map>('income_categories');
+    _expenseCategoriesBox = await Hive.openBox<Map>('expense_categories');
+
+    // Run a silent, one-time migration for legacy personal mode users
     final suffix = AppConfig.get('DB_SUFFIX');
-    
-    // Open boxes with environment suffix to prevent data bleed
-    _expensesBox = await Hive.openBox<Map>('expenses$suffix');
-    _investmentsBox = await Hive.openBox<Map>('investments$suffix');
-    _lendingsBox = await Hive.openBox<Map>('lendings$suffix');
-    _personsBox = await Hive.openBox<Map>('persons$suffix');
-    _repaymentsBox = await Hive.openBox<Map>('repayments$suffix');
-    _syncQueueBox = await Hive.openBox<Map>('pending_sync_operations$suffix');
-    _budgetsBox = await Hive.openBox<Map>('budgets$suffix');
-    _incomeBox = await Hive.openBox<Map>('income$suffix');
-    _incomeCategoriesBox = await Hive.openBox<Map>('income_categories$suffix');
-    _expenseCategoriesBox = await Hive.openBox<Map>('expense_categories$suffix');
+    if (suffix == '_personal') {
+      await _migrateLegacyPersonalData();
+    }
+  }
+
+  Future<void> _migrateLegacyPersonalData() async {
+    final boxesToMigrate = [
+      'expenses',
+      'investments',
+      'lendings',
+      'persons',
+      'repayments',
+      'pending_sync_operations',
+      'budgets',
+      'income',
+      'income_categories',
+      'expense_categories',
+    ];
+
+    for (final boxName in boxesToMigrate) {
+      final legacyName = '${boxName}_personal';
+      try {
+        if (await Hive.boxExists(legacyName)) {
+          final legacyBox = await Hive.openBox<Map>(legacyName);
+          if (legacyBox.isNotEmpty) {
+            final mainBox = Hive.isBoxOpen(boxName) ? Hive.box<Map>(boxName) : await Hive.openBox<Map>(boxName);
+            if (mainBox.isEmpty) {
+              await mainBox.putAll(legacyBox.toMap());
+            }
+          }
+          await legacyBox.close();
+          await Hive.deleteBoxFromDisk(legacyName);
+        }
+      } catch (_) {
+        // Fail silently during migration to prevent boot crashes
+      }
+    }
   }
 
   Box<Map> get expensesBox => _expensesBox;

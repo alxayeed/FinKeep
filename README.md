@@ -43,6 +43,7 @@ FinKeep features a modern, responsive user interface styled with harmonious pale
 *   **Budgeting System**: Establish monthly limits overall and per-category with real-time budget-overrun warnings.
 *   **Smart Debt & Lending Tracker**: Log money given to or borrowed from contacts. Tracks partial repayments, due dates, and displays clear visual indicators for overdue debts.
 *   **Investment Portfolio Yields**: Keep record of active investments, FDRs, and mutual funds. Log dividends and track historical ROI.
+*   **Encrypted Backup & Restore**: Export manual backups or enable Daily Auto Backups (`.fkdb`) that run silently in the background, surviving app uninstallations on Android.
 *   **Dual Storage Design**: 
     *   *Default (Offline Mode)*: Standard production builds run 100% offline, storing data locally via Hive boxes.
     *   *Personal Mode*: A toggle configuration allowing real-time Firestore sync and Firebase Auth login.

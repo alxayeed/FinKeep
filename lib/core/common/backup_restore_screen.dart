@@ -252,7 +252,6 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
               physics: const BouncingScrollPhysics(),
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
               children: [
-                if (!AppConfig.isPersonal) ...[
                   // Auto Backup Settings Card
                   Text(
                     'AUTOMATED BACKUP SETTINGS',
@@ -364,7 +363,6 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                     ),
                     SizedBox(height: 24.h),
                   ],
-                ],
 
                 // Actions Card
                 Text(

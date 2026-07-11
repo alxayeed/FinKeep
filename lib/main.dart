@@ -51,33 +51,31 @@ void main() async {
   final localDb = LocalDbService();
   await localDb.init();
 
-  if (!AppConfig.isPersonal) {
-    final prefs = await SharedPreferences.getInstance();
-    final autoBackupEnabled = prefs.getBool('auto_backup_enabled') ?? true;
-    if (autoBackupEnabled) {
-      try {
-        await Workmanager().initialize(
-          callbackDispatcher,
-        );
-        await Workmanager().registerPeriodicTask(
-          'finkeep_daily_backup',
-          'finkeep_daily_backup_task',
-          frequency: const Duration(hours: 24),
-          existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
-          constraints: Constraints(
-            networkType: NetworkType.notRequired,
-            requiresBatteryNotLow: true,
-            requiresCharging: false,
-            requiresDeviceIdle: false,
-            requiresStorageNotLow: false,
-          ),
-        );
-      } catch (_) {
-        // Safe guard against background isolate initialization (e.g., Firebase Messaging)
-      }
+  final prefs = await SharedPreferences.getInstance();
+  final autoBackupEnabled = prefs.getBool('auto_backup_enabled') ?? true;
+  if (autoBackupEnabled) {
+    try {
+      await Workmanager().initialize(
+        callbackDispatcher,
+      );
+      await Workmanager().registerPeriodicTask(
+        'finkeep_daily_backup',
+        'finkeep_daily_backup_task',
+        frequency: const Duration(hours: 24),
+        existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
+        constraints: Constraints(
+          networkType: NetworkType.notRequired,
+          requiresBatteryNotLow: true,
+          requiresCharging: false,
+          requiresDeviceIdle: false,
+          requiresStorageNotLow: false,
+        ),
+      );
+    } catch (_) {
+      // Safe guard against background isolate initialization (e.g., Firebase Messaging)
     }
-    await performStartupBackupCheck();
   }
+  await performStartupBackupCheck();
 
   DependencyInjection.initDependencies();
 
@@ -92,8 +90,6 @@ void main() async {
   final currencyProvider = CurrencyProvider();
   await currencyProvider.loadCurrency();
 
-  // Read onboarding preference and initialize router
-  final prefs = await SharedPreferences.getInstance();
   final seenOnboarding = prefs.getBool('seen_onboarding') ?? false;
   bool requiresUnlock = prefs.getBool('biometric_enabled') ?? false;
 
