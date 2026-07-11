@@ -15,7 +15,6 @@ import '../controller/investment_controller.dart';
 import '../widgets/investment_item.dart';
 import '../widgets/investment_shimmer_list.dart';
 import '../widgets/investment_summary_shimmer.dart';
-import 'add_investment_screen.dart';
 import 'investment_summary_screen.dart';
 
 class InvestmentListScreen extends StatefulWidget {
@@ -133,15 +132,7 @@ class _InvestmentListScreenState extends State<InvestmentListScreen> {
       ),
       floatingActionButton: CustomFAB(
         onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => AddInvestmentScreen(
-                onSubmit: (investment) {
-                  controller.addInvestment(investment);
-                },
-              ),
-            ),
-          );
+          context.pushNamed(AppRoutes.addInvestment);
         },
       ),
     );
