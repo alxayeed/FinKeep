@@ -1,5 +1,6 @@
 1.0.0+19
 [11/07/2026]
+- FIX: TypeError on investment and lending repayments
 - ADD: tab event added in dashboard lending and investment
 - UPDATE: Use remote datasource only when there is an authenticated user
 - FIX: auth state will be shown in snackbar

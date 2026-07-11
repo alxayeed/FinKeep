@@ -1,86 +1,104 @@
-# FinKeep
+# <img src="assets/img/app_Icon.png" width="40" valign="middle"/> FinKeep
 
-![Feature Image](/demo/banner.png)
+![Feature Image](demo/banner.png)
 
-Take complete control of your finances with FinKeep, a secure offline personal finance tracker. It
-keeps your sensitive records on your device without using cloud sync, tracking, or bank credentials.
-The app brings your daily expenses, monthly budgets, debt tracking, and investments into one simple
-dashboard.
+Take complete control of your finances with **FinKeep**, a secure, local-first personal finance tracker. Designed with absolute privacy in mind, FinKeep keeps your sensitive financial records stored securely on your device—without requiring bank credentials or exposing your data to unverified cloud tracking.
 
-For tracking expenses, you can record daily transactions quickly using categories like food,
-transport, and utilities. You can tag items by payment methods like cash, card, or mobile banking,
-and set daily reminders to log your habits
+For users who want cross-device availability, FinKeep offers a **Personal Cloud Sync** toggle powered by Firebase. Whether you choose pure local-first offline storage or secure personal cloud backups, FinKeep brings your daily expenses, monthly budgets, debt tracking, and investment yields into one premium, clean, and intuitive dashboard.
 
-## 🎥 Preview
+---
+
+## 📷 App Preview & User Interface
+
+FinKeep features a modern, responsive user interface styled with harmonious palettes, sleek dark mode support, and readable data typography.
 
 <table>
   <tr>
-    <td><img src="demo/Expense Summary.png" width="100%" height="70%" alt="Home Page"/></td>
-    <td><img src="demo/exp_list.png" width="100%" height="70%" alt="Expense List"/></td>
-    <td><img src="demo/exp_add.png" width="100%" height="70%" alt="Booking Details"/></td>
+    <td align="center" width="33%"><b>Dashboard</b><br/><img src="demo/dashboard.png" width="100%" alt="Dashboard"/></td>
+    <td align="center" width="33%"><b>Monthly Budget</b><br/><img src="demo/budget.png" width="100%" alt="Budget"/></td>
+    <td align="center" width="33%"><b>Expense List</b><br/><img src="demo/expense_list.png" width="100%" alt="Expense List"/></td>
   </tr>
   <tr>
-    <td><img src="demo/Lend Given.png" width="100%" height="70%" alt="Home Page"/></td>
-    <td><img src="demo/Lend Taken.png" width="100%" height="70%" alt="Expense List"/></td>
-    <td><img src="demo/Settings.png" width="100%" height="70%" alt="Booking Details"/></td>
+    <td align="center" width="33%"><b>Expense Summary</b><br/><img src="demo/expense_summary.png" width="100%" alt="Expense Summary"/></td>
+    <td align="center" width="33%"><b>Detailed Reports</b><br/><img src="demo/expense_report.png" width="100%" alt="Expense Report"/></td>
+    <td align="center" width="33%"><b>Add Expense</b><br/><img src="demo/add_expense.png" width="100%" alt="Add Expense"/></td>
   </tr>
-  <!-- <tr>
-    <td><img src="demo/Expense Summary.png" width="100%" height="70%" alt="Home Page"/></td>
-    <td><img src="demo/exp_list.png" width="100%" height="70%" alt="Expense List"/></td>
-    <td><img src="demo/exp_add.png" width="100%" height="70%" alt="Booking Details"/></td>
-  </tr> -->
+  <tr>
+    <td align="center" width="33%"><b>Income Summary</b><br/><img src="demo/income_summary.png" width="100%" alt="Income Summary"/></td>
+    <td align="center" width="33%"><b>Income List</b><br/><img src="demo/income_list.png" width="100%" alt="Income List"/></td>
+    <td align="center" width="33%"><b>App Settings</b><br/><img src="demo/settings.png" width="100%" alt="Settings"/></td>
+  </tr>
+  <tr>
+    <td align="center" width="33%"><b>Lend Tracker (Given)</b><br/><img src="demo/lend_given.png" width="100%" alt="Lend Given"/></td>
+    <td align="center" width="33%"><b>Lend Tracker (Taken)</b><br/><img src="demo/lend_taken.png" width="100%" alt="Lend Taken"/></td>
+    <td align="center" width="33%"><b>Record Debt/Repayment</b><br/><img src="demo/add_lending.png" width="100%" alt="Add Lending"/></td>
+  </tr>
 </table>
-<br/>
 
-### 🚀 Live Link
+---
 
-🟢 [Google Play Store](https://play.google.com/store/apps/details?id=com.raindropstudio.finkeep)
+## 🚀 Key Features
 
-## 🚀 Features
+*   **Expense & Income Tracking**: Log transactions in seconds. Categorize with customizable headers and emojis.
+*   **Budgeting System**: Establish monthly limits overall and per-category with real-time budget-overrun warnings.
+*   **Smart Debt & Lending Tracker**: Log money given to or borrowed from contacts. Tracks partial repayments, due dates, and displays clear visual indicators for overdue debts.
+*   **Investment Portfolio Yields**: Keep record of active investments, FDRs, and mutual funds. Log dividends and track historical ROI.
+*   **Dual Storage Design**: 
+    *   *Default (Offline Mode)*: Standard production builds run 100% offline, storing data locally via Hive boxes.
+    *   *Personal Mode*: A toggle configuration allowing real-time Firestore sync and Firebase Auth login.
 
-- Expense Tracking: Log daily expenses and income with categories.
-- Budget Management: Set monthly limits and monitor spending.
-- Track your income of different categories
-- Configure custom income and expense category
-- Keep track of lends with smart tracking
-- Keep an eye on your investments
-- Cloud Sync: Securely backup data using Firebase.
+---
 
-### 🏛️ Architecture/Design
+## 🏛️ Architecture & Tech Stack
 
-- Clean Architecture
+FinKeep is architected to showcase production-grade Flutter design patterns, making it highly extensible, maintainable, and test-ready.
 
-## 🛠️ Tech Stack
+*   **Design Pattern**: Clean Architecture (separated into **Data**, **Domain**, and **Presentation** layers).
+*   **State Management & DI**: [GetX](https://pub.dev/packages/get) for reactive controllers, state bindings, and dependency injection.
+*   **Local Storage**: [Hive](https://pub.dev/packages/hive) for ultra-fast, local-first key-value storage.
+*   **Cloud Infrastructure**: Firebase Auth for login management and Cloud Firestore for document storage.
+*   **Notifications**: Local scheduler notifications for daily reminders and Firebase Cloud Messaging (FCM) for remote alerts.
+*   **Routing**: Declarative navigation via GoRouter.
 
-- Flutter
-- GetX
-- Firebase
-- Hive
-- Local Notification
-- Push Notification
+---
 
-[//]: # (## 📃 Motivation)
+## 🚧 Setup & Local Installation
 
-## 📦 Packages Used
+### Prerequisites
+*   Flutter SDK (version `>=3.0.0`)
+*   Android Studio / Xcode (for device emulators)
 
-- [Firebase core](https://pub.dev/packages/firebase_core)
-- [GetX](https://pub.dev/packages/get)
-- [Hive](https://pub.dev/packages/hive)
-- [Firebase Messaging](https://pub.dev/packages/firebase_messaging)
-- [Flutter Local Notifications](https://pub.dev/packages/flutter_local_notifications)
-- firebase_messaging
+### Step-by-Step Installation
+1.  **Clone the Repository**:
+    ```bash
+    git clone https://github.com/alxayeed/finkeep.git
+    cd finkeep
+    ```
 
-## 🚧 Installation & Usage
+2.  **Configure Environment**:
+    Define your variables in `.env.prod` or `.env.personal`.
 
-1. Clone the repository: `git clone https://github.com/alxayeed/finkeep.git`
-2. Navigate to the project directory: `cd finkeep`
-3. Get dependencies: `flutter pub get`
-4. Run the app: `flutter run`
+3.  **Get Package Dependencies**:
+    ```bash
+    flutter pub get
+    ```
 
-## 📞 Contact
+4.  **Run the Build Runner (for generated serialization files)**:
+    ```bash
+    dart run build_runner build --delete-conflicting-outputs
+    ```
 
-For any inquiries or collaboration requests, feel free to reach out
-via [email](mailto:alxayeed@gmail.com) or connect
-on [LinkedIn](https://www.linkedin.com/in/alxayeed).
+5.  **Launch FinKeep**:
+    ```bash
+    flutter run
+    ```
 
+---
 
+## 📞 Contact & Portfolio Links
+
+For queries, code walkthroughs, or collaboration opportunities, feel free to reach out:
+
+*   **Email**: [alxayeed@gmail.com](mailto:alxayeed@gmail.com)
+*   **LinkedIn**: [alxayeed](https://www.linkedin.com/in/alxayeed)
+*   **Portfolio Website**: [alxayeed.github.io](https://alxayeed.github.io)
