@@ -12,10 +12,30 @@ import 'package:intl/intl.dart';
 
 import '../controllers/budget_controller.dart';
 
-class SetMonthlyBudgetScreen extends StatelessWidget {
+class SetMonthlyBudgetScreen extends StatefulWidget {
   final DateTime month;
 
   const SetMonthlyBudgetScreen({super.key, required this.month});
+
+  @override
+  State<SetMonthlyBudgetScreen> createState() => _SetMonthlyBudgetScreenState();
+}
+
+class _SetMonthlyBudgetScreenState extends State<SetMonthlyBudgetScreen> {
+  late final BudgetController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.find<BudgetController>();
+    controller.initUi(widget.month);
+  }
+
+  @override
+  void dispose() {
+    controller.disposeUi();
+    super.dispose();
+  }
 
   IconData _getIconForCategory(ExpenseCategory category) {
     switch (category) {
@@ -65,18 +85,10 @@ class SetMonthlyBudgetScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<BudgetController>();
-    controller.initUi(month);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final monthLabel = DateFormat('MMMM yyyy').format(month);
+    final monthLabel = DateFormat('MMMM yyyy').format(widget.month);
 
-    return PopScope(
-      onPopInvokedWithResult: (didPop, result) {
-        if (didPop) {
-          controller.disposeUi();
-        }
-      },
-      child: Scaffold(
+    return Scaffold(
         backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
         appBar: AppBar(
           backgroundColor: isDark ? AppColors.bgDark : Colors.white,
@@ -660,7 +672,6 @@ class SetMonthlyBudgetScreen extends StatelessWidget {
             ),
           ],
         ),
-      ),
     );
   }
 }

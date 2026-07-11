@@ -9,15 +9,25 @@ import 'package:intl/intl.dart';
 import '../controllers/budget_controller.dart';
 import '../widgets/historical_budget_shimmer.dart';
 
-class MissingBudgetScreen extends StatelessWidget {
+class MissingBudgetScreen extends StatefulWidget {
   const MissingBudgetScreen({super.key});
 
   @override
+  State<MissingBudgetScreen> createState() => _MissingBudgetScreenState();
+}
+
+class _MissingBudgetScreenState extends State<MissingBudgetScreen> {
+  late final BudgetController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.find<BudgetController>();
+    controller.loadPastMonthsBudgets();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final controller = Get.find<BudgetController>();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      controller.loadPastMonthsBudgets();
-    });
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(

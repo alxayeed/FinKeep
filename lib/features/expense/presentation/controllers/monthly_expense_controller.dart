@@ -200,8 +200,10 @@ class MonthlyExpenseController extends GetxController {
   bool _isCurrentMonthDataFetched(DateTime month) {
     if (expenses.isEmpty) return false;
     final currentMonth = month.month;
+    final currentYear = month.year;
     final firstExpenseMonth = expenses.first.date.month;
-    return currentMonth == firstExpenseMonth;
+    final firstExpenseYear = expenses.first.date.year;
+    return currentMonth == firstExpenseMonth && currentYear == firstExpenseYear;
   }
 
   void updateSelectedMonth(DateTime newMonth) {

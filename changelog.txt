@@ -1,3 +1,11 @@
+1.0.0+19
+[11/07/2026]
+- OPTIMIZE: resolve critical performance bottlenecks, memory leaks, and logical calendar bugs
+- Convert SetMonthlyBudgetScreen to StatefulWidget to dispose text controllers and prevent memory/listener leaks.
+- Convert MissingBudgetScreen to StatefulWidget and move database loads to initState to fix the infinite loading loop.
+- Pre-group repayments by lending ID in BackupService to optimize database sync traversal complexity from O(N*M) to O(N+M).
+- Correct _isCurrentMonthDataFetched in MonthlyExpenseController to compare both month and year, resolving date navigation collisions.
+
 1.0.0+18
 [10/07/2026]
 - REMOVE: feedback

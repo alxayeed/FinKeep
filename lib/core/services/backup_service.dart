@@ -88,6 +88,17 @@ class BackupService {
     final lendingsColName = AppStrings.lendingsCollection;
     final lendingsSnapshot = await firestore.collection(lendingsColName).get();
     await localDb.lendingsBox.clear();
+
+    // Pre-group repayments by lendingId beforehand to achieve O(N + M) lookup complexity
+    final Map<String, List<Map<String, dynamic>>> repaymentsByLendingId = {};
+    for (final rawRepayment in localDb.repaymentsBox.values) {
+      final map = Map<String, dynamic>.from(rawRepayment);
+      final lendingId = map['lendingId'] as String?;
+      if (lendingId != null) {
+        repaymentsByLendingId.putIfAbsent(lendingId, () => []).add(map);
+      }
+    }
+
     for (final doc in lendingsSnapshot.docs) {
       final data = doc.data();
       data['id'] = doc.id;
@@ -104,11 +115,7 @@ class BackupService {
         };
       }
 
-      final lendingRepayments = localDb.repaymentsBox.values
-          .where((r) => r['lendingId'] == doc.id)
-          .map((r) => Map<String, dynamic>.from(r))
-          .toList();
-      data['repayments'] = lendingRepayments;
+      data['repayments'] = repaymentsByLendingId[doc.id] ?? [];
 
       final model = LendingModel.fromFirestoreMap(data);
       final modelJson = model.toJson();
