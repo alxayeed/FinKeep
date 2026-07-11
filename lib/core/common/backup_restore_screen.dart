@@ -1,16 +1,18 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:finkeep/core/constants/app_strings.dart';
 import 'package:finkeep/core/common/widgets/custom_app_bar.dart';
 import 'package:finkeep/core/error/exception_handler.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/services/backup_service.dart';
 import 'package:finkeep/core/services/local_db_service.dart';
-import 'package:finkeep/core/services/mock_data_service.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:workmanager/workmanager.dart';
+import 'package:finkeep/core/common/widgets/app_switch_button.dart';
+import 'package:finkeep/core/services/background_backup_service.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../config/app_config.dart';
 
@@ -25,110 +27,103 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
   final LocalDbService _localDb = LocalDbService();
   late final BackupService _backupService;
 
-  int _expenseCount = 0;
-  int _investmentCount = 0;
-  int _lendingCount = 0;
   bool _isLoading = false;
   String _loadingText = '';
+
+  bool _autoBackupEnabled = true;
+  String _lastAutoBackupTimeStr = 'Never';
+  String _lastAutoBackupPathStr = 'None';
 
   @override
   void initState() {
     super.initState();
     _backupService = BackupService(localDb: _localDb);
-    _loadStats();
+    _loadAutoBackupConfig();
   }
 
-  Future<void> _loadStats() async {
-    try {
-      if (AppConfig.useRemote) {
-        final firestore = FirebaseFirestore.instance;
-        final expensesColName = AppConfig.isPersonal ? 'expenses' : 'expenses_dev';
-        final investmentsColName = AppConfig.isPersonal
-            ? AppStrings.investmentsCollection
-            : '${AppStrings.investmentsCollection}_dev';
-        final lendingsColName = AppConfig.useRemote
-            ? AppStrings.lendingsCollection
-            : '${AppStrings.lendingsCollection}_dev';
-
-        final expensesCount = await firestore.collection(expensesColName).count().get();
-        final investmentsCount = await firestore.collection(investmentsColName).count().get();
-        final lendingsCount = await firestore.collection(lendingsColName).count().get();
-
-        if (mounted) {
-          setState(() {
-            _expenseCount = expensesCount.count ?? 0;
-            _investmentCount = investmentsCount.count ?? 0;
-            _lendingCount = lendingsCount.count ?? 0;
-          });
+  Future<void> _loadAutoBackupConfig() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _autoBackupEnabled = prefs.getBool('auto_backup_enabled') ?? true;
+      final lastTime = prefs.getString('last_auto_backup_time');
+      if (lastTime != null) {
+        try {
+          final dt = DateTime.parse(lastTime);
+          _lastAutoBackupTimeStr = '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+        } catch (_) {
+          _lastAutoBackupTimeStr = lastTime;
         }
       } else {
-        if (mounted) {
-          setState(() {
-            _expenseCount = _localDb.expensesBox.length;
-            _investmentCount = _localDb.investmentsBox.length;
-            _lendingCount = _localDb.lendingsBox.length;
-          });
-        }
+        _lastAutoBackupTimeStr = 'Never';
       }
-    } catch (e, stackTrace) {
-      ExceptionHandler.handle(e, stackTrace, 'BackupRestoreScreen._loadStats');
-      if (mounted) {
-        setState(() {
-          _expenseCount = _localDb.expensesBox.length;
-          _investmentCount = _localDb.investmentsBox.length;
-          _lendingCount = _localDb.lendingsBox.length;
-        });
-      }
+      _lastAutoBackupPathStr = prefs.getString('last_auto_backup_path') ?? 'None';
+    });
+  }
+
+  Future<void> _toggleAutoBackup(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('auto_backup_enabled', enabled);
+    setState(() {
+      _autoBackupEnabled = enabled;
+    });
+
+    if (enabled) {
+      await Workmanager().initialize(
+        callbackDispatcher,
+      );
+      await Workmanager().registerPeriodicTask(
+        'finkeep_daily_backup',
+        'finkeep_daily_backup_task',
+        frequency: const Duration(hours: 24),
+        existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
+        constraints: Constraints(
+          networkType: NetworkType.notRequired,
+          requiresBatteryNotLow: true,
+          requiresCharging: false,
+          requiresDeviceIdle: false,
+          requiresStorageNotLow: false,
+        ),
+      );
+    } else {
+      await Workmanager().cancelByUniqueName('finkeep_daily_backup');
     }
   }
+
+
 
   Future<void> _exportBackup() async {
     setState(() {
       _isLoading = true;
       _loadingText = 'Generating backup...';
     });
-    String? savePath;
     try {
-      final bytes = await _backupService.exportEncryptedBackup(
-        onProgress: (progress) {
-          setState(() {
-            _loadingText = progress;
-          });
-        },
-      );
+      final success = await BackgroundBackupService.performBackup();
+      if (success) {
+        await _loadAutoBackupConfig();
+        final backupFile = await BackgroundBackupService.getBackupFile();
 
-      final dateStr = DateTime.now().toIso8601String().split('T').first;
-      final fileName = 'finkeep_backup_$dateStr.spdb';
-      final String? outputFile = await FilePicker.platform.saveFile(
-        dialogTitle: 'Select location to save backup:',
-        fileName: fileName,
-        bytes: bytes,
-      );
-
-      savePath = outputFile;
-
-      if (mounted) {
-        if (savePath != null) {
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Backup saved successfully to:\n$savePath'),
+              content: Text('Backup saved successfully to:\n${backupFile.path}'),
               backgroundColor: AppColors.success,
             ),
           );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Backup save cancelled.'),
-              backgroundColor: Colors.orange,
-            ),
+
+          // Prompt the user to share or save the file outside the sandbox
+          await Share.shareXFiles(
+            [XFile(backupFile.path)],
+            subject: 'FinKeep Backup',
           );
         }
+      } else {
+        throw Exception('Failed to generate backup.');
       }
     } catch (e, stackTrace) {
       ExceptionHandler.handle(
         e,
         stackTrace,
-        'BackupRestoreScreen._exportBackup${savePath != null ? ' (file: $savePath)' : ''}',
+        'BackupRestoreScreen._exportBackup',
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -136,120 +131,6 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
             content: Text(
               'Export failed: ${e.toString().replaceAll('Exception: ', '')}',
             ),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _populateMockData() async {
-    final bool? confirm = await showDialog<bool>(
-      context: context,
-      builder: (dialogCtx) {
-        final isDark = Theme.of(dialogCtx).brightness == Brightness.dark;
-        final textCol = isDark ? Colors.white : const Color(0xFF0F172A);
-        final subtextCol = isDark ? Colors.white60 : const Color(0xFF64748B);
-
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.r),
-          ),
-          backgroundColor: isDark ? AppColors.cardDark : Colors.white,
-          title: Row(
-            children: [
-              const Icon(Icons.warning_amber_rounded, color: Colors.orange),
-              SizedBox(width: 8.w),
-              Text(
-                'Populate Mock Data',
-                style: TextStyle(
-                  fontFamily: 'Manrope',
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16.sp,
-                  color: textCol,
-                ),
-              ),
-            ],
-          ),
-          content: Text(
-            'This action will clear all current local database entries and load realistic mock transactions, budgets, lendings, and investments for demo.\n\nAre you sure you want to proceed?',
-            style: TextStyle(
-              fontFamily: 'Manrope',
-              fontSize: 13.sp,
-              color: subtextCol,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogCtx, false),
-              child: Text(
-                'Cancel',
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontFamily: 'Manrope',
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13.sp,
-                ),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(dialogCtx, true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryTeal,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-              ),
-              child: Text(
-                'Yes, Populate',
-                style: TextStyle(
-                  fontFamily: 'Manrope',
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13.sp,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (confirm != true) return;
-
-    setState(() {
-      _isLoading = true;
-      _loadingText = 'Clearing and generating mock data...';
-    });
-
-    try {
-      await MockDataService.populateMockData();
-      _loadStats();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Realistic mock data populated successfully!'),
-            backgroundColor: AppColors.success,
-          ),
-        );
-      }
-    } catch (e, stackTrace) {
-      ExceptionHandler.handle(
-        e,
-        stackTrace,
-        'BackupRestoreScreen._populateMockData',
-      );
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to populate mock data: ${e.toString()}'),
             backgroundColor: AppColors.error,
           ),
         );
@@ -281,8 +162,8 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
       }
 
       selectedFilePath = result.files.single.path!;
-      if (!selectedFilePath.endsWith('.spdb')) {
-        throw Exception('Please select a valid .spdb backup file.');
+      if (!selectedFilePath.endsWith('.spdb') && !selectedFilePath.endsWith('.fkdb')) {
+        throw Exception('Please select a valid .spdb or .fkdb backup file.');
       }
 
       final file = File(selectedFilePath);
@@ -299,7 +180,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
           });
         },
       );
-      _loadStats();
+      _loadAutoBackupConfig();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -333,52 +214,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
     }
   }
 
-  Widget _buildStatRow(String label, int count, IconData icon, Color color) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Container(
-      margin: EdgeInsets.only(bottom: 8.h),
-      padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.cardDark : Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: color, size: 20.sp),
-          SizedBox(width: 12.w),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 13.sp,
-              fontFamily: 'Manrope',
-              fontWeight: FontWeight.w600,
-              color: isDark ? Colors.white : const Color(0xFF0F172A),
-            ),
-          ),
-          const Spacer(),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-            child: Text(
-              '$count records',
-              style: TextStyle(
-                fontSize: 11.sp,
-                fontFamily: 'Manrope',
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -400,7 +236,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                   const CircularProgressIndicator(color: AppColors.primaryTeal),
                   SizedBox(height: 16.h),
                   Text(
-                    _loadingText,
+                     _loadingText,
                     style: TextStyle(
                       fontFamily: 'Manrope',
                       fontSize: 14.sp,
@@ -416,38 +252,119 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
               physics: const BouncingScrollPhysics(),
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
               children: [
-                // Statistics
-                Text(
-                  AppConfig.useRemote ? 'REMOTE DATABASE STATE' : 'LOCAL DATABASE STATE',
-                  style: TextStyle(
-                    fontSize: 11.sp,
-                    fontFamily: 'Manrope',
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2,
-                    color: subtitleColor,
+                if (!AppConfig.isPersonal) ...[
+                  // Auto Backup Settings Card
+                  Text(
+                    'AUTOMATED BACKUP SETTINGS',
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      fontFamily: 'Manrope',
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                      color: subtitleColor,
+                    ),
                   ),
-                ),
-                SizedBox(height: 10.h),
-                _buildStatRow(
-                  'Expenses',
-                  _expenseCount,
-                  Icons.payment_outlined,
-                  AppColors.primaryTeal,
-                ),
-                _buildStatRow(
-                  'Investments',
-                  _investmentCount,
-                  Icons.trending_up,
-                  Colors.orange,
-                ),
-                _buildStatRow(
-                  'Lendings',
-                  _lendingCount,
-                  Icons.handshake_outlined,
-                  Colors.purple,
-                ),
-
-                SizedBox(height: 24.h),
+                  SizedBox(height: 8.h),
+                  Container(
+                    padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.cardDark : Colors.white,
+                      borderRadius: BorderRadius.circular(16.r),
+                      border: Border.all(
+                        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Daily Auto Backup',
+                                style: TextStyle(
+                                  fontSize: 13.sp,
+                                  fontFamily: 'Manrope',
+                                  fontWeight: FontWeight.w600,
+                                  color: textColor,
+                                ),
+                              ),
+                              SizedBox(height: 4.h),
+                              Text(
+                                'Silently back up your data every 24 hours',
+                                style: TextStyle(
+                                  fontSize: 11.sp,
+                                  fontFamily: 'Manrope',
+                                  color: subtitleColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                         ),
+                        AppSwitchButton(
+                          value: _autoBackupEnabled,
+                          onChanged: _toggleAutoBackup,
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+                  
+                  // Last Backup Info Card
+                  if (_autoBackupEnabled) ...[
+                    Container(
+                      padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
+                      decoration: BoxDecoration(
+                        color: isDark ? AppColors.cardDark : Colors.white,
+                        borderRadius: BorderRadius.circular(16.r),
+                        border: Border.all(
+                          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.history, color: AppColors.primaryTeal, size: 16.sp),
+                              SizedBox(width: 8.w),
+                              Text(
+                                'Last Backup: $_lastAutoBackupTimeStr',
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  fontFamily: 'Manrope',
+                                  fontWeight: FontWeight.w600,
+                                  color: textColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 8.h),
+                          Text(
+                            'Location:',
+                            style: TextStyle(
+                              fontSize: 11.sp,
+                              fontFamily: 'Manrope',
+                              fontWeight: FontWeight.bold,
+                              color: subtitleColor,
+                            ),
+                          ),
+                          SizedBox(height: 2.h),
+                          SelectableText(
+                            _lastAutoBackupPathStr,
+                            style: TextStyle(
+                              fontSize: 10.sp,
+                              fontFamily: 'Courier',
+                              color: isDark ? Colors.white70 : Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 24.h),
+                  ],
+                ],
 
                 // Actions Card
                 Text(
@@ -462,7 +379,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                 ),
                 SizedBox(height: 8.h),
                 Text(
-                  'Export your database into a secure, encrypted .spdb file. You can save it to your device or share it via messages, mail, or cloud storage.',
+                  'Export your database into a secure, encrypted .fkdb file. You can save it to your device or share it via messages, mail, or cloud storage.',
                   style: TextStyle(
                     fontSize: 12.sp,
                     fontFamily: 'Manrope',
@@ -506,8 +423,8 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                 SizedBox(height: 8.h),
                 Text(
                   AppConfig.isPersonal
-                      ? 'Select an encrypted .spdb backup file to merge with your cloud database. Existing records will be updated and new records will be added.'
-                      : 'Select an encrypted .spdb backup file to restore your database. This will merge the backup items with your current local data.',
+                      ? 'Select an encrypted .spdb or .fkdb backup file to merge with your cloud database. Existing records will be updated and new records will be added.'
+                      : 'Select an encrypted .spdb or .fkdb backup file to restore your database. This will merge the backup items with your current local data.',
                   style: TextStyle(
                     fontSize: 12.sp,
                     fontFamily: 'Manrope',

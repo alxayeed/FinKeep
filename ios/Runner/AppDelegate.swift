@@ -1,5 +1,6 @@
 import Flutter
 import UIKit
+import workmanager
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
@@ -10,6 +11,11 @@ import UIKit
     if #available(iOS 10.0, *) {
       UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
     }
+    
+    WorkmanagerPlugin.setPluginRegistrantCallback { registry in
+      GeneratedPluginRegistrant.register(with: registry)
+    }
+    
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 

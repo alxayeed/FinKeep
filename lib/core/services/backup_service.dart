@@ -161,7 +161,17 @@ class BackupService {
     final key = encrypt.Key(Uint8List.fromList(_keyBytes));
     final iv = encrypt.IV(Uint8List.fromList(_ivBytes));
     final encrypter = encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.cbc));
-    final encrypted = encrypt.Encrypted(encryptedData);
+    
+    encrypt.Encrypted encrypted;
+    try {
+      final possibleBase64 = utf8.decode(encryptedData).trim();
+      // Validate it's indeed valid base64
+      base64.decode(possibleBase64);
+      encrypted = encrypt.Encrypted.fromBase64(possibleBase64);
+    } catch (_) {
+      encrypted = encrypt.Encrypted(encryptedData);
+    }
+    
     final decryptedJson = encrypter.decrypt(encrypted, iv: iv);
     await importBackup(decryptedJson, onProgress: onProgress);
   }
@@ -223,6 +233,22 @@ class BackupService {
 
     onProgress?.call('Merging local budgets...');
     await _importToBox(localDb.budgetsBox, data['budgets'] as List);
+
+    // Merge new optional income and category boxes if they exist
+    if (data.containsKey('income') && data['income'] is List) {
+      onProgress?.call('Merging local income logs...');
+      await _importToBox(localDb.incomeBox, data['income'] as List);
+    }
+
+    if (data.containsKey('income_categories') && data['income_categories'] is List) {
+      onProgress?.call('Merging local income categories...');
+      await _importToBox(localDb.incomeCategoriesBox, data['income_categories'] as List);
+    }
+
+    if (data.containsKey('expense_categories') && data['expense_categories'] is List) {
+      onProgress?.call('Merging local expense categories...');
+      await _importToBox(localDb.expenseCategoriesBox, data['expense_categories'] as List);
+    }
 
     // If cloud mode is active, merge into Firestore
     if (AppConfig.isPersonal) {

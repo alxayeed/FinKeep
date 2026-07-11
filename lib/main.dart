@@ -8,6 +8,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:workmanager/workmanager.dart';
+import 'core/services/background_backup_service.dart';
 
 import 'core/common/biometric_lock_screen.dart';
 import 'core/config/app_config.dart';
@@ -48,6 +50,34 @@ void main() async {
   // Initialize offline local database (Hive)
   final localDb = LocalDbService();
   await localDb.init();
+
+  if (!AppConfig.isPersonal) {
+    final prefs = await SharedPreferences.getInstance();
+    final autoBackupEnabled = prefs.getBool('auto_backup_enabled') ?? true;
+    if (autoBackupEnabled) {
+      try {
+        await Workmanager().initialize(
+          callbackDispatcher,
+        );
+        await Workmanager().registerPeriodicTask(
+          'finkeep_daily_backup',
+          'finkeep_daily_backup_task',
+          frequency: const Duration(hours: 24),
+          existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
+          constraints: Constraints(
+            networkType: NetworkType.notRequired,
+            requiresBatteryNotLow: true,
+            requiresCharging: false,
+            requiresDeviceIdle: false,
+            requiresStorageNotLow: false,
+          ),
+        );
+      } catch (_) {
+        // Safe guard against background isolate initialization (e.g., Firebase Messaging)
+      }
+    }
+    await performStartupBackupCheck();
+  }
 
   DependencyInjection.initDependencies();
 
@@ -172,5 +202,26 @@ class _MainAppState extends State<MainApp> {
         );
       },
     );
+  }
+}
+
+Future<void> performStartupBackupCheck() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final autoBackupEnabled = prefs.getBool('auto_backup_enabled') ?? true;
+    if (!autoBackupEnabled) return;
+
+    final backupFile = await BackgroundBackupService.getBackupFile();
+    if (await backupFile.exists()) {
+      final stat = await backupFile.stat();
+      final now = DateTime.now();
+      if (now.difference(stat.modified).inHours >= 24) {
+        await BackgroundBackupService.performBackup();
+      }
+    } else {
+      await BackgroundBackupService.performBackup();
+    }
+  } catch (_) {
+    // Fail silently to prevent app boot crash
   }
 }
