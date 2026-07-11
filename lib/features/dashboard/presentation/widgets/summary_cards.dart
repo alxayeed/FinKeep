@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
+import 'package:finkeep/core/routes/app_router.dart';
 import 'package:finkeep/core/extensions/double_ext.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
 import 'package:finkeep/core/config/app_config.dart';
@@ -33,6 +35,7 @@ class SummaryCards extends StatelessWidget {
                 value: '${(data.totalGivenDue - data.totalReceivedDue).toCurrency()} $symbol',
                 icon: FontAwesomeIcons.handshake,
                 color: Colors.orange,
+                onTap: () => context.goNamed(AppRoutes.lendings),
               ),
             ),
             if (AppConfig.isPersonal) ...[
@@ -44,6 +47,7 @@ class SummaryCards extends StatelessWidget {
                   value: '${(data.totalInvested + data.totalInvestmentProfit).toCurrency()} $symbol',
                   icon: FontAwesomeIcons.chartLine,
                   color: Colors.teal,
+                  onTap: () => context.goNamed(AppRoutes.investments),
                 ),
               ),
             ],
@@ -198,6 +202,7 @@ class SummaryCards extends StatelessWidget {
                 value: '${(data.totalGivenDue - data.totalReceivedDue).toCurrency()} $symbol',
                 icon: FontAwesomeIcons.handshake,
                 color: Colors.orange,
+                onTap: () => context.goNamed(AppRoutes.lendings),
               ),
               if (AppConfig.isPersonal)
                 _buildMiniCard(
@@ -206,6 +211,7 @@ class SummaryCards extends StatelessWidget {
                   value: '${(data.totalInvested + data.totalInvestmentProfit).toCurrency()} $symbol',
                   icon: FontAwesomeIcons.chartLine,
                   color: Colors.teal,
+                  onTap: () => context.goNamed(AppRoutes.investments),
                 ),
             ],
           ),
@@ -303,9 +309,11 @@ class SummaryCards extends StatelessWidget {
     required String value,
     required FaIconData icon,
     required Color color,
+    VoidCallback? onTap,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Container(
+    
+    Widget card = Ink(
       padding: const EdgeInsets.all(12),
       height: 98,
       decoration: BoxDecoration(
@@ -343,6 +351,19 @@ class SummaryCards extends StatelessWidget {
           ),
         ],
       ),
+    );
+
+    if (onTap != null) {
+      card = InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: card,
+      );
+    }
+
+    return Material(
+      color: Colors.transparent,
+      child: card,
     );
   }
 }
