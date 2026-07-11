@@ -64,7 +64,7 @@ class HomeScaffold extends StatelessWidget {
       body: child,
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: index,
-        style: CustomNavBarStyle.floatingPill,
+        style: CustomNavBarStyle.indicatorLine,
         items: navItems,
         onTap: (i) {
           if (i == 0) context.goNamed(AppRoutes.home);

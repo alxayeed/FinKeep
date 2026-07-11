@@ -50,13 +50,17 @@ class MonthlyStandingChart extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'MONTHLY STANDING',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.grey,
-                  letterSpacing: 1.1,
+              const Expanded(
+                child: Text(
+                  'MONTHLY STANDING',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.grey,
+                    letterSpacing: 1.1,
+                  ),
                 ),
               ),
               const SizedBox(width: 8),

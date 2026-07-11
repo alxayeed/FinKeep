@@ -1,5 +1,6 @@
 1.0.0+19
 [11/07/2026]
+- UPDATE: Bottom nav bar updated
 - FIX: nav bar removed from add investment screen
 - UPDATE: backup added for remote db
 - OPTIMIZE: resolve critical performance bottlenecks, memory leaks, and logical calendar bugs

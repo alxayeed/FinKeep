@@ -154,90 +154,133 @@ class CustomBottomNavBar extends StatelessWidget {
   Widget _buildIndicatorLine(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Match the screen background exactly for seamless blending
-    final Color barBgColor = isDark ? AppColors.bgDark : AppColors.bgLight;
+    final Color barBgColor = isDark
+        ? Colors.black.withValues(alpha: 0.2)
+        : Colors.white.withValues(alpha: 0.25);
     final Color activeColor = AppColors.primaryTeal;
-    final Color inactiveColor = isDark ? Colors.grey[500]! : Colors.grey[500]!;
+    final Color inactiveColor = isDark ? Colors.grey[400]! : Colors.grey[600]!;
 
     return Container(
       decoration: BoxDecoration(
-        color: barBgColor,
-        // Using an ultra-subtle top gradient/shadow instead of a hard line for blending
+        color: Colors.transparent,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
+        // Premium elevation shadow outlining the rounded capsule top
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.08 : 0.02),
-            blurRadius: 8,
-            offset: const Offset(0, -3),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.06),
+            blurRadius: 20,
+            offset: const Offset(0, -4),
           ),
         ],
       ),
-      child: SafeArea(
-        top: false,
-        child: SizedBox(
-          height: 64,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: List.generate(items.length, (index) {
-              final isSelected = index == currentIndex;
-              final item = items[index];
+      child: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20.0, sigmaY: 20.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: barBgColor,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(24),
+                topRight: Radius.circular(24),
+              ),
+              border: Border(
+                top: BorderSide(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.12)
+                      : Colors.black.withValues(alpha: 0.08),
+                  width: 1,
+                ),
+                left: BorderSide(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.12)
+                      : Colors.black.withValues(alpha: 0.08),
+                  width: 0.5,
+                ),
+                right: BorderSide(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.12)
+                      : Colors.black.withValues(alpha: 0.08),
+                  width: 0.5,
+                ),
+              ),
+            ),
+            child: SafeArea(
+              top: false,
+              child: SizedBox(
+                height: 64,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: List.generate(items.length, (index) {
+                    final isSelected = index == currentIndex;
+                    final item = items[index];
 
-              return Expanded(
-                child: GestureDetector(
-                  onTap: () => onTap(index),
-                  behavior: HitTestBehavior.opaque,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      AnimatedPositioned(
-                        duration: const Duration(milliseconds: 250),
-                        curve: Curves.easeInOut,
-                        top: 0,
-                        height: 3,
-                        width: isSelected ? 32 : 0,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: activeColor,
-                            borderRadius: const BorderRadius.only(
-                              bottomLeft: Radius.circular(3),
-                              bottomRight: Radius.circular(3),
+                    return Expanded(
+                      child: GestureDetector(
+                        onTap: () => onTap(index),
+                        behavior: HitTestBehavior.opaque,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            AnimatedPositioned(
+                              duration: const Duration(milliseconds: 250),
+                              curve: Curves.easeInOut,
+                              top: 0,
+                              height: 3,
+                              width: isSelected ? 32 : 0,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: activeColor,
+                                  borderRadius: const BorderRadius.only(
+                                    bottomLeft: Radius.circular(3),
+                                    bottomRight: Radius.circular(3),
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
+
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const SizedBox(height: 4),
+                                AnimatedScale(
+                                  scale: isSelected ? 1.08 : 1.0,
+                                  duration: const Duration(milliseconds: 250),
+                                  curve: Curves.easeOutBack,
+                                  child: Icon(
+                                    isSelected ? item.activeIcon : item.icon,
+                                    color: isSelected ? activeColor : inactiveColor,
+                                    size: 24,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                AnimatedDefaultTextStyle(
+                                  duration: const Duration(milliseconds: 200),
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.w500,
+                                    color: isSelected ? activeColor : inactiveColor,
+                                  ),
+                                  child: Text(item.label),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
-
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const SizedBox(height: 4),
-                          AnimatedScale(
-                            scale: isSelected ? 1.08 : 1.0,
-                            duration: const Duration(milliseconds: 250),
-                            curve: Curves.easeOutBack,
-                            child: Icon(
-                              isSelected ? item.activeIcon : item.icon,
-                              color: isSelected ? activeColor : inactiveColor,
-                              size: 24,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          AnimatedDefaultTextStyle(
-                            duration: const Duration(milliseconds: 200),
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: isSelected
-                                  ? FontWeight.bold
-                                  : FontWeight.w500,
-                              color: isSelected ? activeColor : inactiveColor,
-                            ),
-                            child: Text(item.label),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                    );
+                  }),
                 ),
-              );
-            }),
+              ),
+            ),
           ),
         ),
       ),
