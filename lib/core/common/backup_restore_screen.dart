@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:finkeep/core/constants/app_strings.dart';
 import 'package:finkeep/core/common/widgets/custom_app_bar.dart';
 import 'package:finkeep/core/error/exception_handler.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
@@ -26,8 +28,6 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
   int _expenseCount = 0;
   int _investmentCount = 0;
   int _lendingCount = 0;
-  int _personCount = 0;
-  int _repaymentCount = 0;
   bool _isLoading = false;
   String _loadingText = '';
 
@@ -38,14 +38,48 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
     _loadStats();
   }
 
-  void _loadStats() {
-    setState(() {
-      _expenseCount = _localDb.expensesBox.length;
-      _investmentCount = _localDb.investmentsBox.length;
-      _lendingCount = _localDb.lendingsBox.length;
-      _personCount = _localDb.personsBox.length;
-      _repaymentCount = _localDb.repaymentsBox.length;
-    });
+  Future<void> _loadStats() async {
+    try {
+      if (AppConfig.useRemote) {
+        final firestore = FirebaseFirestore.instance;
+        final expensesColName = AppConfig.isPersonal ? 'expenses' : 'expenses_dev';
+        final investmentsColName = AppConfig.isPersonal
+            ? AppStrings.investmentsCollection
+            : '${AppStrings.investmentsCollection}_dev';
+        final lendingsColName = AppConfig.useRemote
+            ? AppStrings.lendingsCollection
+            : '${AppStrings.lendingsCollection}_dev';
+
+        final expensesCount = await firestore.collection(expensesColName).count().get();
+        final investmentsCount = await firestore.collection(investmentsColName).count().get();
+        final lendingsCount = await firestore.collection(lendingsColName).count().get();
+
+        if (mounted) {
+          setState(() {
+            _expenseCount = expensesCount.count ?? 0;
+            _investmentCount = investmentsCount.count ?? 0;
+            _lendingCount = lendingsCount.count ?? 0;
+          });
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            _expenseCount = _localDb.expensesBox.length;
+            _investmentCount = _localDb.investmentsBox.length;
+            _lendingCount = _localDb.lendingsBox.length;
+          });
+        }
+      }
+    } catch (e, stackTrace) {
+      ExceptionHandler.handle(e, stackTrace, 'BackupRestoreScreen._loadStats');
+      if (mounted) {
+        setState(() {
+          _expenseCount = _localDb.expensesBox.length;
+          _investmentCount = _localDb.investmentsBox.length;
+          _lendingCount = _localDb.lendingsBox.length;
+        });
+      }
+    }
   }
 
   Future<void> _exportBackup() async {
@@ -384,7 +418,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
               children: [
                 // Statistics
                 Text(
-                  'LOCAL DATABASE STATE',
+                  AppConfig.useRemote ? 'REMOTE DATABASE STATE' : 'LOCAL DATABASE STATE',
                   style: TextStyle(
                     fontSize: 11.sp,
                     fontFamily: 'Manrope',
