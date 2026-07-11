@@ -112,7 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             controller: _controller.passwordController,
                             obscureText: !_controller.isPasswordVisible.value,
                             textInputAction: TextInputAction.done,
-                            onSubmitted: (_) => _controller.login(),
+                            onSubmitted: (_) => _controller.login(context),
                             decoration: InputDecoration(
                               hintText: '••••••••',
                               hintStyle: TextStyle(color: AppColors.hintText),
@@ -148,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         // Submit Button
                         Obx(
                           () => ElevatedButton(
-                            onPressed: _controller.isLoading.value ? null : _controller.login,
+                            onPressed: _controller.isLoading.value ? null : () => _controller.login(context),
                             style: ElevatedButton.styleFrom(
                               padding: EdgeInsets.symmetric(vertical: 16.h),
                               shape: RoundedRectangleBorder(

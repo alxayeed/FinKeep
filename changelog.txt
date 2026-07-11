@@ -1,5 +1,7 @@
 1.0.0+19
 [11/07/2026]
+- UPDATE: Use remote datasource only when there is an authenticated user
+- FIX: auth state will be shown in snackbar
 - UPDATE: Bottom nav bar updated
 - FIX: nav bar removed from add investment screen
 - UPDATE: backup added for remote db

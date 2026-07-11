@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+
 enum AppEnvironment { prod, personal }
 
 class AppConfig {
@@ -52,5 +54,11 @@ class AppConfig {
   static bool get firestoreEnabled => isPersonal;
 
   // New flag: remote data source for dev and personal; local otherwise
-  static bool get useRemote => environment == AppEnvironment.personal;
+  static bool get useRemote {
+    try {
+      return FirebaseAuth.instance.currentUser != null;
+    } catch (_) {
+      return false;
+    }
+  }
 }

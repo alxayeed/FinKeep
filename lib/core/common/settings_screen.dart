@@ -14,6 +14,9 @@ import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:finkeep/core/config/app_config.dart';
+import 'package:finkeep/features/auth/services/auth_service.dart';
 
 import '../../features/expense/services/expense_reminder_service.dart';
 import '../responsive/responsive.dart';
@@ -531,6 +534,158 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  Widget _buildPersonalProfileBanner(
+    BuildContext context,
+    bool isDark,
+    Color cardBg,
+    Color textColor,
+    Color subtitleColor,
+  ) {
+    User? user;
+    try {
+      user = Get.find<AuthService>().currentUser;
+    } catch (_) {}
+
+    final email = user?.email ?? 'personal@finkeep.com';
+    final name = user?.displayName ?? email.split('@').first.capitalizeFirst ?? 'Personal User';
+
+    return Container(
+      padding: EdgeInsets.all(16.r),
+      decoration: BoxDecoration(
+        color: cardBg,
+        borderRadius: BorderRadius.circular(24.r),
+        border: Border.all(
+          color: AppColors.primaryTeal.withValues(alpha: isDark ? 0.15 : 0.08),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primaryTeal.withValues(alpha: isDark ? 0.05 : 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 24.r,
+            backgroundColor: AppColors.primaryTeal.withValues(alpha: 0.15),
+            child: Icon(
+              Icons.person_rounded,
+              color: AppColors.primaryTeal,
+              size: 24.sp,
+            ),
+          ),
+          SizedBox(width: 14.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        name,
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontFamily: 'Manrope',
+                          fontWeight: FontWeight.bold,
+                          color: textColor,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    SizedBox(width: 6.w),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryTeal.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(6.r),
+                      ),
+                      child: Text(
+                        'PERSONAL',
+                        style: TextStyle(
+                          fontSize: 8.sp,
+                          fontFamily: 'Manrope',
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primaryTeal,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 3.h),
+                Text(
+                  email,
+                  style: TextStyle(
+                    fontSize: 11.sp,
+                    fontFamily: 'Manrope',
+                    color: subtitleColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.logout_rounded,
+              color: Colors.red.shade400,
+              size: 20.sp,
+            ),
+            onPressed: () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (dialogCtx) => AlertDialog(
+                  backgroundColor: cardBg,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.r),
+                  ),
+                  title: Text(
+                    'Sign Out',
+                    style: TextStyle(
+                      fontFamily: 'Manrope',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.sp,
+                      color: textColor,
+                    ),
+                  ),
+                  content: Text(
+                    'Are you sure you want to sign out of your personal cloud account?',
+                    style: TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 13.sp,
+                      color: subtitleColor,
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(dialogCtx, false),
+                      child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(dialogCtx, true),
+                      child: const Text('Sign Out', style: TextStyle(color: Colors.red)),
+                    ),
+                  ],
+                ),
+              );
+              if (confirm == true) {
+                try {
+                  await Get.find<AuthService>().signOut();
+                  if (context.mounted) {
+                    Navigator.pop(context); // Go back after sign out
+                  }
+                } catch (_) {}
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSectionTitle(String title, bool isDark) {
     return Padding(
       padding: EdgeInsets.only(left: 8.w, bottom: 8.h, top: 16.h),
@@ -596,6 +751,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       vertical: 16.h,
                     ),
                     children: [
+                      if (AppConfig.isPersonal) ...[
+                        _buildPersonalProfileBanner(
+                          context,
+                          isDark,
+                          cardBg,
+                          textColor,
+                          subtitleColor,
+                        ),
+                        SizedBox(height: 8.h),
+                      ],
                       // Settings section: Budgeting
                       _buildSectionTitle('BUDGET & PLANNING', isDark),
                       Container(
