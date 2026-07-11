@@ -1,3 +1,8 @@
+1.0.0+20
+[11/07/2026]
+- ADD: automatic backup
+- FIX: import issue. unified service class added
+
 1.0.0+19
 [11/07/2026]
 - FIX: TypeError on investment and lending repayments

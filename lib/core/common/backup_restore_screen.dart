@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:finkeep/core/common/widgets/app_switch_button.dart';
-import 'package:finkeep/core/services/background_backup_service.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../config/app_config.dart';
@@ -97,10 +96,10 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
       _loadingText = 'Generating backup...';
     });
     try {
-      final success = await BackgroundBackupService.performBackup();
+      final success = await BackupService.performBackup();
       if (success) {
         await _loadAutoBackupConfig();
-        final backupFile = await BackgroundBackupService.getBackupFile();
+        final backupFile = await BackupService.getBackupFile();
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

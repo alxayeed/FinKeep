@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
@@ -12,6 +13,23 @@ import 'package:finkeep/features/investments/data/models/investment_model.dart';
 import 'package:finkeep/features/lendings/data/models/lending/lending_model.dart';
 import 'package:finkeep/features/lendings/data/models/lending_person/lending_person_model.dart';
 import 'package:finkeep/features/lendings/data/models/repayment/repayment_model.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/widgets.dart';
+import 'package:workmanager/workmanager.dart';
+
+@pragma('vm:entry-point')
+void callbackDispatcher() {
+  Workmanager().executeTask((taskName, inputData) async {
+    WidgetsFlutterBinding.ensureInitialized();
+    try {
+      final success = await BackupService.performBackup();
+      return success;
+    } catch (e) {
+      return false;
+    }
+  });
+}
 
 class BackupService {
   final LocalDbService localDb;
@@ -381,5 +399,178 @@ class BackupService {
         }
       }
     }
+  }
+
+  /// Core backup logic designed to run safely inside background isolate or main thread
+  static Future<bool> performBackup() async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      
+      // Initialize Hive in isolation
+      Hive.init(directory.path);
+
+      final suffix = AppConfig.get('DB_SUFFIX');
+
+      // Helper to retrieve open boxes or open new ones
+      Future<Box<Map>> getBox(String name) async {
+        final fullName = '$name$suffix';
+        return Hive.isBoxOpen(fullName) ? Hive.box<Map>(fullName) : await Hive.openBox<Map>(fullName);
+      }
+
+      // Check which boxes were already open in this isolate
+      final bool expensesWasOpen = Hive.isBoxOpen('expenses$suffix');
+      final bool investmentsWasOpen = Hive.isBoxOpen('investments$suffix');
+      final bool lendingsWasOpen = Hive.isBoxOpen('lendings$suffix');
+      final bool personsWasOpen = Hive.isBoxOpen('persons$suffix');
+      final bool repaymentsWasOpen = Hive.isBoxOpen('repayments$suffix');
+      final bool budgetsWasOpen = Hive.isBoxOpen('budgets$suffix');
+      final bool incomeWasOpen = Hive.isBoxOpen('income$suffix');
+      final bool incomeCategoriesWasOpen = Hive.isBoxOpen('income_categories$suffix');
+      final bool expenseCategoriesWasOpen = Hive.isBoxOpen('expense_categories$suffix');
+
+      // Fetch or open boxes
+      final expensesBox = await getBox('expenses');
+      final investmentsBox = await getBox('investments');
+      final lendingsBox = await getBox('lendings');
+      final personsBox = await getBox('persons');
+      final repaymentsBox = await getBox('repayments');
+      final budgetsBox = await getBox('budgets');
+      final incomeBox = await getBox('income');
+      final incomeCategoriesBox = await getBox('income_categories');
+      final expenseCategoriesBox = await getBox('expense_categories');
+
+      // Export into JSON-ready Map
+      final Map<String, dynamic> backupPayload = {
+        'version': '1.1',
+        'exportedAt': DateTime.now().toIso8601String(),
+        'expenses': expensesBox.values.map((v) => Map<String, dynamic>.from(v)).toList(),
+        'investments': investmentsBox.values.map((v) => Map<String, dynamic>.from(v)).toList(),
+        'lendings': lendingsBox.values.map((v) => Map<String, dynamic>.from(v)).toList(),
+        'persons': personsBox.values.map((v) => Map<String, dynamic>.from(v)).toList(),
+        'repayments': repaymentsBox.values.map((v) => Map<String, dynamic>.from(v)).toList(),
+        'budgets': budgetsBox.values.map((v) => Map<String, dynamic>.from(v)).toList(),
+        'income': incomeBox.values.map((v) => Map<String, dynamic>.from(v)).toList(),
+        'income_categories': incomeCategoriesBox.values.map((v) => Map<String, dynamic>.from(v)).toList(),
+        'expense_categories': expenseCategoriesBox.values.map((v) => Map<String, dynamic>.from(v)).toList(),
+      };
+
+      // Only close boxes that were NOT already open in this isolate
+      if (!expensesWasOpen) await expensesBox.close();
+      if (!investmentsWasOpen) await investmentsBox.close();
+      if (!lendingsWasOpen) await lendingsBox.close();
+      if (!personsWasOpen) await personsBox.close();
+      if (!repaymentsWasOpen) await repaymentsBox.close();
+      if (!budgetsWasOpen) await budgetsBox.close();
+      if (!incomeWasOpen) await incomeBox.close();
+      if (!incomeCategoriesWasOpen) await incomeCategoriesBox.close();
+      if (!expenseCategoriesWasOpen) await expenseCategoriesBox.close();
+
+      // Normalize DateTimes to ISO strings
+      final normalizedPayload = _deepConvertBackupDateTimes(backupPayload);
+      final jsonString = jsonEncode(normalizedPayload);
+
+      // Perform AES Encryption (using unified static keys/IVs)
+      final key = encrypt.Key(Uint8List.fromList(_keyBytes));
+      final iv = encrypt.IV(Uint8List.fromList(_ivBytes));
+      final encrypter = encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.cbc));
+      final encrypted = encrypter.encrypt(jsonString, iv: iv);
+      final base64Payload = encrypted.base64;
+
+      // Resolve the base directory of the backup
+      final baseFile = await getBackupFile();
+      final baseDir = baseFile.parent;
+
+      // Delete any previous backups in this folder (both automated_backup_ and finkeep_backup_)
+      try {
+        final List<FileSystemEntity> files = baseDir.listSync();
+        for (final file in files) {
+          if (file is File) {
+            final fileName = file.path.split('/').last;
+            if ((fileName.startsWith('automated_backup_') || fileName.startsWith('finkeep_backup_')) && fileName.endsWith('.fkdb')) {
+              try {
+                await file.delete();
+              } catch (_) {}
+            }
+          }
+        }
+      } catch (_) {}
+
+      // Save the backup with a fresh timestamp in its name (Option 3 format with seconds)
+      final timestamp = _getFormattedTimestamp(DateTime.now());
+      final newBackupFile = File('${baseDir.path}/finkeep_backup_$timestamp.fkdb');
+      await newBackupFile.writeAsString(base64Payload, flush: true);
+
+      // Update SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('last_auto_backup_time', DateTime.now().toIso8601String());
+      await prefs.setString('last_auto_backup_path', newBackupFile.path);
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Returns the file instance for the current backup.
+  /// Searches for any existing backup matching `finkeep_backup_*.fkdb`. If none is found,
+  /// returns a default location using the current timestamp.
+  static Future<File> getBackupFile() async {
+    final timestamp = _getFormattedTimestamp(DateTime.now());
+    final defaultFileName = 'finkeep_backup_$timestamp.fkdb';
+    
+    Directory baseDir;
+    if (Platform.isAndroid) {
+      try {
+        final publicDir = Directory('/storage/emulated/0/Download');
+        if (await publicDir.exists()) {
+          final testFile = File('${publicDir.path}/.test_finkeep_write');
+          await testFile.writeAsString('', flush: true);
+          await testFile.delete();
+          baseDir = publicDir;
+        } else {
+          baseDir = await getApplicationDocumentsDirectory();
+        }
+      } catch (_) {
+        baseDir = await getApplicationDocumentsDirectory();
+      }
+    } else {
+      baseDir = await getApplicationDocumentsDirectory();
+    }
+    
+    // Check if a backup file already exists in the directory
+    try {
+      final List<FileSystemEntity> files = baseDir.listSync();
+      for (final file in files) {
+        if (file is File) {
+          final name = file.path.split('/').last;
+          if (name.startsWith('finkeep_backup_') && name.endsWith('.fkdb')) {
+            return file;
+          }
+        }
+      }
+    } catch (_) {}
+    
+    return File('${baseDir.path}/$defaultFileName');
+  }
+
+  static String _getFormattedTimestamp(DateTime dt) {
+    final y = dt.year.toString();
+    final m = dt.month.toString().padLeft(2, '0');
+    final d = dt.day.toString().padLeft(2, '0');
+    final h = dt.hour.toString().padLeft(2, '0');
+    final min = dt.minute.toString().padLeft(2, '0');
+    final s = dt.second.toString().padLeft(2, '0');
+    return '$y$m${d}_$h$min$s';
+  }
+
+  static dynamic _deepConvertBackupDateTimes(dynamic val) {
+    if (val is Map) {
+      return val.map((k, v) => MapEntry(k.toString(), _deepConvertBackupDateTimes(v)));
+    } else if (val is List) {
+      return val.map((item) => _deepConvertBackupDateTimes(item)).toList();
+    } else if (val is DateTime) {
+      return val.toIso8601String();
+    }
+    return val;
   }
 }

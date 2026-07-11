@@ -9,7 +9,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
-import 'core/services/background_backup_service.dart';
+import 'core/services/backup_service.dart';
 
 import 'core/common/biometric_lock_screen.dart';
 import 'core/config/app_config.dart';
@@ -207,15 +207,15 @@ Future<void> performStartupBackupCheck() async {
     final autoBackupEnabled = prefs.getBool('auto_backup_enabled') ?? true;
     if (!autoBackupEnabled) return;
 
-    final backupFile = await BackgroundBackupService.getBackupFile();
+    final backupFile = await BackupService.getBackupFile();
     if (await backupFile.exists()) {
       final stat = await backupFile.stat();
       final now = DateTime.now();
       if (now.difference(stat.modified).inHours >= 24) {
-        await BackgroundBackupService.performBackup();
+        await BackupService.performBackup();
       }
     } else {
-      await BackgroundBackupService.performBackup();
+      await BackupService.performBackup();
     }
   } catch (_) {
     // Fail silently to prevent app boot crash
