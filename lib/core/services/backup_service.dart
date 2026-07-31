@@ -409,24 +409,21 @@ class BackupService {
       // Initialize Hive in isolation
       Hive.init(directory.path);
 
-      final suffix = AppConfig.get('DB_SUFFIX');
-
       // Helper to retrieve open boxes or open new ones
       Future<Box<Map>> getBox(String name) async {
-        final fullName = '$name$suffix';
-        return Hive.isBoxOpen(fullName) ? Hive.box<Map>(fullName) : await Hive.openBox<Map>(fullName);
+        return Hive.isBoxOpen(name) ? Hive.box<Map>(name) : await Hive.openBox<Map>(name);
       }
 
       // Check which boxes were already open in this isolate
-      final bool expensesWasOpen = Hive.isBoxOpen('expenses$suffix');
-      final bool investmentsWasOpen = Hive.isBoxOpen('investments$suffix');
-      final bool lendingsWasOpen = Hive.isBoxOpen('lendings$suffix');
-      final bool personsWasOpen = Hive.isBoxOpen('persons$suffix');
-      final bool repaymentsWasOpen = Hive.isBoxOpen('repayments$suffix');
-      final bool budgetsWasOpen = Hive.isBoxOpen('budgets$suffix');
-      final bool incomeWasOpen = Hive.isBoxOpen('income$suffix');
-      final bool incomeCategoriesWasOpen = Hive.isBoxOpen('income_categories$suffix');
-      final bool expenseCategoriesWasOpen = Hive.isBoxOpen('expense_categories$suffix');
+      final bool expensesWasOpen = Hive.isBoxOpen('expenses');
+      final bool investmentsWasOpen = Hive.isBoxOpen('investments');
+      final bool lendingsWasOpen = Hive.isBoxOpen('lendings');
+      final bool personsWasOpen = Hive.isBoxOpen('persons');
+      final bool repaymentsWasOpen = Hive.isBoxOpen('repayments');
+      final bool budgetsWasOpen = Hive.isBoxOpen('budgets');
+      final bool incomeWasOpen = Hive.isBoxOpen('income');
+      final bool incomeCategoriesWasOpen = Hive.isBoxOpen('income_categories');
+      final bool expenseCategoriesWasOpen = Hive.isBoxOpen('expense_categories');
 
       // Fetch or open boxes
       final expensesBox = await getBox('expenses');
