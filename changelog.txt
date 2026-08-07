@@ -4,6 +4,7 @@
 - UPDATE: Custom category increased for income/expense. Historical data persistency improved.
 - ADD: Quick Add bottom sheet added in dashboard and report
 - UPDATE: dashboard revamped
+- FIX: gesture back button closes the app from other screens
 
 1.0.0+20
 [11/07/2026]
