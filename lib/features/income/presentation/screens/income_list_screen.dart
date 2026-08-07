@@ -3,12 +3,12 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:finkeep/core/config/app_config.dart';
-import '../../../../core/common/widgets/loader_widget.dart';
 import '../../../../core/common/widgets/no_data_widget.dart';
 import '../../../../core/extensions/double_ext.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../../../../core/styles/currency_provider.dart';
+import '../widgets/income_shimmer.dart';
 import '../../domain/entities/income/income_entity.dart';
 import '../controllers/income_controller.dart';
 import '../widgets/income_card.dart';
@@ -203,7 +203,7 @@ class IncomeListScreen extends StatelessWidget {
         Expanded(
           child: Obx(() {
             if (controller.isLoading.value) {
-              return const Center(child: LoaderWidget());
+              return const IncomeShimmer(selectedTab: 1);
             }
 
             final itemsList = controller.groupedIncomes;

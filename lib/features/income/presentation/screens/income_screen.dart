@@ -8,6 +8,7 @@ import 'package:finkeep/features/expense/presentation/widgets/widgets.dart'; // 
 import '../controllers/income_controller.dart';
 import 'income_list_screen.dart';
 import 'income_summary_screen.dart';
+import '../widgets/income_shimmer.dart';
 
 class IncomeScreen extends StatefulWidget {
   const IncomeScreen({super.key});
@@ -54,11 +55,11 @@ class _IncomeScreenState extends State<IncomeScreen> {
 
               // 3. Tab Contents
               Expanded(
-                child: _selectedTab == 0
-                    ? (controller.isLoading.value
-                        ? const Center(child: CircularProgressIndicator(color: AppColors.primaryTeal))
-                        : IncomeSummaryScreen(controller: controller))
-                    : IncomeListScreen(controller: controller),
+                child: controller.isLoading.value
+                    ? IncomeShimmer(selectedTab: _selectedTab)
+                    : _selectedTab == 0
+                        ? IncomeSummaryScreen(controller: controller)
+                        : IncomeListScreen(controller: controller),
               ),
             ],
           );

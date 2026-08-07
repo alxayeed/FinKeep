@@ -11,9 +11,8 @@ import 'package:finkeep/features/expense/domain/entities/expense_entity.dart';
 import 'package:finkeep/features/expense/presentation/controllers/expense_report_controller.dart';
 import 'package:finkeep/features/expense/presentation/widgets/category_filter_pills.dart';
 import 'package:finkeep/features/expense/presentation/controllers/expense_category_controller.dart';
-import 'package:finkeep/core/styles/currency_provider.dart';
-import '../../../../core/common/widgets/loader_widget.dart';
 import '../widgets/expense_card_widget.dart';
+import '../widgets/widgets.dart';
 
 class ExpenseReportListScreen extends StatelessWidget {
   final ExpenseReportController controller;
@@ -114,7 +113,7 @@ class ExpenseReportListScreen extends StatelessWidget {
         Expanded(
           child: Obx(() {
             if (controller.isLoading.value) {
-              return const Center(child: LoaderWidget());
+              return const MonthlyExpenseShimmer(selectedTab: 1);
             }
 
             final itemsList = controller.getGroupedReportExpenses();

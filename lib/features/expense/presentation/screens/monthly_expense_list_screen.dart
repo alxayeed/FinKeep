@@ -12,7 +12,6 @@ import 'package:finkeep/features/expense/domain/entities/expense_entity.dart';
 import '../controllers/monthly_expense_controller.dart';
 import '../controllers/expense_category_controller.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
-import '../../../../core/common/widgets/loader_widget.dart';
 import '../../../../core/routes/app_router.dart';
 import '../widgets/widgets.dart';
 
@@ -144,7 +143,7 @@ class MonthlyExpenseListScreen extends StatelessWidget {
         Expanded(
           child: Obx(() {
             if (controller.isLoading.value) {
-              return const Center(child: LoaderWidget());
+              return const MonthlyExpenseShimmer(selectedTab: 1);
             }
 
             final itemsList = controller.getGroupedExpenses();

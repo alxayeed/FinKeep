@@ -8,6 +8,7 @@ import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 import 'package:finkeep/core/extensions/double_ext.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
+import 'widgets.dart';
 
 import '../../domain/entities/expense_entity.dart';
 import '../controllers/budget_controller.dart';
@@ -43,7 +44,7 @@ class ExpenseSummeryWidget extends StatelessWidget {
         final data = _dataList;
 
         if (controller.isLoading.value) {
-          return const Center(child: LoaderWidget());
+          return const MonthlyExpenseShimmer(selectedTab: 0);
         } else {
           final scrollView = SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(
