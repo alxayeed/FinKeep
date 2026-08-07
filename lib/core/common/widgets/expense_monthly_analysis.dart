@@ -42,27 +42,9 @@ class _ExpenseMonthlyAnalysisState extends State<ExpenseMonthlyAnalysis> {
         return (localMonthData['overallBudget'] as num?)?.toDouble() ?? 0.0;
       }
 
-      final now = DateTime.now();
-      final currentMonthStart = DateTime(now.year, now.month);
-      final targetMonthStart = DateTime(month.year, month.month);
-      if (!targetMonthStart.isBefore(currentMonthStart)) {
-        final localRecurData = LocalDbService().budgetsBox.get(recurringDocId);
-        if (localRecurData != null) {
-          final String? startMonthStr = localRecurData['month'] as String?;
-          bool shouldApply = true;
-          if (startMonthStr != null) {
-            try {
-              final startMonth = DateFormat('yyyy-MMMM').parse(startMonthStr);
-              final startMonthStart = DateTime(startMonth.year, startMonth.month);
-              if (targetMonthStart.isBefore(startMonthStart)) {
-                shouldApply = false;
-              }
-            } catch (_) {}
-          }
-          if (shouldApply) {
-            return (localRecurData['overallBudget'] as num?)?.toDouble() ?? 0.0;
-          }
-        }
+      final localRecurData = LocalDbService().budgetsBox.get(recurringDocId);
+      if (localRecurData != null) {
+        return (localRecurData['overallBudget'] as num?)?.toDouble() ?? 0.0;
       }
     } catch (_) {}
     return 0.0;

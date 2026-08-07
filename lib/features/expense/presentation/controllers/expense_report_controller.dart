@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:finkeep/core/enums/expense_category.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../../domain/usecases/usecases.dart';
+import 'package:intl/intl.dart';
+import 'package:finkeep/core/services/local_db_service.dart';
 import 'budget_controller.dart';
 
 class ExpenseReportController extends GetxController {
@@ -109,10 +111,22 @@ class ExpenseReportController extends GetxController {
   Future<void> saveBudgetForMonths(List<DateTime> months, double amount) async {
     final budgetController = Get.find<BudgetController>();
     for (var month in months) {
+      final String monthDocId = DateFormat('yyyy-MMMM').format(month);
+      final localDb = LocalDbService();
+      Map<ExpenseCategory, double> categories = {};
+      final localData = localDb.budgetsBox.get(monthDocId) ?? localDb.budgetsBox.get('recurring');
+      if (localData != null && localData['categoryBudgets'] is Map) {
+        final map = localData['categoryBudgets'] as Map;
+        map.forEach((k, v) {
+          final cat = ExpenseCategoryExtension.fromString(k.toString());
+          categories[cat] = (v as num).toDouble();
+        });
+      }
+
       await budgetController.saveBudgetsForMonth(
         month: month,
         overall: amount,
-        categories: {},
+        categories: categories,
         isRecurring: false,
       );
     }

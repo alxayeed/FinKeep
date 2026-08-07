@@ -5,6 +5,8 @@
 - ADD: Quick Add bottom sheet added in dashboard and report
 - UPDATE: dashboard revamped
 - FIX: gesture back button closes the app from other screens
+- UPDATE: nav bar icons
+- FIX: persistent budget erasure on month navigation, backup restore, and past month edits
 
 1.0.0+20
 [11/07/2026]

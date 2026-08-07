@@ -135,38 +135,21 @@ class BudgetController extends GetxController {
       final String monthDocId = DateFormat('yyyy-MMMM').format(month);
       final String recurringDocId = 'recurring';
 
-      // 1. Try loading from local Hive database first
+      // 1. Try loading specific month budget from local Hive database first
       final localMonthData = localDb.budgetsBox.get(monthDocId);
       if (localMonthData != null) {
         _applyBudgetData(Map<String, dynamic>.from(localMonthData));
         return;
       }
 
-      final now = DateTime.now();
-      final currentMonthStart = DateTime(now.year, now.month);
-      final targetMonthStart = DateTime(month.year, month.month);
-      if (!targetMonthStart.isBefore(currentMonthStart)) {
-        final localRecurData = localDb.budgetsBox.get(recurringDocId);
-        if (localRecurData != null) {
-          final String? startMonthStr = localRecurData['month'] as String?;
-          bool shouldApply = true;
-          if (startMonthStr != null) {
-            try {
-              final startMonth = DateFormat('yyyy-MMMM').parse(startMonthStr);
-              final startMonthStart = DateTime(startMonth.year, startMonth.month);
-              if (targetMonthStart.isBefore(startMonthStart)) {
-                shouldApply = false;
-              }
-            } catch (_) {}
-          }
-          if (shouldApply) {
-            _applyBudgetData(Map<String, dynamic>.from(localRecurData));
-            return;
-          }
-        }
+      // 2. Try loading recurring budget baseline from local Hive database
+      final localRecurData = localDb.budgetsBox.get(recurringDocId);
+      if (localRecurData != null) {
+        _applyBudgetData(Map<String, dynamic>.from(localRecurData));
+        return;
       }
 
-      // 2. Fetch from Firestore if personal mode and local is empty
+      // 3. Fetch from Firestore if personal mode and local is empty
       if (AppConfig.isPersonal) {
         final collectionName = AppConfig.get('FIRESTORE_SUFFIX').isEmpty ? 'budgets' : 'budgets${AppConfig.get('FIRESTORE_SUFFIX')}';
         
@@ -181,34 +164,19 @@ class BudgetController extends GetxController {
           return;
         }
 
-        if (!targetMonthStart.isBefore(currentMonthStart)) {
-          final recurringDoc = await firestore.collection(collectionName).doc(recurringDocId).get();
-          if (recurringDoc.exists && recurringDoc.data() != null) {
-            final data = recurringDoc.data()!;
-            if (data['updatedAt'] is Timestamp) {
-              data['updatedAt'] = (data['updatedAt'] as Timestamp).toDate().toIso8601String();
-            }
-            final String? startMonthStr = data['month'] as String?;
-            bool shouldApply = true;
-            if (startMonthStr != null) {
-              try {
-                final startMonth = DateFormat('yyyy-MMMM').parse(startMonthStr);
-                final startMonthStart = DateTime(startMonth.year, startMonth.month);
-                if (targetMonthStart.isBefore(startMonthStart)) {
-                  shouldApply = false;
-                }
-              } catch (_) {}
-            }
-            if (shouldApply) {
-              await localDb.budgetsBox.put(recurringDocId, data);
-              _applyBudgetData(data);
-              return;
-            }
+        final recurringDoc = await firestore.collection(collectionName).doc(recurringDocId).get();
+        if (recurringDoc.exists && recurringDoc.data() != null) {
+          final data = recurringDoc.data()!;
+          if (data['updatedAt'] is Timestamp) {
+            data['updatedAt'] = (data['updatedAt'] as Timestamp).toDate().toIso8601String();
           }
+          await localDb.budgetsBox.put(recurringDocId, data);
+          _applyBudgetData(data);
+          return;
         }
       }
 
-      // 3. Fallback defaults
+      // 4. Fallback defaults
       _applyDefaultBudgets();
     } catch (e, stackTrace) {
       ExceptionHandler.handle(e, stackTrace, 'BudgetController.loadBudgetsForMonth');
@@ -246,6 +214,7 @@ class BudgetController extends GetxController {
     try {
       final String monthDocId = DateFormat('yyyy-MMMM').format(month);
       final String recurringDocId = 'recurring';
+      final docId = isRecurring ? recurringDocId : monthDocId;
 
       final categoryMap = <String, double>{};
       categories.forEach((k, v) {
@@ -253,7 +222,7 @@ class BudgetController extends GetxController {
       });
 
       final budgetData = {
-        'id': isRecurring ? recurringDocId : monthDocId,
+        'id': docId,
         'overallBudget': overall,
         'categoryBudgets': categoryMap,
         'isRecurring': isRecurring,
@@ -261,14 +230,8 @@ class BudgetController extends GetxController {
         'updatedAt': DateTime.now().toIso8601String(),
       };
 
-      // Save locally first (offline-first)
-      if (isRecurring) {
-        await localDb.budgetsBox.put(recurringDocId, budgetData);
-        await localDb.budgetsBox.delete(monthDocId);
-      } else {
-        await localDb.budgetsBox.put(monthDocId, budgetData);
-        await localDb.budgetsBox.delete(recurringDocId);
-      }
+      // Save locally (offline-first). Coexist with existing month/recurring docs instead of deleting them.
+      await localDb.budgetsBox.put(docId, budgetData);
 
       // Propagate to Firestore if personal mode active
       if (AppConfig.isPersonal) {
@@ -280,17 +243,7 @@ class BudgetController extends GetxController {
             'updatedAt': FieldValue.serverTimestamp(),
           };
 
-          if (isRecurring) {
-            await firestore.collection(collectionName).doc(recurringDocId).set(firestoreData);
-            try {
-              await firestore.collection(collectionName).doc(monthDocId).delete();
-            } catch (_) {}
-          } else {
-            await firestore.collection(collectionName).doc(monthDocId).set(firestoreData);
-            try {
-              await firestore.collection(collectionName).doc(recurringDocId).delete();
-            } catch (_) {}
-          }
+          await firestore.collection(collectionName).doc(docId).set(firestoreData);
         } catch (e, stackTrace) {
           ExceptionHandler.handle(e, stackTrace, 'BudgetController.saveBudgetsForMonth - Firestore sync');
         }
@@ -310,33 +263,15 @@ class BudgetController extends GetxController {
       final String monthDocId = DateFormat('yyyy-MMMM').format(month);
       final String recurringDocId = 'recurring';
 
-      // Try local cache first
+      // Try local cache first (specific month, then recurring baseline)
       final localMonthData = localDb.budgetsBox.get(monthDocId);
       if (localMonthData != null) {
         return (localMonthData['overallBudget'] as num?)?.toDouble() ?? 0.0;
       }
 
-      final now = DateTime.now();
-      final currentMonthStart = DateTime(now.year, now.month);
-      final targetMonthStart = DateTime(month.year, month.month);
-      if (!targetMonthStart.isBefore(currentMonthStart)) {
-        final localRecurData = localDb.budgetsBox.get(recurringDocId);
-        if (localRecurData != null) {
-          final String? startMonthStr = localRecurData['month'] as String?;
-          bool shouldApply = true;
-          if (startMonthStr != null) {
-            try {
-              final startMonth = DateFormat('yyyy-MMMM').parse(startMonthStr);
-              final startMonthStart = DateTime(startMonth.year, startMonth.month);
-              if (targetMonthStart.isBefore(startMonthStart)) {
-                shouldApply = false;
-              }
-            } catch (_) {}
-          }
-          if (shouldApply) {
-            return (localRecurData['overallBudget'] as num?)?.toDouble() ?? 0.0;
-          }
-        }
+      final localRecurData = localDb.budgetsBox.get(recurringDocId);
+      if (localRecurData != null) {
+        return (localRecurData['overallBudget'] as num?)?.toDouble() ?? 0.0;
       }
     } catch (e, stackTrace) {
       ExceptionHandler.handle(e, stackTrace, 'BudgetController.getBudgetForMonth');
@@ -394,10 +329,23 @@ class BudgetController extends GetxController {
     try {
       for (var item in pastMonthsBudgets) {
         final budgetVal = double.tryParse(item.budgetTextController.text) ?? 0.0;
+        final String monthDocId = DateFormat('yyyy-MMMM').format(item.month);
+        
+        // Preserve existing category budgets if present
+        Map<ExpenseCategory, double> categories = {};
+        final localData = localDb.budgetsBox.get(monthDocId) ?? localDb.budgetsBox.get('recurring');
+        if (localData != null && localData['categoryBudgets'] is Map) {
+          final map = localData['categoryBudgets'] as Map;
+          map.forEach((k, v) {
+            final cat = ExpenseCategoryExtension.fromString(k.toString());
+            categories[cat] = (v as num).toDouble();
+          });
+        }
+
         await saveBudgetsForMonth(
           month: item.month,
           overall: budgetVal,
-          categories: {},
+          categories: categories,
           isRecurring: false,
         );
       }

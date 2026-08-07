@@ -150,7 +150,6 @@ class BackupService {
         ? 'budgets'
         : 'budgets${AppConfig.get('FIRESTORE_SUFFIX')}';
     final budgetsSnapshot = await firestore.collection(budgetsColName).get();
-    await localDb.budgetsBox.clear();
     for (final doc in budgetsSnapshot.docs) {
       final data = doc.data();
       if (data['updatedAt'] is Timestamp) {
