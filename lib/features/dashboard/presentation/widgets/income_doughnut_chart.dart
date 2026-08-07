@@ -8,22 +8,33 @@ import '../../../../core/styles/app_colors.dart';
 import '../../../../core/styles/currency_provider.dart';
 import '../../domain/entities/dashboard_category_breakdown_entity.dart';
 
-class ExpenseDoughnutChart extends StatefulWidget {
+class IncomeDoughnutChart extends StatefulWidget {
   final List<DashboardCategoryBreakdownEntity> breakdown;
-  final double totalExpense;
+  final double totalIncome;
 
-  const ExpenseDoughnutChart({
+  const IncomeDoughnutChart({
     super.key,
     required this.breakdown,
-    required this.totalExpense,
+    required this.totalIncome,
   });
 
   @override
-  State<ExpenseDoughnutChart> createState() => _ExpenseDoughnutChartState();
+  State<IncomeDoughnutChart> createState() => _IncomeDoughnutChartState();
 }
 
-class _ExpenseDoughnutChartState extends State<ExpenseDoughnutChart> {
+class _IncomeDoughnutChartState extends State<IncomeDoughnutChart> {
   int _touchedIndex = -1;
+
+  String _formatCategoryName(String rawName) {
+    if (rawName.isEmpty) return 'Other';
+    String cleaned = rawName;
+    if (cleaned.startsWith('cat_') || cleaned.startsWith('cat-')) {
+      cleaned = cleaned.substring(4);
+    }
+    cleaned = cleaned.replaceAll('_', ' ').replaceAll('-', ' ').trim();
+    if (cleaned.isEmpty) return 'Other';
+    return cleaned[0].toUpperCase() + cleaned.substring(1);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,13 +44,13 @@ class _ExpenseDoughnutChartState extends State<ExpenseDoughnutChart> {
     // Filter out breakdown items with 0 or negative amount to prevent fl_chart assertions
     final validBreakdown = widget.breakdown.where((e) => e.amount > 0).toList();
 
-    final double effectiveTotal = widget.totalExpense > 0
-        ? widget.totalExpense
+    final double effectiveTotal = widget.totalIncome > 0
+        ? widget.totalIncome
         : validBreakdown.fold(0.0, (sum, item) => sum + item.amount);
 
     if (validBreakdown.isEmpty || effectiveTotal <= 0) {
       return GestureDetector(
-        onTap: () => context.go(AppRoutes.expenses),
+        onTap: () => context.go(AppRoutes.income),
         child: Container(
           padding: const EdgeInsets.all(4),
           decoration: BoxDecoration(
@@ -72,7 +83,7 @@ class _ExpenseDoughnutChartState extends State<ExpenseDoughnutChart> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(
-                        'EXPENSE',
+                        'INCOME',
                         style: TextStyle(
                           fontSize: 9,
                           color: AppColors.grey,
@@ -134,7 +145,7 @@ class _ExpenseDoughnutChartState extends State<ExpenseDoughnutChart> {
         if (_touchedIndex != -1) {
           setState(() => _touchedIndex = -1);
         } else {
-          context.go(AppRoutes.expenses);
+          context.go(AppRoutes.income);
         }
       },
       child: Container(
@@ -169,7 +180,7 @@ class _ExpenseDoughnutChartState extends State<ExpenseDoughnutChart> {
                               _touchedIndex = -1;
                             });
                           } else {
-                            context.go(AppRoutes.expenses);
+                            context.go(AppRoutes.income);
                           }
                         }
                       }
@@ -202,8 +213,8 @@ class _ExpenseDoughnutChartState extends State<ExpenseDoughnutChart> {
                   children: [
                     Text(
                       selectedItem != null
-                          ? '${selectedItem.emoji ?? "💸"} ${selectedItem.categoryName.toUpperCase()}'
-                          : 'EXPENSE',
+                          ? '${selectedItem.emoji ?? "💰"} ${_formatCategoryName(selectedItem.categoryName).toUpperCase()}'
+                          : 'INCOME',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
@@ -238,7 +249,7 @@ class _ExpenseDoughnutChartState extends State<ExpenseDoughnutChart> {
                         style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.primaryTeal,
+                          color: Color(0xFF10B981),
                         ),
                       ),
                     ],
@@ -253,8 +264,8 @@ class _ExpenseDoughnutChartState extends State<ExpenseDoughnutChart> {
   }
 }
 
-class ExpenseDoughnutChartShimmer extends StatelessWidget {
-  const ExpenseDoughnutChartShimmer({super.key});
+class IncomeDoughnutChartShimmer extends StatelessWidget {
+  const IncomeDoughnutChartShimmer({super.key});
 
   @override
   Widget build(BuildContext context) {

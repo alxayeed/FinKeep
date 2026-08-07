@@ -317,24 +317,35 @@ class DashboardFirestoreDataSource implements DashboardRemoteDataSource {
     final Map<String, String> labelMap = {};
     final Map<String, String> emojiMap = {};
     for (final doc in categoryDocs) {
-      final id = (doc['id'] ?? doc.id) as String;
-      labelMap[id] = (doc['name'] ?? id) as String;
-      emojiMap[id] = (doc['emoji'] ?? '💰') as String;
+      final data = doc.data();
+      final id = (data['id'] as String?) ?? doc.id;
+      final name = (data['name'] as String?) ?? (data['label'] as String?) ?? id;
+      final emoji = (data['emoji'] as String?) ?? '💰';
+      if (id.isNotEmpty) {
+        labelMap[id] = name;
+        emojiMap[id] = emoji;
+      }
+      if (name.isNotEmpty) {
+        labelMap[name] = name;
+        emojiMap[name] = emoji;
+      }
     }
 
     final Map<String, double> catSums = {};
     double grandTotal = 0.0;
     for (final doc in incomeDocs) {
-      final catId = doc['categoryId'] as String? ?? 'other';
-      final amount = (doc['amount'] as num? ?? 0).toDouble();
+      final data = doc.data();
+      final catId = (data['categoryId'] as String?) ?? (data['category'] as String?) ?? 'other';
+      final amount = (data['amount'] as num? ?? 0).toDouble();
       catSums[catId] = (catSums[catId] ?? 0) + amount;
       grandTotal += amount;
     }
 
     final result = catSums.entries.map((e) {
+      final rawName = labelMap[e.key] ?? e.key;
       final percentage = grandTotal > 0 ? (e.value / grandTotal) * 100 : 0.0;
       return DashboardCategoryBreakdownModel(
-        categoryName: labelMap[e.key] ?? e.key,
+        categoryName: _formatCategoryName(rawName),
         amount: e.value,
         percentage: percentage,
         emoji: emojiMap[e.key] ?? '💰',
@@ -454,33 +465,44 @@ class DashboardFirestoreDataSource implements DashboardRemoteDataSource {
     final incCatDocs = results[4].docs;
     final personDocs = results[5].docs;
 
-    final Map<String, String> expEmojiMap = {
-      for (final doc in expCatDocs)
-        (doc['id'] ?? doc.id) as String: (doc['emoji'] ?? '💸') as String
-    };
+    final Map<String, String> expEmojiMap = {};
+    for (final doc in expCatDocs) {
+      final data = doc.data();
+      final id = (data['id'] as String?) ?? doc.id;
+      final emoji = (data['emoji'] as String?) ?? '💸';
+      expEmojiMap[id] = emoji;
+    }
+
     final Map<String, String> incLabelMap = {};
     final Map<String, String> incEmojiMap = {};
     for (final doc in incCatDocs) {
-      final id = (doc['id'] ?? doc.id) as String;
-      incLabelMap[id] = (doc['name'] ?? id) as String;
-      incEmojiMap[id] = (doc['emoji'] ?? '💰') as String;
+      final data = doc.data();
+      final id = (data['id'] as String?) ?? doc.id;
+      final name = (data['name'] as String?) ?? (data['label'] as String?) ?? id;
+      final emoji = (data['emoji'] as String?) ?? '💰';
+      incLabelMap[id] = name;
+      incEmojiMap[id] = emoji;
     }
-    final Map<String, String> personNameMap = {
-      for (final doc in personDocs)
-        doc.id: (doc['name'] ?? 'Unknown') as String
-    };
+
+    final Map<String, String> personNameMap = {};
+    for (final doc in personDocs) {
+      final data = doc.data();
+      final name = (data['name'] as String?) ?? 'Unknown';
+      personNameMap[doc.id] = name;
+    }
 
     final List<DashboardRecentActivityModel> activities = [];
 
     for (final doc in expenseDocs) {
-      final date = _parseDate(doc['date']);
-      final category = doc['category'] as String? ?? 'other';
-      final description = doc['description'] as String? ?? '';
+      final data = doc.data();
+      final date = _parseDate(data['date']);
+      final category = (data['category'] as String?) ?? 'other';
+      final description = (data['description'] as String?) ?? '';
       activities.add(DashboardRecentActivityModel(
         id: doc.id,
         title: description.isNotEmpty ? description : category,
         category: category,
-        amount: (doc['amount'] as num? ?? 0).toDouble(),
+        amount: (data['amount'] as num? ?? 0).toDouble(),
         date: date,
         type: 'expense',
         emoji: expEmojiMap[category] ?? '💸',
@@ -488,16 +510,17 @@ class DashboardFirestoreDataSource implements DashboardRemoteDataSource {
     }
 
     for (final doc in incomeDocs) {
-      final date = _parseDate(doc['date']);
-      final catId = doc['categoryId'] as String? ?? '';
-      final description = doc['description'] as String? ?? '';
+      final data = doc.data();
+      final date = _parseDate(data['date']);
+      final catId = (data['categoryId'] as String?) ?? (data['category'] as String?) ?? '';
+      final description = (data['description'] as String?) ?? '';
       activities.add(DashboardRecentActivityModel(
         id: doc.id,
         title: description.isNotEmpty
             ? description
             : incLabelMap[catId] ?? 'Income',
         category: incLabelMap[catId] ?? catId,
-        amount: (doc['amount'] as num? ?? 0).toDouble(),
+        amount: (data['amount'] as num? ?? 0).toDouble(),
         date: date,
         type: 'income',
         emoji: incEmojiMap[catId] ?? '💰',
@@ -505,9 +528,10 @@ class DashboardFirestoreDataSource implements DashboardRemoteDataSource {
     }
 
     for (final doc in lendingDocs) {
-      final date = _parseDate(doc['createdDate']);
-      final type = doc['type'] as String? ?? '';
-      final personId = doc['personId'] as String? ?? '';
+      final data = doc.data();
+      final date = _parseDate(data['createdDate']);
+      final type = (data['type'] as String?) ?? '';
+      final personId = (data['personId'] as String?) ?? '';
       final personName = personNameMap[personId] ?? 'Unknown';
       activities.add(DashboardRecentActivityModel(
         id: doc.id,
@@ -515,7 +539,7 @@ class DashboardFirestoreDataSource implements DashboardRemoteDataSource {
             ? 'Lent to $personName'
             : 'Borrowed from $personName',
         category: 'Lending',
-        amount: (doc['amount'] as num? ?? 0).toDouble(),
+        amount: (data['amount'] as num? ?? 0).toDouble(),
         date: date,
         type: 'lending',
         emoji: '🤝',
@@ -524,5 +548,16 @@ class DashboardFirestoreDataSource implements DashboardRemoteDataSource {
 
     activities.sort((a, b) => b.date.compareTo(a.date));
     return activities.take(limit).toList();
+  }
+
+  String _formatCategoryName(String rawName) {
+    if (rawName.isEmpty) return 'Other';
+    String cleaned = rawName;
+    if (cleaned.startsWith('cat_') || cleaned.startsWith('cat-')) {
+      cleaned = cleaned.substring(4);
+    }
+    cleaned = cleaned.replaceAll('_', ' ').replaceAll('-', ' ').trim();
+    if (cleaned.isEmpty) return 'Other';
+    return cleaned[0].toUpperCase() + cleaned.substring(1);
   }
 }

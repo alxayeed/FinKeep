@@ -64,11 +64,13 @@ class DashboardController extends GetxController {
   void onInit() {
     super.onInit();
     fetchAllDashboardData();
-    fetchMonthlyStanding();
     // React to changes in timeframe
     ever(timeframe, (_) => fetchAllDashboardData());
     // React to changes in monthly standing selected month
-    ever(monthlyStandingMonth, (_) => fetchMonthlyStanding());
+    ever(monthlyStandingMonth, (_) {
+      fetchMonthlyStanding();
+      fetchAllDashboardData();
+    });
   }
 
   void fetchAllDashboardData() {
@@ -78,6 +80,7 @@ class DashboardController extends GetxController {
     final start = range['start']!;
     final end = range['end']!;
 
+    fetchMonthlyStanding();
     fetchAggregateStats(start, end);
     fetchExpenseCategoryBreakdown(start, end);
     fetchIncomeCategoryBreakdown(start, end);
@@ -86,6 +89,7 @@ class DashboardController extends GetxController {
   }
 
   Future<void> fetchMonthlyStanding() async {
+    monthlyStanding.value = null;
     monthlyStandingLoading.value = true;
     monthlyStandingError.value = '';
     try {
@@ -109,6 +113,7 @@ class DashboardController extends GetxController {
   }
 
   Future<void> fetchAggregateStats(DateTime start, DateTime end) async {
+    stats.value = null;
     statsLoading.value = true;
     statsError.value = '';
     try {
@@ -122,6 +127,7 @@ class DashboardController extends GetxController {
   }
 
   Future<void> fetchExpenseCategoryBreakdown(DateTime start, DateTime end) async {
+    expenseBreakdown.clear();
     expenseBreakdownLoading.value = true;
     expenseBreakdownError.value = '';
     try {
@@ -135,6 +141,7 @@ class DashboardController extends GetxController {
   }
 
   Future<void> fetchIncomeCategoryBreakdown(DateTime start, DateTime end) async {
+    incomeBreakdown.clear();
     incomeBreakdownLoading.value = true;
     incomeBreakdownError.value = '';
     try {
@@ -148,6 +155,7 @@ class DashboardController extends GetxController {
   }
 
   Future<void> fetchTrendPoints(DateTime start, DateTime end) async {
+    trends.clear();
     trendsLoading.value = true;
     trendsError.value = '';
     try {
@@ -161,6 +169,7 @@ class DashboardController extends GetxController {
   }
 
   Future<void> fetchRecentActivities(DateTime start, DateTime end) async {
+    recentActivities.clear();
     recentActivitiesLoading.value = true;
     recentActivitiesError.value = '';
     try {
@@ -174,6 +183,10 @@ class DashboardController extends GetxController {
   }
 
   void updateTimeframe(DashboardTimeframe newTimeframe) {
+    if (newTimeframe == DashboardTimeframe.currentMonth) {
+      final now = DateTime.now();
+      monthlyStandingMonth.value = DateTime(now.year, now.month, 1);
+    }
     timeframe.value = newTimeframe;
   }
 
@@ -188,8 +201,9 @@ class DashboardController extends GetxController {
     final now = DateTime.now();
     switch (timeframe.value) {
       case DashboardTimeframe.currentMonth:
-        final start = DateTime(now.year, now.month, 1);
-        final end = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
+        final selected = monthlyStandingMonth.value;
+        final start = DateTime(selected.year, selected.month, 1);
+        final end = DateTime(selected.year, selected.month + 1, 0, 23, 59, 59);
         return {'start': start, 'end': end};
       case DashboardTimeframe.last3Months:
         final start = DateTime(now.year, now.month - 2, 1);

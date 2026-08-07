@@ -9,6 +9,7 @@ import 'package:finkeep/core/config/app_config.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../../domain/entities/dashboard_aggregate_stats_entity.dart';
 
+
 class SummaryCards extends StatelessWidget {
   final DashboardAggregateStatsEntity data;
   final bool showOnlyLendingAndInvesting;
@@ -26,31 +27,54 @@ class SummaryCards extends StatelessWidget {
     if (showOnlyLendingAndInvesting) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Row(
+        child: Column(
           children: [
-            Expanded(
-              child: _buildMiniCard(
-                context,
-                title: 'Net Lendings',
-                value: '${(data.totalGivenDue - data.totalReceivedDue).toCurrency()} $symbol',
-                icon: FontAwesomeIcons.handshake,
-                color: Colors.orange,
-                onTap: () => context.goNamed(AppRoutes.lendings),
-              ),
-            ),
-            if (AppConfig.isPersonal) ...[
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildMiniCard(
+            GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.6,
+              children: [
+                _buildLendingCard(
                   context,
-                  title: 'Investments',
-                  value: '${(data.totalInvested + data.totalInvestmentProfit).toCurrency()} $symbol',
-                  icon: FontAwesomeIcons.chartLine,
-                  color: Colors.teal,
-                  onTap: () => context.goNamed(AppRoutes.investments),
+                  title: 'Lendings',
+                  given: data.totalGivenDue,
+                  taken: data.totalReceivedDue,
+                  symbol: symbol,
+                  icon: FontAwesomeIcons.handshake,
+                  color: Colors.orange,
+                  onTap: () => context.go(AppRoutes.lendings),
                 ),
-              ),
-            ],
+                if (AppConfig.isPersonal)
+                  _buildMiniCard(
+                    context,
+                    title: 'Investments',
+                    value: '${(data.totalInvested + data.totalInvestmentProfit).toCurrency()} $symbol',
+                    icon: FontAwesomeIcons.chartLine,
+                    color: Colors.teal,
+                    onTap: () => context.go(AppRoutes.investments),
+                  ),
+                _buildMiniCard(
+                  context,
+                  title: 'Savings',
+                  value: 'Goal Tracker',
+                  badgeText: 'SOON',
+                  icon: FontAwesomeIcons.piggyBank,
+                  color: Colors.purple,
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Savings & Goal Tracker feature coming soon!'),
+                        backgroundColor: Colors.purple,
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
           ],
         ),
       );
@@ -104,16 +128,6 @@ class SummaryCards extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1.2,
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.info_outline,
-                        color: Colors.white70,
-                        size: 18,
-                      ),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                      onPressed: () => _showNetWorthInfo(context),
                     ),
                   ],
                 ),
@@ -196,10 +210,12 @@ class SummaryCards extends StatelessWidget {
                 icon: FontAwesomeIcons.solidBookmark,
                 color: Colors.purple,
               ),
-              _buildMiniCard(
+              _buildLendingCard(
                 context,
-                title: 'Net Lendings',
-                value: '${(data.totalGivenDue - data.totalReceivedDue).toCurrency()} $symbol',
+                title: 'Lendings',
+                given: data.totalGivenDue,
+                taken: data.totalReceivedDue,
+                symbol: symbol,
                 icon: FontAwesomeIcons.handshake,
                 color: Colors.orange,
                 onTap: () => context.goNamed(AppRoutes.lendings),
@@ -220,102 +236,24 @@ class SummaryCards extends StatelessWidget {
     );
   }
 
-  void _showNetWorthInfo(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: isDark ? AppColors.cardDark : AppColors.cardLight,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Financial Summary Info',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : Colors.black87,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                _buildInfoItem(
-                  'Estimated Net Worth',
-                  'Calculated as: Income - Expense + Active Investments + Net Lendings. It represents a unified estimate of your current financial value.',
-                  isDark,
-                ),
-                const SizedBox(height: 12),
-                _buildInfoItem(
-                  'Savings Rate',
-                  'Percentage of income saved: (Income - Expense) / Income. A rate above 20% is generally a great healthy target.',
-                  isDark,
-                ),
-                const SizedBox(height: 12),
-                _buildInfoItem(
-                  'Net Lendings',
-                  'Outstanding loans: Given (Due to you) - Taken (Due from you). Represents net cash owed to you.',
-                  isDark,
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 
-  Widget _buildInfoItem(String title, String description, bool isDark) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: AppColors.primaryTeal,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          description,
-          style: TextStyle(
-            fontSize: 13,
-            color: isDark ? Colors.white70 : Colors.black54,
-          ),
-        ),
-      ],
-    );
-  }
+
+
 
   Widget _buildMiniCard(
     BuildContext context, {
     required String title,
     required String value,
-    required FaIconData icon,
+    FaIconData? icon,
+    String? symbolIcon,
     required Color color,
+    String? badgeText,
     VoidCallback? onTap,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     Widget card = Ink(
-      padding: const EdgeInsets.all(12),
-      height: 98,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: isDark ? AppColors.cardDark : AppColors.cardLight,
         borderRadius: BorderRadius.circular(16),
@@ -335,19 +273,164 @@ class SummaryCards extends StatelessWidget {
                 style: TextStyle(
                   color: isDark ? Colors.white70 : Colors.black54,
                   fontSize: 12,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-              FaIcon(icon, color: color.withValues(alpha: 0.8), size: 14),
+              Row(
+                children: [
+                  if (symbolIcon != null)
+                    Text(
+                      symbolIcon,
+                      style: TextStyle(
+                        color: color,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )
+                  else if (icon != null)
+                    FaIcon(icon, color: color.withValues(alpha: 0.9), size: 14),
+                  if (onTap != null) ...[
+                    const SizedBox(width: 4),
+                    Icon(
+                      Icons.chevron_right,
+                      size: 14,
+                      color: isDark ? Colors.white38 : Colors.black38,
+                    ),
+                  ],
+                ],
+              ),
             ],
           ),
-          Text(
-            value,
-            style: TextStyle(
-              color: isDark ? Colors.white : Colors.black.withValues(alpha: 0.8),
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                child: Text(
+                  value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: isDark ? Colors.white : Colors.black.withValues(alpha: 0.85),
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              if (badgeText != null)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    badgeText,
+                    style: TextStyle(
+                      color: color,
+                      fontSize: 9,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+
+    if (onTap != null) {
+      card = InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: card,
+      );
+    }
+
+    return Material(
+      color: Colors.transparent,
+      child: card,
+    );
+  }
+
+  Widget _buildLendingCard(
+    BuildContext context, {
+    required String title,
+    required double given,
+    required double taken,
+    required String symbol,
+    required FaIconData icon,
+    required Color color,
+    VoidCallback? onTap,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    Widget card = Ink(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.cardDark : AppColors.cardLight,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  color: isDark ? Colors.white70 : Colors.black54,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Row(
+                children: [
+                  FaIcon(icon, color: color.withValues(alpha: 0.9), size: 14),
+                  if (onTap != null) ...[
+                    const SizedBox(width: 4),
+                    Icon(
+                      Icons.chevron_right,
+                      size: 14,
+                      color: isDark ? Colors.white38 : Colors.black38,
+                    ),
+                  ],
+                ],
+              ),
+            ],
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  'Given: ${given.toCurrency()} $symbol',
+                  style: TextStyle(
+                    color: isDark ? Colors.white : Colors.black.withValues(alpha: 0.85),
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 2),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  'Taken: ${taken.toCurrency()} $symbol',
+                  style: TextStyle(
+                    color: isDark ? Colors.white70 : Colors.black54,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -384,33 +467,28 @@ class SummaryCardsShimmer extends StatelessWidget {
     final itemBg = isDark ? AppColors.cardDark : AppColors.cardLight;
 
     if (showOnlyLendingAndInvesting) {
+      final cardCount = AppConfig.isPersonal ? 3 : 2;
       return Shimmer.fromColors(
         baseColor: baseColor,
         highlightColor: highlightColor,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Row(
-            children: [
-              Expanded(
-                child: Container(
-                  height: 98,
-                  decoration: BoxDecoration(
-                    color: itemBg,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
+          child: GridView.count(
+            crossAxisCount: 2,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1.6,
+            children: List.generate(
+              cardCount,
+              (index) => Container(
+                decoration: BoxDecoration(
+                  color: itemBg,
+                  borderRadius: BorderRadius.circular(16),
                 ),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Container(
-                  height: 98,
-                  decoration: BoxDecoration(
-                    color: itemBg,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       );

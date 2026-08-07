@@ -32,25 +32,15 @@ class IncomeExpenseBarChart extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'INFLOW VS OUTFLOW',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.grey,
-                  letterSpacing: 1.1,
-                ),
-              ),
-              IconButton(
-                icon: const Icon(
-                  Icons.info_outline,
-                  color: AppColors.grey,
-                  size: 16,
-                ),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                onPressed: () => _showInflowOutflowInfo(context),
-              ),
+          const Text(
+            'INFLOW VS OUTFLOW',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: AppColors.grey,
+              letterSpacing: 1.1,
+            ),
+          ),
             ],
           ),
           const SizedBox(height: 16),

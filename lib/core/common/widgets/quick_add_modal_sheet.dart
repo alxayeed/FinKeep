@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/routes/app_router.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
+import 'package:finkeep/core/styles/currency_provider.dart';
 import 'package:finkeep/features/expense/domain/entities/expense_entity.dart';
 import 'package:finkeep/features/expense/presentation/controllers/monthly_expense_controller.dart';
 import 'package:finkeep/features/expense/presentation/widgets/expense_form.dart';
@@ -84,6 +85,7 @@ class _QuickAddModalSheetState extends State<QuickAddModalSheet> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final keyboardPadding = MediaQuery.of(context).viewInsets.bottom;
+    final activeSymbol = context.currency.symbol;
 
     return Container(
       height: MediaQuery.of(context).size.height,
@@ -109,14 +111,13 @@ class _QuickAddModalSheetState extends State<QuickAddModalSheet> {
                           color: _activeAccentColor.withValues(alpha: 0.12),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(
-                          _selectedTab == 0
-                              ? Icons.monetization_on_rounded
-                              : _selectedTab == 1
-                                  ? Icons.account_balance_wallet_rounded
-                                  : Icons.handshake_rounded,
-                          size: 20.sp,
-                          color: _activeAccentColor,
+                        child: Text(
+                          _selectedTab == 2 ? '🤝' : activeSymbol,
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.bold,
+                            color: _activeAccentColor,
+                          ),
                         ),
                       ),
                       SizedBox(width: 10.w),
@@ -158,8 +159,8 @@ class _QuickAddModalSheetState extends State<QuickAddModalSheet> {
                 ),
                 child: Row(
                   children: [
-                    Expanded(child: _buildTabButton(0, 'Expense', Icons.monetization_on_outlined, const Color(0xFFEF4444), isDark)),
-                    Expanded(child: _buildTabButton(1, 'Income', Icons.account_balance_wallet_outlined, const Color(0xFF10B981), isDark)),
+                    Expanded(child: _buildTabButton(0, 'Expense', Icons.monetization_on_outlined, const Color(0xFFEF4444), isDark, currencySymbol: activeSymbol)),
+                    Expanded(child: _buildTabButton(1, 'Income', Icons.account_balance_wallet_outlined, const Color(0xFF10B981), isDark, currencySymbol: activeSymbol)),
                     Expanded(child: _buildTabButton(2, 'Lend', Icons.handshake_outlined, const Color(0xFF6366F1), isDark)),
                   ],
                 ),
@@ -197,7 +198,7 @@ class _QuickAddModalSheetState extends State<QuickAddModalSheet> {
     );
   }
 
-  Widget _buildTabButton(int index, String label, IconData icon, Color tabAccent, bool isDark) {
+  Widget _buildTabButton(int index, String label, IconData fallbackIcon, Color tabAccent, bool isDark, {String? currencySymbol}) {
     final isSelected = _selectedTab == index;
     return GestureDetector(
       onTap: () => _onTabTapped(index),
@@ -222,13 +223,25 @@ class _QuickAddModalSheetState extends State<QuickAddModalSheet> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              size: 16.sp,
-              color: isSelected
-                  ? tabAccent
-                  : (isDark ? Colors.white38 : const Color(0xFF94A3B8)),
-            ),
+            if (currencySymbol != null)
+              Text(
+                currencySymbol,
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.bold,
+                  color: isSelected
+                      ? tabAccent
+                      : (isDark ? Colors.white38 : const Color(0xFF94A3B8)),
+                ),
+              )
+            else
+              Icon(
+                fallbackIcon,
+                size: 16.sp,
+                color: isSelected
+                    ? tabAccent
+                    : (isDark ? Colors.white38 : const Color(0xFF94A3B8)),
+              ),
             SizedBox(width: 6.w),
             Text(
               label,

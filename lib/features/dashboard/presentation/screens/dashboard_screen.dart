@@ -9,7 +9,7 @@ import '../../../../core/styles/app_colors.dart';
 import '../controllers/dashboard_controller.dart';
 import '../widgets/cash_flow_line_chart.dart';
 import '../widgets/expense_doughnut_chart.dart';
-import '../widgets/income_expense_bar_chart.dart';
+import '../widgets/income_doughnut_chart.dart';
 // import '../widgets/recent_activity_list.dart';
 import '../widgets/summary_cards.dart';
 import '../widgets/timeframe_selector.dart';
@@ -49,7 +49,7 @@ class DashboardScreen extends StatelessWidget {
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.only(bottom: 24),
                 children: [
-                  // 0. Monthly Standing Donut Chart Overview
+                  // 0. Current Standing Chart Overview with Month Navigation
                   Obx(() {
                     if (controller.monthlyStandingLoading.value) {
                       return const MonthlyStandingChartShimmer();
@@ -57,7 +57,7 @@ class DashboardScreen extends StatelessWidget {
                     if (controller.monthlyStandingError.isNotEmpty) {
                       return _buildErrorTile(
                         context,
-                        title: 'Monthly Standing',
+                        title: 'Current Standing',
                         error: controller.monthlyStandingError.value,
                         onRetry: () => controller.fetchMonthlyStanding(),
                       );
@@ -73,7 +73,52 @@ class DashboardScreen extends StatelessWidget {
                     );
                   }),
                   const SizedBox(height: 12),
-                  // 1. Stats and Overview Hero Card (Showing Lending & Investing mini cards only)
+
+                  // 1. Expense & Income Doughnut Charts Side-by-Side (Right below Monthly Standing)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Obx(() {
+                            if (controller.expenseBreakdownLoading.value) {
+                              return const ExpenseDoughnutChartShimmer();
+                            }
+                            if (controller.expenseBreakdownError.isNotEmpty) {
+                              return const SizedBox();
+                            }
+                            final breakdown = controller.expenseBreakdown;
+                            final totalExpense = controller.stats.value?.totalExpense ?? 0.0;
+                            return ExpenseDoughnutChart(
+                              breakdown: breakdown,
+                              totalExpense: totalExpense,
+                            );
+                          }),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Obx(() {
+                            if (controller.incomeBreakdownLoading.value) {
+                              return const IncomeDoughnutChartShimmer();
+                            }
+                            if (controller.incomeBreakdownError.isNotEmpty) {
+                              return const SizedBox();
+                            }
+                            final breakdown = controller.incomeBreakdown;
+                            final totalIncome = controller.stats.value?.totalIncome ?? 0.0;
+                            return IncomeDoughnutChart(
+                              breakdown: breakdown,
+                              totalIncome: totalIncome,
+                            );
+                          }),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // 2. Feature Cards (Net Lendings, Investments, Savings)
                   Obx(() {
                     if (controller.statsLoading.value) {
                       return const SummaryCardsShimmer(showOnlyLendingAndInvesting: true);
@@ -93,41 +138,9 @@ class DashboardScreen extends StatelessWidget {
                         child: Center(child: Text('No overview stats loaded')),
                       );
                     }
-                    return SummaryCards(data: data, showOnlyLendingAndInvesting: true);
-                  }),
-                  const SizedBox(height: 12),
-
-                  // 2. Inflow vs Outflow Bar Chart
-                  Obx(() {
-                    if (controller.statsLoading.value) {
-                      return const IncomeExpenseBarChartShimmer();
-                    }
-                    if (controller.statsError.isNotEmpty) {
-                      return const SizedBox();
-                    }
-                    final data = controller.stats.value;
-                    if (data == null) return const SizedBox();
-                    return IncomeExpenseBarChart(data: data);
-                  }),
-
-                  // 3. Expense Allocation Doughnut Chart
-                  Obx(() {
-                    if (controller.expenseBreakdownLoading.value) {
-                      return const ExpenseDoughnutChartShimmer();
-                    }
-                    if (controller.expenseBreakdownError.isNotEmpty) {
-                      return _buildErrorTile(
-                        context,
-                        title: 'Expense Allocation',
-                        error: controller.expenseBreakdownError.value,
-                        onRetry: () => controller.fetchAllDashboardData(),
-                      );
-                    }
-                    final breakdown = controller.expenseBreakdown;
-                    final totalExpense = controller.stats.value?.totalExpense ?? 0.0;
-                    return ExpenseDoughnutChart(
-                      breakdown: breakdown,
-                      totalExpense: totalExpense,
+                    return SummaryCards(
+                      data: data,
+                      showOnlyLendingAndInvesting: true,
                     );
                   }),
                   const SizedBox(height: 12),

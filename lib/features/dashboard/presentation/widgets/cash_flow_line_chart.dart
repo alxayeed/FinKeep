@@ -71,23 +71,13 @@ class CashFlowLineChart extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'CUMULATIVE CASH BALANCE TREND',
+                'BALANCE TREND',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                   color: AppColors.grey,
                   letterSpacing: 1.1,
                 ),
-              ),
-              IconButton(
-                icon: const Icon(
-                  Icons.info_outline,
-                  color: AppColors.grey,
-                  size: 16,
-                ),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                onPressed: () => _showCashFlowTrendInfo(context),
               ),
             ],
           ),

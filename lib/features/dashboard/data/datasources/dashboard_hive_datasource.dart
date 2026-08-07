@@ -255,15 +255,23 @@ class DashboardHiveDataSource implements DashboardLocalDataSource {
     for (final raw in localDb.incomeCategoriesBox.values) {
       final map = Map<String, dynamic>.from(raw);
       final id = map['id'] as String? ?? '';
-      labelMap[id] = map['name'] as String? ?? id;
-      emojiMap[id] = map['emoji'] as String? ?? '💰';
+      final name = map['name'] as String? ?? map['label'] as String? ?? id;
+      final emoji = map['emoji'] as String? ?? '💰';
+      if (id.isNotEmpty) {
+        labelMap[id] = name;
+        emojiMap[id] = emoji;
+      }
+      if (name.isNotEmpty) {
+        labelMap[name] = name;
+        emojiMap[name] = emoji;
+      }
     }
 
     for (final raw in localDb.incomeBox.values) {
       final map = Map<String, dynamic>.from(raw);
       final date = _parseDate(map['date']);
       if (_inRange(date, start, end)) {
-        final categoryId = map['categoryId'] as String? ?? 'other';
+        final categoryId = map['categoryId'] as String? ?? map['category'] as String? ?? 'other';
         final amount = (map['amount'] as num? ?? 0).toDouble();
         catSums[categoryId] = (catSums[categoryId] ?? 0) + amount;
         grandTotal += amount;
@@ -271,9 +279,10 @@ class DashboardHiveDataSource implements DashboardLocalDataSource {
     }
 
     final List<DashboardCategoryBreakdownModel> result = catSums.entries.map((e) {
+      final rawName = labelMap[e.key] ?? e.key;
       final percentage = grandTotal > 0 ? (e.value / grandTotal) * 100 : 0.0;
       return DashboardCategoryBreakdownModel(
-        categoryName: labelMap[e.key] ?? e.key,
+        categoryName: _formatCategoryName(rawName),
         amount: e.value,
         percentage: percentage,
         emoji: emojiMap[e.key] ?? '💰',
@@ -433,5 +442,16 @@ class DashboardHiveDataSource implements DashboardLocalDataSource {
 
     activities.sort((a, b) => b.date.compareTo(a.date));
     return activities.take(limit).toList();
+  }
+
+  String _formatCategoryName(String rawName) {
+    if (rawName.isEmpty) return 'Other';
+    String cleaned = rawName;
+    if (cleaned.startsWith('cat_') || cleaned.startsWith('cat-')) {
+      cleaned = cleaned.substring(4);
+    }
+    cleaned = cleaned.replaceAll('_', ' ').replaceAll('-', ' ').trim();
+    if (cleaned.isEmpty) return 'Other';
+    return cleaned[0].toUpperCase() + cleaned.substring(1);
   }
 }
