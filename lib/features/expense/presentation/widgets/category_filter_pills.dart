@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../controllers/expense_category_controller.dart';
+import '../controllers/monthly_expense_controller.dart';
+import '../../domain/entities/expense_category_entity.dart';
 
 class CategoryFilterPills extends StatefulWidget {
   final String? selectedCategoryId;
@@ -139,7 +141,24 @@ class _CategoryFilterPillsState extends State<CategoryFilterPills> {
   Widget _buildCategoryListWithSearchButton(BuildContext context, bool isDark) {
     return Obx(() {
       final list = categoryController.categories.where((c) => !c.isDeleted).toList();
-      final choices = [null, ...list];
+      bool hasArchived = false;
+      try {
+        final MonthlyExpenseController monthlyController = Get.find();
+        final activeLabels = list.map((c) => c.displayLabel.toLowerCase()).toSet();
+        hasArchived = monthlyController.expenses.any((e) => !activeLabels.contains(e.category.toLowerCase()));
+      } catch (_) {}
+
+      final choices = [
+        null,
+        ...list,
+        if (hasArchived)
+          const ExpenseCategoryEntity(
+            id: 'archived',
+            displayLabel: 'Archived',
+            emoji: '📁',
+            isCustom: true,
+          ),
+      ];
 
       return Padding(
         key: const ValueKey('category_list'),

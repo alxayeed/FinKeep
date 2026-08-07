@@ -54,6 +54,19 @@ class MonthlyExpenseSummaryScreen extends StatelessWidget {
         }
       }
 
+      // Compute spent amount for archived/deleted categories
+      final activeLabels = categoryController.categories
+          .where((c) => !c.isDeleted)
+          .map((c) => c.displayLabel.toLowerCase())
+          .toSet();
+      final double archivedSpent = controller.expenses
+          .where((e) => !activeLabels.contains(e.category.toLowerCase()))
+          .fold(0.0, (sum, item) => sum + item.amount);
+
+      if (archivedSpent > 0) {
+        spentByCategory['exp_archived'] = archivedSpent;
+      }
+
       return RefreshIndicator(
         onRefresh: () async {
           controller.shouldRefresh = true;

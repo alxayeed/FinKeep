@@ -1,7 +1,7 @@
 1.1.0+20
 [07/08/2026]
 - UPDATE: Expense list will show category wise expense when selected any
--
+- UPDATE: Custom category increased for income/expense. Historical data persistency improved.
 
 1.0.0+20
 [11/07/2026]

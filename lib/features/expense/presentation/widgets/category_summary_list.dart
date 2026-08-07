@@ -60,6 +60,17 @@ class CategorySummaryList extends StatelessWidget {
         .where((c) => !c.isDeleted)
         .toList();
 
+    if (spentByCategory.containsKey('exp_archived') && (spentByCategory['exp_archived'] ?? 0) > 0) {
+      categories.add(
+        const ExpenseCategoryEntity(
+          id: 'exp_archived',
+          displayLabel: 'Archived',
+          emoji: '📁',
+          isCustom: true,
+        ),
+      );
+    }
+
     // Sort categories by spending descending
     categories.sort((a, b) {
       final spentA = spentByCategory[a.id] ?? 0.0;

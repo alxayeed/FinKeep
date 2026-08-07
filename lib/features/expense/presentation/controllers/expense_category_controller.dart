@@ -33,7 +33,7 @@ class ExpenseCategoryController extends GetxController {
   var categories = <ExpenseCategoryEntity>[].obs;
   var isLoading = false.obs;
 
-  final int maxCustomCategoryLimit = 3;
+  final int maxCustomCategoryLimit = 7;
 
   @override
   void onInit() {

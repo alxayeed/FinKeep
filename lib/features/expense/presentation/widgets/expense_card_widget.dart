@@ -58,7 +58,7 @@ class ExpenseCardWidget extends StatelessWidget {
     final String displayCategoryLabel = isDeleted ? '${category.displayLabel} (Deleted)' : category.displayLabel;
     final String label = expense.description.isNotEmpty
         ? expense.description
-        : displayCategoryLabel;
+        : category.displayLabel;
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),

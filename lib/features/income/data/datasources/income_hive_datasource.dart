@@ -120,11 +120,36 @@ class IncomeHiveDataSource implements IncomeLocalDataSource {
 
   @override
   Future<void> deleteCategory(String id) async {
-    final raw = localDb.incomeCategoriesBox.get(id);
+    dynamic keyToUpdate = id;
+    var raw = localDb.incomeCategoriesBox.get(id);
+
+    if (raw == null) {
+      for (var k in localDb.incomeCategoriesBox.keys) {
+        final val = localDb.incomeCategoriesBox.get(k);
+        if (val != null) {
+          final cat = _mapCategory(val);
+          if (cat.id == id || cat.displayLabel.toLowerCase() == id.toLowerCase()) {
+            keyToUpdate = k;
+            raw = val;
+            break;
+          }
+        }
+      }
+    }
+
     if (raw != null) {
       final category = _mapCategory(raw);
       final updated = category.copyWith(isDeleted: true);
-      await localDb.incomeCategoriesBox.put(id, updated.toJson());
+      await localDb.incomeCategoriesBox.put(keyToUpdate, updated.toJson());
+    } else {
+      final fallback = IncomeCategoryModel(
+        id: id,
+        displayLabel: id,
+        emoji: '💰',
+        isCustom: true,
+        isDeleted: true,
+      );
+      await localDb.incomeCategoriesBox.put(id, fallback.toJson());
     }
   }
 }

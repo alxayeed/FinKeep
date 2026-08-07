@@ -9,6 +9,7 @@ import '../../domain/entities/expense_entity.dart';
 import '../../domain/usecases/get_last_month_total_usecase.dart';
 import '../../domain/usecases/usecases.dart';
 import 'budget_controller.dart';
+import 'expense_category_controller.dart';
 
 class MonthlyExpenseController extends GetxController {
   final GetAllExpensesUseCase getAllExpenses;
@@ -168,8 +169,19 @@ class MonthlyExpenseController extends GetxController {
     final query = searchQuery.value.trim().toLowerCase();
     List<ExpenseEntity> temp = expenses;
     
-    if (selectedCategory.value != 'All') {
-      temp = temp.where((expense) => expense.category == selectedCategory.value).toList();
+    if (selectedCategory.value == 'Archived') {
+      try {
+        final ExpenseCategoryController categoryController = Get.find();
+        final activeLabels = categoryController.categories
+            .where((c) => !c.isDeleted)
+            .map((c) => c.displayLabel.toLowerCase())
+            .toSet();
+        temp = temp.where((expense) => !activeLabels.contains(expense.category.toLowerCase())).toList();
+      } catch (_) {
+        temp = temp.where((expense) => expense.category == 'Archived').toList();
+      }
+    } else if (selectedCategory.value != 'All') {
+      temp = temp.where((expense) => expense.category.toLowerCase() == selectedCategory.value.toLowerCase()).toList();
     }
     
     if (query.isNotEmpty) {

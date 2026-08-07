@@ -58,9 +58,9 @@ class _IncomeCategorySettingsScreenState extends State<IncomeCategorySettingsScr
       if (mounted) {
         showDialog(
           context: context,
-          builder: (ctx) => const CustomAlertDialog(
+          builder: (ctx) => CustomAlertDialog(
             title: 'Category Limit Reached',
-            description: 'You can create a maximum of 3 custom income categories. Please delete an existing custom category to add a new one.',
+            description: 'You can create a maximum of ${categoryController.maxCustomCategoryLimit} custom income categories. Please delete an existing custom category to add a new one.',
             buttonText: 'Got It',
           ),
         );

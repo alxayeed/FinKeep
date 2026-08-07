@@ -116,7 +116,7 @@ class MonthlyExpenseListScreen extends StatelessWidget {
           final cat = categoryController.categories.firstWhereOrNull(
             (c) => c.displayLabel.toLowerCase() == selectedCategoryStr.toLowerCase(),
           );
-          final selectedCategoryId = cat?.id;
+          final selectedCategoryId = selectedCategoryStr == 'Archived' ? 'archived' : cat?.id;
 
           return Padding(
             padding: EdgeInsets.only(bottom: 8.h),
@@ -125,6 +125,8 @@ class MonthlyExpenseListScreen extends StatelessWidget {
               onCategorySelected: (catId) {
                 if (catId == null) {
                   controller.updateSelectedCategory('All');
+                } else if (catId == 'archived') {
+                  controller.updateSelectedCategory('Archived');
                 } else {
                   final matchedCat = categoryController.categories.firstWhereOrNull((c) => c.id == catId);
                   controller.updateSelectedCategory(matchedCat?.displayLabel ?? 'All');

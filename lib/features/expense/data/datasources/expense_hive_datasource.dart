@@ -69,11 +69,36 @@ class ExpenseHiveDataSource implements ExpenseLocalDataSource {
 
   @override
   Future<void> deleteCategory(String id) async {
-    final raw = localDb.expenseCategoriesBox.get(id);
+    dynamic keyToUpdate = id;
+    var raw = localDb.expenseCategoriesBox.get(id);
+
+    if (raw == null) {
+      for (var k in localDb.expenseCategoriesBox.keys) {
+        final val = localDb.expenseCategoriesBox.get(k);
+        if (val != null) {
+          final category = _mapCategory(val);
+          if (category.id == id || category.displayLabel.toLowerCase() == id.toLowerCase()) {
+            keyToUpdate = k;
+            raw = val;
+            break;
+          }
+        }
+      }
+    }
+
     if (raw != null) {
       final category = _mapCategory(raw);
       final updated = category.copyWith(isDeleted: true);
-      await localDb.expenseCategoriesBox.put(id, updated.toJson());
+      await localDb.expenseCategoriesBox.put(keyToUpdate, updated.toJson());
+    } else {
+      final fallback = ExpenseCategoryModel(
+        id: id,
+        displayLabel: id,
+        emoji: '📦',
+        isCustom: true,
+        isDeleted: true,
+      );
+      await localDb.expenseCategoriesBox.put(id, fallback.toJson());
     }
   }
 
