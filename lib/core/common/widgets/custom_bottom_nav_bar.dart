@@ -1,16 +1,17 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 
 enum CustomNavBarStyle { floatingPill, indicatorLine, glowingBlob }
 
 class CustomNavBarItem {
-  final IconData icon;
-  final IconData activeIcon;
+  final dynamic icon;
+  final dynamic activeIcon;
   final String label;
 
-  const CustomNavBarItem({
+  CustomNavBarItem({
     required this.icon,
     required this.activeIcon,
     required this.label,
@@ -31,6 +32,13 @@ class CustomBottomNavBar extends StatelessWidget {
     this.style = CustomNavBarStyle.floatingPill,
   });
 
+  Widget _buildSmartIcon(dynamic iconData, Color color, double size) {
+    if (iconData is IconData) {
+      return Icon(iconData, color: color, size: size);
+    }
+    return FaIcon(iconData, color: color, size: size);
+  }
+
   @override
   Widget build(BuildContext context) {
     switch (style) {
@@ -47,7 +55,6 @@ class CustomBottomNavBar extends StatelessWidget {
   Widget _buildFloatingPill(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Using highly transparent backgrounds with blur for blending
     final Color barBgColor = isDark
         ? AppColors.bgDark.withValues(alpha: 0.7)
         : Colors.white.withValues(alpha: 0.75);
@@ -64,91 +71,90 @@ class CustomBottomNavBar extends StatelessWidget {
           bottom: 14.0,
           top: 6.0,
         ),
-      // ClipRRect is required for BackdropFilter to shape with the border radius
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 12.0, sigmaY: 12.0),
-          child: Container(
-            height: 68,
-            decoration: BoxDecoration(
-              color: barBgColor,
-              borderRadius: BorderRadius.circular(28),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
-                  blurRadius: 16,
-                  offset: const Offset(0, 4),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(28),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 12.0, sigmaY: 12.0),
+            child: Container(
+              height: 68,
+              decoration: BoxDecoration(
+                color: barBgColor,
+                borderRadius: BorderRadius.circular(28),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+                border: Border.all(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.06)
+                      : AppColors.primaryTeal.withValues(alpha: 0.08),
+                  width: 1,
                 ),
-              ],
-              border: Border.all(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.06)
-                    : AppColors.primaryTeal.withValues(alpha: 0.08),
-                width: 1,
               ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: List.generate(items.length, (index) {
-                final isSelected = index == currentIndex;
-                final item = items[index];
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: List.generate(items.length, (index) {
+                  final isSelected = index == currentIndex;
+                  final item = items[index];
 
-                return Expanded(
-                  child: GestureDetector(
-                    onTap: () => onTap(index),
-                    behavior: HitTestBehavior.opaque,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? AppColors.primaryTeal.withValues(alpha: 0.12)
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: AnimatedScale(
-                            scale: isSelected ? 1.12 : 1.0,
+                  return Expanded(
+                    child: GestureDetector(
+                      onTap: () => onTap(index),
+                      behavior: HitTestBehavior.opaque,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          AnimatedContainer(
                             duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeOutBack,
-                            child: Icon(
-                              isSelected ? item.activeIcon : item.icon,
-                              color: isSelected ? activeColor : inactiveColor,
-                              size: 24,
+                            curve: Curves.easeInOut,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? AppColors.primaryTeal.withValues(alpha: 0.12)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: AnimatedScale(
+                              scale: isSelected ? 1.12 : 1.0,
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeOutBack,
+                              child: _buildSmartIcon(
+                                isSelected ? item.activeIcon : item.icon,
+                                isSelected ? activeColor : inactiveColor,
+                                22,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 3),
-                        AnimatedDefaultTextStyle(
-                          duration: const Duration(milliseconds: 200),
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: isSelected
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                            color: isSelected ? activeColor : inactiveColor,
+                          const SizedBox(height: 3),
+                          AnimatedDefaultTextStyle(
+                            duration: const Duration(milliseconds: 200),
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              color: isSelected ? activeColor : inactiveColor,
+                            ),
+                            child: Text(item.label),
                           ),
-                          child: Text(item.label),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              }),
+                  );
+                }),
+              ),
             ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   // Style 2: Flat Bottom Bar (Blends naturally by matching the exact screen background)
   Widget _buildIndicatorLine(BuildContext context) {
@@ -167,7 +173,6 @@ class CustomBottomNavBar extends StatelessWidget {
           topLeft: Radius.circular(24),
           topRight: Radius.circular(24),
         ),
-        // Premium elevation shadow outlining the rounded capsule top
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.06),
@@ -244,7 +249,6 @@ class CustomBottomNavBar extends StatelessWidget {
                                 ),
                               ),
                             ),
-
                             Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -253,10 +257,10 @@ class CustomBottomNavBar extends StatelessWidget {
                                   scale: isSelected ? 1.08 : 1.0,
                                   duration: const Duration(milliseconds: 250),
                                   curve: Curves.easeOutBack,
-                                  child: Icon(
+                                  child: _buildSmartIcon(
                                     isSelected ? item.activeIcon : item.icon,
-                                    color: isSelected ? activeColor : inactiveColor,
-                                    size: 24,
+                                    isSelected ? activeColor : inactiveColor,
+                                    22,
                                   ),
                                 ),
                                 const SizedBox(height: 2),
@@ -287,11 +291,10 @@ class CustomBottomNavBar extends StatelessWidget {
     );
   }
 
-  // Style 3: Liquid Glass Blob (Premium hybrid blending with soft shadow and matched background)
+  // Style 3: Liquid Glass Blob
   Widget _buildGlowingBlob(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Blends by using a soft screen background match with blur
     final Color barBgColor = isDark
         ? AppColors.bgDark.withValues(alpha: 0.9)
         : AppColors.bgLight.withValues(alpha: 0.9);
@@ -351,10 +354,10 @@ class CustomBottomNavBar extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
+                          _buildSmartIcon(
                             isSelected ? item.activeIcon : item.icon,
-                            color: isSelected ? Colors.white : inactiveColor,
-                            size: 22,
+                            isSelected ? Colors.white : inactiveColor,
+                            20,
                           ),
                           if (isSelected) ...[
                             const SizedBox(width: 8),

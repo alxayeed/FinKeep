@@ -1,6 +1,7 @@
 import 'package:finkeep/core/common/widgets/custom_bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 
 import '../config/app_config.dart';
@@ -34,35 +35,35 @@ class _HomeScaffoldState extends State<HomeScaffold> {
     final index = _currentIndex(context);
 
     final navItems = [
-      const CustomNavBarItem(
-        icon: Icons.dashboard_outlined,
-        activeIcon: Icons.dashboard,
+      CustomNavBarItem(
+        icon: FontAwesomeIcons.chartPie,
+        activeIcon: FontAwesomeIcons.chartPie,
         label: 'Dashboard',
       ),
-      const CustomNavBarItem(
-        icon: Icons.monetization_on_outlined,
-        activeIcon: Icons.monetization_on,
+      CustomNavBarItem(
+        icon: FontAwesomeIcons.receipt,
+        activeIcon: FontAwesomeIcons.receipt,
         label: 'Expenses',
       ),
-      const CustomNavBarItem(
-        icon: Icons.account_balance_wallet_outlined,
-        activeIcon: Icons.account_balance_wallet,
+      CustomNavBarItem(
+        icon: FontAwesomeIcons.wallet,
+        activeIcon: FontAwesomeIcons.wallet,
         label: 'Income',
       ),
-      const CustomNavBarItem(
-        icon: Icons.handshake_outlined,
-        activeIcon: Icons.handshake,
+      CustomNavBarItem(
+        icon: FontAwesomeIcons.handshake,
+        activeIcon: FontAwesomeIcons.handshake,
         label: 'Lendings',
       ),
-      const CustomNavBarItem(
-        icon: Icons.bar_chart_outlined,
-        activeIcon: Icons.bar_chart,
+      CustomNavBarItem(
+        icon: FontAwesomeIcons.chartColumn,
+        activeIcon: FontAwesomeIcons.chartColumn,
         label: 'Reports',
       ),
-      if (AppConfig.isPersonal) ...const [
+      if (AppConfig.isPersonal) ...[
         CustomNavBarItem(
-          icon: Icons.trending_up_outlined,
-          activeIcon: Icons.trending_up,
+          icon: FontAwesomeIcons.arrowTrendUp,
+          activeIcon: FontAwesomeIcons.arrowTrendUp,
           label: 'Investments',
         ),
       ],
