@@ -24,7 +24,7 @@ class MonthlyExpenseSummaryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final double totalSpent = controller.totalExpense.value;
+      final double totalSpent = controller.overallTotalExpense;
       final double totalBudget = controller.monthlyBudget.value;
       final ExpenseCategoryController categoryController = Get.find();
 

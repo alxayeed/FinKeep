@@ -23,6 +23,8 @@ class MonthlyExpenseController extends GetxController {
   var isLoading = false.obs;
   var totalExpense = 0.0.obs;
 
+  double get overallTotalExpense => expenses.fold(0.0, (acc, item) => acc + item.amount);
+
   final categories = <String>[
     'All',
     ...ExpenseCategory.values.map((e) => e.displayName),
@@ -194,7 +196,7 @@ class MonthlyExpenseController extends GetxController {
   }
 
   void updateTotalExpense() {
-    totalExpense.value = expenses.fold(0.0, (acc, item) => acc + item.amount);
+    totalExpense.value = filteredExpenses.fold(0.0, (acc, item) => acc + item.amount);
   }
 
   bool _isCurrentMonthDataFetched(DateTime month) {
