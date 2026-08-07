@@ -176,17 +176,17 @@ class _QuickAddModalSheetState extends State<QuickAddModalSheet> {
                 children: [
                   SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
-                    padding: EdgeInsets.only(bottom: 12.h),
+                    padding: EdgeInsets.symmetric(horizontal: 16.w).copyWith(bottom: 12.h),
                     child: _buildExpenseForm(context),
                   ),
                   SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
-                    padding: EdgeInsets.only(bottom: 12.h),
+                    padding: EdgeInsets.symmetric(horizontal: 16.w).copyWith(bottom: 12.h),
                     child: _buildIncomeForm(context),
                   ),
                   SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
-                    padding: EdgeInsets.only(bottom: 12.h),
+                    padding: EdgeInsets.symmetric(horizontal: 16.w).copyWith(bottom: 12.h),
                     child: _buildLendingForm(context),
                   ),
                 ],
