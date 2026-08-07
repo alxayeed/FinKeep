@@ -6,9 +6,15 @@ import 'package:intl/intl.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/routes/app_router.dart';
 
-import '../../../../core/styles/app_colors.dart';
+import 'package:finkeep/core/common/widgets/custom_app_bar.dart';
+import 'package:finkeep/core/common/widgets/custom_fab.dart';
+import 'package:finkeep/core/common/widgets/quick_add_modal_sheet.dart';
+import 'package:finkeep/core/styles/app_colors.dart';
+
 import '../controllers/expense_report_controller.dart';
-import '../widgets/widgets.dart';
+import '../widgets/missing_budget_dialog.dart';
+import '../widgets/monthly_expense_shimmer.dart';
+import '../widgets/segmented_tab_bar.dart';
 import 'expense_report_summary_screen.dart';
 import 'expense_report_list_screen.dart';
 
@@ -207,6 +213,9 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
             onPressed: () => context.pushNamed(AppRoutes.settings),
           ),
         ],
+      ),
+      floatingActionButton: CustomFAB(
+        onPressed: () => showQuickAddModalSheet(context),
       ),
       body: Obx(() {
         final startDate = controller.startDate.value;

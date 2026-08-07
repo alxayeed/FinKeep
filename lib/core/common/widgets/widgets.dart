@@ -13,3 +13,4 @@ export 'app_text_field.dart';
 export 'custom_alert_dialog.dart';
 export 'styled_category_selector_field.dart';
 export 'payment_method_selector.dart';
+export 'quick_add_modal_sheet.dart';

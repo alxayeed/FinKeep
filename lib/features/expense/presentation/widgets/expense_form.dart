@@ -330,7 +330,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
             ),
           ),
         ),
-        SizedBox(height: 40.h),
+        SizedBox(height: 12.h),
       ],
     );
   }

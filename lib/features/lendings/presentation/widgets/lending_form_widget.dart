@@ -545,7 +545,7 @@ class _LendingFormWidgetState extends State<LendingFormWidget> {
                   ),
           ),
 
-          SizedBox(height: 40.h),
+          SizedBox(height: 12.h),
         ],
       ),
     );

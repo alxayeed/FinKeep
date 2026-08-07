@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/common/widgets/custom_app_bar.dart';
+import '../../../../core/common/widgets/custom_fab.dart';
+import '../../../../core/common/widgets/quick_add_modal_sheet.dart';
 import '../../../../core/routes/app_router.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../controllers/dashboard_controller.dart';
@@ -20,7 +22,6 @@ class DashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final DashboardController controller = Get.find();
 
-
     return Scaffold(
       appBar: CustomAppBar(
         title: 'Dashboard',
@@ -30,6 +31,9 @@ class DashboardScreen extends StatelessWidget {
             onPressed: () => context.pushNamed(AppRoutes.settings),
           ),
         ],
+      ),
+      floatingActionButton: CustomFAB(
+        onPressed: () => showQuickAddModalSheet(context),
       ),
       body: RefreshIndicator(
         onRefresh: () async {

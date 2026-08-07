@@ -337,7 +337,7 @@ class _IncomeFormState extends State<IncomeForm> {
               ),
             ),
           ),
-          SizedBox(height: 40.h),
+          SizedBox(height: 12.h),
         ],
       );
     });
