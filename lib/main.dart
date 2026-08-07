@@ -2,6 +2,7 @@
 import 'package:finkeep/core/routes/app_router.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
 import 'package:finkeep/core/providers/fiscal_year_provider.dart';
+import 'package:finkeep/core/services/preferences_sync_service.dart';
 import 'package:finkeep/core/utils/app_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -94,6 +95,10 @@ void main() async {
   // Initialize fiscal year provider
   final fiscalYearProvider = FiscalYearProvider();
   await fiscalYearProvider.init();
+
+  // Initialize user preferences sync service (Hive & Remote Firestore)
+  final preferencesSyncService = PreferencesSyncService();
+  await preferencesSyncService.init();
 
   final seenOnboarding = prefs.getBool('seen_onboarding') ?? false;
   bool requiresUnlock = prefs.getBool('biometric_enabled') ?? false;

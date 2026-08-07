@@ -12,6 +12,8 @@ import 'package:finkeep/features/expense/data/models/expense_model.dart';
 import 'package:finkeep/features/investments/data/models/investment_model.dart';
 import 'package:finkeep/features/lendings/data/models/lending/lending_model.dart';
 import 'package:finkeep/features/lendings/data/models/lending_person/lending_person_model.dart';
+import 'package:finkeep/core/models/user_preferences_model.dart';
+import 'package:finkeep/core/services/preferences_sync_service.dart';
 import 'package:finkeep/features/lendings/data/models/repayment/repayment_model.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -145,7 +147,7 @@ class BackupService {
     }
 
     // 6. Sync Budgets
-    onProgress?.call('Fetching remote budgets (6/6)...');
+    onProgress?.call('Fetching remote budgets (6/7)...');
     final budgetsColName = AppConfig.get('FIRESTORE_SUFFIX').isEmpty
         ? 'budgets'
         : 'budgets${AppConfig.get('FIRESTORE_SUFFIX')}';
@@ -156,6 +158,17 @@ class BackupService {
         data['updatedAt'] = (data['updatedAt'] as Timestamp).toDate().toIso8601String();
       }
       await localDb.budgetsBox.put(doc.id, data);
+    }
+
+    // 7. Sync Preferences
+    onProgress?.call('Fetching remote preferences (7/7)...');
+    final prefsColName = AppConfig.get('FIRESTORE_SUFFIX').isEmpty
+        ? 'user_preferences'
+        : 'user_preferences${AppConfig.get('FIRESTORE_SUFFIX')}';
+    final prefsDoc = await firestore.collection(prefsColName).doc('main_settings').get();
+    if (prefsDoc.exists && prefsDoc.data() != null) {
+      final prefsModel = UserPreferencesModel.fromJson(prefsDoc.data()!);
+      await PreferencesSyncService().updatePreferences(prefsModel);
     }
   }
 
@@ -265,6 +278,16 @@ class BackupService {
     if (data.containsKey('expense_categories') && data['expense_categories'] is List) {
       onProgress?.call('Merging local expense categories...');
       await _importToBox(localDb.expenseCategoriesBox, data['expense_categories'] as List);
+    }
+
+    if (data.containsKey('preferences') && data['preferences'] is List) {
+      onProgress?.call('Merging local user preferences...');
+      final prefList = data['preferences'] as List;
+      if (prefList.isNotEmpty) {
+        final prefMap = Map<String, dynamic>.from(prefList.first as Map);
+        final model = UserPreferencesModel.fromJson(prefMap);
+        await PreferencesSyncService().updatePreferences(model);
+      }
     }
 
     // If cloud mode is active, merge into Firestore
@@ -423,6 +446,7 @@ class BackupService {
       final bool incomeWasOpen = Hive.isBoxOpen('income');
       final bool incomeCategoriesWasOpen = Hive.isBoxOpen('income_categories');
       final bool expenseCategoriesWasOpen = Hive.isBoxOpen('expense_categories');
+      final bool preferencesWasOpen = Hive.isBoxOpen('preferences');
 
       // Fetch or open boxes
       final expensesBox = await getBox('expenses');
@@ -434,6 +458,7 @@ class BackupService {
       final incomeBox = await getBox('income');
       final incomeCategoriesBox = await getBox('income_categories');
       final expenseCategoriesBox = await getBox('expense_categories');
+      final preferencesBox = await getBox('preferences');
 
       // Export into JSON-ready Map
       final Map<String, dynamic> backupPayload = {
@@ -448,6 +473,7 @@ class BackupService {
         'income': incomeBox.values.map((v) => Map<String, dynamic>.from(v)).toList(),
         'income_categories': incomeCategoriesBox.values.map((v) => Map<String, dynamic>.from(v)).toList(),
         'expense_categories': expenseCategoriesBox.values.map((v) => Map<String, dynamic>.from(v)).toList(),
+        'preferences': preferencesBox.values.map((v) => Map<String, dynamic>.from(v)).toList(),
       };
 
       // Only close boxes that were NOT already open in this isolate
@@ -460,6 +486,7 @@ class BackupService {
       if (!incomeWasOpen) await incomeBox.close();
       if (!incomeCategoriesWasOpen) await incomeCategoriesBox.close();
       if (!expenseCategoriesWasOpen) await expenseCategoriesBox.close();
+      if (!preferencesWasOpen) await preferencesBox.close();
 
       // Normalize DateTimes to ISO strings
       final normalizedPayload = _deepConvertBackupDateTimes(backupPayload);

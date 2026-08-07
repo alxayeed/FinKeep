@@ -1,24 +1,25 @@
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'user_preferences_provider.dart';
 
 class FiscalYearProvider {
   static final FiscalYearProvider _instance = FiscalYearProvider._internal();
   factory FiscalYearProvider() => _instance;
-  FiscalYearProvider._internal();
+  FiscalYearProvider._internal() {
+    UserPreferencesProvider().addListener(() {
+      startMonthNotifier.value = UserPreferencesProvider().fiscalYearStartMonth;
+    });
+  }
 
-  final ValueNotifier<int> startMonthNotifier = ValueNotifier<int>(7); // Default July
+  final ValueNotifier<int> startMonthNotifier = ValueNotifier<int>(UserPreferencesProvider().fiscalYearStartMonth);
 
-  int get startMonth => startMonthNotifier.value;
+  int get startMonth => UserPreferencesProvider().fiscalYearStartMonth;
 
   Future<void> init() async {
-    final prefs = await SharedPreferences.getInstance();
-    startMonthNotifier.value = prefs.getInt('fiscal_year_start_month') ?? 7;
+    startMonthNotifier.value = UserPreferencesProvider().fiscalYearStartMonth;
   }
 
   Future<void> setStartMonth(int month) async {
-    if (month < 1 || month > 12) return;
+    await UserPreferencesProvider().setFiscalYearStartMonth(month);
     startMonthNotifier.value = month;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('fiscal_year_start_month', month);
   }
 }
