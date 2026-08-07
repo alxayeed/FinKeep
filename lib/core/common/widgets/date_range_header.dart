@@ -4,13 +4,13 @@ import '../../styles/app_colors.dart';
 import '../../providers/fiscal_year_provider.dart';
 import '../models/timeframe_selection.dart';
 
-class TimeframeHeader extends StatelessWidget {
+class DateRangeHeader extends StatelessWidget {
   final TimeframeSelection timeframe;
   final ValueChanged<TimeframeSelection> onTimeframeChanged;
   final VoidCallback? onSettingsPressed;
   final bool showSearchButton;
 
-  const TimeframeHeader({
+  const DateRangeHeader({
     super.key,
     required this.timeframe,
     required this.onTimeframeChanged,
@@ -69,23 +69,15 @@ class TimeframeHeader extends StatelessWidget {
                     onTap: () => _showTimeframePickerModal(context, currentSelection),
                     child: Container(
                       height: 36.h,
-                      padding: EdgeInsets.symmetric(horizontal: 12.w),
+                      padding: EdgeInsets.symmetric(horizontal: 14.w),
                       decoration: BoxDecoration(
-                        color: isDark
-                            ? const Color(0xFF1E293B)
-                            : const Color(0xFFF8FAFC),
-                        border: Border.all(
-                          color: isDark
-                              ? const Color(0xFF334155)
-                              : const Color(0xFFF1F5F9),
-                          width: 1,
-                        ),
+                        color: AppColors.primaryTeal,
                         borderRadius: BorderRadius.circular(9999.r),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.02),
-                            blurRadius: 2.r,
-                            offset: const Offset(0, 1),
+                            color: AppColors.primaryTeal.withValues(alpha: 0.25),
+                            blurRadius: 6.r,
+                            offset: const Offset(0, 2),
                           ),
                         ],
                       ),
@@ -95,21 +87,17 @@ class TimeframeHeader extends StatelessWidget {
                           Text(
                             currentSelection.displayTitle,
                             style: TextStyle(
-                              fontSize: 14.sp,
+                              fontSize: 13.5.sp,
                               fontFamily: 'Manrope',
                               fontWeight: FontWeight.bold,
-                              color: isDark
-                                  ? Colors.white
-                                  : const Color(0xFF0F172A),
+                              color: Colors.white,
                             ),
                           ),
                           SizedBox(width: 6.w),
                           Icon(
                             Icons.keyboard_arrow_down,
-                            size: 16.sp,
-                            color: isDark
-                                ? Colors.white60
-                                : const Color(0xFF94A3B8),
+                            size: 18.sp,
+                            color: Colors.white.withValues(alpha: 0.9),
                           ),
                         ],
                       ),
@@ -195,7 +183,7 @@ class TimeframeHeader extends StatelessWidget {
               ),
               SizedBox(height: 16.h),
               Text(
-                'Select Timeframe Scope',
+                'Select Date Range',
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontFamily: 'Manrope',

@@ -10,6 +10,7 @@
 - UPDATE: replace spinner loaders with shimmer skeletons in income and expense list screens
 - UPDATE: add unified Date filtering with monthly, yearly, fiscal year, custom range, and all-time date filtering across feature screens
 - UPDATE: add local Hive and remote Firestore database persistence for user preferences via unified UserPreferencesProvider
+- UPDATE: improve date range selector UI and update action button design
 
 1.0.0+20
 [11/07/2026]

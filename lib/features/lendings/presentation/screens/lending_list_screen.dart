@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:finkeep/core/config/app_config.dart';
-import 'package:finkeep/core/common/widgets/timeframe_header.dart';
+import 'package:finkeep/core/common/widgets/date_range_header.dart';
 import 'package:finkeep/core/common/widgets/custom_fab.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/routes/app_router.dart';
@@ -98,7 +98,7 @@ class _LendingListScreenState extends State<LendingListScreen> {
           if (controller.isLoading.value && controller.lendingsList.isEmpty) {
             return Column(
               children: [
-                TimeframeHeader(
+                DateRangeHeader(
                   timeframe: controller.timeframe.value,
                   onTimeframeChanged: (newTimeframe) {
                     controller.updateTimeframe(newTimeframe);
@@ -131,9 +131,9 @@ class _LendingListScreenState extends State<LendingListScreen> {
                 parent: AlwaysScrollableScrollPhysics(),
               ),
               slivers: [
-                // ── Timeframe Header ──
+                // ── Date Range Header ──
                 SliverToBoxAdapter(
-                  child: TimeframeHeader(
+                  child: DateRangeHeader(
                     timeframe: controller.timeframe.value,
                     onTimeframeChanged: (newTimeframe) {
                       controller.updateTimeframe(newTimeframe);

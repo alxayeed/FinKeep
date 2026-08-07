@@ -7,7 +7,7 @@ import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/routes/app_router.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 
-import '../../../../core/common/widgets/timeframe_header.dart';
+import '../../../../core/common/widgets/date_range_header.dart';
 import '../../../../core/common/widgets/custom_fab.dart';
 import '../../../../core/common/widgets/error_widget.dart';
 import '../../../expense/presentation/widgets/segmented_tab_bar.dart';
@@ -46,7 +46,7 @@ class _InvestmentListScreenState extends State<InvestmentListScreen> {
         child: Column(
           children: [
             Obx(() {
-              return TimeframeHeader(
+              return DateRangeHeader(
                 timeframe: controller.timeframe.value,
                 onTimeframeChanged: (newTimeframe) {
                   controller.updateTimeframe(newTimeframe);

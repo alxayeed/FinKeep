@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../responsive/responsive.dart';
 
+import '../../styles/app_colors.dart';
+
 class CustomFAB extends StatelessWidget {
   final VoidCallback onPressed;
   final IconData icon;
@@ -14,9 +16,11 @@ class CustomFAB extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: AppColors.primaryTeal,
       foregroundColor: Colors.white,
-      shape: const CircleBorder(),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16.r),
+      ),
       elevation: 6,
       onPressed: onPressed,
       child: Icon(icon, size: 28.sp),
