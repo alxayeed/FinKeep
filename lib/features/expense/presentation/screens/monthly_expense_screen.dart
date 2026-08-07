@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/common/widgets/custom_fab.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/styles/app_colors.dart';
+import '../../../../core/common/widgets/date_range_header.dart';
 import '../controllers/monthly_expense_controller.dart';
 import '../widgets/widgets.dart';
 import 'monthly_expense_list_screen.dart';
@@ -33,11 +34,11 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 1. Month Selector Header
-              MonthSelector(
-                showSearchButton: _selectedTab == 1,
-                onMonthChanged: (selectedMonth) {
-                  controller.updateSelectedMonth(selectedMonth);
+              // 1. Date Range Selector Header
+              DateRangeHeader(
+                timeframe: controller.timeframe.value,
+                onTimeframeChanged: (newTimeframe) {
+                  controller.updateTimeframe(newTimeframe);
                 },
                 onSettingsPressed: () {
                   context.pushNamed(AppRoutes.settings);

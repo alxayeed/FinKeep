@@ -16,6 +16,7 @@ class LocalDbService {
   late final Box<Map> _incomeBox;
   late final Box<Map> _incomeCategoriesBox;
   late final Box<Map> _expenseCategoriesBox;
+  late final Box<Map> _preferencesBox;
 
   Future<void> init() async {
     await Hive.initFlutter();
@@ -31,6 +32,7 @@ class LocalDbService {
     _incomeBox = await Hive.openBox<Map>('income');
     _incomeCategoriesBox = await Hive.openBox<Map>('income_categories');
     _expenseCategoriesBox = await Hive.openBox<Map>('expense_categories');
+    _preferencesBox = await Hive.openBox<Map>('preferences');
 
     // Run a silent, one-time migration for legacy personal mode users
     final suffix = AppConfig.get('DB_SUFFIX');
@@ -83,6 +85,7 @@ class LocalDbService {
   Box<Map> get incomeBox => _incomeBox;
   Box<Map> get incomeCategoriesBox => _incomeCategoriesBox;
   Box<Map> get expenseCategoriesBox => _expenseCategoriesBox;
+  Box<Map> get preferencesBox => _preferencesBox;
 
   /// Utility to clear all databases (useful for testing or full resets)
   Future<void> clearAll() async {
@@ -96,5 +99,6 @@ class LocalDbService {
     await _incomeBox.clear();
     await _incomeCategoriesBox.clear();
     await _expenseCategoriesBox.clear();
+    await _preferencesBox.clear();
   }
 }

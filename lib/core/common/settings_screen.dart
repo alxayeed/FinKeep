@@ -6,6 +6,7 @@ import 'package:finkeep/core/routes/app_router.dart';
 import 'package:finkeep/core/services/app_update_service.dart';
 import 'package:finkeep/core/services/biometric_service.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
+import 'package:finkeep/core/providers/fiscal_year_provider.dart';
 import 'package:finkeep/core/utils/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -36,6 +37,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _reminderEnabled = false;
   bool _biometricEnabled = false;
+  int _fiscalYearStartMonth = 7; // Default July
   TimeOfDay? _selectedTime;
   String _appVersion = '';
   bool _checkingForUpdates = false;
@@ -48,7 +50,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
     _reminderService.init(onTap: handleNotificationTap);
+    _fiscalYearStartMonth = FiscalYearProvider().startMonth;
+    FiscalYearProvider().startMonthNotifier.addListener(_onFiscalYearChanged);
     _loadPreferences();
+  }
+
+  @override
+  void dispose() {
+    FiscalYearProvider().startMonthNotifier.removeListener(_onFiscalYearChanged);
+    super.dispose();
+  }
+
+  void _onFiscalYearChanged() {
+    if (mounted) {
+      setState(() {
+        _fiscalYearStartMonth = FiscalYearProvider().startMonth;
+      });
+    }
   }
 
   Future<void> _loadPreferences() async {
@@ -56,6 +74,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       final prefs = await SharedPreferences.getInstance();
       _reminderEnabled = prefs.getBool('reminder_enabled') ?? false;
       _biometricEnabled = prefs.getBool('biometric_enabled') ?? false;
+      _fiscalYearStartMonth = prefs.getInt('fiscal_year_start_month') ?? 7;
       final hour = prefs.getInt('reminder_hour');
       final minute = prefs.getInt('reminder_minute');
       if (hour != null && minute != null) {
@@ -241,6 +260,170 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showFiscalYearSelector(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+
+    final months = [
+      {'month': 1, 'label': 'January (Standard Calendar / US Corporate)'},
+      {'month': 4, 'label': 'April (UK / India / Japan / Canada)'},
+      {'month': 7, 'label': 'July (Bangladesh / Australia / Pakistan)'},
+      {'month': 10, 'label': 'October (US Federal Govt)'},
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? AppColors.cardDark : Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Fiscal Year Start Month',
+                style: TextStyle(
+                  fontFamily: 'Manrope',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16.sp,
+                  color: textColor,
+                ),
+              ),
+              SizedBox(height: 14.h),
+              ...months.map((item) {
+                final monthVal = item['month'] as int;
+                final label = item['label'] as String;
+                final isSelected = _fiscalYearStartMonth == monthVal;
+
+                return Container(
+                  margin: EdgeInsets.only(bottom: 6.h),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? AppColors.primaryTeal.withValues(alpha: 0.12)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(12.r),
+                    border: isSelected
+                        ? Border.all(color: AppColors.primaryTeal.withValues(alpha: 0.3))
+                        : null,
+                  ),
+                  child: ListTile(
+                    contentPadding: EdgeInsets.symmetric(horizontal: 12.w),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    title: Text(
+                      label,
+                      style: TextStyle(
+                        fontFamily: 'Manrope',
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                        fontSize: 13.sp,
+                        color: isSelected
+                            ? AppColors.primaryTeal
+                            : (isDark ? Colors.white : const Color(0xFF0F172A)),
+                      ),
+                    ),
+                    trailing: isSelected
+                        ? Icon(
+                            Icons.check_circle_rounded,
+                            color: AppColors.primaryTeal,
+                            size: 20.sp,
+                          )
+                        : null,
+                    onTap: () async {
+                      await FiscalYearProvider().setStartMonth(monthVal);
+                      if (context.mounted) Navigator.pop(context);
+                    },
+                  ),
+                );
+              }),
+              SizedBox(height: 6.h),
+              // Option for custom month
+              ListTile(
+                contentPadding: EdgeInsets.symmetric(horizontal: 12.w),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                leading: const Icon(Icons.edit_calendar_rounded, color: AppColors.primaryTeal),
+                title: Text(
+                  'Custom Month...',
+                  style: TextStyle(
+                    fontFamily: 'Manrope',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13.sp,
+                    color: AppColors.primaryTeal,
+                  ),
+                ),
+                onTap: () async {
+                  Navigator.pop(context);
+                  _showCustomMonthPickerDialog(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showCustomMonthPickerDialog(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final allMonths = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: isDark ? AppColors.cardDark : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
+          title: Text(
+            'Select Fiscal Start Month',
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontFamily: 'Manrope',
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : const Color(0xFF0F172A),
+            ),
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: 12,
+              itemBuilder: (context, index) {
+                final monthNum = index + 1;
+                final monthName = allMonths[index];
+                final isSelected = _fiscalYearStartMonth == monthNum;
+
+                return ListTile(
+                  title: Text(
+                    monthName,
+                    style: TextStyle(
+                      fontFamily: 'Manrope',
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                      color: isSelected ? AppColors.primaryTeal : (isDark ? Colors.white : const Color(0xFF0F172A)),
+                    ),
+                  ),
+                  trailing: isSelected ? const Icon(Icons.check_circle_rounded, color: AppColors.primaryTeal) : null,
+                  onTap: () async {
+                    await FiscalYearProvider().setStartMonth(monthNum);
+                    if (dialogContext.mounted) Navigator.pop(dialogContext);
+                  },
+                );
+              },
+            ),
           ),
         );
       },
@@ -1027,13 +1210,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 );
                               },
                             ),
-                            Divider(
-                              height: 1,
-                              color: isDark
-                                  ? const Color(0xFF1E293B)
-                                  : const Color(0xFFE2E8F0),
-                            ),
-                            ListTile(
+                             Divider(
+                               height: 1,
+                               color: isDark
+                                   ? const Color(0xFF1E293B)
+                                   : const Color(0xFFE2E8F0),
+                             ),
+                             ListTile(
                               leading: Icon(
                                 Icons.payments_outlined,
                                 size: 20.sp,
@@ -1062,6 +1245,48 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 color: subtitleColor,
                               ),
                               onTap: () => _showCurrencySelector(context),
+                            ),
+                            Divider(
+                              height: 1,
+                              color: isDark
+                                  ? const Color(0xFF1E293B)
+                                  : const Color(0xFFE2E8F0),
+                            ),
+                            ListTile(
+                              leading: Icon(
+                                Icons.calendar_month_outlined,
+                                size: 20.sp,
+                                color: AppColors.primaryTeal,
+                              ),
+                              title: Text(
+                                'Fiscal Year Start Month',
+                                style: TextStyle(
+                                  fontSize: 13.sp,
+                                  fontFamily: 'Manrope',
+                                  fontWeight: FontWeight.w600,
+                                  color: textColor,
+                                ),
+                              ),
+                              subtitle: Text(
+                                _fiscalYearStartMonth == 1
+                                    ? 'January'
+                                    : _fiscalYearStartMonth == 4
+                                    ? 'April'
+                                    : _fiscalYearStartMonth == 7
+                                    ? 'July'
+                                    : 'October',
+                                style: TextStyle(
+                                  fontSize: 11.sp,
+                                  fontFamily: 'Manrope',
+                                  color: subtitleColor,
+                                ),
+                              ),
+                              trailing: Icon(
+                                Icons.chevron_right,
+                                size: 20.sp,
+                                color: subtitleColor,
+                              ),
+                              onTap: () => _showFiscalYearSelector(context),
                             ),
                             Divider(
                               height: 1,

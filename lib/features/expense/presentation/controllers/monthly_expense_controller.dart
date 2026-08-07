@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:finkeep/features/expense/domain/usecases/get_monthly_expense.dart';
 import 'package:finkeep/core/extensions/double_ext.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
+import '../../../../core/common/models/timeframe_selection.dart';
 import '../../../../core/enums/expense_category.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../../domain/usecases/get_last_month_total_usecase.dart';
@@ -35,6 +36,7 @@ class MonthlyExpenseController extends GetxController {
   var searchQuery = ''.obs;
   var filteredExpenses = <ExpenseEntity>[].obs;
   Rx<DateTime> selectedMonth = DateTime.now().obs;
+  Rx<TimeframeSelection> timeframe = TimeframeSelection.defaultMonthly().obs;
   bool shouldRefresh = false;
 
   // ===== Budget & Last Month Total =====
@@ -67,19 +69,30 @@ class MonthlyExpenseController extends GetxController {
     return totalExpense.value;
   }
 
+  void updateTimeframe(TimeframeSelection newTimeframe) {
+    timeframe.value = newTimeframe;
+    selectedMonth.value = newTimeframe.referenceDate;
+    fetchMonthlyExpenses();
+  }
+
   Future<void> fetchMonthlyExpenses() async {
     DateTime month = selectedMonth.value;
-    if (_isCurrentMonthDataFetched(month) && !shouldRefresh) {
-      filterExpensesByCategory();
-      updateTotalExpense();
-      return;
-    }
 
     selectedCategory.value = 'All';
     searchQuery.value = '';
     isLoading.value = true;
     try {
-      expenses.value = await getMonthlyExpensesUseCase(month);
+      final range = timeframe.value.dateRange;
+      if (range != null) {
+        final all = await getAllExpenses();
+        expenses.value = all.where((e) {
+          final d = e.date;
+          return (d.isAfter(range.start) || d.isAtSameMomentAs(range.start)) &&
+                 (d.isBefore(range.end) || d.isAtSameMomentAs(range.end));
+        }).toList();
+      } else {
+        expenses.value = await getAllExpenses();
+      }
       getTotalExpense();
       filterExpensesByCategory();
 

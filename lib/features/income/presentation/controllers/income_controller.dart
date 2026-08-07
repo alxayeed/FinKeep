@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:finkeep/core/error/exception_handler.dart';
+import '../../../../core/common/models/timeframe_selection.dart';
 import '../../domain/entities/income/income_entity.dart';
 import '../../domain/entities/income_category/income_category_entity.dart';
 import '../../domain/usecases/add_income_usecase.dart';
@@ -41,6 +42,7 @@ class IncomeController extends GetxController {
   var searchQuery = ''.obs;
   var filteredIncomes = <IncomeEntity>[].obs;
   Rx<DateTime> selectedMonth = DateTime.now().obs;
+  Rx<TimeframeSelection> timeframe = TimeframeSelection.defaultMonthly().obs;
   bool shouldRefresh = false;
 
   @override
@@ -49,10 +51,22 @@ class IncomeController extends GetxController {
     fetchMonthlyIncomes();
   }
 
+  void updateTimeframe(TimeframeSelection newTimeframe) {
+    timeframe.value = newTimeframe;
+    selectedMonth.value = newTimeframe.referenceDate;
+    fetchMonthlyIncomes();
+  }
+
   Future<void> fetchMonthlyIncomes() async {
     isLoading.value = true;
     try {
-      final list = await getIncomesForMonthUseCase(selectedMonth.value);
+      final range = timeframe.value.dateRange;
+      List<IncomeEntity> list;
+      if (range != null) {
+        list = await getIncomesInRangeUseCase(range.start, range.end);
+      } else {
+        list = await getIncomesUseCase();
+      }
       incomes.assignAll(list);
       updateTotalIncome();
       filterIncomes();

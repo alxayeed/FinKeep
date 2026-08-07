@@ -1,34 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../enums/currency.dart';
+import '../providers/user_preferences_provider.dart';
 
 class CurrencyProvider extends ValueNotifier<Currency> {
   static CurrencyProvider? _instance;
-  static const _key = 'user_currency';
 
   CurrencyProvider._internal(super.value);
 
-  /// Singleton accessor
   factory CurrencyProvider() {
-    _instance ??= CurrencyProvider._internal(Currency.bdt);
+    _instance ??= CurrencyProvider._internal(UserPreferencesProvider().currency);
+    UserPreferencesProvider().addListener(() {
+      if (_instance != null) {
+        _instance!.value = UserPreferencesProvider().currency;
+      }
+    });
     return _instance!;
   }
 
-  /// Load currency from SharedPreferences
   Future<void> loadCurrency() async {
-    final prefs = await SharedPreferences.getInstance();
-    final currencyStr = prefs.getString(_key) ?? 'BDT';
-    value = Currency.values.firstWhere(
-      (c) => c.code == currencyStr,
-      orElse: () => Currency.bdt,
-    );
+    value = UserPreferencesProvider().currency;
   }
 
-  /// Save and set currency
   Future<void> setCurrency(Currency currency) async {
+    await UserPreferencesProvider().setCurrency(currency);
     value = currency;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_key, currency.code);
   }
 }
 
