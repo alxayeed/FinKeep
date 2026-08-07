@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:get/get.dart';
+import '../../../../core/common/models/timeframe_selection.dart';
 
 import '../../domain/entities/investment.dart';
 import '../../domain/entities/return_entry.dart';
@@ -27,6 +28,24 @@ class InvestmentController extends GetxController {
   var investments = <Investment>[].obs;
   var isLoading = false.obs;
   var errorMessage = ''.obs;
+  Rx<TimeframeSelection> timeframe = TimeframeSelection(
+    type: TimeframeType.allTime,
+    referenceDate: DateTime.now(),
+  ).obs;
+
+  List<Investment> get filteredInvestments {
+    final range = timeframe.value.dateRange;
+    if (range == null) return investments;
+    return investments.where((inv) {
+      final date = inv.startDate;
+      return (date.isAfter(range.start) || date.isAtSameMomentAs(range.start)) &&
+             (date.isBefore(range.end) || date.isAtSameMomentAs(range.end));
+    }).toList();
+  }
+
+  void updateTimeframe(TimeframeSelection newTimeframe) {
+    timeframe.value = newTimeframe;
+  }
 
   @override
   void onInit() {
@@ -153,26 +172,26 @@ class InvestmentController extends GetxController {
     }
   }
 
-  int get totalInvestmentsCount => investments.length;
+  int get totalInvestmentsCount => filteredInvestments.length;
 
-  int get ongoingInvestmentsCount => investments
+  int get ongoingInvestmentsCount => filteredInvestments
       .where((i) =>
           i.status == InvestmentStatus.active ||
           i.status == InvestmentStatus.returnsStarted)
       .length;
 
-  int get completedInvestmentsCount => investments
+  int get completedInvestmentsCount => filteredInvestments
       .where((i) => i.status == InvestmentStatus.completed)
       .length;
 
-  int get lossInvestmentsCount => investments
+  int get lossInvestmentsCount => filteredInvestments
       .where((i) => i.status == InvestmentStatus.loss)
       .length;
 
   double get totalMoneyInvested =>
-      investments.fold(0.0, (sum, i) => sum + i.amountInvested);
+      filteredInvestments.fold(0.0, (sum, i) => sum + i.amountInvested);
 
-  double get totalMoneyReceived => investments.fold(
+  double get totalMoneyReceived => filteredInvestments.fold(
       0.0,
       (sum, i) =>
           sum +
@@ -180,7 +199,7 @@ class InvestmentController extends GetxController {
 
   double get netProfit {
     double totalProfit = 0.0;
-    for (final i in investments) {
+    for (final i in filteredInvestments) {
       final returnsSum = i.returns.fold(0.0, (sum, r) => sum + r.amountReceived);
       if (i.status == InvestmentStatus.completed || i.status == InvestmentStatus.loss) {
         totalProfit += (returnsSum - i.amountInvested);
@@ -194,19 +213,19 @@ class InvestmentController extends GetxController {
     return totalProfit;
   }
 
-  double get activeMoneyInvested => investments
+  double get activeMoneyInvested => filteredInvestments
       .where((i) =>
           i.status == InvestmentStatus.active ||
           i.status == InvestmentStatus.returnsStarted)
       .fold(0.0, (sum, i) => sum + i.amountInvested);
 
-  double get totalExpectedROI => investments
+  double get totalExpectedROI => filteredInvestments
       .where((i) =>
           i.status == InvestmentStatus.active ||
           i.status == InvestmentStatus.returnsStarted)
       .fold(0.0, (sum, i) => sum + (i.amountInvested * (i.expectedROI / 100)));
 
-  double get capitalAtRisk => investments
+  double get capitalAtRisk => filteredInvestments
       .where((i) =>
           i.status == InvestmentStatus.active ||
           i.status == InvestmentStatus.returnsStarted)
@@ -215,14 +234,14 @@ class InvestmentController extends GetxController {
         return sum + (i.amountInvested - returnsSum).clamp(0.0, double.infinity);
       });
 
-  double get activeMoneyReceived => investments
+  double get activeMoneyReceived => filteredInvestments
       .where((i) =>
           i.status == InvestmentStatus.active ||
           i.status == InvestmentStatus.returnsStarted)
       .fold(0.0, (sum, i) => sum + i.returns.fold(0.0, (rSum, r) => rSum + r.amountReceived));
 
   double get totalCompletedProfit {
-    return investments
+    return filteredInvestments
         .where((i) => i.status == InvestmentStatus.completed)
         .fold(0.0, (sum, i) {
           final returnsSum = i.returns.fold(0.0, (rSum, r) => rSum + r.amountReceived);
@@ -232,7 +251,7 @@ class InvestmentController extends GetxController {
   }
 
   double get totalCompletedLoss {
-    return investments
+    return filteredInvestments
         .where((i) => i.status == InvestmentStatus.loss)
         .fold(0.0, (sum, i) {
           final returnsSum = i.returns.fold(0.0, (rSum, r) => rSum + r.amountReceived);

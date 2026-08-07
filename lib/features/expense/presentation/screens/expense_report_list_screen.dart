@@ -7,6 +7,7 @@ import 'package:finkeep/core/common/widgets/no_data_widget.dart';
 import 'package:finkeep/core/extensions/double_ext.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
+import 'package:finkeep/core/styles/currency_provider.dart';
 import 'package:finkeep/features/expense/domain/entities/expense_entity.dart';
 import 'package:finkeep/features/expense/presentation/controllers/expense_report_controller.dart';
 import 'package:finkeep/features/expense/presentation/widgets/category_filter_pills.dart';

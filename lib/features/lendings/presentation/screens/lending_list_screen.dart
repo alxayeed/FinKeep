@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:finkeep/core/config/app_config.dart';
-import 'package:finkeep/core/common/widgets/custom_app_bar.dart';
+import 'package:finkeep/core/common/widgets/timeframe_header.dart';
 import 'package:finkeep/core/common/widgets/custom_fab.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/routes/app_router.dart';
@@ -46,33 +46,43 @@ class _LendingListScreenState extends State<LendingListScreen> {
   List<LendingEntity> get _filteredLendings {
     final type = _selectedTab == 0 ? LendingType.given : LendingType.taken;
     final selectedStatus = _currentSelectedStatus;
+    final range = controller.timeframe.value.dateRange;
+
     return controller.lendingsList.where((l) {
       final matchType = l.type == type;
       final matchStatus = selectedStatus == null || l.status == selectedStatus;
       final matchSearch =
           _searchQuery.isEmpty ||
           l.person.name.toLowerCase().contains(_searchQuery);
-      return matchType && matchStatus && matchSearch;
+
+      bool matchTimeframe = true;
+      if (range != null) {
+        final d = l.createdDate;
+        matchTimeframe = (d.isAfter(range.start) || d.isAtSameMomentAs(range.start)) &&
+                         (d.isBefore(range.end) || d.isAtSameMomentAs(range.end));
+      }
+
+      return matchType && matchStatus && matchSearch && matchTimeframe;
     }).toList();
   }
 
   double get _totalAmountForTab {
     final type = _selectedTab == 0 ? LendingType.given : LendingType.taken;
-    return controller.lendingsList
+    return _filteredLendings
         .where((l) => l.type == type)
         .fold(0.0, (sum, l) => sum + l.amount);
   }
 
   double get _totalRepaidForTab {
     final type = _selectedTab == 0 ? LendingType.given : LendingType.taken;
-    return controller.lendingsList
+    return _filteredLendings
         .where((l) => l.type == type)
         .fold(0.0, (sum, l) => sum + l.repaidAmount);
   }
 
   double get _totalDueForTab {
     final type = _selectedTab == 0 ? LendingType.given : LendingType.taken;
-    return controller.lendingsList
+    return _filteredLendings
         .where((l) => l.type == type)
         .fold(0.0, (sum, l) => sum + (l.amount - l.repaidAmount));
   }
@@ -83,20 +93,20 @@ class _LendingListScreenState extends State<LendingListScreen> {
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
-      appBar: CustomAppBar(
-        title: 'Lend Management',
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings_rounded),
-            onPressed: () => context.pushNamed(AppRoutes.settings),
-          ),
-        ],
-      ),
       body: SafeArea(
         child: Obx(() {
           if (controller.isLoading.value && controller.lendingsList.isEmpty) {
             return Column(
               children: [
+                TimeframeHeader(
+                  timeframe: controller.timeframe.value,
+                  onTimeframeChanged: (newTimeframe) {
+                    controller.updateTimeframe(newTimeframe);
+                  },
+                  onSettingsPressed: () {
+                    context.pushNamed(AppRoutes.settings);
+                  },
+                ),
                 _buildHeader(isDark),
                 const LendingSummaryShimmer(),
                 SizedBox(height: 8.h),
@@ -121,6 +131,18 @@ class _LendingListScreenState extends State<LendingListScreen> {
                 parent: AlwaysScrollableScrollPhysics(),
               ),
               slivers: [
+                // ── Timeframe Header ──
+                SliverToBoxAdapter(
+                  child: TimeframeHeader(
+                    timeframe: controller.timeframe.value,
+                    onTimeframeChanged: (newTimeframe) {
+                      controller.updateTimeframe(newTimeframe);
+                    },
+                    onSettingsPressed: () {
+                      context.pushNamed(AppRoutes.settings);
+                    },
+                  ),
+                ),
                 // ── Header (title + tab switcher) ──
                 SliverToBoxAdapter(child: _buildHeader(isDark)),
 

@@ -4,7 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:finkeep/core/routes/app_router.dart';
 import '../../../../core/common/widgets/custom_fab.dart';
 import '../../../../core/styles/app_colors.dart';
-import 'package:finkeep/features/expense/presentation/widgets/widgets.dart'; // Import SegmentedTabBar and MonthSelector
+import 'package:finkeep/features/expense/presentation/widgets/segmented_tab_bar.dart';
+import '../../../../core/common/widgets/timeframe_header.dart';
 import '../controllers/income_controller.dart';
 import 'income_list_screen.dart';
 import 'income_summary_screen.dart';
@@ -32,11 +33,11 @@ class _IncomeScreenState extends State<IncomeScreen> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 1. Month Selector Header
-              MonthSelector(
-                showSearchButton: false, // We use inline filter pill search
-                onMonthChanged: (selectedMonth) {
-                  controller.updateSelectedMonth(selectedMonth);
+              // 1. Timeframe Selector Header
+              TimeframeHeader(
+                timeframe: controller.timeframe.value,
+                onTimeframeChanged: (newTimeframe) {
+                  controller.updateTimeframe(newTimeframe);
                 },
                 onSettingsPressed: () {
                   context.pushNamed(AppRoutes.settings);

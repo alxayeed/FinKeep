@@ -7,7 +7,7 @@ import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/routes/app_router.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 
-import '../../../../core/common/widgets/custom_app_bar.dart';
+import '../../../../core/common/widgets/timeframe_header.dart';
 import '../../../../core/common/widgets/custom_fab.dart';
 import '../../../../core/common/widgets/error_widget.dart';
 import '../../../expense/presentation/widgets/segmented_tab_bar.dart';
@@ -34,16 +34,8 @@ class _InvestmentListScreenState extends State<InvestmentListScreen> {
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
-      appBar: CustomAppBar(
-        title: 'Investments',
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings_rounded),
-            onPressed: () => context.pushNamed(AppRoutes.settings),
-          ),
-        ],
-      ),
-      body: RefreshIndicator(
+      body: SafeArea(
+        child: RefreshIndicator(
         color: AppColors.primaryTeal,
         onRefresh: () async {
           await controller.fetchInvestments();
@@ -53,6 +45,17 @@ class _InvestmentListScreenState extends State<InvestmentListScreen> {
             defaultScrollNotificationPredicate(notification),
         child: Column(
           children: [
+            Obx(() {
+              return TimeframeHeader(
+                timeframe: controller.timeframe.value,
+                onTimeframeChanged: (newTimeframe) {
+                  controller.updateTimeframe(newTimeframe);
+                },
+                onSettingsPressed: () {
+                  context.pushNamed(AppRoutes.settings);
+                },
+              );
+            }),
             SegmentedTabBar(
               selectedIndex: _selectedTab,
               onTabChanged: (index) {
@@ -65,10 +68,11 @@ class _InvestmentListScreenState extends State<InvestmentListScreen> {
               child: Obx(() {
                 // Read reactive variables at the beginning of Obx to register listener
                 final isLoading = controller.isLoading.value;
-                final isInvestmentsEmpty = controller.investments.isEmpty;
+                final displayList = controller.filteredInvestments;
+                final isInvestmentsEmpty = displayList.isEmpty;
                 final hasError = controller.errorMessage.isNotEmpty;
 
-                if (isLoading && isInvestmentsEmpty) {
+                if (isLoading && controller.investments.isEmpty) {
                   return _selectedTab == 0
                       ? const InvestmentSummaryShimmer()
                       : const InvestmentShimmerList();
@@ -108,12 +112,12 @@ class _InvestmentListScreenState extends State<InvestmentListScreen> {
                 return ListView.builder(
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: EdgeInsets.symmetric(vertical: 8.h),
-                  itemCount: controller.investments.length + 1,
+                  itemCount: displayList.length + 1,
                   itemBuilder: (context, index) {
-                    if (index == controller.investments.length) {
+                    if (index == displayList.length) {
                       return SizedBox(height: 100.h);
                     }
-                    final investment = controller.investments[index];
+                    final investment = displayList[index];
                     return InvestmentItem(
                       investment: investment,
                       onTap: () {
@@ -130,6 +134,7 @@ class _InvestmentListScreenState extends State<InvestmentListScreen> {
           ],
         ),
       ),
+    ),
       floatingActionButton: CustomFAB(
         onPressed: () {
           context.pushNamed(AppRoutes.addInvestment);
