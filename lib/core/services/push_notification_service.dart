@@ -86,7 +86,7 @@ class PushNotificationService {
 
   Future<void> logFcmToken() async {
     try {
-      String? token = await _fcm.getToken();
+      String? _ = await _fcm.getToken();
       // log("====================================================");
       // log("FCM TOKEN: $token");
       // log("====================================================");

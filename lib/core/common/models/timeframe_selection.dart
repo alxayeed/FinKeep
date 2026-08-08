@@ -64,6 +64,52 @@ class TimeframeSelection {
     );
   }
 
+  /// Switch to a new [TimeframeType] while preserving the logical period being viewed.
+  ///
+  /// Unlike [copyWith], this method normalises [referenceDate] so that the displayed
+  /// period stays consistent after a type change. For example:
+  ///   - FY 2026-27 (referenceDate = Jan 2027) → Yearly  → Year 2026 (not 2027)
+  ///   - FY 2026-27 (referenceDate = Jan 2027) → Monthly → January 2027
+  ///   - Yearly 2025          (referenceDate = Jul 2025) → Monthly → July 2025
+  TimeframeSelection withType(TimeframeType newType) {
+    if (newType == type) return this;
+
+    DateTime newReferenceDate = referenceDate;
+
+    if (type == TimeframeType.fiscalYearly) {
+      // When leaving fiscalYearly, normalise to the FY start year so that yearly/monthly
+      // views reflect the same fiscal period the user was on.
+      //   FY 2026-27 (referenceDate = Jan 2027) → Yearly  → Year 2026
+      //   FY 2026-27 (referenceDate = Jan 2027) → Monthly → January 2027 (keep as-is)
+      final fyStartYear = referenceDate.month >= fiscalYearStartMonth
+          ? referenceDate.year
+          : referenceDate.year - 1;
+
+      switch (newType) {
+        case TimeframeType.yearly:
+          // Anchor to Jan 1 of the FY start year so displayTitle shows "Year <fyStartYear>"
+          newReferenceDate = DateTime(fyStartYear, 1);
+          break;
+        case TimeframeType.monthly:
+          // Keep the exact month the user was browsing within the FY
+          newReferenceDate = referenceDate;
+          break;
+        default:
+          newReferenceDate = referenceDate;
+      }
+    } else if (type == TimeframeType.yearly && newType == TimeframeType.fiscalYearly) {
+      // When switching Yearly → FiscalYearly, anchor to the FY that *starts* in the
+      // selected year, so "Year 2027" consistently maps to FY 2027-28.
+      //
+      // We do this by setting referenceDate to the FY start month of that year.
+      // That guarantees: referenceDate.month == fiscalYearStartMonth >= fiscalYearStartMonth
+      // → fyStartYear = referenceDate.year = the selected year.
+      newReferenceDate = DateTime(referenceDate.year, fiscalYearStartMonth);
+    }
+
+    return copyWith(type: newType, referenceDate: newReferenceDate);
+  }
+
   /// Get formatted display title for header pill
   String get displayTitle {
     final now = DateTime.now();

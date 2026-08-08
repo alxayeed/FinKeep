@@ -21,6 +21,7 @@ import '../../features/lendings/presentation/screens/add_lending_screen.dart';
 import '../../features/lendings/presentation/screens/lending_details_screen.dart';
 import '../../features/lendings/presentation/screens/lending_list_screen.dart';
 import '../../features/lendings/presentation/screens/update_lending_screen.dart';
+import '../common/widgets/main_tab_pop_scope.dart';
 import '../common/home_scaffold.dart';
 import '../common/onboarding/onboarding_screen.dart';
 import 'package:finkeep/features/dashboard/presentation/screens/dashboard_screen.dart';
@@ -109,37 +110,37 @@ class AppRouter {
               path: AppRoutes.home,
               name: AppRoutes.home,
               pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: DashboardScreen()),
+                  const NoTransitionPage(child: MainTabPopScope(index: 0, child: DashboardScreen())),
             ),
             GoRoute(
               path: AppRoutes.expenses,
               name: AppRoutes.expenses,
               pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: MonthlyExpenseScreen()),
+                  const NoTransitionPage(child: MainTabPopScope(index: 1, child: MonthlyExpenseScreen())),
             ),
             GoRoute(
               path: AppRoutes.lendings,
               name: AppRoutes.lendings,
               pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: LendingListScreen()),
+                  const NoTransitionPage(child: MainTabPopScope(index: 3, child: LendingListScreen())),
             ),
             GoRoute(
               path: AppRoutes.investments,
               name: AppRoutes.investments,
               pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: InvestmentListScreen()),
+                  const NoTransitionPage(child: MainTabPopScope(index: 5, child: InvestmentListScreen())),
             ),
             GoRoute(
               path: AppRoutes.expenseReport,
               name: AppRoutes.expenseReport,
               pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: ExpenseReportScreen()),
+                  const NoTransitionPage(child: MainTabPopScope(index: 4, child: ExpenseReportScreen())),
             ),
             GoRoute(
               path: AppRoutes.income,
               name: AppRoutes.income,
               pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: IncomeScreen()),
+                  const NoTransitionPage(child: MainTabPopScope(index: 2, child: IncomeScreen())),
             ),
           ],
         ),

@@ -1,30 +1,27 @@
-import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-import 'package:finkeep/core/config/app_config.dart';
 import 'package:finkeep/core/common/widgets/no_data_widget.dart';
+import 'package:finkeep/core/config/app_config.dart';
 import 'package:finkeep/core/extensions/double_ext.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
 import 'package:finkeep/features/expense/domain/entities/expense_entity.dart';
-import 'package:finkeep/features/expense/presentation/controllers/expense_report_controller.dart';
-import 'package:finkeep/features/expense/presentation/widgets/category_filter_pills.dart';
 import 'package:finkeep/features/expense/presentation/controllers/expense_category_controller.dart';
-import '../widgets/expense_card_widget.dart';
+import 'package:finkeep/features/expense/presentation/controllers/expense_report_controller.dart';
+import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+
 import '../widgets/widgets.dart';
 
 class ExpenseReportListScreen extends StatelessWidget {
   final ExpenseReportController controller;
 
-  const ExpenseReportListScreen({
-    super.key,
-    required this.controller,
-  });
+  const ExpenseReportListScreen({super.key, required this.controller});
 
   Future<void> _handleRefresh() async {
-    if (controller.startDate.value != null && controller.endDate.value != null) {
+    if (controller.startDate.value != null &&
+        controller.endDate.value != null) {
       await controller.fetchExpensesInRange(
         controller.startDate.value!,
         controller.endDate.value!,
@@ -32,7 +29,11 @@ class ExpenseReportListScreen extends StatelessWidget {
     }
   }
 
-  Widget _buildDateHeader(BuildContext context, DateTime date, double dailyTotal) {
+  Widget _buildDateHeader(
+    BuildContext context,
+    DateTime date,
+    double dailyTotal,
+  ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final formattedDate = DateFormat('EEEE, MMM dd').format(date);
 
@@ -86,7 +87,9 @@ class ExpenseReportListScreen extends StatelessWidget {
           final ExpenseCategoryController categoryController = Get.find();
           final selectedCategoryStr = controller.selectedCategory.value;
           final cat = categoryController.categories.firstWhereOrNull(
-            (c) => c.displayLabel.toLowerCase() == selectedCategoryStr.toLowerCase(),
+            (c) =>
+                c.displayLabel.toLowerCase() ==
+                selectedCategoryStr.toLowerCase(),
           );
           final selectedCategoryId = cat?.id;
 
@@ -98,8 +101,11 @@ class ExpenseReportListScreen extends StatelessWidget {
                 if (catId == null) {
                   controller.updateSelectedCategory('All');
                 } else {
-                  final matchedCat = categoryController.categories.firstWhereOrNull((c) => c.id == catId);
-                  controller.updateSelectedCategory(matchedCat?.displayLabel ?? 'All');
+                  final matchedCat = categoryController.categories
+                      .firstWhereOrNull((c) => c.id == catId);
+                  controller.updateSelectedCategory(
+                    matchedCat?.displayLabel ?? 'All',
+                  );
                 }
               },
               searchQuery: controller.searchQuery.value,

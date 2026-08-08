@@ -1,115 +1,224 @@
-# Planning: Income & Cash-In Feature Implementation
-
-## Phase 1: Storage & Data Foundations (Data Layer)
-- [ ] **Task 1.1: IncomeCategory & Income Models**
-  - Implement `IncomeCategoryModel` (`id`, `displayLabel`, `emoji`, `isCustom`, `isDeleted`).
-  - Implement `IncomeModel` (`id`, `amount`, `description`, `date`, `categoryId`, `createdAt`).
-  - Build defensive JSON serialization (`fromJson`/`toJson`) with fallback values for safety.
-- [ ] **Task 1.2: Data Sources & Repositories**
-  - Create `IncomeLocalDataSource` (Hive implementation with seeding logic for 6 core categories: Salary, Freelance, Business, Allowance, Investment, Other).
-  - Create `IncomeRemoteDataSource` (Firestore integration).
-  - Implement `IncomeRepositoryImpl` handling local/remote toggling based on `AppConfig.useRemote`.
-- [ ] **Task 1.3: Hive Registration**
-  - Configure `income$suffix` and `income_categories$suffix` in `LocalDbService` and update dependency injection.
-
-## Phase 2: Domain Layer & Use Cases
-- [ ] **Task 2.1: Domain Entities & Repository Interfaces**
-  - Create `IncomeEntity` and `IncomeCategoryEntity`.
-  - Define `IncomeRepository` interface.
-- [ ] **Task 2.2: Implement Use Cases**
-  - Add use cases: Add/Get/Update/Delete for both income and income categories.
-
-## Phase 3: State Management (GetX Controllers)
-- [ ] **Task 3.1: IncomeCategoryController**
-  - Implement reactive category fetch, create, and soft-delete methods.
-  - Add custom category limit checks (`maxCustomCategoryLimit`, `canAddCustomCategory`).
-- [ ] **Task 3.2: IncomeController**
-  - CRUD operations for logging, updating, and deleting income data.
-  - Build a responsive month/range filter stream to fetch active records.
-- [ ] **Task 3.3: Merged Category Filtering**
-  - Write reactive evaluation loop combining active categories with historical soft-deleted categories that contain records.
-
-## Phase 4: User Interface Development (Presentation Layer)
-- [ ] **Task 4.1: Create Income Screen**
-  - Build `CreateIncomeScreen` matching `CreateExpenseScreen` styling.
-- [ ] **Task 4.2: Edit & Detail Screens**
-  - Build `EditIncomeScreen` and `IncomeDetailsScreen` matching expense counterparts.
-- [ ] **Task 4.3: Income List & Summary Tab Screens**
-  - Build `IncomeScreen` as the parent view with sub-tabs for Summary (pie charts, statistics) and List (chronological grouped logs).
-- [ ] **Task 4.4: Category Configuration Settings View**
-  - Implement settings screen for managing custom categories and editing/deleting them.
-- [ ] **Task 4.5: App Router & Navigation**
-  - Wire routes in `AppRouter` and add the Income tab to `HomeScaffold`.
+# FinKeep — Feature Planning
 
 ---
 
-# Google Drive Sync — Backup & Restore Plan
+## Milestone 1: Generic Savings Feature
 
-## User Journeys (Non-Technical)
+Replace the existing `investments` feature with a generalized `savings` feature covering
+all savings instrument types: Cash, Bank Savings, DPS, FDR, Sanchaypatra, Bond, and Investment.
+
+### Decisions
+| Decision | Choice |
+|---|---|
+| Savings types | Cash · Bank Savings · DPS · FDR · Sanchaypatra · Bond · Investment |
+| DPS installments | Defined monthly schedule + local notification reminders |
+| Bank/Cash withdrawals | Separate `WithdrawalEntry` list |
+| FDR renewal | Close old record, create new |
+| Summary screen | Top overview card + per-type breakdown + status pie chart |
+| Data migration | `amountInvested` + `transactionDate` → first `DepositEntry` |
+| Feature access | All modes (no longer personal-only) |
+| Nav label | `'Savings'` |
+| Rename | `investments` → `savings` everywhere (folders, classes, routes, DB collections) |
+
+### Data Model
+
+**Enums**
+- `SavingsType` — `cash | bankSavings | dps | fdr | sanchaypatra | bond | investment`
+- `SavingsStatus` — `active | closed | matured | withdrawn | renewed | returnsStarted | completed | loss`
+  - `validFor(SavingsType)` returns only relevant statuses per type
+
+**Entities**
+- `Savings` — core entity replacing `Investment`
+  - Fields: `id`, `savingsType`, `title`, `institutionName?`, `accountNumber?`, `branch?`, `subType?`
+    (Sanchaypatra type), `startDate`, `maturityDate?`, `monthlyInstallment?` (DPS), `tenureMonths?` (DPS),
+    `deposits: List<DepositEntry>`, `withdrawals: List<WithdrawalEntry>`, `returns: List<ReturnEntry>`,
+    `interestRate`, `expectedReturn`, `status`, `notes`, `docLinks`
+  - Computed: `totalDeposited`, `totalWithdrawn`, `totalReceived`, `balance`, `outstandingCapital`,
+    `paidInstallments`, `remainingInstallments`, `nextDueDate`
+- `DepositEntry` — `id`, `amount`, `date`, `transactionId?`, `medium`, `notes`
+- `WithdrawalEntry` — `id`, `amount`, `date`, `transactionId?`, `medium`, `notes`
+- `ReturnEntry` — unchanged from current `ReturnEntry`
+
+**Deposit strategy**
+- Multi-deposit types (Cash, Bank Savings, DPS): `deposits` list grows over time
+- Single-deposit types (FDR, Sanchaypatra, Bond, Investment): `deposits` list has exactly 1 entry
+
+**Withdrawal strategy**
+- Only for Cash and Bank Savings
+- `WithdrawalEntry` list tracks money taken out; `balance = totalDeposited - totalWithdrawn`
+
+### Form UI — Adaptive Sections
+
+One `AddSavingsScreen` with sections that show/hide per `savingsType`:
+
+| Section | Cash | Bank | DPS | FDR | Sanchay | Bond | Inv |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| Type selector | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Basic info (title, date) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Institution name | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ |
+| Account / Cert / Bond No. | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Branch | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Sub-type (Sanchaypatra) | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| DPS schedule fields | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Maturity date | ❌ | ❌ | auto | ✅ | ✅ | ✅ | opt |
+| Interest / profit rate | ❌ | opt | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Expected return | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Initial deposit fields | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+
+### Detail Screen — Adaptive Sections
+
+| Section | Cash | Bank | DPS | FDR | Sanchay | Bond | Inv |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| Summary card | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Financial overview (adaptive) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| DPS schedule card + progress | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Deposit history + Add button | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Withdrawal history + Add button | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Return entries + Add button | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Transaction info | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+
+### Summary Screen
+- Top card: totals across all types (total deposited, total returns, balance)
+- Per-type breakdown rows: icon + label + total deposited + record count
+- Status distribution pie chart (same as current investment chart)
+
+### Notifications (DPS)
+- Package: `flutter_local_notifications` + `timezone`
+- `NotificationService`: `scheduleDpsReminders(Savings)`, `cancelDpsReminders(String id)`
+- Schedule on: create DPS, add deposit (reschedule remaining), update DPS
+- Cancel on: status changed to matured / withdrawn
+- Notification fires at 9:00 AM on each installment due date
+
+### Migration
+- **Hive**: At app startup, if `'investments'` box exists → transform each entry (add
+  `savingsType: 'investment'`, build `deposits` list from `amountInvested` + `transactionDate`) →
+  write to `'savings'` box → delete old box
+- **Firestore**: One-time migration gated by preferences flag → copy from `investments`/`investments_dev`
+  to `savings`/`savings_dev`, adding `savingsType: 'investment'` field and building `deposits` array
+- **Date preservation**: All original `deposit.date`, `return.date`, `startDate` values preserved as-is
+
+### Files to Create / Modify
+
+**New feature folder:** `lib/features/savings/` with `domain/`, `data/`, `presentation/`
+
+**Core changes:**
+- `lib/core/services/notification_service.dart` [NEW]
+- `lib/core/services/local_db_service.dart` — add `savingsBox`, Hive migration
+- `lib/core/services/firestore_migration_service.dart` — add `migrateSavings()`
+- `lib/core/constants/app_strings.dart` — add `savingsCollection`
+- `lib/core/routes/app_router.dart` — rename all investment routes → savings
+- `lib/core/common/home_scaffold.dart` — label + route update, remove personal-only guard
+- `lib/dependency_injection.dart` — swap Investment → Savings registrations
+- `pubspec.yaml` — add `flutter_local_notifications`, `timezone`
+
+**Deleted:** `lib/features/investments/` (entire folder)
+
+### Tasks
+- [ ] Add `flutter_local_notifications` + `timezone` to pubspec.yaml
+- [ ] Create `SavingsType` and `SavingsStatus` enums
+- [ ] Create `Savings`, `DepositEntry`, `WithdrawalEntry` domain entities
+- [ ] Create `SavingsRepository` interface + use cases (add, get, update, delete, addDeposit, addWithdrawal, addReturn)
+- [ ] Create `SavingsModel`, `DepositEntryModel`, `WithdrawalEntryModel` data models
+- [ ] Create `SavingsDataSource` (abstract), Firestore + Hive implementations
+- [ ] Create `SavingsRepositoryImpl`
+- [ ] Create `NotificationService` with DPS scheduling logic
+- [ ] Update `LocalDbService` — add `savingsBox` + Hive migration
+- [ ] Update `FirestoreMigrationService` — add `migrateSavings()`
+- [ ] Update `app_strings.dart` — add `savingsCollection`
+- [ ] Create `SavingsController` (GetX)
+- [ ] Create adaptive `AddSavingsScreen` + `EditSavingsScreen`
+- [ ] Create adaptive `SavingsDetailScreen`
+- [ ] Create `SavingsListScreen` + `SavingsSummaryScreen`
+- [ ] Create bottom sheets: `AddDepositBottomSheet`, `AddWithdrawalBottomSheet`, `AddReturnBottomSheet`
+- [ ] Create adaptive `SavingsItem` list card widget
+- [ ] Update `app_router.dart` — rename routes
+- [ ] Update `home_scaffold.dart` — nav label + route + remove personal guard
+- [ ] Update `dependency_injection.dart`
+- [ ] Delete `lib/features/investments/`
+- [ ] Manual verification across all 7 savings types
+
+---
+
+## Milestone 2: Google Drive Sync — Backup & Restore
+
+### User Journeys
 
 - [ ] **First-time backup**: User connects Google account, picks frequency + time, taps "Back Up Now" — snapshot + empty deletion log uploaded to Drive.
 - [ ] **Auto-backup fires**: App goes to background at the scheduled window → silent backup, no UI interruption. `lastBackupAt` updates. A badge shows "Last backed up: today at 2:00 AM".
-- [ ] **Restore on new device**: Fresh install → "Restore from Google Drive" → sign in → latest snapshot downloaded → deletion log applied → local DB reflects exact state of last backup including all deletions.
-- [ ] **Delete a record, then restore**: User deletes expense #42 → deletion log updated on Drive immediately → even if they restore from an old snapshot that still contains #42, the deletion log removes it after import. #42 never comes back.
-- [ ] **Two devices, one user**: Device A backs up. Device B restores. Device B deletes record #17. Deletion log on Drive updated. Device A restores → #17 is gone. Deletions propagate in both directions.
+- [ ] **Restore on new device**: Fresh install → "Restore from Google Drive" → sign in → latest snapshot downloaded → deletion log applied → local DB reflects exact state of last backup.
+- [ ] **Delete a record, then restore**: User deletes expense #42 → deletion log updated on Drive immediately → even if restoring from an old snapshot that still contains #42, the deletion log removes it after import.
+- [ ] **Two devices, one user**: Device A backs up. Device B restores. Device B deletes record #17. Deletion log updated. Device A restores → #17 is gone. Deletions propagate in both directions.
 - [ ] **Already signed in**: Silent sign-in attempted first; no prompt shown unless token is expired.
 - [ ] **No backup found on Drive**: Friendly dialog — "No backup found for this Google account."
-- [ ] **Network failure mid-upload**: Staging file discarded. Drive's committed backup is untouched. Snackbar shown. Next scheduled backup retries.
+- [ ] **Network failure mid-upload**: Staging file discarded. Drive's committed backup is untouched. Snackbar shown.
 - [ ] **Revoked Google permissions**: 401 from Drive API → re-prompt sign-in flow.
-- [ ] **Corrupt Drive file**: Decryption fails → error shown → pre-restore checkpoint auto-restores local DB. Zero data loss.
+- [ ] **Corrupt Drive file**: Decryption fails → error shown → pre-restore checkpoint auto-restores local DB.
 - [ ] **Large backup on mobile data**: Dialog before upload — "You're on mobile data. Continue?"
-- [ ] **Disconnect Google Drive**: Clears session, clears `SharedPreferences` keys, stops auto-backup scheduler.
+- [ ] **Disconnect Google Drive**: Clears session, clears SharedPreferences keys, stops auto-backup scheduler.
 - [ ] **Progress reporting**: Inline progress bar with bytes transferred + cancel button.
 
-## Corner Cases — Full Coverage
+### Corner Cases
 
 | # | Scenario | Handling |
-|---|----------|---------|
-| 1 | iOS sign-in sheet dismissed | `DriveSignInCancelledException` → "Sign in was cancelled." snackbar |
-| 2 | No Google account on Android device | `PlatformException` → "Please add a Google account in device settings." |
-| 3 | Drive scope denied | Null/empty scopes → "Drive permission is required for this feature." |
-| 4 | Auto-backup token refresh fails silently | Error logged; badge shown on next app open: "Auto backup failed — tap to retry" |
-| 5 | User taps "Back Up Now" twice | Button disabled while `status != idle`; no double-upload |
-| 6 | App killed mid-upload | `_staging` file remains; next backup overwrites it; committed backup untouched |
-| 7 | Restore on non-empty DB | Confirmation dialog; pre-restore checkpoint created before any change |
-| 8 | Drive file deleted manually by user | `getLastBackupMetadata()` returns null → "No backup found" UI |
-| 9 | Large backup on slow connection | Progress bar with bytes; cancel button aborts upload; staging discarded |
-| 10 | Two devices back up simultaneously | Multi-device conflict check (Drive `modifiedTime` vs local `lastBackupAt`) → warn before overwrite |
-| 11 | Device clock is wrong | `lastBackupAt` displayed from local `SharedPreferences`, not derived from Drive metadata |
-| 12 | OAuth token revoked from Google settings | 401 → force re-sign-in flow |
-| 13 | Drive storage full (non-appDataFolder quota) | appDataFolder doesn't count against user quota — this scenario doesn't apply; document this to user |
-| 14 | Rate limited (429) | `DriveRateLimitException` → "Too many requests. Please try again in a few minutes." |
-| 15 | Corrupt remote backup file | Decrypt fails → checkpoint auto-restores; "Backup file is damaged." shown |
-| 16 | No internet | `DriveNoNetworkException` → "No internet connection." |
-| 17 | Airplane mode toggled mid-download | Exception caught; partial bytes discarded; checkpoint auto-restores local DB |
-| 18 | iOS background execution limit (~30s) | Timeout set; abort gracefully; `lastBackupAt` not updated; retry on next cycle |
-| 19 | User changes Google account | Disconnect + reconnect flow; old email pref replaced |
-| 20 | Delete record while offline | ID queued in local deletion log; uploaded to Drive on next connection |
-| 21 | Restore from 3-month-old backup | Deletion log applied after import; all deletions in the last 3 months propagate |
-| 22 | Deletion log itself corrupted on Drive | Local deletion log is authoritative; re-uploaded on next backup |
+|---|---|---|
+| 1 | iOS sign-in sheet dismissed | `DriveSignInCancelledException` → snackbar |
+| 2 | No Google account on device | `PlatformException` → prompt to add account |
+| 3 | Drive scope denied | "Drive permission is required" |
+| 4 | Auto-backup token refresh fails | Badge on next open: "Auto backup failed" |
+| 5 | Double tap "Back Up Now" | Button disabled while in progress |
+| 6 | App killed mid-upload | Staging file remains; next backup overwrites; committed backup untouched |
+| 7 | Restore on non-empty DB | Confirmation dialog + pre-restore checkpoint |
+| 8 | Drive file deleted by user | `getLastBackupMetadata()` returns null → "No backup found" |
+| 9 | Large backup on slow connection | Progress bar + cancel button |
+| 10 | Two devices back up simultaneously | `modifiedTime` conflict check → warn before overwrite |
+| 11 | Wrong device clock | `lastBackupAt` from local SharedPreferences |
+| 12 | OAuth token revoked | 401 → force re-sign-in |
+| 13 | Drive storage full | appDataFolder doesn't count against user quota |
+| 14 | Rate limited (429) | "Too many requests. Please try again." |
+| 15 | Corrupt remote backup | Decrypt fails → checkpoint auto-restores |
+| 16 | No internet | "No internet connection." |
+| 17 | Airplane mode mid-download | Partial bytes discarded; checkpoint auto-restores |
+| 18 | iOS background execution limit | Timeout gracefully; `lastBackupAt` not updated |
+| 19 | User changes Google account | Disconnect + reconnect flow |
+| 20 | Delete record while offline | ID queued in local deletion log; uploaded on reconnect |
+| 21 | Restore from old backup | Deletion log applied after import |
+| 22 | Deletion log corrupted | Local log is authoritative; re-uploaded on next backup |
 
-## Code Changes (Technical)
+### Tasks
+- [ ] `pubspec.yaml` — add `google_sign_in`, `googleapis`, `http`
+- [ ] `android/app/AndroidManifest.xml` — add `<queries>` block + INTERNET permission
+- [ ] `ios/Runner/Info.plist` — add `GIDClientID` reverse URL scheme
+- [ ] `drive_exceptions.dart` [NEW] — typed exception classes
+- [ ] `google_drive_service.dart` [NEW] — sign-in, upload, download, metadata, deletion log sync
+- [ ] `deletion_log_service.dart` [NEW] — record, merge, apply, purge, offline queue
+- [ ] `google_drive_sync_controller.dart` [NEW] — GetX controller with full reactive state
+- [ ] `backup_restore_screen.dart` — add Google Drive Sync section
+- [ ] `backup_service.dart` — add `createCheckpoint()` + `restoreFromCheckpoint()`
+- [ ] `main.dart` — add `WidgetsBindingObserver` for background backup + offline flush
+- [ ] `dependency_injection.dart` — register Drive service + controller
+- [ ] All delete actions — call `DeletionLogService.recordDeletion(id)` after each hard delete
 
-- [ ] **`pubspec.yaml`**: Add `google_sign_in: ^6.2.2`, `googleapis: ^14.0.0`, `http: ^1.2.2`.
-- [ ] **`android/app/src/main/AndroidManifest.xml`**: Add `<queries>` block for Google sign-in intent resolution (Android 11+) and INTERNET permission if missing.
-- [ ] **`ios/Runner/Info.plist`**: Add `GIDClientID` reverse URL scheme (from `GoogleService-Info.plist`) for OAuth redirect callback.
-- [ ] **`drive_exceptions.dart`** [NEW]: Typed exception classes — `DriveNoNetworkException`, `DriveSignInCancelledException`, `DriveSignInFailedException`, `DriveAuthRevokedException`, `DriveUploadFailedException`, `DriveQuotaExceededException`, `DriveRateLimitException`.
-- [ ] **`google_drive_service.dart`** [NEW]: `signIn()`, `signOut()`, `getSignedInAccount()`, `uploadBackup(bytes, fileName)` (atomic two-phase), `downloadLatestBackup(fileName)`, `getLastBackupMetadata()`, `uploadDeletionLog(Map)`, `downloadDeletionLog()`. All Drive errors mapped to typed exceptions.
-- [ ] **`deletion_log_service.dart`** [NEW]: `recordDeletion(String id)`, `getDeletionLog()`, `mergeWithRemote(Map remote)`, `applyToBoxes(LocalDbService)`, `purgeOldEntries()`, `queueOfflineDeletion(String id)`, `flushOfflineQueue()`. Persists locally via SharedPreferences or a small Hive box; syncs to Drive on each backup and immediately on delete when online.
-- [ ] **`google_drive_sync_controller.dart`** [NEW]: GetX controller. Reactive state: `status` (enum), `progressText`, `progressBytes`, `totalBytes`, `connectedEmail`, `lastBackupAt`, `autoBackupEnabled`, `backupFrequency` (daily/weekly/monthly), `backupTime` (TimeOfDay), `errorMessage`. Actions: `signIn()`, `signOut()`, `backupNow()`, `restoreFromDrive()`, `checkLastBackupInfo()`, `toggleAutoBackup()`, `setFrequency()`, `setBackupTime()`. SharedPreferences keys: `gdrive_email`, `gdrive_last_backup_at`, `gdrive_auto_backup_enabled`, `gdrive_frequency`, `gdrive_backup_hour`, `gdrive_backup_minute`.
-- [ ] **`backup_restore_screen.dart`**: Add "GOOGLE DRIVE SYNC" section. When not signed in: connect card. When signed in: connected email + disconnect, last backup label, frequency selector (Daily/Weekly/Monthly), time picker, auto-backup toggle, "Back Up Now" + "Restore from Drive" buttons, inline progress bar with cancel.
-- [ ] **`backup_service.dart`**: Add `createCheckpoint(directory)` and `restoreFromCheckpoint(path)` methods for pre-restore safety.
-- [ ] **`main.dart`**: Add `WidgetsBindingObserver`; on `AppLifecycleState.paused`, check if auto-backup is due (frequency + time window) and trigger silent backup. On `AppLifecycleState.resumed`, flush any offline deletion queue.
-- [ ] **`dependency_injection.dart`**: Register `GoogleDriveService`, `DeletionLogService`, and `GoogleDriveSyncController` as lazy singletons.
-- [ ] **All delete actions** (ExpenseRepository, InvestmentRepository, LendingRepository, etc.): After each hard delete, call `DeletionLogService.recordDeletion(id)`.
+---
 
-## Verification
+## Backlog (Future Milestones)
 
-- [ ] **Unit Tests**: Mock `GoogleSignIn`, `DriveApi`, `BackupService`, `DeletionLogService` via mocktail. Cover all 22 corner cases.
-- [ ] **Manual Android**: Full sign-in → backup → delete record → restore → confirm deleted record does not reappear.
-- [ ] **Manual iOS**: Sign-in sheet, backup, restore cycle on iOS Simulator.
-- [ ] **Two-device test**: Back up on Device A → restore on Device B → delete on B → restore on A → confirm deletion propagated.
-- [ ] **Airplane mode test**: Delete record offline → go online → confirm deletion log uploaded to Drive.
-- [ ] **Corrupt file test**: Manually corrupt Drive backup → restore → confirm local DB unchanged (checkpoint restored).
-- [ ] **Mid-upload kill test**: Force-kill app during upload → relaunch → confirm Drive committed backup is intact.
-- [ ] **`flutter analyze`**: No new warnings or errors.
+### Financial Accounts / Sources System
+Track WHERE money lives. Every transaction has a source + destination account.
+Transfers between own accounts are tagged as "Transfer" and excluded from income/expense totals.
+
+- Account types: Bank account, Mobile wallet (bKash/Nagad/Rocket), Cash
+- Model: opening balance set by user; running balance computed from all linked transactions
+- Transfers: source + destination, excluded from P&L
+- Impact: income, expense, savings, lending all get a `sourceAccountId` field
+- Net worth view: shows balance per account + savings instruments
+
+### Income ↔ Savings Integration
+- Savings returns (FDR interest, Sanchaypatra profit) credited to a financial account
+- Account balance reflects in net worth, not as duplicate income records
+- "Savings gap" insight: income − expense = suggested savings amount for the month
+
+### Tax Return Support
+- Dedicated Tax Report screen under fiscal year filter
+- Tax-rebate eligible instruments: Sanchaypatra, DPS (auto-flagged by type)
+- Non-eligible but taxable returns: FDR interest, bond coupons, investment gains
+- Output: total income, savings for rebate, investment income, estimated tax payable

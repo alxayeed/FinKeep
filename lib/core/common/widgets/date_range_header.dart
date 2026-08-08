@@ -256,7 +256,7 @@ class DateRangeHeader extends StatelessWidget {
                       if (type == TimeframeType.custom) {
                         _showCustomRangePicker(context);
                       } else {
-                        onTimeframeChanged(currentSelection.copyWith(type: type));
+                        onTimeframeChanged(currentSelection.withType(type));
                       }
                     },
                   ),

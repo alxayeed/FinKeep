@@ -1,23 +1,18 @@
+import 'package:finkeep/core/common/widgets/expense_monthly_analysis.dart';
+import 'package:finkeep/core/config/app_config.dart';
+import 'package:finkeep/core/extensions/double_ext.dart';
+import 'package:finkeep/core/responsive/responsive.dart';
+import 'package:finkeep/core/styles/app_colors.dart';
+import 'package:finkeep/core/styles/currency_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:finkeep/core/config/app_config.dart';
-import 'package:finkeep/core/common/widgets/expense_monthly_analysis.dart';
-import 'package:finkeep/core/common/widgets/loader_widget.dart';
-import 'package:finkeep/core/responsive/responsive.dart';
-import 'package:finkeep/core/styles/app_colors.dart';
-import 'package:finkeep/core/extensions/double_ext.dart';
-import 'package:finkeep/core/styles/currency_provider.dart';
-import 'widgets.dart';
 
 import '../../domain/entities/expense_entity.dart';
 import '../controllers/budget_controller.dart';
-import '../controllers/expense_report_controller.dart';
 import '../controllers/expense_category_controller.dart';
-import 'budget_progress_card.dart';
-import 'category_summary_list.dart';
-import 'expense_bar_chart.dart';
-import 'payment_medium_chart.dart';
+import '../controllers/expense_report_controller.dart';
+import 'widgets.dart';
 
 // ==========================================
 // 1. Unified Main Summary Widget Container
@@ -112,7 +107,9 @@ class ExpenseSummery extends StatelessWidget {
   ) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textCol = isDark ? Colors.white : const Color(0xFF0F172A);
-    final borderCol = isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0);
+    final borderCol = isDark
+        ? const Color(0xFF1E293B)
+        : const Color(0xFFE2E8F0);
     final subtitleColor = isDark ? Colors.white60 : const Color(0xFF64748B);
 
     final budgetController = Get.find<BudgetController>();
@@ -185,7 +182,8 @@ class ExpenseSummery extends StatelessWidget {
                 child: ListView.separated(
                   shrinkWrap: true,
                   itemCount: breakdown.length,
-                  separatorBuilder: (context, index) => Divider(color: borderCol),
+                  separatorBuilder: (context, index) =>
+                      Divider(color: borderCol),
                   itemBuilder: (context, index) {
                     final item = breakdown[index];
                     final monthLabel = item['monthLabel'] as String;
