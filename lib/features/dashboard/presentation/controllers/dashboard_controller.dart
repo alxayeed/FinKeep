@@ -99,10 +99,18 @@ class DashboardController extends GetxController {
     monthlyStandingLoading.value = true;
     monthlyStandingError.value = '';
     try {
-      final result = await getMonthlyStandingUseCase(monthlyStandingMonth.value);
-      monthlyStanding.value = result;
+      if (timeframe.value == DashboardTimeframe.currentMonth) {
+        final result = await getMonthlyStandingUseCase(monthlyStandingMonth.value);
+        monthlyStanding.value = result;
+      } else {
+        final range = _getDateRange();
+        if (range != null) {
+          final result = await getMonthlyStandingUseCase(range['start']!, range['end']!);
+          monthlyStanding.value = result;
+        }
+      }
     } catch (e) {
-      monthlyStandingError.value = 'Failed to load monthly standing: $e';
+      monthlyStandingError.value = 'Failed to load standing: $e';
     } finally {
       monthlyStandingLoading.value = false;
     }

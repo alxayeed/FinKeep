@@ -40,11 +40,11 @@ class DashboardFirestoreDataSource implements DashboardRemoteDataSource {
   }
 
   @override
-  Future<MonthlyStandingModel> getMonthlyStanding(DateTime month) async {
-    final start = DateTime(month.year, month.month, 1);
-    final end = DateTime(month.year, month.month + 1, 0, 23, 59, 59);
-    final startTs = Timestamp.fromDate(start);
-    final endTs = Timestamp.fromDate(end);
+  Future<MonthlyStandingModel> getMonthlyStanding(DateTime start, [DateTime? end]) async {
+    final rangeStart = end == null ? DateTime(start.year, start.month, 1) : start;
+    final rangeEnd = end == null ? DateTime(start.year, start.month + 1, 0, 23, 59, 59) : end;
+    final startTs = Timestamp.fromDate(rangeStart);
+    final endTs = Timestamp.fromDate(rangeEnd);
 
     // Query collections in parallel
     final expenseFuture = fireStore
@@ -90,7 +90,7 @@ class DashboardFirestoreDataSource implements DashboardRemoteDataSource {
     }
 
     return MonthlyStandingModel(
-      month: month,
+      month: start,
       totalIncome: totalIncome,
       totalExpense: totalExpense,
       totalLendGiven: totalLendGiven,

@@ -9,14 +9,18 @@ import '../../domain/entities/monthly_standing_entity.dart';
 
 class MonthlyStandingChart extends StatelessWidget {
   final MonthlyStandingEntity data;
-  final VoidCallback onPrevious;
-  final VoidCallback onNext;
+  final VoidCallback? onPrevious;
+  final VoidCallback? onNext;
+  final bool showMonthSwitcher;
+  final String title;
 
   const MonthlyStandingChart({
     super.key,
     required this.data,
-    required this.onPrevious,
-    required this.onNext,
+    this.onPrevious,
+    this.onNext,
+    this.showMonthSwitcher = true,
+    this.title = 'MONTHLY STANDING',
   });
 
   @override
@@ -39,61 +43,63 @@ class MonthlyStandingChart extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header with Title and Navigation Controls (Info button removed)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Expanded(
-                child: Text(
-                  'MONTHLY STANDING',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.grey,
-                    letterSpacing: 1.1,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.chevron_left, size: 20),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    onPressed: onPrevious,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    monthLabel,
-                    style: TextStyle(
-                      fontSize: 11,
+          // Header with Title and Optional Month Navigation Controls
+          if (showMonthSwitcher) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : Colors.black87,
+                      color: AppColors.grey,
+                      letterSpacing: 1.1,
                     ),
                   ),
-                  const SizedBox(width: 4),
-                  IconButton(
-                    icon: const Icon(Icons.chevron_right, size: 20),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    onPressed: onNext,
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
+                ),
+                const SizedBox(width: 8),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.chevron_left, size: 20),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      onPressed: onPrevious,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      monthLabel,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    IconButton(
+                      icon: const Icon(Icons.chevron_right, size: 20),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      onPressed: onNext,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+          ],
 
           Expanded(
             child: Row(
               children: [
                 // Bar Chart
                 Expanded(
-                  flex: 5,
+                  flex: 4,
                   child: Builder(
                     builder: (context) {
                       final double maxVal = [
@@ -200,13 +206,12 @@ class MonthlyStandingChart extends StatelessWidget {
                     },
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 20),
                 // Legend
                 Expanded(
-                  flex: 5,
+                  flex: 6,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildLegendRow(
                         color: AppColors.success,
@@ -215,7 +220,6 @@ class MonthlyStandingChart extends StatelessWidget {
                         symbol: symbol,
                         isDark: isDark,
                       ),
-                      const SizedBox(height: 4),
                       _buildLegendRow(
                         color: AppColors.error,
                         label: 'Expenses',
@@ -223,7 +227,6 @@ class MonthlyStandingChart extends StatelessWidget {
                         symbol: symbol,
                         isDark: isDark,
                       ),
-                      const SizedBox(height: 4),
                       _buildLegendRow(
                         color: Colors.amber,
                         label: 'Lend Given',
@@ -231,7 +234,6 @@ class MonthlyStandingChart extends StatelessWidget {
                         symbol: symbol,
                         isDark: isDark,
                       ),
-                      const SizedBox(height: 4),
                       _buildLegendRow(
                         color: Colors.indigo,
                         label: 'Lend Taken',
@@ -257,26 +259,35 @@ class MonthlyStandingChart extends StatelessWidget {
     required String symbol,
     required bool isDark,
   }) {
-    return Row(
-      children: [
-        Container(
-          width: 8,
-          height: 8,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            '$label: ${amount.toCurrency()} $symbol',
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3.0),
+      child: Row(
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            label,
             style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
+              fontSize: 10.5,
+              fontWeight: FontWeight.w600,
               color: isDark ? Colors.white70 : Colors.black87,
             ),
-            overflow: TextOverflow.ellipsis,
           ),
-        ),
-      ],
+          const Spacer(),
+          Text(
+            '${amount.toCurrency()} $symbol',
+            style: TextStyle(
+              fontSize: 10.5,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : Colors.black87,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -19,10 +19,10 @@ class DashboardRepositoryImpl implements DashboardRepository {
   });
 
   @override
-  Future<MonthlyStandingEntity> getMonthlyStanding(DateTime month) async {
+  Future<MonthlyStandingEntity> getMonthlyStanding(DateTime start, [DateTime? end]) async {
     final model = AppConfig.useRemote
-        ? await remoteDataSource.getMonthlyStanding(month)
-        : await localDataSource.getMonthlyStanding(month);
+        ? await remoteDataSource.getMonthlyStanding(start, end)
+        : await localDataSource.getMonthlyStanding(start, end);
     return model.toEntity();
   }
 

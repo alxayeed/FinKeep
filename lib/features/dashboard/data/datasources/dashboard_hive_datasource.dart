@@ -15,9 +15,9 @@ class DashboardHiveDataSource implements DashboardLocalDataSource {
   DashboardHiveDataSource({required this.localDb});
 
   @override
-  Future<MonthlyStandingModel> getMonthlyStanding(DateTime month) async {
-    final start = DateTime(month.year, month.month, 1);
-    final end = DateTime(month.year, month.month + 1, 0, 23, 59, 59);
+  Future<MonthlyStandingModel> getMonthlyStanding(DateTime start, [DateTime? end]) async {
+    final rangeStart = end == null ? DateTime(start.year, start.month, 1) : start;
+    final rangeEnd = end == null ? DateTime(start.year, start.month + 1, 0, 23, 59, 59) : end;
 
     double totalIncome = 0.0;
     double totalExpense = 0.0;
@@ -28,7 +28,7 @@ class DashboardHiveDataSource implements DashboardLocalDataSource {
     for (final raw in localDb.expensesBox.values) {
       final map = Map<String, dynamic>.from(raw);
       final date = _parseDate(map['date']);
-      if (_inRange(date, start, end)) {
+      if (_inRange(date, rangeStart, rangeEnd)) {
         totalExpense += (map['amount'] as num? ?? 0).toDouble();
       }
     }
@@ -37,7 +37,7 @@ class DashboardHiveDataSource implements DashboardLocalDataSource {
     for (final raw in localDb.incomeBox.values) {
       final map = Map<String, dynamic>.from(raw);
       final date = _parseDate(map['date']);
-      if (_inRange(date, start, end)) {
+      if (_inRange(date, rangeStart, rangeEnd)) {
         totalIncome += (map['amount'] as num? ?? 0).toDouble();
       }
     }
@@ -46,7 +46,7 @@ class DashboardHiveDataSource implements DashboardLocalDataSource {
     for (final raw in localDb.lendingsBox.values) {
       final map = Map<String, dynamic>.from(raw);
       final date = _parseDate(map['createdDate']);
-      if (_inRange(date, start, end)) {
+      if (_inRange(date, rangeStart, rangeEnd)) {
         final amount = (map['amount'] as num? ?? 0).toDouble();
         final type = map['type'] as String? ?? '';
         if (type == 'given') {
@@ -58,7 +58,7 @@ class DashboardHiveDataSource implements DashboardLocalDataSource {
     }
 
     return MonthlyStandingModel(
-      month: month,
+      month: start,
       totalIncome: totalIncome,
       totalExpense: totalExpense,
       totalLendGiven: totalLendGiven,

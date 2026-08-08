@@ -5,8 +5,8 @@ import '../models/dashboard_trend_point_model.dart';
 import '../models/monthly_standing_model.dart';
 
 abstract class DashboardLocalDataSource {
-  /// Returns the financial standing (income, expense, lend given, lend taken) for a specific month.
-  Future<MonthlyStandingModel> getMonthlyStanding(DateTime month);
+  /// Returns the financial standing (income, expense, lend given, lend taken) for a specific month or date range.
+  Future<MonthlyStandingModel> getMonthlyStanding(DateTime start, [DateTime? end]);
 
   /// Returns aggregate financial stats (totals, savings rate, net lendings, etc.)
   /// for the given date range.

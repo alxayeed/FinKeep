@@ -13,6 +13,7 @@
 - UPDATE: improve date range selector UI and update action button design
 - UPDATE: dashboard monthly standing chart
 - FIX: Dashboard refreshing issue
+- UPDATE: monthly standing filtering and UI
 
 1.0.0+20
 [11/07/2026]

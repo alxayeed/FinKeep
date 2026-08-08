@@ -11,6 +11,7 @@ import '../widgets/cash_flow_line_chart.dart';
 import '../widgets/expense_doughnut_chart.dart';
 import '../widgets/income_doughnut_chart.dart';
 // import '../widgets/recent_activity_list.dart';
+import '../../domain/entities/dashboard_timeframe.dart';
 import '../widgets/summary_cards.dart';
 import '../widgets/timeframe_selector.dart';
 import '../widgets/monthly_standing_chart.dart';
@@ -49,7 +50,7 @@ class DashboardScreen extends StatelessWidget {
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.only(bottom: 24),
                 children: [
-                  // 0. Current Standing Chart Overview with Month Navigation
+                  // 0. Standing Chart Overview
                   Obx(() {
                     if (controller.monthlyStandingLoading.value) {
                       return const MonthlyStandingChartShimmer();
@@ -64,10 +65,12 @@ class DashboardScreen extends StatelessWidget {
                     }
                     final data = controller.monthlyStanding.value;
                     if (data == null) {
-                      return const SizedBox();
+                      return const SizedBox.shrink();
                     }
+                    final isCurrentMonth = controller.timeframe.value == DashboardTimeframe.currentMonth;
                     return MonthlyStandingChart(
                       data: data,
+                      showMonthSwitcher: isCurrentMonth,
                       onPrevious: () => controller.prevMonthStanding(),
                       onNext: () => controller.nextMonthStanding(),
                     );

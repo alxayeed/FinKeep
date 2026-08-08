@@ -6,7 +6,7 @@ import '../entities/monthly_standing_entity.dart';
 
 abstract class DashboardRepository {
   /// Fetches monthly standing financial overview data.
-  Future<MonthlyStandingEntity> getMonthlyStanding(DateTime month);
+  Future<MonthlyStandingEntity> getMonthlyStanding(DateTime start, [DateTime? end]);
 
   /// Fetches aggregate financial summary stats for the summary card tile.
   Future<DashboardAggregateStatsEntity> getAggregateStats(
