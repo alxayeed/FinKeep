@@ -364,7 +364,7 @@ class InvestmentSummaryScreen extends StatelessWidget {
                         sections: total == 0
                             ? [
                                 PieChartSectionData(
-                                  color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                                  color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
                                   value: 1,
                                   title: '',
                                   radius: 18.r,

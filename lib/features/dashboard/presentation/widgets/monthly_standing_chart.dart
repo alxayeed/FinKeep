@@ -25,13 +25,6 @@ class MonthlyStandingChart extends StatelessWidget {
     final symbol = context.currency.symbol;
     final monthLabel = DateFormat('MMMM yyyy').format(data.month);
 
-    final double total = data.totalIncome +
-        data.totalExpense +
-        data.totalLendGiven +
-        data.totalLendTaken;
-
-    final hasData = total > 0;
-
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       padding: const EdgeInsets.all(16),
@@ -95,151 +88,163 @@ class MonthlyStandingChart extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          if (!hasData)
-            const Expanded(
-              child: Center(
-                child: Text(
-                  'No transactions recorded for this month',
-                  style: TextStyle(color: AppColors.grey, fontSize: 13),
-                ),
-              ),
-            )
-          else
-            Expanded(
-              child: Row(
-                children: [
-                  // Donut Chart
-                  Expanded(
-                    flex: 4,
-                    child: AspectRatio(
-                      aspectRatio: 1,
-                      child: Stack(
-                        children: [
-                          PieChart(
-                            PieChartData(
-                              sectionsSpace: 2,
-                              centerSpaceRadius: 36,
-                              startDegreeOffset: -90,
-                              sections: [
-                                if (data.totalIncome > 0)
-                                  PieChartSectionData(
-                                    color: AppColors.success,
-                                    value: data.totalIncome,
-                                    radius: 16,
-                                    title: '${((data.totalIncome / total) * 100).toStringAsFixed(0)}%',
-                                    titleStyle: const TextStyle(
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                if (data.totalExpense > 0)
-                                  PieChartSectionData(
-                                    color: AppColors.error,
-                                    value: data.totalExpense,
-                                    radius: 16,
-                                    title: '${((data.totalExpense / total) * 100).toStringAsFixed(0)}%',
-                                    titleStyle: const TextStyle(
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                if (data.totalLendGiven > 0)
-                                  PieChartSectionData(
-                                    color: Colors.amber,
-                                    value: data.totalLendGiven,
-                                    radius: 16,
-                                    title: '${((data.totalLendGiven / total) * 100).toStringAsFixed(0)}%',
-                                    titleStyle: const TextStyle(
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                if (data.totalLendTaken > 0)
-                                  PieChartSectionData(
-                                    color: Colors.indigo,
-                                    value: data.totalLendTaken,
-                                    radius: 16,
-                                    title: '${((data.totalLendTaken / total) * 100).toStringAsFixed(0)}%',
-                                    titleStyle: const TextStyle(
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                          Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Text(
-                                  'TOTAL',
-                                  style: TextStyle(fontSize: 8, color: AppColors.grey, fontWeight: FontWeight.bold),
-                                ),
-                                Text(
-                                  '${total.toCurrency()} $symbol',
-                                  style: TextStyle(
-                                    fontSize: 10,
+          Expanded(
+            child: Row(
+              children: [
+                // Bar Chart
+                Expanded(
+                  flex: 5,
+                  child: Builder(
+                    builder: (context) {
+                      final double maxVal = [
+                        data.totalIncome,
+                        data.totalExpense,
+                        data.totalLendGiven,
+                        data.totalLendTaken,
+                      ].reduce((a, b) => a > b ? a : b);
+
+                      final double maxY = maxVal > 0 ? maxVal * 1.15 : 100.0;
+
+                      final barItems = [
+                        (0, data.totalIncome, AppColors.success),
+                        (1, data.totalExpense, AppColors.error),
+                        (2, data.totalLendGiven, Colors.amber),
+                        (3, data.totalLendTaken, Colors.indigo),
+                      ];
+
+                      return BarChart(
+                        BarChartData(
+                          alignment: BarChartAlignment.spaceAround,
+                          maxY: maxY,
+                          gridData: const FlGridData(show: false),
+                          borderData: FlBorderData(show: false),
+                          titlesData: FlTitlesData(
+                            show: true,
+                            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                            leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 22,
+                                getTitlesWidget: (value, meta) {
+                                  const style = TextStyle(
+                                    fontSize: 9,
                                     fontWeight: FontWeight.bold,
-                                    color: isDark ? Colors.white : Colors.black87,
+                                    color: AppColors.grey,
+                                  );
+                                  String label;
+                                  switch (value.toInt()) {
+                                    case 0:
+                                      label = 'Inc';
+                                      break;
+                                    case 1:
+                                      label = 'Exp';
+                                      break;
+                                    case 2:
+                                      label = 'Given';
+                                      break;
+                                    case 3:
+                                      label = 'Taken';
+                                      break;
+                                    default:
+                                      label = '';
+                                  }
+                                  return SideTitleWidget(
+                                    meta: meta,
+                                    space: 4,
+                                    child: Text(label, style: style),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                          barTouchData: BarTouchData(
+                            touchTooltipData: BarTouchTooltipData(
+                              getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                                final labels = ['Income', 'Expenses', 'Lend Given', 'Lend Taken'];
+                                final label = labels[groupIndex % labels.length];
+                                return BarTooltipItem(
+                                  '$label\n${rod.toY.toCurrency()} $symbol',
+                                  const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 11,
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          barGroups: barItems.map((item) {
+                            return BarChartGroupData(
+                              x: item.$1,
+                              barRods: [
+                                BarChartRodData(
+                                  toY: item.$2,
+                                  color: item.$3,
+                                  width: 14,
+                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+                                  backDrawRodData: BackgroundBarChartRodData(
+                                    show: true,
+                                    toY: maxY,
+                                    color: isDark
+                                        ? Colors.white.withValues(alpha: 0.05)
+                                        : Colors.black.withValues(alpha: 0.04),
                                   ),
                                 ),
                               ],
-                            ),
-                          ),
-                        ],
+                            );
+                          }).toList(),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(width: 16),
+                // Legend
+                Expanded(
+                  flex: 5,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildLegendRow(
+                        color: AppColors.success,
+                        label: 'Income',
+                        amount: data.totalIncome,
+                        symbol: symbol,
+                        isDark: isDark,
                       ),
-                    ),
+                      const SizedBox(height: 4),
+                      _buildLegendRow(
+                        color: AppColors.error,
+                        label: 'Expenses',
+                        amount: data.totalExpense,
+                        symbol: symbol,
+                        isDark: isDark,
+                      ),
+                      const SizedBox(height: 4),
+                      _buildLegendRow(
+                        color: Colors.amber,
+                        label: 'Lend Given',
+                        amount: data.totalLendGiven,
+                        symbol: symbol,
+                        isDark: isDark,
+                      ),
+                      const SizedBox(height: 4),
+                      _buildLegendRow(
+                        color: Colors.indigo,
+                        label: 'Lend Taken',
+                        amount: data.totalLendTaken,
+                        symbol: symbol,
+                        isDark: isDark,
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 16),
-                  // Legend
-                  Expanded(
-                    flex: 5,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildLegendRow(
-                          color: AppColors.success,
-                          label: 'Income',
-                          amount: data.totalIncome,
-                          symbol: symbol,
-                          isDark: isDark,
-                        ),
-                        const SizedBox(height: 4),
-                        _buildLegendRow(
-                          color: AppColors.error,
-                          label: 'Expenses',
-                          amount: data.totalExpense,
-                          symbol: symbol,
-                          isDark: isDark,
-                        ),
-                        const SizedBox(height: 4),
-                        _buildLegendRow(
-                          color: Colors.amber,
-                          label: 'Lend Given',
-                          amount: data.totalLendGiven,
-                          symbol: symbol,
-                          isDark: isDark,
-                        ),
-                        const SizedBox(height: 4),
-                        _buildLegendRow(
-                          color: Colors.indigo,
-                          label: 'Lend Taken',
-                          amount: data.totalLendTaken,
-                          symbol: symbol,
-                          isDark: isDark,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
+          ),
         ],
       ),
     );

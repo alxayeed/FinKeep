@@ -17,6 +17,7 @@ import '../../domain/usecases/lending_person/update_person_usecase.dart';
 import '../../domain/usecases/repayment/add_repayment_usecase.dart';
 import '../../domain/usecases/repayment/delete_repayment_usecase.dart';
 import '../../domain/usecases/repayment/update_repayment_usecase.dart';
+import 'package:finkeep/features/dashboard/presentation/controllers/dashboard_controller.dart';
 
 class LendingsController extends GetxController {
   final GetLendingsUseCase getLendingsUseCase;
@@ -162,6 +163,7 @@ class LendingsController extends GetxController {
       },
       (_) async {
         await fetchLendings(showLoading: true);
+        DashboardController.refreshIfRegistered();
         onSuccess?.call();
       },
     );
@@ -184,6 +186,7 @@ class LendingsController extends GetxController {
       },
       (_) async {
         await fetchLendings(showLoading: true);
+        DashboardController.refreshIfRegistered();
         onSuccess?.call();
         success = true;
       },
@@ -207,6 +210,7 @@ class LendingsController extends GetxController {
       },
       (_) async {
         await fetchLendings(showLoading: true);
+        DashboardController.refreshIfRegistered();
         onSuccess?.call();
         success = true;
       },
@@ -281,6 +285,7 @@ class LendingsController extends GetxController {
       (_) async {
         await fetchRepayments(repayment.lendingId);
         await _updateLendingRepaidAndStatus(repayment.lendingId);
+        DashboardController.refreshIfRegistered();
         onSuccess?.call();
       },
     );
@@ -300,6 +305,7 @@ class LendingsController extends GetxController {
       (_) async {
         await fetchRepayments(repayment.lendingId);
         await _updateLendingRepaidAndStatus(repayment.lendingId);
+        DashboardController.refreshIfRegistered();
         onSuccess?.call();
       },
     );
@@ -319,6 +325,7 @@ class LendingsController extends GetxController {
       (_) async {
         await fetchRepayments(repayment.lendingId);
         await _updateLendingRepaidAndStatus(repayment.lendingId);
+        DashboardController.refreshIfRegistered();
         onSuccess?.call();
       },
     );

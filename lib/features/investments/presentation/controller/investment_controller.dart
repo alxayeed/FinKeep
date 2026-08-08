@@ -10,6 +10,7 @@ import '../../domain/usecases/add_investment_usecase.dart';
 import '../../domain/usecases/add_return_entry_usecase.dart';
 import '../../domain/usecases/get_investments_usecase.dart';
 import '../../domain/usecases/update_investment_usecase.dart';
+import 'package:finkeep/features/dashboard/presentation/controllers/dashboard_controller.dart';
 
 class InvestmentController extends GetxController {
   final GetInvestmentsUseCase getInvestmentsUseCase;
@@ -74,6 +75,7 @@ class InvestmentController extends GetxController {
       isLoading.value = true;
       await addInvestmentUseCase(investment);
       investments.add(investment); // update local list
+      DashboardController.refreshIfRegistered();
     } catch (e) {
       errorMessage.value = 'Failed to add investment: $e';
     } finally {
@@ -91,6 +93,7 @@ class InvestmentController extends GetxController {
         investments[index] = investment;
         investments.refresh(); // notify listeners
       }
+      DashboardController.refreshIfRegistered();
     } catch (e) {
       errorMessage.value = 'Failed to update investment: $e';
     } finally {
@@ -109,6 +112,7 @@ class InvestmentController extends GetxController {
       isLoading.value = true;
       await addReturnEntryUseCase(investmentId, returnEntry);
       await fetchInvestments(); // Refresh from API to get updated state
+      DashboardController.refreshIfRegistered();
       onSuccess?.call();
     } catch (e) {
       errorMessage.value = 'Failed to add return entry: $e';
@@ -134,6 +138,7 @@ class InvestmentController extends GetxController {
         final updatedInvestment = investment.copyWith(returns: updatedReturns);
         await updateInvestmentUseCase(updatedInvestment);
         await fetchInvestments(); // Refresh from API to get updated state
+        DashboardController.refreshIfRegistered();
       }
       onSuccess?.call();
     } catch (e) {
@@ -162,6 +167,7 @@ class InvestmentController extends GetxController {
         final updatedInvestment = investment.copyWith(returns: updatedReturns);
         await updateInvestmentUseCase(updatedInvestment);
         await fetchInvestments(); // Refresh from API to get updated state
+        DashboardController.refreshIfRegistered();
       }
       onSuccess?.call();
     } catch (e) {

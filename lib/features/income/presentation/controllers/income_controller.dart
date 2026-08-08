@@ -12,6 +12,7 @@ import '../../domain/usecases/get_incomes_in_range_usecase.dart';
 import '../../domain/usecases/get_incomes_usecase.dart';
 import '../../domain/usecases/update_income_usecase.dart';
 import 'income_category_controller.dart';
+import 'package:finkeep/features/dashboard/presentation/controllers/dashboard_controller.dart';
 
 class IncomeController extends GetxController {
   final AddIncomeUseCase addIncomeUseCase;
@@ -125,6 +126,7 @@ class IncomeController extends GetxController {
   }) async {
     try {
       await addIncomeUseCase(income);
+      DashboardController.refreshIfRegistered();
       onSuccess?.call();
       await fetchMonthlyIncomes();
     } catch (e, stackTrace) {
@@ -140,6 +142,7 @@ class IncomeController extends GetxController {
   }) async {
     try {
       await updateIncomeUseCase(income);
+      DashboardController.refreshIfRegistered();
       onSuccess?.call();
       await fetchMonthlyIncomes();
     } catch (e, stackTrace) {
@@ -155,6 +158,7 @@ class IncomeController extends GetxController {
   }) async {
     try {
       await deleteIncomeUseCase(id);
+      DashboardController.refreshIfRegistered();
       onSuccess?.call();
       await fetchMonthlyIncomes();
     } catch (e, stackTrace) {

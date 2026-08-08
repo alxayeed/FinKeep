@@ -67,12 +67,14 @@ class _IncomeDoughnutChartState extends State<IncomeDoughnutChart> {
                 PieChart(
                   PieChartData(
                     sectionsSpace: 0,
-                    centerSpaceRadius: 48,
+                    centerSpaceRadius: 46,
                     sections: [
                       PieChartSectionData(
-                        color: isDark ? Colors.white12 : Colors.black12,
+                        color: isDark
+                            ? const Color(0xFF334155)
+                            : const Color(0xFFE2E8F0),
                         value: 1,
-                        radius: 20,
+                        radius: 19,
                         title: '',
                       ),
                     ],
@@ -96,7 +98,7 @@ class _IncomeDoughnutChartState extends State<IncomeDoughnutChart> {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white54 : Colors.black54,
+                          color: isDark ? Colors.white : Colors.black87,
                         ),
                       ),
                     ],

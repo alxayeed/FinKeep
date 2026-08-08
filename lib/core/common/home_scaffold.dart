@@ -16,8 +16,6 @@ class HomeScaffold extends StatefulWidget {
 }
 
 class _HomeScaffoldState extends State<HomeScaffold> {
-  DateTime? _lastBackPressTime;
-
   int _currentIndex(BuildContext context) {
     final currentRouteName = GoRouterState.of(context).matchedLocation;
 

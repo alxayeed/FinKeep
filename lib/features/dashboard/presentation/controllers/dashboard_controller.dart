@@ -60,6 +60,12 @@ class DashboardController extends GetxController {
   final recentActivitiesLoading = false.obs;
   final recentActivitiesError = ''.obs;
 
+  static void refreshIfRegistered() {
+    if (Get.isRegistered<DashboardController>()) {
+      Get.find<DashboardController>().fetchAllDashboardData();
+    }
+  }
+
   @override
   void onInit() {
     super.onInit();

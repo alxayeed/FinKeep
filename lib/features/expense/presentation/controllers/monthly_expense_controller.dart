@@ -11,6 +11,7 @@ import '../../domain/usecases/get_last_month_total_usecase.dart';
 import '../../domain/usecases/usecases.dart';
 import 'budget_controller.dart';
 import 'expense_category_controller.dart';
+import 'package:finkeep/features/dashboard/presentation/controllers/dashboard_controller.dart';
 
 class MonthlyExpenseController extends GetxController {
   final GetAllExpensesUseCase getAllExpenses;
@@ -138,6 +139,7 @@ class MonthlyExpenseController extends GetxController {
     shouldRefresh = true;
     try {
       await addExpense.call(expense);
+      DashboardController.refreshIfRegistered();
       onSuccess?.call();
       fetchMonthlyExpenses();
     } catch (e, stackTrace) {
@@ -154,6 +156,7 @@ class MonthlyExpenseController extends GetxController {
     shouldRefresh = true;
     try {
       await updateExpense.call(expense);
+      DashboardController.refreshIfRegistered();
       onSuccess?.call();
       fetchMonthlyExpenses();
     } catch (e, stackTrace) {
@@ -170,6 +173,7 @@ class MonthlyExpenseController extends GetxController {
     shouldRefresh = true;
     try {
       await deleteExpense.call(id);
+      DashboardController.refreshIfRegistered();
       onSuccess?.call();
       fetchMonthlyExpenses();
     } catch (e, stackTrace) {
