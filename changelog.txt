@@ -1,3 +1,12 @@
+1.1.0+21
+[11/08/2026]
+- UPDATE: align expense report header layout with DateRangeHeader top bar
+- UPDATE: refactor TimeframeSelection to DateFilter model and enum
+- FIX: filter dashboard lending dues and investment metrics by selected date range
+- FEATURE: add reactive PrivacyText widget and biometric privacy mode
+- FIX: filter investment status distribution card by selected date range
+
+
 1.1.0+20
 [07/08/2026]
 - UPDATE: Expense list will show category wise expense when selected any
@@ -15,10 +24,6 @@
 - FIX: Dashboard refreshing issue
 - UPDATE: monthly standing filtering and UI
 
-- UPDATE: align expense report header layout with DateRangeHeader top bar
-- UPDATE: refactor TimeframeSelection to DateFilter model and enum
-- FIX: filter dashboard lending dues and investment metrics by selected date range
-- FEATURE: add reactive PrivacyText widget and biometric privacy mode
 
 1.0.0+20
 [11/07/2026]
