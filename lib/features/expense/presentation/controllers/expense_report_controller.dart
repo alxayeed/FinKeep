@@ -7,6 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:finkeep/core/services/local_db_service.dart';
 import 'budget_controller.dart';
 
+import '../../../../core/common/models/date_filter.dart';
+
 class ExpenseReportController extends GetxController {
   final GetExpensesInRangeUseCase getExpensesInRangeUseCase;
 
@@ -27,6 +29,10 @@ class ExpenseReportController extends GetxController {
 
   final Rx<DateTime?> startDate = Rx<DateTime?>(null);
   final Rx<DateTime?> endDate = Rx<DateTime?>(null);
+  final Rx<DateFilter> dateFilter = DateFilter(
+    type: DateFilterType.yearly,
+    referenceDate: DateTime.now(),
+  ).obs;
 
   ExpenseReportController({
     required this.getExpensesInRangeUseCase,
@@ -36,6 +42,14 @@ class ExpenseReportController extends GetxController {
   void onInit() {
     clearReportState();
     super.onInit();
+  }
+
+  void updateDateFilter(DateFilter newFilter) {
+    dateFilter.value = newFilter;
+    final range = newFilter.dateRange;
+    if (range != null) {
+      fetchExpensesInRange(range.start, range.end);
+    }
   }
 
   void clearReportState() {

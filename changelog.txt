@@ -14,6 +14,8 @@
 - UPDATE: dashboard monthly standing chart
 - FIX: Dashboard refreshing issue
 - UPDATE: monthly standing filtering and UI
+- UPDATE: align expense report header layout with DateRangeHeader top bar
+- UPDATE: refactor TimeframeSelection to DateFilter model and enum
 
 1.0.0+20
 [11/07/2026]
