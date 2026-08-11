@@ -314,16 +314,16 @@ class InvestmentSummaryScreen extends StatelessWidget {
   // Helper: Chart Section (Pie Chart) at top
   // --------------------------------------------------
   Widget _buildChartSection(BuildContext context, bool isDark, int totalCount) {
-    // Count status distribution
+    final list = controller.filteredInvestments;
     final Map<InvestmentStatus, int> counts = {};
     for (final status in InvestmentStatus.values) {
       counts[status] = 0;
     }
-    for (final investment in controller.investments) {
+    for (final investment in list) {
       counts[investment.status] = (counts[investment.status] ?? 0) + 1;
     }
 
-    final total = controller.investments.length;
+    final total = list.length;
 
     return Container(
       padding: EdgeInsets.all(18.r),
