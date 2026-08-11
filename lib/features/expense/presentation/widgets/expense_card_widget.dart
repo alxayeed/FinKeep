@@ -3,7 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
-import 'package:finkeep/core/extensions/double_ext.dart';
+import '../../../../core/common/widgets/privacy_text.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/routes/app_router.dart';
 import '../../../../core/styles/app_colors.dart';
@@ -127,8 +127,8 @@ class ExpenseCardWidget extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    expense.amount.toCurrency(),
+                  PrivacyText(
+                    expense.amount,
                     style: AppTextStyles.cardAmount(context),
                   ),
                   SizedBox(width: 2.w),

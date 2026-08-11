@@ -4,8 +4,8 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:finkeep/core/config/app_config.dart';
 import '../../../../core/common/widgets/no_data_widget.dart';
-import '../../../../core/extensions/double_ext.dart';
-import '../../../../core/responsive/responsive.dart';
+import 'package:finkeep/core/common/widgets/privacy_text.dart';
+import 'package:finkeep/core/responsive/responsive.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../../../../core/styles/currency_provider.dart';
 import '../widgets/income_shimmer.dart';
@@ -49,8 +49,9 @@ class IncomeListScreen extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                '+ ${dailyTotal.toCurrency()}',
+              PrivacyText(
+                dailyTotal,
+                prefix: '+ ',
                 style: TextStyle(
                   fontSize: 10.sp,
                   fontFamily: 'Manrope',
@@ -123,8 +124,8 @@ class IncomeListScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.baseline,
                           textBaseline: TextBaseline.alphabetic,
                           children: [
-                            Text(
-                              total.toCurrency(),
+                            PrivacyText(
+                              total,
                               style: TextStyle(
                                 fontSize: 24.sp,
                                 fontFamily: 'Manrope',

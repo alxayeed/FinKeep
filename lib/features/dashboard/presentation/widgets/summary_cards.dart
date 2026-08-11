@@ -3,9 +3,9 @@ import 'package:shimmer/shimmer.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:finkeep/core/routes/app_router.dart';
-import 'package:finkeep/core/extensions/double_ext.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
 import 'package:finkeep/core/config/app_config.dart';
+import '../../../../core/common/widgets/privacy_text.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../../domain/entities/dashboard_aggregate_stats_entity.dart';
 
@@ -51,7 +51,8 @@ class SummaryCards extends StatelessWidget {
                   _buildMiniCard(
                     context,
                     title: 'Investments',
-                    value: '${(data.totalInvested + data.totalInvestmentProfit).toCurrency()} $symbol',
+                    amount: data.totalInvested + data.totalInvestmentProfit,
+                    suffix: ' $symbol',
                     icon: FontAwesomeIcons.chartLine,
                     color: Colors.teal,
                     onTap: () => context.go(AppRoutes.investments),
@@ -132,8 +133,9 @@ class SummaryCards extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  '${netWorth.toCurrency()} $symbol',
+                PrivacyText(
+                  netWorth,
+                  suffix: ' $symbol',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 32,
@@ -152,8 +154,10 @@ class SummaryCards extends StatelessWidget {
                           style: TextStyle(color: Colors.white60, fontSize: 10),
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          '+${data.totalIncome.toCurrency()} $symbol',
+                        PrivacyText(
+                          data.totalIncome,
+                          prefix: '+',
+                          suffix: ' $symbol',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 14,
@@ -170,8 +174,10 @@ class SummaryCards extends StatelessWidget {
                           style: TextStyle(color: Colors.white60, fontSize: 10),
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          '-${data.totalExpense.toCurrency()} $symbol',
+                        PrivacyText(
+                          data.totalExpense,
+                          prefix: '-',
+                          suffix: ' $symbol',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 14,
@@ -206,7 +212,8 @@ class SummaryCards extends StatelessWidget {
               _buildMiniCard(
                 context,
                 title: 'Monthly Savings',
-                value: '${data.netSavings.toCurrency()} $symbol',
+                amount: data.netSavings,
+                suffix: ' $symbol',
                 icon: FontAwesomeIcons.solidBookmark,
                 color: Colors.purple,
               ),
@@ -224,7 +231,8 @@ class SummaryCards extends StatelessWidget {
                 _buildMiniCard(
                   context,
                   title: 'Investments',
-                  value: '${(data.totalInvested + data.totalInvestmentProfit).toCurrency()} $symbol',
+                  amount: data.totalInvested + data.totalInvestmentProfit,
+                  suffix: ' $symbol',
                   icon: FontAwesomeIcons.chartLine,
                   color: Colors.teal,
                   onTap: () => context.goNamed(AppRoutes.investments),
@@ -238,12 +246,12 @@ class SummaryCards extends StatelessWidget {
 
 
 
-
-
-  Widget _buildMiniCard(
+Widget _buildMiniCard(
     BuildContext context, {
     required String title,
-    required String value,
+    String? value,
+    double? amount,
+    String? suffix,
     FaIconData? icon,
     String? symbolIcon,
     required Color color,
@@ -306,16 +314,26 @@ class SummaryCards extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Expanded(
-                child: Text(
-                  value,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: isDark ? Colors.white : Colors.black.withValues(alpha: 0.85),
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                child: amount != null
+                    ? PrivacyText(
+                        amount,
+                        suffix: suffix,
+                        style: TextStyle(
+                          color: isDark ? Colors.white : Colors.black.withValues(alpha: 0.85),
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )
+                    : Text(
+                        value ?? '',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: isDark ? Colors.white : Colors.black.withValues(alpha: 0.85),
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
               ),
               if (badgeText != null)
                 Container(
@@ -409,8 +427,10 @@ class SummaryCards extends StatelessWidget {
             children: [
               FittedBox(
                 fit: BoxFit.scaleDown,
-                child: Text(
-                  'Given: ${given.toCurrency()} $symbol',
+                child: PrivacyText(
+                  given,
+                  prefix: 'Given: ',
+                  suffix: ' $symbol',
                   style: TextStyle(
                     color: isDark ? Colors.white : Colors.black.withValues(alpha: 0.85),
                     fontSize: 11,
@@ -421,8 +441,10 @@ class SummaryCards extends StatelessWidget {
               const SizedBox(height: 2),
               FittedBox(
                 fit: BoxFit.scaleDown,
-                child: Text(
-                  'Taken: ${taken.toCurrency()} $symbol',
+                child: PrivacyText(
+                  taken,
+                  prefix: 'Taken: ',
+                  suffix: ' $symbol',
                   style: TextStyle(
                     color: isDark ? Colors.white70 : Colors.black54,
                     fontSize: 11,

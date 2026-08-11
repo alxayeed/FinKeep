@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:finkeep/core/extensions/double_ext.dart';
+import '../../../../core/common/widgets/privacy_text.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/routes/app_router.dart';
@@ -107,8 +107,9 @@ class IncomeCard extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    '+ ${income.amount.toCurrency()}',
+                  PrivacyText(
+                    income.amount,
+                    prefix: '+ ',
                     style: TextStyle(
                       fontFamily: 'Manrope',
                       fontWeight: FontWeight.bold,

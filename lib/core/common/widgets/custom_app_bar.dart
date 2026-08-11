@@ -3,11 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../responsive/responsive.dart';
 import '../../styles/app_colors.dart';
+import '../../providers/privacy_provider.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final PreferredSizeWidget? bottom;
   final bool showBackButton;
+  final bool showPrivacyToggle;
   final List<Widget>? actions;
 
   const CustomAppBar({
@@ -15,6 +17,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.title = "FinKeep",
     this.bottom,
     this.showBackButton = false,
+    this.showPrivacyToggle = true,
     this.actions,
   });
 
@@ -59,7 +62,27 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               onPressed: () => context.pop(),
             )
           : null,
-      actions: actions,
+      actions: [
+        if (showPrivacyToggle)
+          ValueListenableBuilder<bool>(
+            valueListenable: PrivacyProvider(),
+            builder: (context, isMasked, _) {
+              return IconButton(
+                icon: Icon(
+                  isMasked
+                      ? Icons.visibility_off_rounded
+                      : Icons.visibility_rounded,
+                  size: 22.sp,
+                  color: isMasked
+                      ? (isDark ? Colors.white60 : const Color(0xFF64748B))
+                      : AppColors.primaryTeal,
+                ),
+                onPressed: () => PrivacyProvider().toggleWithBiometrics(context),
+              );
+            },
+          ),
+        ...?actions,
+      ],
       bottom: bottom,
     );
   }

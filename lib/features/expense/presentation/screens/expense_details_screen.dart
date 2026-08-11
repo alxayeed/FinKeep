@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/routes/app_router.dart';
 import '../../../../core/styles/app_colors.dart';
-import 'package:finkeep/core/extensions/double_ext.dart';
+import '../../../../core/common/widgets/privacy_text.dart';
 import 'package:finkeep/core/enums/payment_type.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
 import '../../domain/entities/expense_entity.dart';
@@ -167,8 +167,8 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     textBaseline: TextBaseline.alphabetic,
                     children: [
-                      Text(
-                        _currentExpense.amount.toCurrency(),
+                      PrivacyText(
+                        _currentExpense.amount,
                         style: TextStyle(
                           fontSize: 40.sp,
                           fontFamily: 'Manrope',

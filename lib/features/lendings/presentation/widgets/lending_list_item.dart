@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:finkeep/core/extensions/double_ext.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/routes/app_router.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 import 'package:finkeep/core/styles/app_text_styles.dart';
+import 'package:finkeep/core/common/widgets/privacy_text.dart';
 
 import 'package:finkeep/core/styles/currency_provider.dart';
 import '../../domain/entity/lending/lending_entity.dart';
@@ -255,8 +255,9 @@ class LendingListItem extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                    '${lending.amount.toCurrency()} ${context.currency.symbol}',
+                  PrivacyText(
+                    lending.amount,
+                    suffix: ' ${context.currency.symbol}',
                     style: AppTextStyles.cardAmount(context).copyWith(
                       decoration: isPaid
                           ? TextDecoration.lineThrough

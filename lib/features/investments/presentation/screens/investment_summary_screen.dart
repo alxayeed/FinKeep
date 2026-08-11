@@ -2,9 +2,9 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:finkeep/core/extensions/double_ext.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
-import 'package:finkeep/core/styles/app_colors.dart';
+import '../../../../core/styles/app_colors.dart';
+import '../../../../core/common/widgets/privacy_text.dart';
 import 'package:finkeep/features/investments/domain/enums/investment_status.dart';
 
 import 'package:finkeep/core/styles/currency_provider.dart';
@@ -285,8 +285,9 @@ class InvestmentSummaryScreen extends StatelessWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              '$prefix${value.toCurrency()}',
+            PrivacyText(
+              value,
+              prefix: prefix,
               style: TextStyle(
                 fontSize: isBig ? 18.sp : 14.sp,
                 fontFamily: 'Manrope',

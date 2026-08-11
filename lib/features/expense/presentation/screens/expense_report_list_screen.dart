@@ -1,6 +1,6 @@
 import 'package:finkeep/core/common/widgets/no_data_widget.dart';
 import 'package:finkeep/core/config/app_config.dart';
-import 'package:finkeep/core/extensions/double_ext.dart';
+import 'package:finkeep/core/common/widgets/privacy_text.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
@@ -55,8 +55,8 @@ class ExpenseReportListScreen extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                dailyTotal.toCurrency(),
+              PrivacyText(
+                dailyTotal,
                 style: TextStyle(
                   fontSize: 10.sp,
                   fontFamily: 'Manrope',

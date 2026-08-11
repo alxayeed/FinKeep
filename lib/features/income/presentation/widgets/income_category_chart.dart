@@ -1,6 +1,6 @@
-import 'package:finkeep/core/extensions/double_ext.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
+import 'package:finkeep/core/common/widgets/privacy_text.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -127,8 +127,8 @@ class IncomeCategoryChart extends StatelessWidget {
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        totalIncome.toCurrency(),
+                      PrivacyText(
+                        totalIncome,
                         style: TextStyle(
                           fontSize: 13.sp,
                           fontFamily: 'Manrope',
@@ -208,8 +208,8 @@ class IncomeCategoryChart extends StatelessWidget {
                                   ),
                                 ),
                                 SizedBox(width: 4.w),
-                                Text(
-                                  value.toCurrency(),
+                                PrivacyText(
+                                  value,
                                   style: TextStyle(
                                     fontSize: 11.sp,
                                     fontFamily: 'Manrope',

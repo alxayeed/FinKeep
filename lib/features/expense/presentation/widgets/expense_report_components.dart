@@ -1,6 +1,6 @@
 import 'package:finkeep/core/common/widgets/expense_monthly_analysis.dart';
 import 'package:finkeep/core/config/app_config.dart';
-import 'package:finkeep/core/extensions/double_ext.dart';
+import 'package:finkeep/core/common/widgets/privacy_text.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
@@ -203,8 +203,9 @@ class ExpenseSummery extends StatelessWidget {
                               color: textCol,
                             ),
                           ),
-                          Text(
-                            '${monthlyBudget.toCurrency()} ${context.currency.symbol}',
+                          PrivacyText(
+                            monthlyBudget,
+                            suffix: ' ${context.currency.symbol}',
                             style: TextStyle(
                               fontFamily: 'Manrope',
                               fontSize: 13.sp,
@@ -232,8 +233,9 @@ class ExpenseSummery extends StatelessWidget {
                       color: textCol,
                     ),
                   ),
-                  Text(
-                    '${totalBudget.toCurrency()} ${context.currency.symbol}',
+                  PrivacyText(
+                    totalBudget,
+                    suffix: ' ${context.currency.symbol}',
                     style: TextStyle(
                       fontFamily: 'Manrope',
                       fontSize: 16.sp,

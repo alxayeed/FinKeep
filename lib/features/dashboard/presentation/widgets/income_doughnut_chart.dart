@@ -2,10 +2,11 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
-import '../../../../core/extensions/double_ext.dart';
+import 'package:finkeep/core/common/widgets/privacy_text.dart';
 import '../../../../core/routes/app_router.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../../../../core/styles/currency_provider.dart';
+import '../../../../core/providers/privacy_provider.dart';
 import '../../domain/entities/dashboard_category_breakdown_entity.dart';
 
 class IncomeDoughnutChart extends StatefulWidget {
@@ -38,8 +39,11 @@ class _IncomeDoughnutChartState extends State<IncomeDoughnutChart> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final symbol = context.currency.symbol;
+    return ValueListenableBuilder<bool>(
+      valueListenable: PrivacyProvider(),
+      builder: (context, isMasked, _) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final symbol = context.currency.symbol;
 
     // Filter out breakdown items with 0 or negative amount to prevent fl_chart assertions
     final validBreakdown = widget.breakdown.where((e) => e.amount > 0).toList();
@@ -231,10 +235,9 @@ class _IncomeDoughnutChartState extends State<IncomeDoughnutChart> {
                       fit: BoxFit.scaleDown,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                        child: Text(
-                          selectedItem != null
-                              ? '${selectedItem.amount.toCurrency()} $symbol'
-                              : '${effectiveTotal.toCurrency()} $symbol',
+                        child: PrivacyText(
+                          selectedItem != null ? selectedItem.amount : effectiveTotal,
+                          suffix: ' $symbol',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 12,
@@ -262,6 +265,8 @@ class _IncomeDoughnutChartState extends State<IncomeDoughnutChart> {
           ),
         ),
       ),
+    );
+      },
     );
   }
 }

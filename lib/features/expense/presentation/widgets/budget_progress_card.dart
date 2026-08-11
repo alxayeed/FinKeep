@@ -3,6 +3,7 @@ import 'package:finkeep/core/extensions/double_ext.dart';
 
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/styles/app_colors.dart';
+import '../../../../core/common/widgets/privacy_text.dart';
 import '../../../../core/styles/currency_provider.dart';
 import '../../../../core/utils/app_localizations.dart';
 
@@ -89,8 +90,8 @@ class BudgetProgressCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.baseline,
                       textBaseline: TextBaseline.alphabetic,
                       children: [
-                        Text(
-                          spentText,
+                        PrivacyText(
+                          spent,
                           style: TextStyle(
                             fontSize: 15,
                             fontFamily: 'Manrope',
@@ -100,8 +101,10 @@ class BudgetProgressCard extends StatelessWidget {
                                 : const Color(0xFF0F172A),
                           ),
                         ),
-                        Text(
-                          '/$budgetText ${context.currency.symbol}',
+                        PrivacyText(
+                          budget,
+                          prefix: '/',
+                          suffix: ' ${context.currency.symbol}',
                           style: TextStyle(
                             fontSize: 10,
                             fontFamily: 'Manrope',
@@ -140,8 +143,9 @@ class BudgetProgressCard extends StatelessWidget {
                         letterSpacing: 0.5,
                       ),
                     ),
-                    Text(
-                      '$remainingText ${context.currency.symbol}',
+                    PrivacyText(
+                      remainingVal.abs(),
+                      suffix: ' ${context.currency.symbol}',
                       style: TextStyle(
                         fontSize: 15,
                         fontFamily: 'Manrope',
@@ -215,8 +219,8 @@ class BudgetProgressCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.baseline,
                         textBaseline: TextBaseline.alphabetic,
                         children: [
-                          Text(
-                            spentText,
+                          PrivacyText(
+                            spent,
                             style: TextStyle(
                               fontSize: 18,
                               fontFamily: 'Manrope',
@@ -226,8 +230,10 @@ class BudgetProgressCard extends StatelessWidget {
                                   : const Color(0xFF0F172A),
                             ),
                           ),
-                          Text(
-                            '/$budgetText ${context.currency.symbol}',
+                          PrivacyText(
+                            budget,
+                            prefix: '/',
+                            suffix: ' ${context.currency.symbol}',
                             style: TextStyle(
                               fontSize: 11,
                               fontFamily: 'Manrope',
@@ -270,8 +276,9 @@ class BudgetProgressCard extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 4.h),
-                      Text(
-                        '$remainingText ${context.currency.symbol}',
+                      PrivacyText(
+                        remainingVal.abs(),
+                        suffix: ' ${context.currency.symbol}',
                         style: TextStyle(
                           fontSize: 18,
                           fontFamily: 'Manrope',

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../../../../core/styles/app_text_styles.dart';
+import '../../../../core/common/widgets/privacy_text.dart';
 
 import '../../domain/entities/investment.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
@@ -181,8 +182,9 @@ class InvestmentItem extends StatelessWidget {
           style: AppTextStyles.cardSubtitle(context),
         ),
         SizedBox(height: 4.h),
-        Text(
-          '${context.currency.symbol}${amount.toStringAsFixed(0)}',
+        PrivacyText(
+          amount,
+          prefix: context.currency.symbol,
           style: AppTextStyles.cardTitle(context).copyWith(
             color: amountColor ?? (isDark ? Colors.white : const Color(0xFF0F172A)),
           ),

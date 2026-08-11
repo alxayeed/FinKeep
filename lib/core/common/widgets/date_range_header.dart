@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../responsive/responsive.dart';
 import '../../styles/app_colors.dart';
 import '../../providers/fiscal_year_provider.dart';
+import '../../providers/privacy_provider.dart';
 import '../models/date_filter.dart';
 
 class DateRangeHeader extends StatelessWidget {
@@ -128,24 +129,55 @@ class DateRangeHeader extends StatelessWidget {
                 ],
               ),
 
-              // Settings Action Icon
-              if (onSettingsPressed != null)
-                GestureDetector(
-                  onTap: onSettingsPressed,
-                  child: Container(
-                    width: 36.r,
-                    height: 36.r,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: isDark ? const Color(0xFF1E293B) : Colors.transparent,
-                    ),
-                    child: Icon(
-                      Icons.settings_rounded,
-                      size: 22.sp,
-                      color: isDark ? Colors.white70 : const Color(0xFF64748B),
-                    ),
+              // Right Cluster: Privacy Eye Toggle & Settings Action Icon
+              Row(
+                children: [
+                  ValueListenableBuilder<bool>(
+                    valueListenable: PrivacyProvider(),
+                    builder: (context, isMasked, _) {
+                      return GestureDetector(
+                        onTap: () => PrivacyProvider().toggleWithBiometrics(context),
+                        child: Container(
+                          width: 36.r,
+                          height: 36.r,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: isDark ? const Color(0xFF1E293B) : Colors.transparent,
+                          ),
+                          child: Icon(
+                            isMasked
+                                ? Icons.visibility_off_rounded
+                                : Icons.visibility_rounded,
+                            size: 22.sp,
+                            color: isMasked
+                                ? (isDark ? Colors.white60 : const Color(0xFF64748B))
+                                : AppColors.primaryTeal,
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                ),
+                  if (onSettingsPressed != null) ...[
+                    SizedBox(width: 4.w),
+                    GestureDetector(
+                      onTap: onSettingsPressed,
+                      child: Container(
+                        width: 36.r,
+                        height: 36.r,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isDark ? const Color(0xFF1E293B) : Colors.transparent,
+                        ),
+                        child: Icon(
+                          Icons.settings_rounded,
+                          size: 22.sp,
+                          color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ],
           ),
         );

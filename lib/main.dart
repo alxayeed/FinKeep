@@ -2,6 +2,7 @@
 import 'package:finkeep/core/routes/app_router.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
 import 'package:finkeep/core/providers/fiscal_year_provider.dart';
+import 'package:finkeep/core/providers/privacy_provider.dart';
 import 'package:finkeep/core/services/preferences_sync_service.dart';
 import 'package:finkeep/core/utils/app_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -174,35 +175,43 @@ class _MainAppState extends State<MainApp> {
         return ValueListenableBuilder<String>(
           valueListenable: AppLocalizations.localeListenable,
           builder: (context, locale, _) {
-            return CurrencyTheme(
-              notifier: CurrencyProvider(),
-              child: _isLocked
-                  ? MaterialApp(
-                      debugShowCheckedModeBanner: false,
-                      title: 'FinKeep',
-                      theme: AppThemes.lightTheme,
-                      darkTheme: AppThemes.darkTheme,
-                      themeMode: themeMode,
-                      home: BiometricLockScreen(
-                        onUnlocked: () {
-                          setState(() {
-                            _isLocked = false;
-                          });
-                        },
-                      ),
-                    )
-                  : MaterialApp.router(
-                      debugShowCheckedModeBanner: false,
-                      routerConfig: AppRouter.router,
-                      title: 'FinKeep',
-                      theme: AppThemes.lightTheme,
-                      darkTheme: AppThemes.darkTheme,
-                      themeMode: themeMode,
-                      builder: (context, child) {
-                        if (child == null) return const SizedBox.shrink();
-                        return child;
-                      },
-                    ),
+            return ValueListenableBuilder<bool>(
+              valueListenable: PrivacyProvider(),
+              builder: (context, isMasked, _) {
+                return PrivacyTheme(
+                  notifier: PrivacyProvider(),
+                  child: CurrencyTheme(
+                    notifier: CurrencyProvider(),
+                    child: _isLocked
+                        ? MaterialApp(
+                            debugShowCheckedModeBanner: false,
+                            title: 'FinKeep',
+                            theme: AppThemes.lightTheme,
+                            darkTheme: AppThemes.darkTheme,
+                            themeMode: themeMode,
+                            home: BiometricLockScreen(
+                              onUnlocked: () {
+                                setState(() {
+                                  _isLocked = false;
+                                });
+                              },
+                            ),
+                          )
+                        : MaterialApp.router(
+                            debugShowCheckedModeBanner: false,
+                            routerConfig: AppRouter.router,
+                            title: 'FinKeep',
+                            theme: AppThemes.lightTheme,
+                            darkTheme: AppThemes.darkTheme,
+                            themeMode: themeMode,
+                            builder: (context, child) {
+                              if (child == null) return const SizedBox.shrink();
+                              return child;
+                            },
+                          ),
+                  ),
+                );
+              },
             );
           },
         );

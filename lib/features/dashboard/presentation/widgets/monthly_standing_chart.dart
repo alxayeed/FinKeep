@@ -1,9 +1,11 @@
 import 'package:fl_chart/fl_chart.dart';
+import '../../../../core/common/widgets/privacy_text.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:finkeep/core/extensions/double_ext.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
+import 'package:finkeep/core/providers/privacy_provider.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../../domain/entities/monthly_standing_entity.dart';
 
@@ -25,8 +27,11 @@ class MonthlyStandingChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final symbol = context.currency.symbol;
+    return ValueListenableBuilder<bool>(
+      valueListenable: PrivacyProvider(),
+      builder: (context, isMasked, _) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final symbol = context.currency.symbol;
     final monthLabel = DateFormat('MMMM yyyy').format(data.month);
 
     return Container(
@@ -250,6 +255,8 @@ class MonthlyStandingChart extends StatelessWidget {
         ],
       ),
     );
+      },
+    );
   }
 
   Widget _buildLegendRow({
@@ -278,8 +285,9 @@ class MonthlyStandingChart extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          Text(
-            '${amount.toCurrency()} $symbol',
+          PrivacyText(
+            amount,
+            suffix: ' $symbol',
             style: TextStyle(
               fontSize: 10.5,
               fontWeight: FontWeight.bold,

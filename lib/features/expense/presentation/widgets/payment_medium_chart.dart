@@ -1,5 +1,5 @@
 import 'package:finkeep/core/enums/payment_type.dart';
-import 'package:finkeep/core/extensions/double_ext.dart';
+import 'package:finkeep/core/common/widgets/privacy_text.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
@@ -125,8 +125,8 @@ class PaymentMediumChart extends StatelessWidget {
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        totalSpent.toCurrency(),
+                      PrivacyText(
+                        totalSpent,
                         style: TextStyle(
                           fontSize: 13.sp,
                           fontFamily: 'Manrope',
@@ -186,8 +186,9 @@ class PaymentMediumChart extends StatelessWidget {
                               ),
                             ),
                           ),
-                          Text(
-                            '${value.toCurrency()} ${context.currency.symbol}',
+                          PrivacyText(
+                            value,
+                            suffix: ' ${context.currency.symbol}',
                             style: TextStyle(
                               fontSize: 11.sp,
                               fontFamily: 'Manrope',

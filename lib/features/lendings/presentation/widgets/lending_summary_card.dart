@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:finkeep/core/common/widgets/privacy_text.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
-import 'package:finkeep/core/extensions/double_ext.dart';
 
 class LendingSummaryCard extends StatelessWidget {
   final double totalAmount;
@@ -73,8 +73,8 @@ class LendingSummaryCard extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
-                          totalDue.toCurrency(),
+                        PrivacyText(
+                          totalDue,
                           style: TextStyle(
                             fontSize: 24.sp,
                             fontFamily: 'Manrope',
@@ -154,8 +154,8 @@ class LendingSummaryCard extends StatelessWidget {
                             ),
                           ),
                           SizedBox(width: 2.w),
-                          Text(
-                            totalAmount.toCurrency(),
+                          PrivacyText(
+                            totalAmount,
                             style: TextStyle(
                               fontSize: 14.sp,
                               fontFamily: 'Manrope',
@@ -197,8 +197,8 @@ class LendingSummaryCard extends StatelessWidget {
                             ),
                           ),
                           SizedBox(width: 2.w),
-                          Text(
-                            totalRepaid.toCurrency(),
+                          PrivacyText(
+                            totalRepaid,
                             style: TextStyle(
                               fontSize: 14.sp,
                               fontFamily: 'Manrope',

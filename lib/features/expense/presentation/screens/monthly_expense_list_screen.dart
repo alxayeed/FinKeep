@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:finkeep/core/config/app_config.dart';
 import 'package:finkeep/core/common/widgets/no_data_widget.dart';
-import 'package:finkeep/core/extensions/double_ext.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 import 'package:finkeep/features/expense/domain/entities/expense_entity.dart';
@@ -13,6 +12,7 @@ import '../controllers/monthly_expense_controller.dart';
 import '../controllers/expense_category_controller.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
 import '../../../../core/routes/app_router.dart';
+import '../../../../core/common/widgets/privacy_text.dart';
 import '../widgets/widgets.dart';
 
 class MonthlyExpenseListScreen extends StatelessWidget {
@@ -50,8 +50,8 @@ class MonthlyExpenseListScreen extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                dailyTotal.toCurrency(),
+              PrivacyText(
+                dailyTotal,
                 style: TextStyle(
                   fontSize: 10.sp,
                   fontFamily: 'Manrope',

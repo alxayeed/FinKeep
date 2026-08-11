@@ -3,11 +3,11 @@ import 'package:shimmer/shimmer.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:finkeep/core/extensions/double_ext.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
 import '../../../income/presentation/controllers/income_category_controller.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../../../../core/styles/app_text_styles.dart';
+import '../../../../core/common/widgets/privacy_text.dart';
 import '../../domain/entities/dashboard_recent_activity_entity.dart';
 
 class RecentActivityList extends StatelessWidget {
@@ -163,8 +163,10 @@ class RecentActivityList extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      '$prefix${activity.amount.toCurrency()} $symbol',
+                    PrivacyText(
+                      activity.amount,
+                      prefix: prefix,
+                      suffix: ' $symbol',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,

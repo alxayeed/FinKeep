@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:finkeep/core/config/app_config.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
-import 'package:finkeep/core/extensions/double_ext.dart';
+import 'package:finkeep/core/common/widgets/privacy_text.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
 
 import '../controllers/income_controller.dart';
@@ -153,8 +153,8 @@ class IncomeSummaryScreen extends StatelessWidget {
                                     crossAxisAlignment: CrossAxisAlignment.baseline,
                                     textBaseline: TextBaseline.alphabetic,
                                     children: [
-                                      Text(
-                                        amount.toCurrency(),
+                                      PrivacyText(
+                                        amount,
                                         style: TextStyle(
                                           fontSize: 13.sp,
                                           fontFamily: 'Manrope',

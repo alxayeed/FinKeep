@@ -4,6 +4,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:intl/intl.dart';
 import 'package:finkeep/core/extensions/double_ext.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
+import 'package:finkeep/core/providers/privacy_provider.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../../domain/entities/dashboard_trend_point_entity.dart';
 
@@ -14,8 +15,11 @@ class CashFlowLineChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final symbol = context.currency.symbol;
+    return ValueListenableBuilder<bool>(
+      valueListenable: PrivacyProvider(),
+      builder: (context, isMasked, _) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final symbol = context.currency.symbol;
 
     if (trends.isEmpty) {
       return Container(
@@ -177,6 +181,8 @@ class CashFlowLineChart extends StatelessWidget {
           ),
         ],
       ),
+    );
+      },
     );
   }
 

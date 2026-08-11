@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:finkeep/core/extensions/double_ext.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
+import '../../../../core/common/widgets/privacy_text.dart';
 
 import 'package:finkeep/core/styles/currency_provider.dart';
 import '../../domain/entities/return_entry.dart';
@@ -197,8 +198,9 @@ class ReturnEntryItem extends StatelessWidget {
                   color: AppColors.primaryTeal,
                 ),
               ),
-              Text(
-                '${entry.amountReceived.toCurrency()} ${context.currency.symbol}',
+              PrivacyText(
+                entry.amountReceived,
+                suffix: ' ${context.currency.symbol}',
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontFamily: 'Manrope',

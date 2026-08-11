@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:finkeep/core/extensions/double_ext.dart';
 import '../../../../core/responsive/responsive.dart';
+import '../../../../core/common/widgets/privacy_text.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../../../../core/styles/currency_provider.dart';
 import '../../../../core/utils/app_localizations.dart';
@@ -182,8 +182,9 @@ class CategorySummaryList extends StatelessWidget {
                           ),
                         ),
                         // Total Amount
-                        Text(
-                          '${spent.toCurrency()} ${context.currency.symbol}',
+                        PrivacyText(
+                          spent,
+                          suffix: ' ${context.currency.symbol}',
                           style: TextStyle(
                             fontSize: 12.sp,
                             fontFamily: 'Manrope',
@@ -248,8 +249,9 @@ class CategorySummaryList extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.baseline,
                                   textBaseline: TextBaseline.alphabetic,
                                   children: [
-                                    Text(
-                                      '${spent.toCurrency()} ${context.currency.symbol}',
+                                    PrivacyText(
+                                      spent,
+                                      suffix: ' ${context.currency.symbol}',
                                       style: TextStyle(
                                         fontSize: 12.sp,
                                         fontFamily: 'Manrope',
@@ -260,8 +262,10 @@ class CategorySummaryList extends StatelessWidget {
                                       ),
                                     ),
                                     if (hasBudget)
-                                      Text(
-                                        ' / ${budget.toCurrency()} ${context.currency.symbol}',
+                                      PrivacyText(
+                                        budget,
+                                        prefix: ' / ',
+                                        suffix: ' ${context.currency.symbol}',
                                         style: TextStyle(
                                           fontSize: 9.sp,
                                           fontFamily: 'Manrope',

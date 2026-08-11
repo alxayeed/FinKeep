@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:finkeep/core/extensions/double_ext.dart';
+import 'package:finkeep/core/common/widgets/privacy_text.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
@@ -170,8 +170,9 @@ class _ExpenseMonthlyAnalysisState extends State<ExpenseMonthlyAnalysis> {
               color: isDark ? Colors.white.withValues(alpha: 0.9) : const Color(0xFF334155),
             ),
           ),
-          Text(
-            "${amount.toCurrency()} ${context.currency.symbol}",
+          PrivacyText(
+            amount,
+            suffix: " ${context.currency.symbol}",
             style: TextStyle(
               fontSize: 13.sp,
               fontFamily: 'Manrope',
@@ -199,8 +200,9 @@ class _ExpenseMonthlyAnalysisState extends State<ExpenseMonthlyAnalysis> {
               color: isDark ? Colors.white.withValues(alpha: 0.9) : const Color(0xFF334155),
             ),
           ),
-          Text(
-            "${amount.toCurrency()} ${context.currency.symbol}",
+          PrivacyText(
+            amount,
+            suffix: " ${context.currency.symbol}",
             style: TextStyle(
               fontSize: 13.sp,
               fontFamily: 'Manrope',

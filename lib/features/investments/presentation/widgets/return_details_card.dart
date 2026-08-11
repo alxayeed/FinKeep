@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
+import '../../../../core/common/widgets/privacy_text.dart';
 
 import '../../domain/entities/investment.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
@@ -156,17 +157,26 @@ class ROIDetailsCard extends StatelessWidget {
           ),
         ),
         SizedBox(height: 4.h),
-        Text(
-          isPercentage
-              ? '${amount.toStringAsFixed(0)}%'
-              : '${context.currency.symbol}${amount.toStringAsFixed(0)}',
-          style: TextStyle(
-            fontSize: 15.sp,
-            fontFamily: 'Manrope',
-            fontWeight: FontWeight.bold,
-            color: amountColor ?? textColor,
-          ),
-        ),
+        isPercentage
+            ? Text(
+                '${amount.toStringAsFixed(0)}%',
+                style: TextStyle(
+                  fontSize: 15.sp,
+                  fontFamily: 'Manrope',
+                  fontWeight: FontWeight.bold,
+                  color: amountColor ?? textColor,
+                ),
+              )
+            : PrivacyText(
+                amount,
+                prefix: context.currency.symbol,
+                style: TextStyle(
+                  fontSize: 15.sp,
+                  fontFamily: 'Manrope',
+                  fontWeight: FontWeight.bold,
+                  color: amountColor ?? textColor,
+                ),
+              ),
       ],
     );
   }

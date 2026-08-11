@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:finkeep/core/extensions/double_ext.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
+import 'package:finkeep/core/common/widgets/privacy_text.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
 
 import 'package:finkeep/core/common/widgets/widgets.dart';
@@ -279,8 +280,9 @@ class _RepaymentListWidgetState extends State<RepaymentListWidget> {
                     color: AppColors.primaryTeal,
                   ),
                 ),
-                Text(
-                  '${repayment.amount.toCurrency()} ${context.currency.symbol}',
+                PrivacyText(
+                  repayment.amount,
+                  suffix: ' ${context.currency.symbol}',
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontFamily: 'Manrope',
