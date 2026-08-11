@@ -47,9 +47,9 @@ class _InvestmentListScreenState extends State<InvestmentListScreen> {
           children: [
             Obx(() {
               return DateRangeHeader(
-                timeframe: controller.timeframe.value,
-                onTimeframeChanged: (newTimeframe) {
-                  controller.updateTimeframe(newTimeframe);
+                dateFilter: controller.dateFilter.value,
+                onDateFilterChanged: (newDateFilter) {
+                  controller.updateDateFilter(newDateFilter);
                 },
                 onSettingsPressed: () {
                   context.pushNamed(AppRoutes.settings);

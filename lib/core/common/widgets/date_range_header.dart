@@ -2,26 +2,26 @@ import 'package:flutter/material.dart';
 import '../../responsive/responsive.dart';
 import '../../styles/app_colors.dart';
 import '../../providers/fiscal_year_provider.dart';
-import '../models/timeframe_selection.dart';
+import '../models/date_filter.dart';
 
 class DateRangeHeader extends StatelessWidget {
-  final TimeframeSelection timeframe;
-  final ValueChanged<TimeframeSelection> onTimeframeChanged;
+  final DateFilter dateFilter;
+  final ValueChanged<DateFilter> onDateFilterChanged;
   final VoidCallback? onSettingsPressed;
   final bool showSearchButton;
 
   const DateRangeHeader({
     super.key,
-    required this.timeframe,
-    required this.onTimeframeChanged,
+    required this.dateFilter,
+    required this.onDateFilterChanged,
     this.onSettingsPressed,
     this.showSearchButton = false,
   });
 
   bool get _hasChevronNavigation {
-    return timeframe.type == TimeframeType.monthly ||
-        timeframe.type == TimeframeType.yearly ||
-        timeframe.type == TimeframeType.fiscalYearly;
+    return dateFilter.type == DateFilterType.monthly ||
+        dateFilter.type == DateFilterType.yearly ||
+        dateFilter.type == DateFilterType.fiscalYearly;
   }
 
   @override
@@ -29,9 +29,9 @@ class DateRangeHeader extends StatelessWidget {
     return ValueListenableBuilder<int>(
       valueListenable: FiscalYearProvider().startMonthNotifier,
       builder: (context, fiscalStartMonth, _) {
-        final currentSelection = timeframe.fiscalYearStartMonth == fiscalStartMonth
-            ? timeframe
-            : timeframe.copyWith(fiscalYearStartMonth: fiscalStartMonth);
+        final currentSelection = dateFilter.fiscalYearStartMonth == fiscalStartMonth
+            ? dateFilter
+            : dateFilter.copyWith(fiscalYearStartMonth: fiscalStartMonth);
         final isDark = Theme.of(context).brightness == Brightness.dark;
 
         return Padding(
@@ -45,7 +45,7 @@ class DateRangeHeader extends StatelessWidget {
                   // Left Chevron
                   if (_hasChevronNavigation) ...[
                     GestureDetector(
-                      onTap: () => onTimeframeChanged(currentSelection.previous()),
+                      onTap: () => onDateFilterChanged(currentSelection.previous()),
                       behavior: HitTestBehavior.opaque,
                       child: Container(
                         width: 36.r,
@@ -66,7 +66,7 @@ class DateRangeHeader extends StatelessWidget {
 
                   // Dropdown Button Pill
                   GestureDetector(
-                    onTap: () => _showTimeframePickerModal(context, currentSelection),
+                    onTap: () => _showDateFilterPickerModal(context, currentSelection),
                     child: Container(
                       height: 36.h,
                       padding: EdgeInsets.symmetric(horizontal: 14.w),
@@ -108,7 +108,7 @@ class DateRangeHeader extends StatelessWidget {
                   if (_hasChevronNavigation) ...[
                     SizedBox(width: 4.w),
                     GestureDetector(
-                      onTap: () => onTimeframeChanged(currentSelection.next()),
+                      onTap: () => onDateFilterChanged(currentSelection.next()),
                       behavior: HitTestBehavior.opaque,
                       child: Container(
                         width: 36.r,
@@ -153,8 +153,8 @@ class DateRangeHeader extends StatelessWidget {
     );
   }
 
-  /// Show timeframe selection bottom sheet modal
-  void _showTimeframePickerModal(BuildContext context, TimeframeSelection currentSelection) {
+  /// Show date filter selection bottom sheet modal
+  void _showDateFilterPickerModal(BuildContext context, DateFilter currentSelection) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     showModalBottomSheet(
@@ -192,9 +192,9 @@ class DateRangeHeader extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 14.h),
-              ...TimeframeType.values.map((type) {
+              ...DateFilterType.values.map((type) {
                 final isSelected = currentSelection.type == type;
-                final isFiscal = type == TimeframeType.fiscalYearly;
+                final isFiscal = type == DateFilterType.fiscalYearly;
 
                 return Container(
                   margin: EdgeInsets.only(bottom: 6.h),
@@ -253,10 +253,10 @@ class DateRangeHeader extends StatelessWidget {
                         : null,
                     onTap: () {
                       Navigator.pop(modalContext);
-                      if (type == TimeframeType.custom) {
+                      if (type == DateFilterType.custom) {
                         _showCustomRangePicker(context);
                       } else {
-                        onTimeframeChanged(currentSelection.withType(type));
+                        onDateFilterChanged(currentSelection.withType(type));
                       }
                     },
                   ),
@@ -269,17 +269,17 @@ class DateRangeHeader extends StatelessWidget {
     );
   }
 
-  IconData _getIconForType(TimeframeType type) {
+  IconData _getIconForType(DateFilterType type) {
     switch (type) {
-      case TimeframeType.monthly:
+      case DateFilterType.monthly:
         return Icons.calendar_view_month_rounded;
-      case TimeframeType.yearly:
+      case DateFilterType.yearly:
         return Icons.calendar_today_rounded;
-      case TimeframeType.fiscalYearly:
+      case DateFilterType.fiscalYearly:
         return Icons.account_balance_rounded;
-      case TimeframeType.custom:
+      case DateFilterType.custom:
         return Icons.date_range_rounded;
-      case TimeframeType.allTime:
+      case DateFilterType.allTime:
         return Icons.all_inclusive_rounded;
     }
   }
@@ -287,8 +287,8 @@ class DateRangeHeader extends StatelessWidget {
   /// Custom Date Range picker modal sheet
   Future<void> _showCustomRangePicker(BuildContext context) async {
     final now = DateTime.now();
-    DateTime startDate = timeframe.customStartDate ?? now.subtract(const Duration(days: 30));
-    DateTime endDate = timeframe.customEndDate ?? now;
+    DateTime startDate = dateFilter.customStartDate ?? now.subtract(const Duration(days: 30));
+    DateTime endDate = dateFilter.customEndDate ?? now;
 
     await showModalBottomSheet(
       context: context,
@@ -483,9 +483,9 @@ class DateRangeHeader extends StatelessWidget {
                         child: ElevatedButton(
                           onPressed: () {
                             Navigator.pop(context);
-                            onTimeframeChanged(
-                              timeframe.copyWith(
-                                type: TimeframeType.custom,
+                            onDateFilterChanged(
+                              dateFilter.copyWith(
+                                type: DateFilterType.custom,
                                 customStartDate: startDate,
                                 customEndDate: endDate,
                               ),
@@ -516,3 +516,4 @@ class DateRangeHeader extends StatelessWidget {
     );
   }
 }
+

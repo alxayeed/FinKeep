@@ -46,7 +46,7 @@ class _LendingListScreenState extends State<LendingListScreen> {
   List<LendingEntity> get _filteredLendings {
     final type = _selectedTab == 0 ? LendingType.given : LendingType.taken;
     final selectedStatus = _currentSelectedStatus;
-    final range = controller.timeframe.value.dateRange;
+    final range = controller.dateFilter.value.dateRange;
 
     return controller.lendingsList.where((l) {
       final matchType = l.type == type;
@@ -99,9 +99,9 @@ class _LendingListScreenState extends State<LendingListScreen> {
             return Column(
               children: [
                 DateRangeHeader(
-                  timeframe: controller.timeframe.value,
-                  onTimeframeChanged: (newTimeframe) {
-                    controller.updateTimeframe(newTimeframe);
+                  dateFilter: controller.dateFilter.value,
+                  onDateFilterChanged: (newDateFilter) {
+                    controller.updateDateFilter(newDateFilter);
                   },
                   onSettingsPressed: () {
                     context.pushNamed(AppRoutes.settings);
@@ -134,9 +134,9 @@ class _LendingListScreenState extends State<LendingListScreen> {
                 // ── Date Range Header ──
                 SliverToBoxAdapter(
                   child: DateRangeHeader(
-                    timeframe: controller.timeframe.value,
-                    onTimeframeChanged: (newTimeframe) {
-                      controller.updateTimeframe(newTimeframe);
+                    dateFilter: controller.dateFilter.value,
+                    onDateFilterChanged: (newDateFilter) {
+                      controller.updateDateFilter(newDateFilter);
                     },
                     onSettingsPressed: () {
                       context.pushNamed(AppRoutes.settings);

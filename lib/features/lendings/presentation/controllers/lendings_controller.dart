@@ -18,6 +18,7 @@ import '../../domain/usecases/repayment/add_repayment_usecase.dart';
 import '../../domain/usecases/repayment/delete_repayment_usecase.dart';
 import '../../domain/usecases/repayment/update_repayment_usecase.dart';
 import 'package:finkeep/features/dashboard/presentation/controllers/dashboard_controller.dart';
+import '../../../../core/common/models/date_filter.dart';
 
 class LendingsController extends GetxController {
   final GetLendingsUseCase getLendingsUseCase;
@@ -59,10 +60,10 @@ class LendingsController extends GetxController {
   final selectedStatusFilter = Rx<LendingStatus?>(null);
   final selectedPersonFilter = Rx<String?>(null);
   final selectedMonthFilter = Rx<DateTime?>(null);
-  final timeframe = TimeframeSelection.defaultMonthly().obs;
+  final dateFilter = DateFilter.defaultMonthly().obs;
 
-  void updateTimeframe(TimeframeSelection newTimeframe) {
-    timeframe.value = newTimeframe;
+  void updateDateFilter(DateFilter newDateFilter) {
+    dateFilter.value = newDateFilter;
   }
 
   @override

@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:get/get.dart';
-import '../../../../core/common/models/timeframe_selection.dart';
+import '../../../../core/common/models/date_filter.dart';
 
 import '../../domain/entities/investment.dart';
 import '../../domain/entities/return_entry.dart';
@@ -29,13 +29,13 @@ class InvestmentController extends GetxController {
   var investments = <Investment>[].obs;
   var isLoading = false.obs;
   var errorMessage = ''.obs;
-  Rx<TimeframeSelection> timeframe = TimeframeSelection(
-    type: TimeframeType.allTime,
+  Rx<DateFilter> dateFilter = DateFilter(
+    type: DateFilterType.allTime,
     referenceDate: DateTime.now(),
   ).obs;
 
   List<Investment> get filteredInvestments {
-    final range = timeframe.value.dateRange;
+    final range = dateFilter.value.dateRange;
     if (range == null) return investments;
     return investments.where((inv) {
       final date = inv.startDate;
@@ -44,8 +44,8 @@ class InvestmentController extends GetxController {
     }).toList();
   }
 
-  void updateTimeframe(TimeframeSelection newTimeframe) {
-    timeframe.value = newTimeframe;
+  void updateDateFilter(DateFilter newDateFilter) {
+    dateFilter.value = newDateFilter;
   }
 
   @override

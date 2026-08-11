@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:finkeep/features/expense/domain/usecases/get_monthly_expense.dart';
 import 'package:finkeep/core/extensions/double_ext.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
-import '../../../../core/common/models/timeframe_selection.dart';
+import '../../../../core/common/models/date_filter.dart';
 import '../../../../core/enums/expense_category.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../../domain/usecases/get_last_month_total_usecase.dart';
@@ -37,7 +37,7 @@ class MonthlyExpenseController extends GetxController {
   var searchQuery = ''.obs;
   var filteredExpenses = <ExpenseEntity>[].obs;
   Rx<DateTime> selectedMonth = DateTime.now().obs;
-  Rx<TimeframeSelection> timeframe = TimeframeSelection.defaultMonthly().obs;
+  Rx<DateFilter> dateFilter = DateFilter.defaultMonthly().obs;
   bool shouldRefresh = false;
 
   // ===== Budget & Last Month Total =====
@@ -70,20 +70,20 @@ class MonthlyExpenseController extends GetxController {
     return totalExpense.value;
   }
 
-  void updateTimeframe(TimeframeSelection newTimeframe) {
-    timeframe.value = newTimeframe;
-    selectedMonth.value = newTimeframe.referenceDate;
-    fetchMonthlyExpenses();
+  void updateDateFilter(DateFilter newDateFilter) {
+    dateFilter.value = newDateFilter;
+    if (newDateFilter.type == DateFilterType.monthly) {
+      selectedMonth.value = newDateFilter.referenceDate;
+    }
+    fetchExpenses();
   }
 
-  Future<void> fetchMonthlyExpenses() async {
-    DateTime month = selectedMonth.value;
-
+  Future<void> fetchExpenses() async {
     selectedCategory.value = 'All';
     searchQuery.value = '';
     isLoading.value = true;
     try {
-      final range = timeframe.value.dateRange;
+      final range = dateFilter.value.dateRange;
       if (range != null) {
         final all = await getAllExpenses();
         expenses.value = all.where((e) {

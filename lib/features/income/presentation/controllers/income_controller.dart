@@ -43,7 +43,7 @@ class IncomeController extends GetxController {
   var searchQuery = ''.obs;
   var filteredIncomes = <IncomeEntity>[].obs;
   Rx<DateTime> selectedMonth = DateTime.now().obs;
-  Rx<TimeframeSelection> timeframe = TimeframeSelection.defaultMonthly().obs;
+  Rx<DateFilter> dateFilter = DateFilter.defaultMonthly().obs;
   bool shouldRefresh = false;
 
   @override
@@ -52,16 +52,16 @@ class IncomeController extends GetxController {
     fetchMonthlyIncomes();
   }
 
-  void updateTimeframe(TimeframeSelection newTimeframe) {
-    timeframe.value = newTimeframe;
-    selectedMonth.value = newTimeframe.referenceDate;
+  void updateDateFilter(DateFilter newDateFilter) {
+    dateFilter.value = newDateFilter;
+    selectedMonth.value = newDateFilter.referenceDate;
     fetchMonthlyIncomes();
   }
 
   Future<void> fetchMonthlyIncomes() async {
     isLoading.value = true;
     try {
-      final range = timeframe.value.dateRange;
+      final range = dateFilter.value.dateRange;
       List<IncomeEntity> list;
       if (range != null) {
         list = await getIncomesInRangeUseCase(range.start, range.end);

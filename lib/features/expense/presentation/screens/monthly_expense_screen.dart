@@ -36,9 +36,9 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
             children: [
               // 1. Date Range Selector Header
               DateRangeHeader(
-                timeframe: controller.timeframe.value,
-                onTimeframeChanged: (newTimeframe) {
-                  controller.updateTimeframe(newTimeframe);
+                dateFilter: controller.dateFilter.value,
+                onDateFilterChanged: (newDateFilter) {
+                  controller.updateDateFilter(newDateFilter);
                 },
                 onSettingsPressed: () {
                   context.pushNamed(AppRoutes.settings);
