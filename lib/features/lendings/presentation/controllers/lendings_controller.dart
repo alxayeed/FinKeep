@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../core/common/models/timeframe_selection.dart';
+import '../../../../core/common/models/date_filter.dart';
 import 'package:finkeep/features/lendings/domain/usecases/repayment/get_repayments_for_lending_usecase.dart';
 import '../../domain/entity/lending/lending_entity.dart';
 import '../../domain/entity/lending_person/lending_person_entity.dart';
@@ -18,7 +18,6 @@ import '../../domain/usecases/repayment/add_repayment_usecase.dart';
 import '../../domain/usecases/repayment/delete_repayment_usecase.dart';
 import '../../domain/usecases/repayment/update_repayment_usecase.dart';
 import 'package:finkeep/features/dashboard/presentation/controllers/dashboard_controller.dart';
-import '../../../../core/common/models/date_filter.dart';
 
 class LendingsController extends GetxController {
   final GetLendingsUseCase getLendingsUseCase;

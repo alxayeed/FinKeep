@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:finkeep/core/error/exception_handler.dart';
-import '../../../../core/common/models/timeframe_selection.dart';
+import '../../../../core/common/models/date_filter.dart';
 import '../../domain/entities/income/income_entity.dart';
 import '../../domain/entities/income_category/income_category_entity.dart';
 import '../../domain/usecases/add_income_usecase.dart';

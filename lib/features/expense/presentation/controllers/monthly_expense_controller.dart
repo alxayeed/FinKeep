@@ -75,10 +75,10 @@ class MonthlyExpenseController extends GetxController {
     if (newDateFilter.type == DateFilterType.monthly) {
       selectedMonth.value = newDateFilter.referenceDate;
     }
-    fetchExpenses();
+    fetchMonthlyExpenses();
   }
 
-  Future<void> fetchExpenses() async {
+  Future<void> fetchMonthlyExpenses() async {
     selectedCategory.value = 'All';
     searchQuery.value = '';
     isLoading.value = true;
@@ -99,7 +99,7 @@ class MonthlyExpenseController extends GetxController {
 
       await fetchLastMonthTotal();
       await fetchLastMonthExpenses();
-      await _budgetController.loadBudgetsForMonth(month);
+      await _budgetController.loadBudgetsForMonth(selectedMonth.value);
     } finally {
       isLoading.value = false;
       shouldRefresh = false;
