@@ -125,11 +125,17 @@ class DashboardFirestoreDataSource implements DashboardRemoteDataSource {
         .where('date', isLessThanOrEqualTo: endTs)
         .get();
 
-    final lendingsFuture =
-        fireStore.collection(_Collections.lendings(_isPersonal)).get();
+    final lendingsFuture = fireStore
+        .collection(_Collections.lendings(_isPersonal))
+        .where('createdDate', isGreaterThanOrEqualTo: startTs)
+        .where('createdDate', isLessThanOrEqualTo: endTs)
+        .get();
 
-    final investmentsFuture =
-        fireStore.collection(_Collections.investments(_isPersonal)).get();
+    final investmentsFuture = fireStore
+        .collection(_Collections.investments(_isPersonal))
+        .where('startDate', isGreaterThanOrEqualTo: startTs)
+        .where('startDate', isLessThanOrEqualTo: endTs)
+        .get();
 
     final results = await Future.wait(
         [expenseFuture, incomeFuture, lendingsFuture, investmentsFuture]);

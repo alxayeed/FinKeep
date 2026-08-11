@@ -16,6 +16,7 @@
 - UPDATE: monthly standing filtering and UI
 - UPDATE: align expense report header layout with DateRangeHeader top bar
 - UPDATE: refactor TimeframeSelection to DateFilter model and enum
+- FIX: filter dashboard lending dues and investment metrics by selected date range
 
 1.0.0+20
 [11/07/2026]

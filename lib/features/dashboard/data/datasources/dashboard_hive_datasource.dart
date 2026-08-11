@@ -110,7 +110,7 @@ class DashboardHiveDataSource implements DashboardLocalDataSource {
       }
     }
 
-    // Lendings — net outstanding dues
+    // Lendings — net outstanding dues created within the selected date range
     final Map<String, double> repaidMap = {};
     for (final raw in localDb.repaymentsBox.values) {
       final map = Map<String, dynamic>.from(raw);
@@ -120,36 +120,42 @@ class DashboardHiveDataSource implements DashboardLocalDataSource {
     }
     for (final raw in localDb.lendingsBox.values) {
       final map = Map<String, dynamic>.from(raw);
-      final lendingAmount = (map['amount'] as num? ?? 0).toDouble();
-      final id = map['id'] as String? ?? '';
-      final repaid = repaidMap[id] ?? (map['repaidAmount'] as num? ?? 0).toDouble();
-      final due = (lendingAmount - repaid).clamp(0, double.infinity).toDouble();
-      final type = map['type'] as String? ?? '';
-      if (type == 'given') {
-        totalGivenDue += due;
-      } else if (type == 'taken') {
-        totalReceivedDue += due;
+      final createdDate = _parseDate(map['createdDate']);
+      if (_inRange(createdDate, start, end)) {
+        final lendingAmount = (map['amount'] as num? ?? 0).toDouble();
+        final id = map['id'] as String? ?? '';
+        final repaid = repaidMap[id] ?? (map['repaidAmount'] as num? ?? 0).toDouble();
+        final due = (lendingAmount - repaid).clamp(0, double.infinity).toDouble();
+        final type = map['type'] as String? ?? '';
+        if (type == 'given') {
+          totalGivenDue += due;
+        } else if (type == 'taken') {
+          totalReceivedDue += due;
+        }
       }
     }
 
-    // Investments
+    // Investments created/active within the selected date range
     for (final raw in localDb.investmentsBox.values) {
       final map = Map<String, dynamic>.from(raw);
-      final invested = (map['amountInvested'] as num? ?? 0).toDouble();
-      final status = map['status'] as String? ?? '';
-      final returns = (map['returns'] as List<dynamic>? ?? []);
-      double returnsSum = 0.0;
-      for (final r in returns) {
-        final rMap = Map<String, dynamic>.from(r as Map);
-        returnsSum += (rMap['amountReceived'] as num? ?? 0).toDouble();
-      }
-      if (status == 'active' || status == 'returnsStarted') {
-        totalInvested += invested;
-      }
-      if (status == 'completed' || status == 'loss') {
-        totalInvestmentProfit += (returnsSum - invested);
-      } else if (returnsSum > invested) {
-        totalInvestmentProfit += (returnsSum - invested);
+      final startDate = _parseDate(map['startDate']);
+      if (_inRange(startDate, start, end)) {
+        final invested = (map['amountInvested'] as num? ?? 0).toDouble();
+        final status = map['status'] as String? ?? '';
+        final returns = (map['returns'] as List<dynamic>? ?? []);
+        double returnsSum = 0.0;
+        for (final r in returns) {
+          final rMap = Map<String, dynamic>.from(r as Map);
+          returnsSum += (rMap['amountReceived'] as num? ?? 0).toDouble();
+        }
+        if (status == 'active' || status == 'returnsStarted') {
+          totalInvested += invested;
+        }
+        if (status == 'completed' || status == 'loss') {
+          totalInvestmentProfit += (returnsSum - invested);
+        } else if (returnsSum > invested) {
+          totalInvestmentProfit += (returnsSum - invested);
+        }
       }
     }
 
