@@ -4,6 +4,7 @@ import '../../styles/app_colors.dart';
 import '../../providers/fiscal_year_provider.dart';
 import '../../providers/privacy_provider.dart';
 import '../models/date_filter.dart';
+import 'fiscal_year_selector_sheet.dart';
 
 class DateRangeHeader extends StatelessWidget {
   final DateFilter dateFilter;
@@ -193,13 +194,12 @@ class DateRangeHeader extends StatelessWidget {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (modalContext) {
-        return Container(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
-          decoration: BoxDecoration(
-            color: isDark ? AppColors.cardDark : AppColors.cardLight,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
-          ),
-          child: Column(
+        return Material(
+          color: isDark ? AppColors.cardDark : AppColors.cardLight,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+            child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -282,7 +282,28 @@ class DateRangeHeader extends StatelessWidget {
                             color: AppColors.primaryTeal,
                             size: 20.sp,
                           )
-                        : null,
+                        : (isFiscal
+                            ? TextButton(
+                                style: TextButton.styleFrom(
+                                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                                  minimumSize: Size.zero,
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                ),
+                                onPressed: () {
+                                  Navigator.pop(modalContext);
+                                  showFiscalYearSelectorBottomSheet(context);
+                                },
+                                child: Text(
+                                  'Change',
+                                  style: TextStyle(
+                                    fontSize: 12.5.sp,
+                                    fontFamily: 'Manrope',
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.primaryTeal,
+                                  ),
+                                ),
+                              )
+                            : null),
                     onTap: () {
                       Navigator.pop(modalContext);
                       if (type == DateFilterType.custom) {
@@ -296,7 +317,8 @@ class DateRangeHeader extends StatelessWidget {
               }),
             ],
           ),
-        );
+        ),
+      );
       },
     );
   }

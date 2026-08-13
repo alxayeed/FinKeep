@@ -1,23 +1,25 @@
 import 'dart:developer';
 
+import 'package:finkeep/core/common/widgets/fiscal_year_selector_sheet.dart';
 import 'package:finkeep/core/common/widgets/widgets.dart';
+import 'package:finkeep/core/config/app_config.dart';
 import 'package:finkeep/core/enums/currency.dart';
+import 'package:finkeep/core/providers/fiscal_year_provider.dart';
 import 'package:finkeep/core/routes/app_router.dart';
 import 'package:finkeep/core/services/app_update_service.dart';
 import 'package:finkeep/core/services/biometric_service.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
-import 'package:finkeep/core/providers/fiscal_year_provider.dart';
 import 'package:finkeep/core/utils/app_localizations.dart';
+import 'package:finkeep/features/auth/services/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:finkeep/core/config/app_config.dart';
-import 'package:finkeep/features/auth/services/auth_service.dart';
 
 import '../../features/expense/services/expense_reminder_service.dart';
 import '../responsive/responsive.dart';
@@ -57,7 +59,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   void dispose() {
-    FiscalYearProvider().startMonthNotifier.removeListener(_onFiscalYearChanged);
+    FiscalYearProvider().startMonthNotifier.removeListener(
+      _onFiscalYearChanged,
+    );
     super.dispose();
   }
 
@@ -267,167 +271,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showFiscalYearSelector(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
-
-    final months = [
-      {'month': 1, 'label': 'January (Standard Calendar / US Corporate)'},
-      {'month': 4, 'label': 'April (UK / India / Japan / Canada)'},
-      {'month': 7, 'label': 'July (Bangladesh / Australia / Pakistan)'},
-      {'month': 10, 'label': 'October (US Federal Govt)'},
-    ];
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: isDark ? AppColors.cardDark : Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
-      ),
-      builder: (context) {
-        return Container(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Fiscal Year Start Month',
-                style: TextStyle(
-                  fontFamily: 'Manrope',
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16.sp,
-                  color: textColor,
-                ),
-              ),
-              SizedBox(height: 14.h),
-              ...months.map((item) {
-                final monthVal = item['month'] as int;
-                final label = item['label'] as String;
-                final isSelected = _fiscalYearStartMonth == monthVal;
-
-                return Container(
-                  margin: EdgeInsets.only(bottom: 6.h),
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? AppColors.primaryTeal.withValues(alpha: 0.12)
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(12.r),
-                    border: isSelected
-                        ? Border.all(color: AppColors.primaryTeal.withValues(alpha: 0.3))
-                        : null,
-                  ),
-                  child: ListTile(
-                    contentPadding: EdgeInsets.symmetric(horizontal: 12.w),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                    title: Text(
-                      label,
-                      style: TextStyle(
-                        fontFamily: 'Manrope',
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                        fontSize: 13.sp,
-                        color: isSelected
-                            ? AppColors.primaryTeal
-                            : (isDark ? Colors.white : const Color(0xFF0F172A)),
-                      ),
-                    ),
-                    trailing: isSelected
-                        ? Icon(
-                            Icons.check_circle_rounded,
-                            color: AppColors.primaryTeal,
-                            size: 20.sp,
-                          )
-                        : null,
-                    onTap: () async {
-                      await FiscalYearProvider().setStartMonth(monthVal);
-                      if (context.mounted) Navigator.pop(context);
-                    },
-                  ),
-                );
-              }),
-              SizedBox(height: 6.h),
-              // Option for custom month
-              ListTile(
-                contentPadding: EdgeInsets.symmetric(horizontal: 12.w),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                leading: const Icon(Icons.edit_calendar_rounded, color: AppColors.primaryTeal),
-                title: Text(
-                  'Custom Month...',
-                  style: TextStyle(
-                    fontFamily: 'Manrope',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13.sp,
-                    color: AppColors.primaryTeal,
-                  ),
-                ),
-                onTap: () async {
-                  Navigator.pop(context);
-                  _showCustomMonthPickerDialog(context);
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void _showCustomMonthPickerDialog(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final allMonths = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
-    ];
-
-    showDialog(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          backgroundColor: isDark ? AppColors.cardDark : Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
-          title: Text(
-            'Select Fiscal Start Month',
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontFamily: 'Manrope',
-              fontWeight: FontWeight.bold,
-              color: isDark ? Colors.white : const Color(0xFF0F172A),
-            ),
-          ),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: 12,
-              itemBuilder: (context, index) {
-                final monthNum = index + 1;
-                final monthName = allMonths[index];
-                final isSelected = _fiscalYearStartMonth == monthNum;
-
-                return ListTile(
-                  title: Text(
-                    monthName,
-                    style: TextStyle(
-                      fontFamily: 'Manrope',
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                      color: isSelected ? AppColors.primaryTeal : (isDark ? Colors.white : const Color(0xFF0F172A)),
-                    ),
-                  ),
-                  trailing: isSelected ? const Icon(Icons.check_circle_rounded, color: AppColors.primaryTeal) : null,
-                  onTap: () async {
-                    await FiscalYearProvider().setStartMonth(monthNum);
-                    if (dialogContext.mounted) Navigator.pop(dialogContext);
-                  },
-                );
-              },
-            ),
-          ),
-        );
-      },
-    );
+    showFiscalYearSelectorBottomSheet(context);
   }
 
   void _showLanguageSelector(BuildContext context, String currentLocale) {
@@ -730,7 +574,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     } catch (_) {}
 
     final email = user?.email ?? 'personal@finkeep.com';
-    final name = user?.displayName ?? email.split('@').first.capitalizeFirst ?? 'Personal User';
+    final name =
+        user?.displayName ??
+        email.split('@').first.capitalizeFirst ??
+        'Personal User';
 
     return Container(
       padding: EdgeInsets.all(16.r),
@@ -743,7 +590,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryTeal.withValues(alpha: isDark ? 0.05 : 0.02),
+            color: AppColors.primaryTeal.withValues(
+              alpha: isDark ? 0.05 : 0.02,
+            ),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -781,7 +630,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     SizedBox(width: 6.w),
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 6.w,
+                        vertical: 2.h,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.primaryTeal.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(6.r),
@@ -845,11 +697,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(dialogCtx, false),
-                      child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(color: Colors.grey),
+                      ),
                     ),
                     TextButton(
                       onPressed: () => Navigator.pop(dialogCtx, true),
-                      child: const Text('Sign Out', style: TextStyle(color: Colors.red)),
+                      child: const Text(
+                        'Sign Out',
+                        style: TextStyle(color: Colors.red),
+                      ),
                     ),
                   ],
                 ),
@@ -890,7 +748,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: _themeProvider,
       builder: (context, mode, _) {
-        final isDark = mode == ThemeMode.dark ||
+        final isDark =
+            mode == ThemeMode.dark ||
             (mode == ThemeMode.system &&
                 WidgetsBinding.instance.platformDispatcher.platformBrightness ==
                     Brightness.dark);
@@ -961,122 +820,126 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           borderRadius: BorderRadius.circular(20.r),
                           clipBehavior: Clip.antiAlias,
                           child: Column(
-                          children: [
-                            ListTile(
-                              leading: Icon(
-                                Icons.tune_rounded,
-                                size: 20.sp,
-                                color: AppColors.primaryTeal,
-                              ),
-                              title: Text(
-                                'Set Monthly Budget',
-                                style: TextStyle(
-                                  fontSize: 13.sp,
-                                  fontFamily: 'Manrope',
-                                  fontWeight: FontWeight.w600,
-                                  color: textColor,
+                            children: [
+                              ListTile(
+                                leading: Icon(
+                                  Icons.tune_rounded,
+                                  size: 20.sp,
+                                  color: AppColors.primaryTeal,
                                 ),
-                              ),
-                              subtitle: Text(
-                                'Manage your spending limit and goals',
-                                style: TextStyle(
-                                  fontSize: 11.sp,
-                                  fontFamily: 'Manrope',
+                                title: Text(
+                                  'Set Monthly Budget',
+                                  style: TextStyle(
+                                    fontSize: 13.sp,
+                                    fontFamily: 'Manrope',
+                                    fontWeight: FontWeight.w600,
+                                    color: textColor,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  'Manage your spending limit and goals',
+                                  style: TextStyle(
+                                    fontSize: 11.sp,
+                                    fontFamily: 'Manrope',
+                                    color: subtitleColor,
+                                  ),
+                                ),
+                                trailing: Icon(
+                                  Icons.chevron_right,
+                                  size: 20.sp,
                                   color: subtitleColor,
                                 ),
+                                onTap: () {
+                                  context.pushNamed(
+                                    AppRoutes.setMonthlyBudget,
+                                    extra: DateTime.now(),
+                                  );
+                                },
                               ),
-                              trailing: Icon(
-                                Icons.chevron_right,
-                                size: 20.sp,
-                                color: subtitleColor,
+                              Divider(
+                                height: 1,
+                                color: isDark
+                                    ? const Color(0xFF1E293B)
+                                    : const Color(0xFFE2E8F0),
                               ),
-                              onTap: () {
-                                context.pushNamed(
-                                  AppRoutes.setMonthlyBudget,
-                                  extra: DateTime.now(),
-                                );
-                              },
-                            ),
-                            Divider(
-                              height: 1,
-                              color: isDark
-                                  ? const Color(0xFF1E293B)
-                                  : const Color(0xFFE2E8F0),
-                            ),
-                             ListTile(
-                              leading: Icon(
-                                Icons.category_outlined,
-                                size: 20.sp,
-                                color: AppColors.primaryTeal,
-                              ),
-                              title: Text(
-                                'Configure Expense Categories',
-                                style: TextStyle(
-                                  fontSize: 13.sp,
-                                  fontFamily: 'Manrope',
-                                  fontWeight: FontWeight.w600,
-                                  color: textColor,
+                              ListTile(
+                                leading: Icon(
+                                  Icons.category_outlined,
+                                  size: 20.sp,
+                                  color: AppColors.primaryTeal,
                                 ),
-                              ),
-                              subtitle: Text(
-                                'Manage expense categories and emojis',
-                                style: TextStyle(
-                                  fontSize: 11.sp,
-                                  fontFamily: 'Manrope',
+                                title: Text(
+                                  'Configure Expense Categories',
+                                  style: TextStyle(
+                                    fontSize: 13.sp,
+                                    fontFamily: 'Manrope',
+                                    fontWeight: FontWeight.w600,
+                                    color: textColor,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  'Manage expense categories and emojis',
+                                  style: TextStyle(
+                                    fontSize: 11.sp,
+                                    fontFamily: 'Manrope',
+                                    color: subtitleColor,
+                                  ),
+                                ),
+                                trailing: Icon(
+                                  Icons.chevron_right,
+                                  size: 20.sp,
                                   color: subtitleColor,
                                 ),
+                                onTap: () {
+                                  context.pushNamed(
+                                    AppRoutes.expenseCategorySettings,
+                                  );
+                                },
                               ),
-                              trailing: Icon(
-                                Icons.chevron_right,
-                                size: 20.sp,
-                                color: subtitleColor,
+                              Divider(
+                                height: 1,
+                                color: isDark
+                                    ? const Color(0xFF1E293B)
+                                    : const Color(0xFFE2E8F0),
                               ),
-                              onTap: () {
-                                context.pushNamed(AppRoutes.expenseCategorySettings);
-                              },
-                            ),
-                            Divider(
-                              height: 1,
-                              color: isDark
-                                  ? const Color(0xFF1E293B)
-                                  : const Color(0xFFE2E8F0),
-                            ),
-                            ListTile(
-                              leading: Icon(
-                                Icons.account_balance_wallet_outlined,
-                                size: 20.sp,
-                                color: AppColors.primaryTeal,
-                              ),
-                              title: Text(
-                                'Configure Income Categories',
-                                style: TextStyle(
-                                  fontSize: 13.sp,
-                                  fontFamily: 'Manrope',
-                                  fontWeight: FontWeight.w600,
-                                  color: textColor,
+                              ListTile(
+                                leading: Icon(
+                                  Icons.account_balance_wallet_outlined,
+                                  size: 20.sp,
+                                  color: AppColors.primaryTeal,
                                 ),
-                              ),
-                              subtitle: Text(
-                                'Manage income categories and emojis',
-                                style: TextStyle(
-                                  fontSize: 11.sp,
-                                  fontFamily: 'Manrope',
+                                title: Text(
+                                  'Configure Income Categories',
+                                  style: TextStyle(
+                                    fontSize: 13.sp,
+                                    fontFamily: 'Manrope',
+                                    fontWeight: FontWeight.w600,
+                                    color: textColor,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  'Manage income categories and emojis',
+                                  style: TextStyle(
+                                    fontSize: 11.sp,
+                                    fontFamily: 'Manrope',
+                                    color: subtitleColor,
+                                  ),
+                                ),
+                                trailing: Icon(
+                                  Icons.chevron_right,
+                                  size: 20.sp,
                                   color: subtitleColor,
                                 ),
+                                onTap: () {
+                                  context.pushNamed(
+                                    AppRoutes.incomeCategorySettings,
+                                  );
+                                },
                               ),
-                              trailing: Icon(
-                                Icons.chevron_right,
-                                size: 20.sp,
-                                color: subtitleColor,
-                              ),
-                              onTap: () {
-                                context.pushNamed(AppRoutes.incomeCategorySettings);
-                              },
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
 
                       SizedBox(height: 12.h),
 
@@ -1097,245 +960,241 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           borderRadius: BorderRadius.circular(20.r),
                           clipBehavior: Clip.antiAlias,
                           child: Column(
-                          children: [
-                            ListTile(
-                              leading: Icon(
-                                Icons.brightness_6_outlined,
-                                size: 20.sp,
-                                color: AppColors.primaryTeal,
-                              ),
-                              title: Text(
-                                'Theme Mode',
-                                style: TextStyle(
-                                  fontSize: 13.sp,
-                                  fontFamily: 'Manrope',
-                                  fontWeight: FontWeight.w600,
-                                  color: textColor,
+                            children: [
+                              ListTile(
+                                leading: Icon(
+                                  Icons.brightness_6_outlined,
+                                  size: 20.sp,
+                                  color: AppColors.primaryTeal,
                                 ),
-                              ),
-                              subtitle: Text(
-                                mode == ThemeMode.light
-                                    ? 'Light Mode'
-                                    : mode == ThemeMode.dark
-                                    ? 'Dark Mode'
-                                    : 'System Default',
-                                style: TextStyle(
-                                  fontSize: 11.sp,
-                                  fontFamily: 'Manrope',
-                                  color: subtitleColor,
-                                ),
-                              ),
-                              trailing: Container(
-                                height: 32.h,
-                                padding: EdgeInsets.all(2.r),
-                                decoration: BoxDecoration(
-                                  color: isDark
-                                      ? const Color(0xFF1E293B)
-                                      : const Color(0xFFF1F5F9),
-                                  borderRadius: BorderRadius.circular(8.r),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    _buildThemeSegmentButton(
-                                      context,
-                                      Icons.wb_sunny_rounded,
-                                      ThemeMode.light,
-                                      mode,
-                                      isDark,
-                                    ),
-                                    _buildThemeSegmentButton(
-                                      context,
-                                      Icons.nights_stay_rounded,
-                                      ThemeMode.dark,
-                                      mode,
-                                      isDark,
-                                    ),
-                                    _buildThemeSegmentButton(
-                                      context,
-                                      Icons.settings_suggest_rounded,
-                                      ThemeMode.system,
-                                      mode,
-                                      isDark,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Divider(
-                              height: 1,
-                              color: isDark
-                                  ? const Color(0xFF1E293B)
-                                  : const Color(0xFFE2E8F0),
-                            ),
-                            ValueListenableBuilder<String>(
-                              valueListenable:
-                                  AppLocalizations.localeListenable,
-                              builder: (context, currentLocale, _) {
-                                final languageName = currentLocale == 'bn'
-                                    ? 'বাংলা (Bangla)'
-                                    : 'English';
-                                return ListTile(
-                                  leading: Icon(
-                                    Icons.language_outlined,
-                                    size: 20.sp,
-                                    color: AppColors.primaryTeal,
+                                title: Text(
+                                  'Theme Mode',
+                                  style: TextStyle(
+                                    fontSize: 13.sp,
+                                    fontFamily: 'Manrope',
+                                    fontWeight: FontWeight.w600,
+                                    color: textColor,
                                   ),
-                                  title: Text(
-                                    'Language',
-                                    style: TextStyle(
-                                      fontSize: 13.sp,
-                                      fontFamily: 'Manrope',
-                                      fontWeight: FontWeight.w600,
-                                      color: textColor,
-                                    ),
-                                  ),
-                                  subtitle: Text(
-                                    languageName,
-                                    style: TextStyle(
-                                      fontSize: 11.sp,
-                                      fontFamily: 'Manrope',
-                                      color: subtitleColor,
-                                    ),
-                                  ),
-                                  trailing: Icon(
-                                    Icons.chevron_right,
-                                    size: 20.sp,
+                                ),
+                                subtitle: Text(
+                                  mode == ThemeMode.light
+                                      ? 'Light Mode'
+                                      : mode == ThemeMode.dark
+                                      ? 'Dark Mode'
+                                      : 'System Default',
+                                  style: TextStyle(
+                                    fontSize: 11.sp,
+                                    fontFamily: 'Manrope',
                                     color: subtitleColor,
                                   ),
-                                  onTap: () => _showLanguageSelector(
-                                    context,
-                                    currentLocale,
+                                ),
+                                trailing: Container(
+                                  height: 32.h,
+                                  padding: EdgeInsets.all(2.r),
+                                  decoration: BoxDecoration(
+                                    color: isDark
+                                        ? const Color(0xFF1E293B)
+                                        : const Color(0xFFF1F5F9),
+                                    borderRadius: BorderRadius.circular(8.r),
                                   ),
-                                );
-                              },
-                            ),
-                             Divider(
-                               height: 1,
-                               color: isDark
-                                   ? const Color(0xFF1E293B)
-                                   : const Color(0xFFE2E8F0),
-                             ),
-                             ListTile(
-                              leading: Icon(
-                                Icons.payments_outlined,
-                                size: 20.sp,
-                                color: AppColors.primaryTeal,
-                              ),
-                              title: Text(
-                                'Currency',
-                                style: TextStyle(
-                                  fontSize: 13.sp,
-                                  fontFamily: 'Manrope',
-                                  fontWeight: FontWeight.w600,
-                                  color: textColor,
-                                ),
-                              ),
-                              subtitle: Text(
-                                '${context.currency.name} (${context.currency.symbol})',
-                                style: TextStyle(
-                                  fontSize: 11.sp,
-                                  fontFamily: 'Manrope',
-                                  color: subtitleColor,
-                                ),
-                              ),
-                              trailing: Icon(
-                                Icons.chevron_right,
-                                size: 20.sp,
-                                color: subtitleColor,
-                              ),
-                              onTap: () => _showCurrencySelector(context),
-                            ),
-                            Divider(
-                              height: 1,
-                              color: isDark
-                                  ? const Color(0xFF1E293B)
-                                  : const Color(0xFFE2E8F0),
-                            ),
-                            ListTile(
-                              leading: Icon(
-                                Icons.calendar_month_outlined,
-                                size: 20.sp,
-                                color: AppColors.primaryTeal,
-                              ),
-                              title: Text(
-                                'Fiscal Year Start Month',
-                                style: TextStyle(
-                                  fontSize: 13.sp,
-                                  fontFamily: 'Manrope',
-                                  fontWeight: FontWeight.w600,
-                                  color: textColor,
-                                ),
-                              ),
-                              subtitle: Text(
-                                _fiscalYearStartMonth == 1
-                                    ? 'January'
-                                    : _fiscalYearStartMonth == 4
-                                    ? 'April'
-                                    : _fiscalYearStartMonth == 7
-                                    ? 'July'
-                                    : 'October',
-                                style: TextStyle(
-                                  fontSize: 11.sp,
-                                  fontFamily: 'Manrope',
-                                  color: subtitleColor,
-                                ),
-                              ),
-                              trailing: Icon(
-                                Icons.chevron_right,
-                                size: 20.sp,
-                                color: subtitleColor,
-                              ),
-                              onTap: () => _showFiscalYearSelector(context),
-                            ),
-                            Divider(
-                              height: 1,
-                              color: isDark
-                                  ? const Color(0xFF1E293B)
-                                  : const Color(0xFFE2E8F0),
-                            ),
-                            ListTile(
-                              leading: Icon(
-                                Icons.alarm_outlined,
-                                size: 20.sp,
-                                color: AppColors.primaryTeal,
-                              ),
-                              title: Text(
-                                'Daily Expense Reminder',
-                                style: TextStyle(
-                                  fontSize: 13.sp,
-                                  fontFamily: 'Manrope',
-                                  fontWeight: FontWeight.w600,
-                                  color: textColor,
-                                ),
-                              ),
-                              subtitle:
-                                  _reminderEnabled && _selectedTime != null
-                                  ? Text(
-                                      'Scheduled at ${_selectedTime!.format(context)}',
-                                      style: TextStyle(
-                                        fontSize: 11.sp,
-                                        fontFamily: 'Manrope',
-                                        color: subtitleColor,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      _buildThemeSegmentButton(
+                                        context,
+                                        Icons.wb_sunny_rounded,
+                                        ThemeMode.light,
+                                        mode,
+                                        isDark,
                                       ),
-                                    )
-                                  : Text(
-                                      'Not scheduled',
+                                      _buildThemeSegmentButton(
+                                        context,
+                                        Icons.nights_stay_rounded,
+                                        ThemeMode.dark,
+                                        mode,
+                                        isDark,
+                                      ),
+                                      _buildThemeSegmentButton(
+                                        context,
+                                        Icons.settings_suggest_rounded,
+                                        ThemeMode.system,
+                                        mode,
+                                        isDark,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Divider(
+                                height: 1,
+                                color: isDark
+                                    ? const Color(0xFF1E293B)
+                                    : const Color(0xFFE2E8F0),
+                              ),
+                              ValueListenableBuilder<String>(
+                                valueListenable:
+                                    AppLocalizations.localeListenable,
+                                builder: (context, currentLocale, _) {
+                                  final languageName = currentLocale == 'bn'
+                                      ? 'বাংলা (Bangla)'
+                                      : 'English';
+                                  return ListTile(
+                                    leading: Icon(
+                                      Icons.language_outlined,
+                                      size: 20.sp,
+                                      color: AppColors.primaryTeal,
+                                    ),
+                                    title: Text(
+                                      'Language',
+                                      style: TextStyle(
+                                        fontSize: 13.sp,
+                                        fontFamily: 'Manrope',
+                                        fontWeight: FontWeight.w600,
+                                        color: textColor,
+                                      ),
+                                    ),
+                                    subtitle: Text(
+                                      languageName,
                                       style: TextStyle(
                                         fontSize: 11.sp,
                                         fontFamily: 'Manrope',
                                         color: subtitleColor,
                                       ),
                                     ),
-                              trailing: AppSwitchButton(
-                                value: _reminderEnabled,
-                                onChanged: _toggleReminder,
+                                    trailing: Icon(
+                                      Icons.chevron_right,
+                                      size: 20.sp,
+                                      color: subtitleColor,
+                                    ),
+                                    onTap: () => _showLanguageSelector(
+                                      context,
+                                      currentLocale,
+                                    ),
+                                  );
+                                },
                               ),
-                            ),
-                          ],
+                              Divider(
+                                height: 1,
+                                color: isDark
+                                    ? const Color(0xFF1E293B)
+                                    : const Color(0xFFE2E8F0),
+                              ),
+                              ListTile(
+                                leading: Icon(
+                                  Icons.payments_outlined,
+                                  size: 20.sp,
+                                  color: AppColors.primaryTeal,
+                                ),
+                                title: Text(
+                                  'Currency',
+                                  style: TextStyle(
+                                    fontSize: 13.sp,
+                                    fontFamily: 'Manrope',
+                                    fontWeight: FontWeight.w600,
+                                    color: textColor,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  '${context.currency.name} (${context.currency.symbol})',
+                                  style: TextStyle(
+                                    fontSize: 11.sp,
+                                    fontFamily: 'Manrope',
+                                    color: subtitleColor,
+                                  ),
+                                ),
+                                trailing: Icon(
+                                  Icons.chevron_right,
+                                  size: 20.sp,
+                                  color: subtitleColor,
+                                ),
+                                onTap: () => _showCurrencySelector(context),
+                              ),
+                              Divider(
+                                height: 1,
+                                color: isDark
+                                    ? const Color(0xFF1E293B)
+                                    : const Color(0xFFE2E8F0),
+                              ),
+                              ListTile(
+                                leading: Icon(
+                                  Icons.calendar_month_outlined,
+                                  size: 20.sp,
+                                  color: AppColors.primaryTeal,
+                                ),
+                                title: Text(
+                                  'Fiscal Year Start Month',
+                                  style: TextStyle(
+                                    fontSize: 13.sp,
+                                    fontFamily: 'Manrope',
+                                    fontWeight: FontWeight.w600,
+                                    color: textColor,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  DateFormat('MMMM').format(
+                                    DateTime(2026, _fiscalYearStartMonth),
+                                  ),
+                                  style: TextStyle(
+                                    fontSize: 11.sp,
+                                    fontFamily: 'Manrope',
+                                    color: subtitleColor,
+                                  ),
+                                ),
+                                trailing: Icon(
+                                  Icons.chevron_right,
+                                  size: 20.sp,
+                                  color: subtitleColor,
+                                ),
+                                onTap: () => _showFiscalYearSelector(context),
+                              ),
+                              Divider(
+                                height: 1,
+                                color: isDark
+                                    ? const Color(0xFF1E293B)
+                                    : const Color(0xFFE2E8F0),
+                              ),
+                              ListTile(
+                                leading: Icon(
+                                  Icons.alarm_outlined,
+                                  size: 20.sp,
+                                  color: AppColors.primaryTeal,
+                                ),
+                                title: Text(
+                                  'Daily Expense Reminder',
+                                  style: TextStyle(
+                                    fontSize: 13.sp,
+                                    fontFamily: 'Manrope',
+                                    fontWeight: FontWeight.w600,
+                                    color: textColor,
+                                  ),
+                                ),
+                                subtitle:
+                                    _reminderEnabled && _selectedTime != null
+                                    ? Text(
+                                        'Scheduled at ${_selectedTime!.format(context)}',
+                                        style: TextStyle(
+                                          fontSize: 11.sp,
+                                          fontFamily: 'Manrope',
+                                          color: subtitleColor,
+                                        ),
+                                      )
+                                    : Text(
+                                        'Not scheduled',
+                                        style: TextStyle(
+                                          fontSize: 11.sp,
+                                          fontFamily: 'Manrope',
+                                          color: subtitleColor,
+                                        ),
+                                      ),
+                                trailing: AppSwitchButton(
+                                  value: _reminderEnabled,
+                                  onChanged: _toggleReminder,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
 
                       SizedBox(height: 12.h),
 
@@ -1356,210 +1215,210 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           borderRadius: BorderRadius.circular(20.r),
                           clipBehavior: Clip.antiAlias,
                           child: Column(
-                          children: [
-                            ListTile(
-                              leading: Icon(
-                                Icons.fingerprint_rounded,
-                                size: 20.sp,
-                                color: AppColors.primaryTeal,
-                              ),
-                              title: Text(
-                                'Biometric App Lock',
-                                style: TextStyle(
-                                  fontSize: 13.sp,
-                                  fontFamily: 'Manrope',
-                                  fontWeight: FontWeight.w600,
-                                  color: textColor,
+                            children: [
+                              ListTile(
+                                leading: Icon(
+                                  Icons.fingerprint_rounded,
+                                  size: 20.sp,
+                                  color: AppColors.primaryTeal,
+                                ),
+                                title: Text(
+                                  'Biometric App Lock',
+                                  style: TextStyle(
+                                    fontSize: 13.sp,
+                                    fontFamily: 'Manrope',
+                                    fontWeight: FontWeight.w600,
+                                    color: textColor,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  'Unlock app using fingerprint or Face ID',
+                                  style: TextStyle(
+                                    fontSize: 11.sp,
+                                    fontFamily: 'Manrope',
+                                    color: subtitleColor,
+                                  ),
+                                ),
+                                trailing: AppSwitchButton(
+                                  value: _biometricEnabled,
+                                  onChanged: (value) async {
+                                    final biometricService =
+                                        Get.find<BiometricService>();
+                                    final prefs =
+                                        await SharedPreferences.getInstance();
+
+                                    if (value) {
+                                      final hasHardware = await biometricService
+                                          .isBiometricHardwareAvailable();
+                                      if (!hasHardware) {
+                                        if (!context.mounted) return;
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Biometrics are not supported on this device.',
+                                            ),
+                                            backgroundColor: AppColors.error,
+                                          ),
+                                        );
+                                        return;
+                                      }
+
+                                      final hasEnrolled = await biometricService
+                                          .hasEnrolledBiometrics();
+                                      if (!hasEnrolled) {
+                                        if (!context.mounted) return;
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) => CustomPermissionDialog(
+                                            title: 'Setup Biometrics',
+                                            description:
+                                                'No biometrics (fingerprints/Face ID) are enrolled on this device. Would you like to set up biometric authentication in system settings?',
+                                            actionText: 'Go to Settings',
+                                            cancelText: 'Cancel',
+                                            icon: Icons.fingerprint_rounded,
+                                            onActionPressed: () async {
+                                              Navigator.pop(context);
+                                              final success =
+                                                  await biometricService
+                                                      .openBiometricSettings();
+                                              if (!success) {
+                                                if (!context.mounted) return;
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                      'Could not open settings automatically. Please open device settings manually.',
+                                                    ),
+                                                    backgroundColor:
+                                                        AppColors.error,
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                          ),
+                                        );
+                                        return;
+                                      }
+
+                                      final success = await biometricService
+                                          .authenticate();
+                                      if (success) {
+                                        setState(() {
+                                          _biometricEnabled = true;
+                                        });
+                                        await prefs.setBool(
+                                          'biometric_enabled',
+                                          true,
+                                        );
+                                        if (!context.mounted) return;
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Biometric App Lock enabled successfully.',
+                                            ),
+                                            backgroundColor: AppColors.success,
+                                          ),
+                                        );
+                                      } else {
+                                        if (!context.mounted) return;
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Verification failed. Biometric Lock not enabled.',
+                                            ),
+                                            backgroundColor: AppColors.error,
+                                          ),
+                                        );
+                                      }
+                                    } else {
+                                      final success = await biometricService
+                                          .authenticate();
+                                      if (success) {
+                                        setState(() {
+                                          _biometricEnabled = false;
+                                        });
+                                        await prefs.setBool(
+                                          'biometric_enabled',
+                                          false,
+                                        );
+                                        if (!context.mounted) return;
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Biometric App Lock disabled.',
+                                            ),
+                                            backgroundColor:
+                                                AppColors.primaryTeal,
+                                          ),
+                                        );
+                                      } else {
+                                        if (!context.mounted) return;
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Verification failed. Biometric Lock remains enabled.',
+                                            ),
+                                            backgroundColor: AppColors.error,
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  },
                                 ),
                               ),
-                              subtitle: Text(
-                                'Unlock app using fingerprint or Face ID',
-                                style: TextStyle(
-                                  fontSize: 11.sp,
-                                  fontFamily: 'Manrope',
+                              Divider(
+                                height: 1,
+                                color: isDark
+                                    ? const Color(0xFF1E293B)
+                                    : const Color(0xFFE2E8F0),
+                              ),
+                              ListTile(
+                                leading: Icon(
+                                  Icons.privacy_tip_outlined,
+                                  size: 20.sp,
+                                  color: AppColors.primaryTeal,
+                                ),
+                                title: Text(
+                                  'Privacy Policy',
+                                  style: TextStyle(
+                                    fontSize: 13.sp,
+                                    fontFamily: 'Manrope',
+                                    fontWeight: FontWeight.w600,
+                                    color: textColor,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  'Read our offline data policy',
+                                  style: TextStyle(
+                                    fontSize: 11.sp,
+                                    fontFamily: 'Manrope',
+                                    color: subtitleColor,
+                                  ),
+                                ),
+                                trailing: Icon(
+                                  Icons.chevron_right,
+                                  size: 20.sp,
                                   color: subtitleColor,
                                 ),
-                              ),
-                              trailing: AppSwitchButton(
-                                value: _biometricEnabled,
-                                onChanged: (value) async {
-                                  final biometricService =
-                                      Get.find<BiometricService>();
-                                  final prefs =
-                                      await SharedPreferences.getInstance();
-
-                                  if (value) {
-                                    final hasHardware = await biometricService
-                                        .isBiometricHardwareAvailable();
-                                    if (!hasHardware) {
-                                      if (!context.mounted) return;
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            'Biometrics are not supported on this device.',
-                                          ),
-                                          backgroundColor: AppColors.error,
-                                        ),
-                                      );
-                                      return;
-                                    }
-
-                                    final hasEnrolled = await biometricService
-                                        .hasEnrolledBiometrics();
-                                    if (!hasEnrolled) {
-                                      if (!context.mounted) return;
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) => CustomPermissionDialog(
-                                          title: 'Setup Biometrics',
-                                          description:
-                                              'No biometrics (fingerprints/Face ID) are enrolled on this device. Would you like to set up biometric authentication in system settings?',
-                                          actionText: 'Go to Settings',
-                                          cancelText: 'Cancel',
-                                          icon: Icons.fingerprint_rounded,
-                                          onActionPressed: () async {
-                                            Navigator.pop(context);
-                                            final success =
-                                                await biometricService
-                                                    .openBiometricSettings();
-                                            if (!success) {
-                                              if (!context.mounted) return;
-                                              ScaffoldMessenger.of(
-                                                context,
-                                              ).showSnackBar(
-                                                const SnackBar(
-                                                  content: Text(
-                                                    'Could not open settings automatically. Please open device settings manually.',
-                                                  ),
-                                                  backgroundColor:
-                                                      AppColors.error,
-                                                ),
-                                              );
-                                            }
-                                          },
-                                        ),
-                                      );
-                                      return;
-                                    }
-
-                                    final success = await biometricService
-                                        .authenticate();
-                                    if (success) {
-                                      setState(() {
-                                        _biometricEnabled = true;
-                                      });
-                                      await prefs.setBool(
-                                        'biometric_enabled',
-                                        true,
-                                      );
-                                      if (!context.mounted) return;
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            'Biometric App Lock enabled successfully.',
-                                          ),
-                                          backgroundColor: AppColors.success,
-                                        ),
-                                      );
-                                    } else {
-                                      if (!context.mounted) return;
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            'Verification failed. Biometric Lock not enabled.',
-                                          ),
-                                          backgroundColor: AppColors.error,
-                                        ),
-                                      );
-                                    }
-                                  } else {
-                                    final success = await biometricService
-                                        .authenticate();
-                                    if (success) {
-                                      setState(() {
-                                        _biometricEnabled = false;
-                                      });
-                                      await prefs.setBool(
-                                        'biometric_enabled',
-                                        false,
-                                      );
-                                      if (!context.mounted) return;
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            'Biometric App Lock disabled.',
-                                          ),
-                                          backgroundColor:
-                                              AppColors.primaryTeal,
-                                        ),
-                                      );
-                                    } else {
-                                      if (!context.mounted) return;
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            'Verification failed. Biometric Lock remains enabled.',
-                                          ),
-                                          backgroundColor: AppColors.error,
-                                        ),
-                                      );
-                                    }
-                                  }
+                                onTap: () {
+                                  context.pushNamed(AppRoutes.privacyPolicy);
                                 },
                               ),
-                            ),
-                            Divider(
-                              height: 1,
-                              color: isDark
-                                  ? const Color(0xFF1E293B)
-                                  : const Color(0xFFE2E8F0),
-                            ),
-                            ListTile(
-                              leading: Icon(
-                                Icons.privacy_tip_outlined,
-                                size: 20.sp,
-                                color: AppColors.primaryTeal,
-                              ),
-                              title: Text(
-                                'Privacy Policy',
-                                style: TextStyle(
-                                  fontSize: 13.sp,
-                                  fontFamily: 'Manrope',
-                                  fontWeight: FontWeight.w600,
-                                  color: textColor,
-                                ),
-                              ),
-                              subtitle: Text(
-                                'Read our offline data policy',
-                                style: TextStyle(
-                                  fontSize: 11.sp,
-                                  fontFamily: 'Manrope',
-                                  color: subtitleColor,
-                                ),
-                              ),
-                              trailing: Icon(
-                                Icons.chevron_right,
-                                size: 20.sp,
-                                color: subtitleColor,
-                              ),
-                              onTap: () {
-                                context.pushNamed(AppRoutes.privacyPolicy);
-                              },
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
 
                       SizedBox(height: 12.h),
 
@@ -1580,78 +1439,78 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           borderRadius: BorderRadius.circular(20.r),
                           clipBehavior: Clip.antiAlias,
                           child: Column(
-                          children: [
-                            ListTile(
-                              leading: Icon(
-                                Icons.cloud_upload_outlined,
-                                size: 20.sp,
-                                color: AppColors.primaryTeal,
-                              ),
-                              title: Text(
-                                'Backup & Restore',
-                                style: TextStyle(
-                                  fontSize: 13.sp,
-                                  fontFamily: 'Manrope',
-                                  fontWeight: FontWeight.w600,
-                                  color: textColor,
+                            children: [
+                              ListTile(
+                                leading: Icon(
+                                  Icons.cloud_upload_outlined,
+                                  size: 20.sp,
+                                  color: AppColors.primaryTeal,
                                 ),
-                              ),
-                              trailing: Icon(
-                                Icons.chevron_right,
-                                size: 20.sp,
-                                color: subtitleColor,
-                              ),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const BackupRestoreScreen(),
+                                title: Text(
+                                  'Backup & Restore',
+                                  style: TextStyle(
+                                    fontSize: 13.sp,
+                                    fontFamily: 'Manrope',
+                                    fontWeight: FontWeight.w600,
+                                    color: textColor,
                                   ),
-                                );
-                              },
-                            ),
-                            // Divider(
-                            //   height: 1,
-                            //   color: isDark
-                            //       ? const Color(0xFF1E293B)
-                            //       : const Color(0xFFE2E8F0),
-                            // ),
-                            // ListTile(
-                            //   leading: Icon(
-                            //     Icons.system_update_rounded,
-                            //     size: 20.sp,
-                            //     color: AppColors.primaryTeal,
-                            //   ),
-                            //   title: Text(
-                            //     'Check for Updates',
-                            //     style: TextStyle(
-                            //       fontSize: 13.sp,
-                            //       fontFamily: 'Manrope',
-                            //       fontWeight: FontWeight.w600,
-                            //       color: textColor,
-                            //     ),
-                            //   ),
-                            //   trailing: _checkingForUpdates
-                            //       ? SizedBox(
-                            //           width: 20.w,
-                            //           height: 20.h,
-                            //           child: const CircularProgressIndicator(
-                            //             strokeWidth: 2,
-                            //             color: AppColors.primaryTeal,
-                            //           ),
-                            //         )
-                            //       : Icon(
-                            //           Icons.chevron_right,
-                            //           size: 20.sp,
-                            //           color: subtitleColor,
-                            //         ),
-                            //   onTap: _checkingForUpdates ? null : _checkForUpdates,
-                            // ),
-                          ],
+                                ),
+                                trailing: Icon(
+                                  Icons.chevron_right,
+                                  size: 20.sp,
+                                  color: subtitleColor,
+                                ),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const BackupRestoreScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
+                              // Divider(
+                              //   height: 1,
+                              //   color: isDark
+                              //       ? const Color(0xFF1E293B)
+                              //       : const Color(0xFFE2E8F0),
+                              // ),
+                              // ListTile(
+                              //   leading: Icon(
+                              //     Icons.system_update_rounded,
+                              //     size: 20.sp,
+                              //     color: AppColors.primaryTeal,
+                              //   ),
+                              //   title: Text(
+                              //     'Check for Updates',
+                              //     style: TextStyle(
+                              //       fontSize: 13.sp,
+                              //       fontFamily: 'Manrope',
+                              //       fontWeight: FontWeight.w600,
+                              //       color: textColor,
+                              //     ),
+                              //   ),
+                              //   trailing: _checkingForUpdates
+                              //       ? SizedBox(
+                              //           width: 20.w,
+                              //           height: 20.h,
+                              //           child: const CircularProgressIndicator(
+                              //             strokeWidth: 2,
+                              //             color: AppColors.primaryTeal,
+                              //           ),
+                              //         )
+                              //       : Icon(
+                              //           Icons.chevron_right,
+                              //           size: 20.sp,
+                              //           color: subtitleColor,
+                              //         ),
+                              //   onTap: _checkingForUpdates ? null : _checkForUpdates,
+                              // ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
                       SizedBox(height: 24.h),
                       Center(
                         child: Text(
