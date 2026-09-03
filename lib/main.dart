@@ -97,6 +97,10 @@ void main() async {
   final fiscalYearProvider = FiscalYearProvider();
   await fiscalYearProvider.init();
 
+  // Initialize privacy provider
+  final privacyProvider = PrivacyProvider();
+  await privacyProvider.init(prefs);
+
   // Initialize user preferences sync service (Hive & Remote Firestore)
   final preferencesSyncService = PreferencesSyncService();
   await preferencesSyncService.init();

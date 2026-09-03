@@ -28,7 +28,7 @@ class ExpenseSummeryWidget extends StatelessWidget {
   final bool isReport;
 
   List<ExpenseEntity> get _dataList {
-    return isReport ? controller.reportExpenses : [];
+    return isReport ? controller.reportFilteredExpenses : [];
   }
 
   @override
@@ -252,14 +252,8 @@ class ExpenseSummery extends StatelessWidget {
     );
   }
 
-  double _calculateTotalSpending() {
-    return expenses.fold(0.0, (sum, e) => sum + e.amount);
-  }
-
   @override
   Widget build(BuildContext context) {
-    final double totalSpending = _calculateTotalSpending();
-
     final reportController = Get.find<ExpenseReportController>();
     final budgetController = Get.find<BudgetController>();
     final calculatedBudget = isReport
@@ -270,9 +264,11 @@ class ExpenseSummery extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 8.h,
       children: [
-        // 💳 Total Spent Card
-        GestureDetector(
-          onTap: isReport
+        // 💳 Context-Aware Adaptive Hero Card (Budget, Category Focus, or Period Summary)
+        ExpenseReportHeroCard(
+          expenses: expenses,
+          isReport: isReport,
+          onBudgetTap: isReport
               ? () async {
                   final start = reportController.startDate.value;
                   final end = reportController.endDate.value;
@@ -286,12 +282,6 @@ class ExpenseSummery extends StatelessWidget {
                   }
                 }
               : null,
-          child: Obx(() {
-            final budgetVal = isReport
-                ? reportController.reportRangeBudget.value
-                : budgetController.monthlyBudget.value;
-            return BudgetProgressCard(spent: totalSpending, budget: budgetVal);
-          }),
         ),
 
         // 💳 Spending Medium Chart
@@ -328,8 +318,9 @@ class SummaryByCategoryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final categorySpending = _calculateCategorySpending();
-
-    return CategorySummaryList.compact(spentByCategory: categorySpending);
+    return Obx(() {
+      final categorySpending = _calculateCategorySpending();
+      return CategorySummaryList.compact(spentByCategory: categorySpending);
+    });
   }
 }

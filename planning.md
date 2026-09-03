@@ -222,3 +222,11 @@ Transfers between own accounts are tagged as "Transfer" and excluded from income
 - Tax-rebate eligible instruments: Sanchaypatra, DPS (auto-flagged by type)
 - Non-eligible but taxable returns: FDR interest, bond coupons, investment gains
 - Output: total income, savings for rebate, investment income, estimated tax payable
+
+### Reporting, Analytics & Exporting Engine
+See dedicated roadmap: [`docs/reporting_and_analytics_roadmap.md`](docs/reporting_and_analytics_roadmap.md)
+- **Track 1**: In-App Analytics & Velocity Insights (MoM/YoY comparisons, Budget vs Actual variance, Daily burn rate & month-end projections, Merchant grouping).
+- **Track 2**: Multi-Module Financial Health Reports (Full Cash Flow & Net Savings PDF, Tax Pack, Lending/Debt Ledger statement).
+- **Track 3**: Multi-Format & Automated Exporting (CSV/Excel `.xlsx` raw data export, 1st-of-month automatic local summary notification).
+- **Track 4**: PDF Visual Enhancements & Customization (Vector mini charts, custom reimbursement / memo claim header).
+

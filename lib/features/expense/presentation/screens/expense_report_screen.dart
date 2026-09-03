@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:go_router/go_router.dart';
-import 'package:finkeep/core/routes/app_router.dart';
+import 'package:intl/intl.dart';
 
-import 'package:finkeep/core/common/widgets/custom_fab.dart';
-import 'package:finkeep/core/common/widgets/date_range_header.dart';
-import 'package:finkeep/core/common/widgets/quick_add_modal_sheet.dart';
+import 'package:finkeep/core/common/models/date_filter.dart';
+import 'package:finkeep/core/common/widgets/custom_app_bar.dart';
+import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 
+import '../../domain/entities/expense_pdf_report_config.dart';
 import '../controllers/expense_report_controller.dart';
 import '../widgets/missing_budget_dialog.dart';
 import '../widgets/monthly_expense_shimmer.dart';
 import '../widgets/segmented_tab_bar.dart';
+import '../widgets/expense_report_filter_menu.dart';
+import '../widgets/expense_pdf_export_sheet.dart';
 import 'expense_report_summary_screen.dart';
 import 'expense_report_list_screen.dart';
 
@@ -46,12 +48,11 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
       if (missing.isNotEmpty && mounted) {
         showDialog(
           context: context,
-          barrierDismissible: true,
+          barrierDismissible: false,
           builder: (context) => MissingBudgetDialog(
             missingMonths: missing,
-            onSave: (amount) {
-              controller.saveBudgetForMonths(missing, amount);
-            },
+            onSave: (amount) => controller.saveBudgetForMonths(missing, amount),
+            onSkip: () => controller.ignoreMissingBudgetPrompt(),
           ),
         );
       }
@@ -64,59 +65,164 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
     super.dispose();
   }
 
+  void _handleExportPdf(BuildContext context) {
+    showExpensePdfExportSheet(context, controller: controller);
+  }
+
+  Widget _buildActivePeriodBanner(BuildContext context, bool isDark) {
+    final filter = controller.dateFilter.value;
+    final start = controller.startDate.value;
+    final end = controller.endDate.value;
+
+    String dateText = filter.displayTitle;
+    if (filter.type == DateFilterType.custom && start != null && end != null) {
+      dateText =
+          '${DateFormat('dd MMM yyyy').format(start)} – ${DateFormat('dd MMM yyyy').format(end)}';
+    }
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => showExpenseReportFilterMenu(
+            context,
+            dateFilter: controller.dateFilter.value,
+            initialCategories: controller.selectedCategories.toList(),
+          ),
+          borderRadius: BorderRadius.circular(12.r),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? AppColors.primaryTeal.withValues(alpha: 0.12)
+                  : AppColors.primaryTeal.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(12.r),
+              border: Border.all(
+                color: isDark
+                    ? AppColors.primaryTeal.withValues(alpha: 0.35)
+                    : AppColors.primaryTeal.withValues(alpha: 0.25),
+                width: 1.2,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.calendar_month_rounded,
+                  size: 16.sp,
+                  color: AppColors.primaryTeal,
+                ),
+                SizedBox(width: 8.w),
+                Expanded(
+                  child: Text(
+                    dateText,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 12.5.sp,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? AppColors.primaryTeal.withValues(alpha: 0.2)
+                        : AppColors.primaryTeal.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.tune_rounded,
+                        size: 13.sp,
+                        color: AppColors.primaryTeal,
+                      ),
+                      SizedBox(width: 4.w),
+                      Text(
+                        'Filter',
+                        style: TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primaryTeal,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
-      floatingActionButton: CustomFAB(
-        onPressed: () => showQuickAddModalSheet(context),
+      appBar: CustomAppBar(
+        title: 'Expense Report',
+        showBackButton: true,
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.ios_share_rounded,
+              size: 22.sp,
+              color: isDark ? Colors.white : const Color(0xFF0F172A),
+            ),
+            tooltip: 'Export Report',
+            onPressed: () => _handleExportPdf(context),
+          ),
+        ],
       ),
-      body: SafeArea(
-        child: Obx(() {
-          final dateFilter = controller.dateFilter.value;
+      body: Obx(() {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 1. Active Period & Scope Indicator Banner
+            _buildActivePeriodBanner(context, isDark),
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 1. Top Date Filter Header (Identical to Expense / Income screens)
-              DateRangeHeader(
-                dateFilter: dateFilter,
-                onDateFilterChanged: (newFilter) {
-                  controller.updateDateFilter(newFilter);
-                },
-                onSettingsPressed: () {
-                  context.pushNamed(AppRoutes.settings);
-                },
-              ),
+            // 2. Sliding Segmented Tab Switcher (Summary, By Category, Transactions)
+            SegmentedTabBar(
+              selectedIndex: _selectedTab,
+              tabs: const ['Summary', 'By Category', 'Transactions'],
+              onTabChanged: (index) {
+                setState(() {
+                  _selectedTab = index;
+                });
+              },
+            ),
 
-              // 2. Sliding Segmented Tab Switcher (Summary & Details)
-              SegmentedTabBar(
-                selectedIndex: _selectedTab,
-                onTabChanged: (index) {
-                  setState(() {
-                    _selectedTab = index;
-                  });
-                },
-              ),
-
-              // 3. Tab Contents
-              Expanded(
-                child: controller.isLoading.value
-                    ? MonthlyExpenseShimmer(selectedTab: _selectedTab)
-                    : (_selectedTab == 0
-                        ? ExpenseReportSummaryScreen(
-                            controller: controller,
-                          )
-                        : ExpenseReportListScreen(
-                            controller: controller,
-                          )),
-              ),
-            ],
-          );
-        }),
-      ),
+            // 3. Tab Contents
+            Expanded(
+              child: controller.isLoading.value
+                  ? MonthlyExpenseShimmer(selectedTab: _selectedTab)
+                  : (_selectedTab == 0
+                      ? ExpenseReportSummaryScreen(
+                          controller: controller,
+                        )
+                      : (_selectedTab == 1
+                          ? ExpenseReportListScreen(
+                              controller: controller,
+                              forcedMode: ExpenseReportPdfMode.compact,
+                            )
+                          : ExpenseReportListScreen(
+                              controller: controller,
+                              forcedMode: ExpenseReportPdfMode.details,
+                            ))),
+            ),
+          ],
+        );
+      }),
     );
   }
 }

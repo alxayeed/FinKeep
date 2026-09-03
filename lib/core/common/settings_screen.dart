@@ -1,13 +1,15 @@
 import 'dart:developer';
 
-import 'package:finkeep/core/common/widgets/fiscal_year_selector_sheet.dart';
 import 'package:finkeep/core/common/widgets/widgets.dart';
 import 'package:finkeep/core/config/app_config.dart';
 import 'package:finkeep/core/enums/currency.dart';
 import 'package:finkeep/core/providers/fiscal_year_provider.dart';
+import 'package:finkeep/core/providers/privacy_provider.dart';
+import 'package:finkeep/core/providers/user_preferences_provider.dart';
 import 'package:finkeep/core/routes/app_router.dart';
 import 'package:finkeep/core/services/app_update_service.dart';
 import 'package:finkeep/core/services/biometric_service.dart';
+import 'package:finkeep/core/services/preferences_sync_service.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
 import 'package:finkeep/core/utils/app_localizations.dart';
 import 'package:finkeep/features/auth/services/auth_service.dart';
@@ -39,6 +41,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _reminderEnabled = false;
   bool _biometricEnabled = false;
+  bool _privacyModeEnabled = false;
   int _fiscalYearStartMonth = 7; // Default July
   TimeOfDay? _selectedTime;
   String _appVersion = '';
@@ -78,6 +81,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       final prefs = await SharedPreferences.getInstance();
       _reminderEnabled = prefs.getBool('reminder_enabled') ?? false;
       _biometricEnabled = prefs.getBool('biometric_enabled') ?? false;
+      _privacyModeEnabled = prefs.getBool('privacy_mode_enabled') ?? false;
       _fiscalYearStartMonth = prefs.getInt('fiscal_year_start_month') ?? 7;
       final hour = prefs.getInt('reminder_hour');
       final minute = prefs.getInt('reminder_minute');
@@ -766,6 +770,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             appBar: CustomAppBar(
               title: 'Settings',
               showBackButton: true,
+              showPrivacyToggle: false,
               // actions: [
               //   IconButton(
               //     icon: Icon(
@@ -1368,6 +1373,159 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           const SnackBar(
                                             content: Text(
                                               'Verification failed. Biometric Lock remains enabled.',
+                                            ),
+                                            backgroundColor: AppColors.error,
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  },
+                                ),
+                              ),
+                              Divider(
+                                height: 1,
+                                color: isDark
+                                    ? const Color(0xFF1E293B)
+                                    : const Color(0xFFE2E8F0),
+                              ),
+                              ListTile(
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 16.w,
+                                  vertical: 4.h,
+                                ),
+                                leading: Icon(
+                                  _privacyModeEnabled
+                                      ? Icons.visibility_off_rounded
+                                      : Icons.visibility_rounded,
+                                  size: 20.sp,
+                                  color: AppColors.primaryTeal,
+                                ),
+                                title: Text(
+                                  'Enable Privacy Mode',
+                                  style: TextStyle(
+                                    fontSize: 13.sp,
+                                    fontFamily: 'Manrope',
+                                    fontWeight: FontWeight.w600,
+                                    color: textColor,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  'Hide amounts and require verification to reveal',
+                                  style: TextStyle(
+                                    fontSize: 11.sp,
+                                    fontFamily: 'Manrope',
+                                    color: subtitleColor,
+                                  ),
+                                ),
+                                trailing: AppSwitchButton(
+                                  value: _privacyModeEnabled,
+                                  onChanged: (value) async {
+                                    final biometricService =
+                                        Get.find<BiometricService>();
+                                    final prefs =
+                                        await SharedPreferences.getInstance();
+
+                                    if (value) {
+                                      final hasHardware = await biometricService
+                                          .isBiometricsAvailable();
+                                      if (!hasHardware) {
+                                        if (!context.mounted) return;
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Biometrics or device security not available.',
+                                            ),
+                                            backgroundColor: AppColors.error,
+                                          ),
+                                        );
+                                        return;
+                                      }
+
+                                      final success = await biometricService
+                                          .authenticate();
+                                      if (success) {
+                                        setState(() {
+                                          _privacyModeEnabled = true;
+                                        });
+                                        await prefs.setBool(
+                                          'privacy_mode_enabled',
+                                          true,
+                                        );
+                                        PrivacyProvider().setPrivacyModeEnabled(true);
+                                        final currentPrefs =
+                                            UserPreferencesProvider().value;
+                                        await PreferencesSyncService()
+                                            .updatePreferences(
+                                          currentPrefs.copyWith(
+                                            privacyModeEnabled: true,
+                                          ),
+                                        );
+                                        if (!context.mounted) return;
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Privacy Mode enabled: amounts are hidden.',
+                                            ),
+                                            backgroundColor: AppColors.success,
+                                          ),
+                                        );
+                                      } else {
+                                        if (!context.mounted) return;
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Verification failed. Privacy Mode not enabled.',
+                                            ),
+                                            backgroundColor: AppColors.error,
+                                          ),
+                                        );
+                                      }
+                                    } else {
+                                      final success = await biometricService
+                                          .authenticate();
+                                      if (success) {
+                                        setState(() {
+                                          _privacyModeEnabled = false;
+                                        });
+                                        await prefs.setBool(
+                                          'privacy_mode_enabled',
+                                          false,
+                                        );
+                                        PrivacyProvider().setPrivacyModeEnabled(false);
+                                        final currentPrefs =
+                                            UserPreferencesProvider().value;
+                                        await PreferencesSyncService()
+                                            .updatePreferences(
+                                          currentPrefs.copyWith(
+                                            privacyModeEnabled: false,
+                                          ),
+                                        );
+                                        if (!context.mounted) return;
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Privacy Mode disabled: amounts are visible.',
+                                            ),
+                                            backgroundColor:
+                                                AppColors.primaryTeal,
+                                          ),
+                                        );
+                                      } else {
+                                        if (!context.mounted) return;
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Verification failed. Privacy Mode remains enabled.',
                                             ),
                                             backgroundColor: AppColors.error,
                                           ),

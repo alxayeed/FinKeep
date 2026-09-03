@@ -7,11 +7,13 @@ import '../../../../core/styles/app_colors.dart';
 class MissingBudgetDialog extends StatefulWidget {
   final List<DateTime> missingMonths;
   final ValueChanged<double> onSave;
+  final VoidCallback? onSkip;
 
   const MissingBudgetDialog({
     super.key,
     required this.missingMonths,
     required this.onSave,
+    this.onSkip,
   });
 
   @override
@@ -37,12 +39,13 @@ class _MissingBudgetDialogState extends State<MissingBudgetDialog> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20.r),
       ),
-      child: Padding(
-        padding: EdgeInsets.all(20.r),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(20.r),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
             Row(
               children: [
                 Icon(
@@ -102,45 +105,60 @@ class _MissingBudgetDialogState extends State<MissingBudgetDialog> {
             ),
             SizedBox(height: 20.h),
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(
-                    'Skip',
-                    style: TextStyle(
-                      color: isDark ? Colors.white60 : const Color(0xFF475569),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      widget.onSkip?.call();
+                    },
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor:
+                          isDark ? Colors.white70 : const Color(0xFF475569),
+                      side: BorderSide(
+                        color: isDark
+                            ? const Color(0xFF334155)
+                            : const Color(0xFFCBD5E1),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
                     ),
+                    child: const Text('Skip'),
                   ),
                 ),
-                SizedBox(width: 8.w),
-                ElevatedButton(
-                  onPressed: () {
-                    final double? amount = double.tryParse(textController.text);
-                    if (amount != null && amount > 0) {
-                      Navigator.pop(context);
-                      widget.onSave(amount);
-                    } else {
-                      Get.snackbar(
-                        'Invalid Amount',
-                        'Please enter a valid budget amount.',
-                        snackPosition: SnackPosition.BOTTOM,
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryTeal,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.r),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      final double? amount =
+                          double.tryParse(textController.text);
+                      if (amount != null && amount > 0) {
+                        Navigator.pop(context);
+                        widget.onSave(amount);
+                      } else {
+                        Get.snackbar(
+                          'Invalid Amount',
+                          'Please enter a valid budget amount.',
+                          snackPosition: SnackPosition.BOTTOM,
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryTeal,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
                     ),
+                    child: const Text('Save Budget'),
                   ),
-                  child: const Text('Save Budget'),
                 ),
               ],
             ),
           ],
         ),
+      ),
       ),
     );
   }

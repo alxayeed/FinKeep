@@ -119,6 +119,12 @@ class AppRouter {
                   const NoTransitionPage(child: MainTabPopScope(index: 1, child: MonthlyExpenseScreen())),
             ),
             GoRoute(
+              path: AppRoutes.income,
+              name: AppRoutes.income,
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: MainTabPopScope(index: 2, child: IncomeScreen())),
+            ),
+            GoRoute(
               path: AppRoutes.lendings,
               name: AppRoutes.lendings,
               pageBuilder: (context, state) =>
@@ -128,23 +134,18 @@ class AppRouter {
               path: AppRoutes.investments,
               name: AppRoutes.investments,
               pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: MainTabPopScope(index: 5, child: InvestmentListScreen())),
-            ),
-            GoRoute(
-              path: AppRoutes.expenseReport,
-              name: AppRoutes.expenseReport,
-              pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: MainTabPopScope(index: 4, child: ExpenseReportScreen())),
-            ),
-            GoRoute(
-              path: AppRoutes.income,
-              name: AppRoutes.income,
-              pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: MainTabPopScope(index: 2, child: IncomeScreen())),
+                  const NoTransitionPage(child: MainTabPopScope(index: 4, child: InvestmentListScreen())),
             ),
           ],
         ),
 
+        GoRoute(
+          parentNavigatorKey: navigatorKey,
+          path: AppRoutes.expenseReport,
+          name: AppRoutes.expenseReport,
+          pageBuilder: (context, state) =>
+              const NoTransitionPage(child: ExpenseReportScreen()),
+        ),
         GoRoute(
           path: AppRoutes.settings,
           name: AppRoutes.settings,

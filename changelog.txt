@@ -1,3 +1,11 @@
+1.2.0+22
+[11/08/2026]
+- ADD: Redesigned expense analytics and report
+- ADD: privacy toggle mode
+
+
+
+
 1.1.0+21
 [11/08/2026]
 - UPDATE: align expense report header layout with DateRangeHeader top bar

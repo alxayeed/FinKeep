@@ -37,7 +37,7 @@ class AppDrawer extends StatelessWidget {
               text: 'Expenses',
               onTap: () {
                 context.pop();
-                context.go(AppRoutes.expenseReport);
+                context.goNamed(AppRoutes.expenses);
               },
             ),
             _createDrawerItem(
@@ -45,21 +45,7 @@ class AppDrawer extends StatelessWidget {
               text: 'Lends',
               onTap: () async {
                 context.pop();
-                context.go(AppRoutes.lendings);
-
-                // final ok = await authenticator.authenticate(
-                //   reason: 'Authenticate to access Lends',
-                // );
-                //
-                // if (ok) {
-                //   Get.toNamed(AppRoutes.lendingList);
-                // } else {
-                //   Get.snackbar(
-                //     'Authentication failed',
-                //     'Unable to unlock Lends section',
-                //     snackPosition: SnackPosition.BOTTOM,
-                //   );
-                // }
+                context.goNamed(AppRoutes.lendings);
               },
             ),
             _createDrawerItem(
@@ -67,7 +53,7 @@ class AppDrawer extends StatelessWidget {
               text: 'Reports',
               onTap: () {
                 context.pop();
-                context.go(AppRoutes.expenseReport);
+                context.pushNamed(AppRoutes.expenseReport);
               },
             ),
           ],

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/common/widgets/custom_app_bar.dart';
 import '../../../../core/common/widgets/custom_fab.dart';
 import '../../../../core/common/widgets/quick_add_modal_sheet.dart';
+import '../../../../core/responsive/responsive.dart';
 import '../../../../core/routes/app_router.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../controllers/dashboard_controller.dart';
@@ -22,13 +23,22 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final DashboardController controller = Get.find();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: CustomAppBar(
         title: 'Dashboard',
+        centerTitle: false,
+        titleSpacing: 16.w,
         actions: [
           IconButton(
+            icon: const Icon(Icons.analytics_outlined),
+            tooltip: 'Reports & Analytics',
+            onPressed: () => context.pushNamed(AppRoutes.expenseReport),
+          ),
+          IconButton(
             icon: const Icon(Icons.settings_rounded),
+            tooltip: 'Settings',
             onPressed: () => context.pushNamed(AppRoutes.settings),
           ),
         ],
@@ -188,6 +198,103 @@ class DashboardScreen extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReportsBannerCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => context.pushNamed(AppRoutes.expenseReport),
+          borderRadius: BorderRadius.circular(16.r),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: isDark
+                    ? [
+                        AppColors.primaryTeal.withValues(alpha: 0.15),
+                        const Color(0xFF131D2E),
+                      ]
+                    : [
+                        AppColors.primaryTeal.withValues(alpha: 0.1),
+                        Colors.white,
+                      ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(16.r),
+              border: Border.all(
+                color: isDark
+                    ? AppColors.primaryTeal.withValues(alpha: 0.35)
+                    : AppColors.primaryTeal.withValues(alpha: 0.25),
+                width: 1.2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 8.r,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 36.r,
+                  height: 36.r,
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryTeal.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(
+                    Icons.analytics_rounded,
+                    size: 20.sp,
+                    color: AppColors.primaryTeal,
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Expense Reports & Analytics',
+                        style: TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                        ),
+                      ),
+                      SizedBox(height: 2.h),
+                      Text(
+                        'Custom ranges, summaries & PDF exports',
+                        style: TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 10.5.sp,
+                          color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 14.sp,
+                  color: AppColors.primaryTeal,
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

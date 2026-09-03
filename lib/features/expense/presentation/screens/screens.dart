@@ -10,4 +10,5 @@ export 'expense_report_list_screen.dart';
 export 'set_monthly_budget_screen.dart';
 export 'missing_budget_screen.dart';
 export 'expense_category_settings_screen.dart';
+export 'expense_report_pdf_viewer_screen.dart';
 

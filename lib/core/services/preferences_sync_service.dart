@@ -46,6 +46,7 @@ class PreferencesSyncService {
       dailyReminderEnabled: prefs.getBool('daily_reminder_enabled') ?? true,
       dailyReminderTime: prefs.getString('daily_reminder_time') ?? '20:00',
       biometricEnabled: prefs.getBool('biometric_enabled') ?? false,
+      privacyModeEnabled: prefs.getBool('privacy_mode_enabled') ?? false,
       autoBackupEnabled: prefs.getBool('auto_backup_enabled') ?? true,
       updatedAt: DateTime.now(),
     );
@@ -59,6 +60,7 @@ class PreferencesSyncService {
     await prefs.setBool('daily_reminder_enabled', model.dailyReminderEnabled);
     await prefs.setString('daily_reminder_time', model.dailyReminderTime);
     await prefs.setBool('biometric_enabled', model.biometricEnabled);
+    await prefs.setBool('privacy_mode_enabled', model.privacyModeEnabled);
     await prefs.setBool('auto_backup_enabled', model.autoBackupEnabled);
 
     // Update single unified UserPreferencesProvider

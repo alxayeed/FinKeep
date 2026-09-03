@@ -89,17 +89,22 @@ class DateFilter {
       newReferenceDate = DateTime(referenceDate.year, fiscalYearStartMonth);
     }
 
+    if (newType == DateFilterType.custom) {
+      final now = DateTime.now();
+      return copyWith(
+        type: newType,
+        customStartDate: customStartDate ?? now.subtract(const Duration(days: 30)),
+        customEndDate: customEndDate ?? now,
+      );
+    }
+
     return copyWith(type: newType, referenceDate: newReferenceDate);
   }
 
   /// Get formatted display title for header pill
   String get displayTitle {
-    final now = DateTime.now();
     switch (type) {
       case DateFilterType.monthly:
-        if (referenceDate.year == now.year && referenceDate.month == now.month) {
-          return DateFormat('d MMMM, yyyy').format(now);
-        }
         return DateFormat('MMMM yyyy').format(referenceDate);
       case DateFilterType.yearly:
         return 'Year ${referenceDate.year}';
@@ -218,4 +223,39 @@ class DateFilter {
         return this;
     }
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! DateFilter) return false;
+    if (type != other.type) return false;
+    if (fiscalYearStartMonth != other.fiscalYearStartMonth) return false;
+    if (customStartDate != other.customStartDate ||
+        customEndDate != other.customEndDate) {
+      return false;
+    }
+    switch (type) {
+      case DateFilterType.monthly:
+        return referenceDate.year == other.referenceDate.year &&
+            referenceDate.month == other.referenceDate.month;
+      case DateFilterType.yearly:
+        return referenceDate.year == other.referenceDate.year;
+      case DateFilterType.fiscalYearly:
+        return referenceDate.year == other.referenceDate.year &&
+            referenceDate.month == other.referenceDate.month;
+      case DateFilterType.custom:
+      case DateFilterType.allTime:
+        return true;
+    }
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        type,
+        referenceDate.year,
+        referenceDate.month,
+        customStartDate,
+        customEndDate,
+        fiscalYearStartMonth,
+      );
 }
