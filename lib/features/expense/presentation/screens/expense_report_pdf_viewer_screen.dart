@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:finkeep/core/common/widgets/custom_app_bar.dart';
@@ -57,24 +56,6 @@ class _ExpenseReportPdfViewerScreenState
       }
     } finally {
       if (mounted) setState(() => _isSharing = false);
-    }
-  }
-
-  Future<void> _handlePrint() async {
-    try {
-      await Printing.layoutPdf(
-        onLayout: (format) async => widget.pdfBytes,
-        name: 'FinKeep_Expense_Report_${widget.config.mode.name}.pdf',
-      );
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Print failed: $e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
     }
   }
 
@@ -148,15 +129,6 @@ class _ExpenseReportPdfViewerScreenState
                     color: AppColors.primaryTeal,
                   ),
             onPressed: _handleShare,
-          ),
-          IconButton(
-            tooltip: 'Print',
-            icon: Icon(
-              Icons.print_rounded,
-              size: 20.sp,
-              color: isDark ? Colors.white70 : const Color(0xFF475569),
-            ),
-            onPressed: _handlePrint,
           ),
           IconButton(
             tooltip: 'Save PDF',

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:finkeep/core/common/models/date_filter.dart';
-import 'package:finkeep/core/common/widgets/date_range_header.dart';
 import 'package:finkeep/core/common/widgets/styled_multi_category_selector_field.dart';
 import 'package:finkeep/core/providers/privacy_provider.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
@@ -12,9 +11,13 @@ import '../../domain/entities/expense_pdf_report_config.dart';
 import '../../domain/usecases/usecases.dart';
 import '../controllers/expense_category_controller.dart';
 import '../controllers/expense_report_controller.dart';
+import '../controllers/monthly_expense_controller.dart';
 import '../screens/expense_report_pdf_viewer_screen.dart';
 
-void showExpenseReportExportModal(BuildContext context) {
+void showExpenseReportFilterMenu(
+  BuildContext context, {
+  DateFilter? dateFilter,
+}) {
   final isDark = Theme.of(context).brightness == Brightness.dark;
 
   showModalBottomSheet(
@@ -25,22 +28,24 @@ void showExpenseReportExportModal(BuildContext context) {
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
     ),
-    builder: (modalContext) => const _ExpenseReportExportModalContent(),
+    builder: (modalContext) => _ExpenseReportFilterMenuContent(
+      initialDateFilter: dateFilter,
+    ),
   );
 }
 
-class _ExpenseReportExportModalContent extends StatefulWidget {
-  const _ExpenseReportExportModalContent();
+class _ExpenseReportFilterMenuContent extends StatefulWidget {
+  final DateFilter? initialDateFilter;
+
+  const _ExpenseReportFilterMenuContent({this.initialDateFilter});
 
   @override
-  State<_ExpenseReportExportModalContent> createState() =>
-      _ExpenseReportExportModalContentState();
+  State<_ExpenseReportFilterMenuContent> createState() =>
+      _ExpenseReportFilterMenuContentState();
 }
 
-class _ExpenseReportExportModalContentState
-    extends State<_ExpenseReportExportModalContent> {
-  final ExpenseReportController reportController =
-      Get.find<ExpenseReportController>();
+class _ExpenseReportFilterMenuContentState
+    extends State<_ExpenseReportFilterMenuContent> {
   late final ExpenseCategoryController categoryController;
 
   late DateFilter _dateFilter;
@@ -48,11 +53,19 @@ class _ExpenseReportExportModalContentState
   ExpenseReportPdfMode _selectedMode = ExpenseReportPdfMode.compact;
   bool _isGenerating = false;
 
-  // Optional Summary Section Toggles
-  bool _includeCategorySummary = false;
-  bool _includeMonthlyBreakdown = false;
-  bool _includePaymentMethodBreakdown = false;
-  bool _includeHighLowAvgMetrics = false;
+  // Optional Summary Section Toggles - Pre-selected by default to match report screen
+  bool _includeCategorySummary = true;
+  bool _includeMonthlyBreakdown = true;
+  bool _includePaymentMethodBreakdown = true;
+  bool _includeHighLowAvgMetrics = true;
+
+  bool get _isMultiMonth {
+    final range = _dateFilter.dateRange;
+    if (range == null) return true;
+    final start = range.start;
+    final end = range.end;
+    return start.year != end.year || start.month != end.month;
+  }
 
   @override
   void initState() {
@@ -68,8 +81,20 @@ class _ExpenseReportExportModalContentState
             ),
           );
 
-    // Initialize with current active date filter from reporting controller
-    _dateFilter = reportController.dateFilter.value.copyWith();
+    // Initialize with passed filter or controller's active date filter
+    if (widget.initialDateFilter != null) {
+      _dateFilter = widget.initialDateFilter!.copyWith();
+    } else if (Get.isRegistered<ExpenseReportController>()) {
+      _dateFilter = Get.find<ExpenseReportController>().dateFilter.value.copyWith();
+    } else if (Get.isRegistered<MonthlyExpenseController>()) {
+      _dateFilter = Get.find<MonthlyExpenseController>().dateFilter.value.copyWith();
+    } else {
+      _dateFilter = DateFilter.defaultMonthly();
+    }
+
+    final multiMonth = _isMultiMonth;
+    _includeMonthlyBreakdown = multiMonth;
+    _includeHighLowAvgMetrics = multiMonth;
   }
 
   Future<void> _handleGeneratePdf() async {
@@ -98,9 +123,9 @@ class _ExpenseReportExportModalContentState
         currencySymbol: currency.symbol,
         currencyCode: currency.code,
         includeCategorySummary: _includeCategorySummary,
-        includeMonthlyBreakdown: _includeMonthlyBreakdown,
+        includeMonthlyBreakdown: _isMultiMonth && _includeMonthlyBreakdown,
         includePaymentMethodBreakdown: _includePaymentMethodBreakdown,
-        includeHighLowAvgMetrics: _includeHighLowAvgMetrics,
+        includeHighLowAvgMetrics: _isMultiMonth && _includeHighLowAvgMetrics,
       );
 
       final getExpensesUseCase = Get.find<GetExpensesInRangeUseCase>();
@@ -173,7 +198,7 @@ class _ExpenseReportExportModalContentState
                 children: [
                   Expanded(
                     child: Text(
-                      'Export Expense Report',
+                      'Filter Menu',
                       style: TextStyle(
                         fontFamily: 'Manrope',
                         fontWeight: FontWeight.bold,
@@ -190,7 +215,7 @@ class _ExpenseReportExportModalContentState
               ),
               SizedBox(height: 12.h),
 
-              // 3. Standard App Date Range Selection (DateRangeHeader)
+              // 3. Active Date Period (Inherited from Screen Filter)
               Text(
                 'Date Period',
                 style: TextStyle(
@@ -202,16 +227,40 @@ class _ExpenseReportExportModalContentState
               ),
               SizedBox(height: 6.h),
               Container(
+                padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(16.r),
+                  color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(12.r),
                   border: Border.all(color: cardBorder),
                 ),
-                child: DateRangeHeader(
-                  dateFilter: _dateFilter,
-                  onDateFilterChanged: (newFilter) {
-                    setState(() => _dateFilter = newFilter);
-                  },
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.calendar_month_rounded,
+                      size: 18.sp,
+                      color: AppColors.primaryTeal,
+                    ),
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: Text(
+                        _dateFilter.displayTitle,
+                        style: TextStyle(
+                          fontFamily: 'Manrope',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13.sp,
+                          color: textColor,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      'From screen filter',
+                      style: TextStyle(
+                        fontFamily: 'Manrope',
+                        fontSize: 11.sp,
+                        color: mutedColor,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               SizedBox(height: 16.h),
@@ -311,19 +360,24 @@ class _ExpenseReportExportModalContentState
                     ),
                   ),
                   FilterChip(
-                    label: const Text('📅 By Month'),
-                    selected: _includeMonthlyBreakdown,
-                    onSelected: (val) => setState(() => _includeMonthlyBreakdown = val),
+                    label: Text(_isMultiMonth ? '📅 By Month' : '📅 By Month (Multi-month)'),
+                    selected: _isMultiMonth && _includeMonthlyBreakdown,
+                    onSelected: _isMultiMonth
+                        ? (val) => setState(() => _includeMonthlyBreakdown = val)
+                        : null,
+                    disabledColor: isDark ? Colors.white10 : const Color(0xFFF1F5F9),
                     labelStyle: TextStyle(
                       fontFamily: 'Manrope',
                       fontSize: 11.sp,
-                      fontWeight: _includeMonthlyBreakdown ? FontWeight.bold : FontWeight.normal,
-                      color: _includeMonthlyBreakdown ? Colors.white : textColor,
+                      fontWeight: (_isMultiMonth && _includeMonthlyBreakdown) ? FontWeight.bold : FontWeight.normal,
+                      color: !_isMultiMonth
+                          ? mutedColor.withValues(alpha: 0.5)
+                          : (_includeMonthlyBreakdown ? Colors.white : textColor),
                     ),
                     selectedColor: AppColors.primaryTeal,
                     backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
                     side: BorderSide(
-                      color: _includeMonthlyBreakdown ? AppColors.primaryTeal : cardBorder,
+                      color: (_isMultiMonth && _includeMonthlyBreakdown) ? AppColors.primaryTeal : cardBorder,
                       width: 1,
                     ),
                   ),
@@ -345,19 +399,24 @@ class _ExpenseReportExportModalContentState
                     ),
                   ),
                   FilterChip(
-                    label: const Text('📈 High / Low / Avg Stats'),
-                    selected: _includeHighLowAvgMetrics,
-                    onSelected: (val) => setState(() => _includeHighLowAvgMetrics = val),
+                    label: Text(_isMultiMonth ? '📈 High / Low / Avg (Month)' : '📈 High / Low / Avg (Multi-month)'),
+                    selected: _isMultiMonth && _includeHighLowAvgMetrics,
+                    onSelected: _isMultiMonth
+                        ? (val) => setState(() => _includeHighLowAvgMetrics = val)
+                        : null,
+                    disabledColor: isDark ? Colors.white10 : const Color(0xFFF1F5F9),
                     labelStyle: TextStyle(
                       fontFamily: 'Manrope',
                       fontSize: 11.sp,
-                      fontWeight: _includeHighLowAvgMetrics ? FontWeight.bold : FontWeight.normal,
-                      color: _includeHighLowAvgMetrics ? Colors.white : textColor,
+                      fontWeight: (_isMultiMonth && _includeHighLowAvgMetrics) ? FontWeight.bold : FontWeight.normal,
+                      color: !_isMultiMonth
+                          ? mutedColor.withValues(alpha: 0.5)
+                          : (_includeHighLowAvgMetrics ? Colors.white : textColor),
                     ),
                     selectedColor: AppColors.primaryTeal,
                     backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
                     side: BorderSide(
-                      color: _includeHighLowAvgMetrics ? AppColors.primaryTeal : cardBorder,
+                      color: (_isMultiMonth && _includeHighLowAvgMetrics) ? AppColors.primaryTeal : cardBorder,
                       width: 1,
                     ),
                   ),

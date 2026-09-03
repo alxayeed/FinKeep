@@ -22,8 +22,7 @@ class _HomeScaffoldState extends State<HomeScaffold> {
     if (currentRouteName.startsWith(AppRoutes.expenses)) return 1;
     if (currentRouteName.startsWith(AppRoutes.income)) return 2;
     if (currentRouteName.startsWith(AppRoutes.lendings)) return 3;
-    if (currentRouteName.startsWith(AppRoutes.expenseReport)) return 4;
-    if (currentRouteName.startsWith(AppRoutes.investments)) return 5;
+    if (currentRouteName.startsWith(AppRoutes.investments)) return 4;
     return 0; // Dashboard
   }
 
@@ -52,11 +51,6 @@ class _HomeScaffoldState extends State<HomeScaffold> {
         activeIcon: FontAwesomeIcons.handshake,
         label: 'Lendings',
       ),
-      CustomNavBarItem(
-        icon: FontAwesomeIcons.chartColumn,
-        activeIcon: FontAwesomeIcons.chartColumn,
-        label: 'Reports',
-      ),
       if (AppConfig.isPersonal) ...[
         CustomNavBarItem(
           icon: FontAwesomeIcons.arrowTrendUp,
@@ -77,8 +71,7 @@ class _HomeScaffoldState extends State<HomeScaffold> {
           if (i == 1) context.goNamed(AppRoutes.expenses);
           if (i == 2) context.goNamed(AppRoutes.income);
           if (i == 3) context.goNamed(AppRoutes.lendings);
-          if (i == 4) context.goNamed(AppRoutes.expenseReport);
-          if (i == 5 && AppConfig.isPersonal) {
+          if (i == 4 && AppConfig.isPersonal) {
             context.goNamed(AppRoutes.investments);
           }
         },

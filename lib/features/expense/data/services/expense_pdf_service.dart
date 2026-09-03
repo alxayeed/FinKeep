@@ -85,9 +85,6 @@ class ExpensePdfService {
       }
     }
 
-    final pw.ImageProvider? logoProvider =
-        resolvedLogo != null ? pw.MemoryImage(resolvedLogo) : null;
-
     final dateFormat = DateFormat('dd/MM/yyyy');
     final formattedStart = dateFormat.format(config.startDate);
     final formattedEnd = dateFormat.format(config.endDate);
@@ -119,17 +116,17 @@ class ExpensePdfService {
         bold: boldFont,
         fontFallback: fallbackList,
       ),
-      buildBackground: (context) {
-        if (logoProvider == null) return pw.SizedBox();
+      buildForeground: (context) {
+        if (resolvedLogo == null) return pw.SizedBox();
         return pw.FullPage(
           ignoreMargins: true,
           child: pw.Center(
             child: pw.Opacity(
-              opacity: 0.05,
+              opacity: 0.08,
               child: pw.Image(
-                logoProvider,
-                width: 220,
-                height: 220,
+                pw.MemoryImage(resolvedLogo),
+                width: 250,
+                height: 250,
                 fit: pw.BoxFit.contain,
               ),
             ),
@@ -147,6 +144,9 @@ class ExpensePdfService {
       pw.MultiPage(
         pageTheme: pageTheme,
         header: (context) {
+          if (context.pageNumber > 1) {
+            return pw.SizedBox(height: 10);
+          }
           return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
@@ -154,37 +154,24 @@ class ExpensePdfService {
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  pw.Row(
-                    crossAxisAlignment: pw.CrossAxisAlignment.center,
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
-                      if (logoProvider != null) ...[
-                        pw.Container(
-                          width: 28,
-                          height: 28,
-                          margin: const pw.EdgeInsets.only(right: 8),
-                          child: pw.Image(logoProvider),
+                      pw.Text(
+                        'Expense Report',
+                        style: boldTextStyle.copyWith(
+                          fontSize: 16,
+                          fontWeight: pw.FontWeight.bold,
+                          color: PdfColors.blueGrey900,
                         ),
-                      ],
-                      pw.Column(
-                        crossAxisAlignment: pw.CrossAxisAlignment.start,
-                        children: [
-                          pw.Text(
-                            'Expense Report',
-                            style: boldTextStyle.copyWith(
-                              fontSize: 16,
-                              fontWeight: pw.FontWeight.bold,
-                              color: PdfColors.blueGrey900,
-                            ),
-                          ),
-                          pw.SizedBox(height: 2),
-                          pw.Text(
-                            '$dateRangeStr | ${config.mode.displayName}${effectiveCategories.isEmpty ? "" : " (${effectiveCategories.length <= 3 ? effectiveCategories.join(', ') : '${effectiveCategories.take(2).join(', ')} +${effectiveCategories.length - 2} more'})"}',
-                            style: baseTextStyle.copyWith(
-                              fontSize: 9.5,
-                              color: PdfColors.grey700,
-                            ),
-                          ),
-                        ],
+                      ),
+                      pw.SizedBox(height: 2),
+                      pw.Text(
+                        '$dateRangeStr | ${config.mode.displayName}${effectiveCategories.isEmpty ? "" : " (${effectiveCategories.length <= 3 ? effectiveCategories.join(', ') : '${effectiveCategories.take(2).join(', ')} +${effectiveCategories.length - 2} more'})"}',
+                        style: baseTextStyle.copyWith(
+                          fontSize: 9.5,
+                          color: PdfColors.grey700,
+                        ),
                       ),
                     ],
                   ),
@@ -408,17 +395,36 @@ class ExpensePdfService {
     required pw.TextStyle baseTextStyle,
     required pw.TextStyle boldTextStyle,
   }) {
-    double highest = 0.0;
-    double lowest = double.infinity;
-    double total = 0.0;
-
+    final Map<String, double> monthTotals = {};
     for (final exp in filteredExpenses) {
-      if (exp.amount > highest) highest = exp.amount;
-      if (exp.amount < lowest) lowest = exp.amount;
-      total += exp.amount;
+      final key = DateFormat('MMM yyyy').format(exp.date);
+      monthTotals[key] = (monthTotals[key] ?? 0.0) + exp.amount;
     }
-    if (lowest == double.infinity) lowest = 0.0;
-    final double avg = filteredExpenses.isEmpty ? 0.0 : total / filteredExpenses.length;
+
+    if (monthTotals.isEmpty) {
+      return pw.SizedBox();
+    }
+
+    double maxAmount = -1;
+    String maxMonth = 'N/A';
+    double minAmount = double.infinity;
+    String minMonth = 'N/A';
+    double totalSum = 0.0;
+
+    monthTotals.forEach((month, amount) {
+      totalSum += amount;
+      if (amount > maxAmount) {
+        maxAmount = amount;
+        maxMonth = month;
+      }
+      if (amount < minAmount) {
+        minAmount = amount;
+        minMonth = month;
+      }
+    });
+
+    if (minAmount == double.infinity) minAmount = 0.0;
+    final double avg = monthTotals.isNotEmpty ? totalSum / monthTotals.length : 0.0;
 
     return pw.Container(
       padding: const pw.EdgeInsets.all(10),
@@ -430,11 +436,11 @@ class ExpensePdfService {
       child: pw.Row(
         mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
         children: [
-          _buildStatItem('Highest Single', _formatAmount(highest, currencySymbol), PdfColors.orange800, baseTextStyle, boldTextStyle),
+          _buildStatItem('Highest ($maxMonth)', _formatAmount(maxAmount, currencySymbol), PdfColors.red800, baseTextStyle, boldTextStyle),
           pw.Container(width: 0.5, height: 26, color: PdfColors.grey300),
-          _buildStatItem('Average / Entry', _formatAmount(avg, currencySymbol), PdfColors.blue800, baseTextStyle, boldTextStyle),
+          _buildStatItem('Lowest ($minMonth)', _formatAmount(minAmount, currencySymbol), PdfColors.green800, baseTextStyle, boldTextStyle),
           pw.Container(width: 0.5, height: 26, color: PdfColors.grey300),
-          _buildStatItem('Lowest Single', _formatAmount(lowest, currencySymbol), PdfColors.green800, baseTextStyle, boldTextStyle),
+          _buildStatItem('Monthly Avg', _formatAmount(avg, currencySymbol), PdfColors.blueGrey800, baseTextStyle, boldTextStyle),
         ],
       ),
     );
@@ -708,15 +714,8 @@ class ExpensePdfService {
             ),
           ],
         ),
-        ...groupedRows.asMap().entries.map((entry) {
-          final index = entry.key;
-          final row = entry.value;
-          final isEven = index % 2 == 0;
-
+        ...groupedRows.map((row) {
           return pw.TableRow(
-            decoration: pw.BoxDecoration(
-              color: isEven ? PdfColors.white : PdfColors.grey50,
-            ),
             children: [
               pw.Padding(
                 padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 4),
@@ -794,15 +793,8 @@ class ExpensePdfService {
             ),
           ],
         ),
-        ...filteredExpenses.asMap().entries.map((entry) {
-          final index = entry.key;
-          final exp = entry.value;
-          final isEven = index % 2 == 0;
-
+        ...filteredExpenses.map((exp) {
           return pw.TableRow(
-            decoration: pw.BoxDecoration(
-              color: isEven ? PdfColors.white : PdfColors.grey50,
-            ),
             children: [
               pw.Padding(
                 padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 4),

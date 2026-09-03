@@ -1,6 +1,6 @@
 1.2.0+22
 [11/08/2026]
-- ADD: Export expense report
+- ADD: Redesigned expense analytics and report
 - ADD: privacy toggle mode
 
 

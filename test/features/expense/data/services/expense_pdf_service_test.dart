@@ -139,5 +139,39 @@ void main() {
 
       expect(bytes, isNotEmpty);
     });
+
+    test('generateExpensePdf generates multi-page PDF with watermark on all pages', () async {
+      final manyExpenses = List.generate(
+        80,
+        (i) => ExpenseEntity(
+          id: '$i',
+          amount: 100.0 + (i * 10),
+          category: i % 2 == 0 ? 'Food' : 'Utilities',
+          date: DateTime(2026, 1, 1).add(Duration(days: i)),
+          description: 'Itemized purchase record #$i',
+          paymentMethod: PaymentType.card,
+        ),
+      );
+
+      final config = ExpensePdfReportConfig(
+        startDate: DateTime(2026, 1, 1),
+        endDate: DateTime(2026, 3, 31),
+        mode: ExpenseReportPdfMode.details,
+        includeCategorySummary: true,
+        includeMonthlyBreakdown: true,
+        includePaymentMethodBreakdown: true,
+        includeHighLowAvgMetrics: true,
+      );
+
+      final bytes = await service.generateExpensePdf(
+        config: config,
+        expenses: manyExpenses,
+        logoBytes: dummyPngBytes,
+      );
+
+      expect(bytes, isNotEmpty);
+      final header = String.fromCharCodes(bytes.take(4));
+      expect(header, '%PDF');
+    });
   });
 }

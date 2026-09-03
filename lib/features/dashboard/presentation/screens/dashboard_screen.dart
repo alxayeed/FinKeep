@@ -28,6 +28,11 @@ class DashboardScreen extends StatelessWidget {
         title: 'Dashboard',
         actions: [
           IconButton(
+            icon: const Icon(Icons.analytics_outlined),
+            tooltip: 'Reports & Analytics',
+            onPressed: () => context.pushNamed(AppRoutes.expenseReport),
+          ),
+          IconButton(
             icon: const Icon(Icons.settings_rounded),
             onPressed: () => context.pushNamed(AppRoutes.settings),
           ),

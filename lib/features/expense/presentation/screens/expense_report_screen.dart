@@ -5,14 +5,13 @@ import 'package:finkeep/core/routes/app_router.dart';
 
 import 'package:finkeep/core/common/widgets/custom_fab.dart';
 import 'package:finkeep/core/common/widgets/date_range_header.dart';
-import 'package:finkeep/core/common/widgets/quick_add_modal_sheet.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
 
 import '../controllers/expense_report_controller.dart';
 import '../widgets/missing_budget_dialog.dart';
 import '../widgets/monthly_expense_shimmer.dart';
 import '../widgets/segmented_tab_bar.dart';
-import '../widgets/expense_report_export_modal.dart';
+import '../widgets/expense_report_filter_menu.dart';
 import 'expense_report_summary_screen.dart';
 import 'expense_report_list_screen.dart';
 
@@ -72,7 +71,11 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
     return Scaffold(
       backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
       floatingActionButton: CustomFAB(
-        onPressed: () => showQuickAddModalSheet(context),
+        icon: Icons.picture_as_pdf_rounded,
+        onPressed: () => showExpenseReportFilterMenu(
+          context,
+          dateFilter: controller.dateFilter.value,
+        ),
       ),
       body: SafeArea(
         child: Obx(() {
@@ -81,13 +84,12 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 1. Top Date Filter Header (Identical to Expense / Income screens)
+              // 1. Top Date Filter Header
               DateRangeHeader(
                 dateFilter: dateFilter,
                 onDateFilterChanged: (newFilter) {
                   controller.updateDateFilter(newFilter);
                 },
-                onPrintPressed: () => showExpenseReportExportModal(context),
                 onSettingsPressed: () {
                   context.pushNamed(AppRoutes.settings);
                 },

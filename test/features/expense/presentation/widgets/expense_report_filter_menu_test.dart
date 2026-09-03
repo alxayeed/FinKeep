@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:finkeep/core/common/models/date_filter.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/currency_provider.dart';
 import 'package:finkeep/features/expense/domain/entities/expense_category_entity.dart';
@@ -12,7 +13,7 @@ import 'package:finkeep/features/expense/domain/usecases/update_expense_category
 import 'package:finkeep/features/expense/domain/usecases/delete_expense_category_usecase.dart';
 import 'package:finkeep/features/expense/presentation/controllers/expense_category_controller.dart';
 import 'package:finkeep/features/expense/presentation/controllers/expense_report_controller.dart';
-import 'package:finkeep/features/expense/presentation/widgets/expense_report_export_modal.dart';
+import 'package:finkeep/features/expense/presentation/widgets/expense_report_filter_menu.dart';
 
 class MockGetExpensesInRangeUseCase extends Mock
     implements GetExpensesInRangeUseCase {}
@@ -88,7 +89,7 @@ void main() {
     Get.reset();
   });
 
-  testWidgets('ExpenseReportExportModal renders controls, multi-select category and toggles',
+  testWidgets('ExpenseReportFilterMenu renders controls, multi-select category and toggles',
       (WidgetTester tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1.0;
@@ -104,7 +105,13 @@ void main() {
               Responsive.init(context, refHeight: 844, refWidth: 390);
               return Scaffold(
                 body: ElevatedButton(
-                  onPressed: () => showExpenseReportExportModal(context),
+                  onPressed: () => showExpenseReportFilterMenu(
+                    context,
+                    dateFilter: DateFilter(
+                      type: DateFilterType.yearly,
+                      referenceDate: DateTime(2026, 3, 1),
+                    ),
+                  ),
                   child: const Text('Open Modal'),
                 ),
               );
@@ -119,7 +126,8 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify Modal Header
-    expect(find.text('Export Expense Report'), findsOneWidget);
+    expect(find.text('Filter Menu'), findsOneWidget);
+    expect(find.text('Year 2026'), findsOneWidget);
 
     // Verify Multi-select Category Field
     expect(find.text('Category Filter (Multi-Select)'), findsOneWidget);
@@ -133,7 +141,7 @@ void main() {
     expect(find.text('📊 Category Summary'), findsOneWidget);
     expect(find.text('📅 By Month'), findsOneWidget);
     expect(find.text('💳 By Payment Method'), findsOneWidget);
-    expect(find.text('📈 High / Low / Avg Stats'), findsOneWidget);
+    expect(find.text('📈 High / Low / Avg (Month)'), findsOneWidget);
 
     // Verify Generate Button
     expect(find.text('Generate & Preview PDF'), findsOneWidget);
@@ -146,7 +154,7 @@ void main() {
     await tester.tap(find.text('📊 Category Summary'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('📈 High / Low / Avg Stats'));
+    await tester.tap(find.text('📈 High / Low / Avg (Month)'));
     await tester.pumpAndSettle();
 
     // Verify tapping Generate button is interactive

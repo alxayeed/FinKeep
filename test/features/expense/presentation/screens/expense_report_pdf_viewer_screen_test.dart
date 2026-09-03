@@ -41,7 +41,6 @@ void main() {
     expect(find.text('Report Preview'), findsOneWidget);
     expect(find.text('PDF Mock Viewer Body'), findsOneWidget);
     expect(find.byIcon(Icons.share_rounded), findsOneWidget);
-    expect(find.byIcon(Icons.print_rounded), findsOneWidget);
     expect(find.byIcon(Icons.download_rounded), findsOneWidget);
   });
 }
