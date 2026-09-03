@@ -9,7 +9,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final PreferredSizeWidget? bottom;
   final bool showBackButton;
+  final Widget? leading;
   final bool showPrivacyToggle;
+  final bool centerTitle;
+  final double? titleSpacing;
   final List<Widget>? actions;
 
   const CustomAppBar({
@@ -17,7 +20,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.title = "FinKeep",
     this.bottom,
     this.showBackButton = false,
+    this.leading,
     this.showPrivacyToggle = true,
+    this.centerTitle = true,
+    this.titleSpacing,
     this.actions,
   });
 
@@ -30,7 +36,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AppBar(
-      centerTitle: true,
+      centerTitle: centerTitle,
+      titleSpacing: titleSpacing,
       elevation: 0,
       scrolledUnderElevation: 0,
       systemOverlayStyle: SystemUiOverlayStyle(
@@ -52,16 +59,17 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
       foregroundColor: isDark ? Colors.white : const Color(0xFF0F172A),
-      leading: showBackButton
-          ? IconButton(
-              icon: Icon(
-                Icons.chevron_left_rounded,
-                size: 26.sp,
-                color: isDark ? Colors.white : const Color(0xFF0F172A),
-              ),
-              onPressed: () => context.pop(),
-            )
-          : null,
+      leading: leading ??
+          (showBackButton
+              ? IconButton(
+                  icon: Icon(
+                    Icons.chevron_left_rounded,
+                    size: 26.sp,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
+                  onPressed: () => context.pop(),
+                )
+              : null),
       actions: [
         if (showPrivacyToggle)
           ValueListenableBuilder<bool>(

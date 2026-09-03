@@ -129,14 +129,15 @@ void main() {
     expect(find.textContaining('Year 2026'), findsOneWidget);
     expect(find.textContaining('All Categories'), findsOneWidget);
 
-    // Verify PDF export action in CustomAppBar
-    expect(find.byIcon(Icons.picture_as_pdf_rounded), findsOneWidget);
+    // Verify export action in CustomAppBar
+    expect(find.byIcon(Icons.ios_share_rounded), findsOneWidget);
 
-    // Verify single tune icon in duration banner exists
+    // Verify filter button in duration banner exists
+    expect(find.text('Filter'), findsOneWidget);
     expect(find.byIcon(Icons.tune_rounded), findsOneWidget);
 
     // Tap Duration Banner to open Filter Menu
-    await tester.tap(find.byIcon(Icons.tune_rounded));
+    await tester.tap(find.text('Filter'));
     await tester.pumpAndSettle();
 
     // Verify Filter Menu is shown and contains inline Date Period selector

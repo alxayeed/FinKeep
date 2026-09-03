@@ -30,6 +30,7 @@ class ExpenseReportScreen extends StatefulWidget {
 class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
   final ExpenseReportController controller = Get.find<ExpenseReportController>();
   int _selectedTab = 0; // 0 for Summary, 1 for Details
+  bool _isExporting = false;
   late final Worker _missingBudgetWorker;
 
   @override
@@ -51,15 +52,11 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
       if (missing.isNotEmpty && mounted) {
         showDialog(
           context: context,
-          barrierDismissible: true,
+          barrierDismissible: false,
           builder: (context) => MissingBudgetDialog(
             missingMonths: missing,
-            onSave: (amount) {
-              controller.saveBudgetForMonths(missing, amount);
-            },
-            onSkip: () {
-              controller.ignoreMissingBudgetPrompt();
-            },
+            onSave: (amount) => controller.saveBudgetForMonths(missing, amount),
+            onSkip: () => controller.ignoreMissingBudgetPrompt(),
           ),
         );
       }
@@ -73,6 +70,9 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
   }
 
   Future<void> _handleExportPdf(BuildContext context) async {
+    if (_isExporting) return;
+    setState(() => _isExporting = true);
+
     final currency = context.currency;
     final expenses = controller.reportFilteredExpenses;
     final filter = controller.dateFilter.value;
@@ -112,7 +112,7 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
       );
 
       if (context.mounted) {
-        Navigator.of(context).push(
+        await Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => ExpenseReportPdfViewerScreen(
               pdfBytes: pdfBytes,
@@ -124,6 +124,10 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
     } catch (e) {
       if (context.mounted) {
         AppToast.showError(context, message: 'Failed to generate PDF report: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isExporting = false);
       }
     }
   }
@@ -148,49 +152,82 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
             : '${activeCategories.length} Categories');
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
-      child: InkWell(
-        onTap: () => showExpenseReportFilterMenu(
-          context,
-          dateFilter: controller.dateFilter.value,
-          initialCategories: controller.selectedCategories.toList(),
-        ),
-        borderRadius: BorderRadius.circular(12.r),
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
-            borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(
-              color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
-            ),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => showExpenseReportFilterMenu(
+            context,
+            dateFilter: controller.dateFilter.value,
+            initialCategories: controller.selectedCategories.toList(),
           ),
-          child: Row(
-            children: [
-              Icon(
-                Icons.calendar_today_rounded,
-                size: 14.sp,
-                color: AppColors.primaryTeal,
+          borderRadius: BorderRadius.circular(12.r),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? AppColors.primaryTeal.withValues(alpha: 0.12)
+                  : AppColors.primaryTeal.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(12.r),
+              border: Border.all(
+                color: isDark
+                    ? AppColors.primaryTeal.withValues(alpha: 0.35)
+                    : AppColors.primaryTeal.withValues(alpha: 0.25),
+                width: 1.2,
               ),
-              SizedBox(width: 8.w),
-              Expanded(
-                child: Text(
-                  '$dateText  •  $categorySubtitle',
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontFamily: 'Manrope',
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.calendar_month_rounded,
+                  size: 16.sp,
+                  color: AppColors.primaryTeal,
+                ),
+                SizedBox(width: 8.w),
+                Expanded(
+                  child: Text(
+                    '$dateText  •  $categorySubtitle',
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 12.5.sp,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    ),
                   ),
                 ),
-              ),
-              Icon(
-                Icons.tune_rounded,
-                size: 14.sp,
-                color: isDark ? Colors.white54 : const Color(0xFF94A3B8),
-              ),
-            ],
+                SizedBox(width: 8.w),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? AppColors.primaryTeal.withValues(alpha: 0.2)
+                        : AppColors.primaryTeal.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.tune_rounded,
+                        size: 13.sp,
+                        color: AppColors.primaryTeal,
+                      ),
+                      SizedBox(width: 4.w),
+                      Text(
+                        'Filter',
+                        style: TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primaryTeal,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -207,15 +244,31 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
         title: 'Expense Report',
         showBackButton: true,
         actions: [
-          IconButton(
-            icon: Icon(
-              Icons.picture_as_pdf_rounded,
-              size: 22.sp,
-              color: isDark ? Colors.white : const Color(0xFF0F172A),
+          if (_isExporting)
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 14.w),
+              child: Center(
+                child: SizedBox(
+                  width: 18.sp,
+                  height: 18.sp,
+                  child: const CircularProgressIndicator(
+                    strokeWidth: 2.2,
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(AppColors.primaryTeal),
+                  ),
+                ),
+              ),
+            )
+          else
+            IconButton(
+              icon: Icon(
+                Icons.ios_share_rounded,
+                size: 22.sp,
+                color: isDark ? Colors.white : const Color(0xFF0F172A),
+              ),
+              tooltip: 'Export Report',
+              onPressed: () => _handleExportPdf(context),
             ),
-            tooltip: 'Export PDF Report',
-            onPressed: () => _handleExportPdf(context),
-          ),
         ],
       ),
       body: Obx(() {
