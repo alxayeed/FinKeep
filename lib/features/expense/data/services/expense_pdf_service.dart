@@ -99,7 +99,16 @@ class ExpensePdfService {
       filteredExpenses = expenses
           .where((e) => normalizedSet.contains(e.category.trim().toLowerCase()))
           .toList();
+    } else {
+      filteredExpenses = List<ExpenseEntity>.from(expenses);
     }
+
+    // Sort chronologically (earliest date first, e.g. Day 1 -> Day 31)
+    filteredExpenses.sort((a, b) {
+      final dateComp = a.date.compareTo(b.date);
+      if (dateComp != 0) return dateComp;
+      return a.category.compareTo(b.category);
+    });
 
     // 4. Compute Totals
     final double totalAmount = filteredExpenses.fold(

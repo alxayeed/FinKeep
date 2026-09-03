@@ -89,17 +89,22 @@ class DateFilter {
       newReferenceDate = DateTime(referenceDate.year, fiscalYearStartMonth);
     }
 
+    if (newType == DateFilterType.custom) {
+      final now = DateTime.now();
+      return copyWith(
+        type: newType,
+        customStartDate: customStartDate ?? now.subtract(const Duration(days: 30)),
+        customEndDate: customEndDate ?? now,
+      );
+    }
+
     return copyWith(type: newType, referenceDate: newReferenceDate);
   }
 
   /// Get formatted display title for header pill
   String get displayTitle {
-    final now = DateTime.now();
     switch (type) {
       case DateFilterType.monthly:
-        if (referenceDate.year == now.year && referenceDate.month == now.month) {
-          return DateFormat('d MMMM, yyyy').format(now);
-        }
         return DateFormat('MMMM yyyy').format(referenceDate);
       case DateFilterType.yearly:
         return 'Year ${referenceDate.year}';

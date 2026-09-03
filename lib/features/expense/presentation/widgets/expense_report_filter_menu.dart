@@ -1,43 +1,52 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:finkeep/core/common/models/date_filter.dart';
-import 'package:finkeep/core/common/widgets/styled_multi_category_selector_field.dart';
-import 'package:finkeep/core/providers/privacy_provider.dart';
+import 'package:finkeep/core/common/widgets/app_date_filter.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
-import 'package:finkeep/core/styles/currency_provider.dart';
-import '../../data/services/expense_pdf_service.dart';
 import '../../domain/entities/expense_pdf_report_config.dart';
-import '../../domain/usecases/usecases.dart';
 import '../controllers/expense_category_controller.dart';
 import '../controllers/expense_report_controller.dart';
 import '../controllers/monthly_expense_controller.dart';
-import '../screens/expense_report_pdf_viewer_screen.dart';
 
 void showExpenseReportFilterMenu(
   BuildContext context, {
   DateFilter? dateFilter,
+  List<String>? initialCategories,
 }) {
   final isDark = Theme.of(context).brightness == Brightness.dark;
 
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    useSafeArea: true,
-    backgroundColor: isDark ? AppColors.cardDark : AppColors.cardLight,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
-    ),
-    builder: (modalContext) => _ExpenseReportFilterMenuContent(
-      initialDateFilter: dateFilter,
-    ),
+    backgroundColor: Colors.transparent,
+    builder: (modalContext) {
+      return Container(
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF0F172A) : Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+          border: Border.all(
+            color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+            width: 1,
+          ),
+        ),
+        child: _ExpenseReportFilterMenuContent(
+          initialDateFilter: dateFilter,
+          initialCategories: initialCategories,
+        ),
+      );
+    },
   );
 }
 
 class _ExpenseReportFilterMenuContent extends StatefulWidget {
   final DateFilter? initialDateFilter;
+  final List<String>? initialCategories;
 
-  const _ExpenseReportFilterMenuContent({this.initialDateFilter});
+  const _ExpenseReportFilterMenuContent({
+    this.initialDateFilter,
+    this.initialCategories,
+  });
 
   @override
   State<_ExpenseReportFilterMenuContent> createState() =>
@@ -51,9 +60,7 @@ class _ExpenseReportFilterMenuContentState
   late DateFilter _dateFilter;
   Set<String> _selectedCategories = <String>{};
   ExpenseReportPdfMode _selectedMode = ExpenseReportPdfMode.compact;
-  bool _isGenerating = false;
 
-  // Optional Summary Section Toggles - Pre-selected by default to match report screen
   bool _includeCategorySummary = true;
   bool _includeMonthlyBreakdown = true;
   bool _includePaymentMethodBreakdown = true;
@@ -81,7 +88,6 @@ class _ExpenseReportFilterMenuContentState
             ),
           );
 
-    // Initialize with passed filter or controller's active date filter
     if (widget.initialDateFilter != null) {
       _dateFilter = widget.initialDateFilter!.copyWith();
     } else if (Get.isRegistered<ExpenseReportController>()) {
@@ -92,75 +98,43 @@ class _ExpenseReportFilterMenuContentState
       _dateFilter = DateFilter.defaultMonthly();
     }
 
-    final multiMonth = _isMultiMonth;
-    _includeMonthlyBreakdown = multiMonth;
-    _includeHighLowAvgMetrics = multiMonth;
-  }
-
-  Future<void> _handleGeneratePdf() async {
-    if (_isGenerating) return;
-
-    final currency = context.currency;
-
-    // Biometric / PIN Verification Check (like revealing expense amounts)
-    final authenticated = await PrivacyProvider().authenticate(context);
-    if (!authenticated || !mounted) {
-      return;
+    if (widget.initialCategories != null) {
+      _selectedCategories = widget.initialCategories!.toSet();
+    } else if (Get.isRegistered<ExpenseReportController>()) {
+      _selectedCategories = Get.find<ExpenseReportController>().selectedCategories.toSet();
     }
 
-    setState(() => _isGenerating = true);
+    if (Get.isRegistered<ExpenseReportController>()) {
+      final ctrl = Get.find<ExpenseReportController>();
+      _selectedMode = ctrl.listMode.value;
+      _includeCategorySummary = ctrl.includeCategorySummary.value;
+      _includeMonthlyBreakdown = ctrl.includeMonthlyBreakdown.value;
+      _includePaymentMethodBreakdown = ctrl.includePaymentMethodBreakdown.value;
+      _includeHighLowAvgMetrics = ctrl.includeHighLowAvgMetrics.value;
+    }
+  }
 
-    try {
-      final range = _dateFilter.dateRange;
-      final DateTime startDate = range?.start ?? DateTime(2000, 1, 1);
-      final DateTime endDate = range?.end ?? DateTime(2100, 12, 31, 23, 59, 59);
+  void _handleResetDefaults() {
+    Navigator.of(context).pop();
 
-      final config = ExpensePdfReportConfig(
-        startDate: startDate,
-        endDate: endDate,
-        selectedCategories: _selectedCategories.isEmpty ? const ['All'] : _selectedCategories.toList(),
+    if (Get.isRegistered<ExpenseReportController>()) {
+      Get.find<ExpenseReportController>().resetReportFilters();
+    }
+  }
+
+  void _handleApplyFilters() {
+    Navigator.of(context).pop();
+
+    if (Get.isRegistered<ExpenseReportController>()) {
+      Get.find<ExpenseReportController>().applyReportFilters(
+        newDateFilter: _dateFilter,
+        categories: _selectedCategories.toList(),
         mode: _selectedMode,
-        currencySymbol: currency.symbol,
-        currencyCode: currency.code,
-        includeCategorySummary: _includeCategorySummary,
-        includeMonthlyBreakdown: _isMultiMonth && _includeMonthlyBreakdown,
-        includePaymentMethodBreakdown: _includePaymentMethodBreakdown,
-        includeHighLowAvgMetrics: _isMultiMonth && _includeHighLowAvgMetrics,
+        categorySummary: _includeCategorySummary,
+        monthlyBreakdown: _includeMonthlyBreakdown,
+        paymentMethodBreakdown: _includePaymentMethodBreakdown,
+        highLowAvgMetrics: _includeHighLowAvgMetrics,
       );
-
-      final getExpensesUseCase = Get.find<GetExpensesInRangeUseCase>();
-      final expenses = await getExpensesUseCase(startDate, endDate);
-
-      final pdfService = ExpensePdfService();
-      final pdfBytes = await pdfService.generateExpensePdf(
-        config: config,
-        expenses: expenses,
-      );
-
-      if (!mounted) return;
-      Navigator.of(context).pop(); // Close bottom sheet
-
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => ExpenseReportPdfViewerScreen(
-            pdfBytes: pdfBytes,
-            config: config,
-          ),
-        ),
-      );
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error generating PDF: $e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isGenerating = false);
-      }
     }
   }
 
@@ -169,24 +143,27 @@ class _ExpenseReportFilterMenuContentState
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
     final mutedColor = isDark ? Colors.white60 : const Color(0xFF64748B);
-    final cardBorder = isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0);
+    final cardBorder = isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0);
 
     return SafeArea(
       child: Padding(
-        padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 20.h),
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
         child: SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // 1. Drag Handle
               Center(
                 child: Container(
-                  width: 40.w,
+                  width: 36.w,
                   height: 4.h,
-                  margin: EdgeInsets.only(bottom: 16.h),
+                  margin: EdgeInsets.only(bottom: 12.h),
                   decoration: BoxDecoration(
-                    color: isDark ? Colors.white24 : Colors.black12,
+                    color: isDark ? Colors.white24 : const Color(0xFFCBD5E1),
                     borderRadius: BorderRadius.circular(2.r),
                   ),
                 ),
@@ -196,28 +173,49 @@ class _ExpenseReportFilterMenuContentState
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(
-                    child: Text(
-                      'Filter Menu',
-                      style: TextStyle(
-                        fontFamily: 'Manrope',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16.sp,
-                        color: textColor,
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.tune_rounded,
+                        size: 20.sp,
+                        color: AppColors.primaryTeal,
                       ),
-                    ),
+                      SizedBox(width: 8.w),
+                      Text(
+                        'Filter Menu',
+                        style: TextStyle(
+                          fontFamily: 'Manrope',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16.sp,
+                          color: textColor,
+                        ),
+                      ),
+                    ],
                   ),
                   IconButton(
                     icon: Icon(Icons.close_rounded, size: 20.sp, color: mutedColor),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
               ),
-              SizedBox(height: 12.h),
+              SizedBox(height: 16.h),
 
-              // 3. Active Date Period (Inherited from Screen Filter)
+              // 3. Inline Date Filter
+              AppDateFilter.inline(
+                dateFilter: _dateFilter,
+                onDateFilterChanged: (newFilter) {
+                  setState(() {
+                    _dateFilter = newFilter;
+                  });
+                },
+              ),
+              SizedBox(height: 16.h),
+
+              // 4. Multi-Select Category Chips (Ultra-Compact)
               Text(
-                'Date Period',
+                'Category Filter (Multi-Select)',
                 style: TextStyle(
                   fontFamily: 'Manrope',
                   fontWeight: FontWeight.w600,
@@ -225,62 +223,95 @@ class _ExpenseReportFilterMenuContentState
                   color: mutedColor,
                 ),
               ),
-              SizedBox(height: 6.h),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(color: cardBorder),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.calendar_month_rounded,
-                      size: 18.sp,
-                      color: AppColors.primaryTeal,
-                    ),
-                    SizedBox(width: 8.w),
-                    Expanded(
-                      child: Text(
-                        _dateFilter.displayTitle,
-                        style: TextStyle(
-                          fontFamily: 'Manrope',
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13.sp,
-                          color: textColor,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      'From screen filter',
-                      style: TextStyle(
-                        fontFamily: 'Manrope',
-                        fontSize: 11.sp,
-                        color: mutedColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 16.h),
-
-              // 4. Multi-Select Category Dropdown Filter
+              SizedBox(height: 8.h),
               Obx(() {
-                final categoryNames = categoryController.categories
-                    .map((c) => c.displayLabel)
-                    .toList();
+                final categories = categoryController.categories;
 
-                return StyledMultiCategorySelectorField<String>(
-                  selectedItems: _selectedCategories,
-                  labelText: 'Category Filter (Multi-Select)',
-                  items: categoryNames,
-                  titleExtractor: (item) => item,
-                  allSelectedText: 'All Categories',
-                  placeholder: 'Select Categories',
-                  onSelectionChanged: (updated) {
-                    setState(() => _selectedCategories = updated);
-                  },
+                return Wrap(
+                  spacing: 6.w,
+                  runSpacing: 6.h,
+                  children: [
+                    FilterChip(
+                      label: const Text('✨ All Categories'),
+                      selected: _selectedCategories.isEmpty,
+                      onSelected: (selected) {
+                        setState(() {
+                          _selectedCategories.clear();
+                        });
+                      },
+                      selectedColor: AppColors.primaryTeal,
+                      backgroundColor: isDark
+                          ? const Color(0xFF1E293B)
+                          : const Color(0xFFF1F5F9),
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      visualDensity: VisualDensity.compact,
+                      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                      labelStyle: TextStyle(
+                        fontFamily: 'Manrope',
+                        fontSize: 10.5.sp,
+                        fontWeight: _selectedCategories.isEmpty
+                            ? FontWeight.bold
+                            : FontWeight.w600,
+                        color: _selectedCategories.isEmpty
+                            ? Colors.white
+                            : textColor,
+                      ),
+                      side: BorderSide(
+                        color: _selectedCategories.isEmpty
+                            ? AppColors.primaryTeal
+                            : cardBorder,
+                        width: 1,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                    ),
+                    ...categories.map((cat) {
+                      final isSelected =
+                          _selectedCategories.contains(cat.displayLabel);
+                      return FilterChip(
+                        label: Text(
+                          cat.emoji.isNotEmpty
+                              ? '${cat.emoji} ${cat.displayLabel}'
+                              : cat.displayLabel,
+                        ),
+                        selected: isSelected,
+                        onSelected: (selected) {
+                          setState(() {
+                            if (selected) {
+                              _selectedCategories.add(cat.displayLabel);
+                            } else {
+                              _selectedCategories.remove(cat.displayLabel);
+                            }
+                          });
+                        },
+                        selectedColor: AppColors.primaryTeal,
+                        backgroundColor: isDark
+                            ? const Color(0xFF1E293B)
+                            : const Color(0xFFF1F5F9),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        visualDensity: VisualDensity.compact,
+                        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                        labelStyle: TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 10.5.sp,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.w600,
+                          color: isSelected ? Colors.white : textColor,
+                        ),
+                        side: BorderSide(
+                          color: isSelected
+                              ? AppColors.primaryTeal
+                              : cardBorder,
+                          width: 1,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                      );
+                    }),
+                  ],
                 );
               }),
               SizedBox(height: 16.h),
@@ -327,9 +358,9 @@ class _ExpenseReportFilterMenuContentState
               ),
               SizedBox(height: 16.h),
 
-              // 6. Optional Summary Breakdown Toggles
+              // 6. Summary Sections (Optional)
               Text(
-                'Include Summary Sections (Optional)',
+                'Summary Sections (On-Screen & PDF)',
                 style: TextStyle(
                   fontFamily: 'Manrope',
                   fontWeight: FontWeight.w600,
@@ -339,130 +370,199 @@ class _ExpenseReportFilterMenuContentState
               ),
               SizedBox(height: 8.h),
               Wrap(
-                spacing: 8.w,
-                runSpacing: 8.h,
+                spacing: 6.w,
+                runSpacing: 6.h,
                 children: [
                   FilterChip(
-                    label: const Text('📊 Category Summary'),
+                    label: const Text('📊 By Category'),
                     selected: _includeCategorySummary,
-                    onSelected: (val) => setState(() => _includeCategorySummary = val),
+                    onSelected: (val) =>
+                        setState(() => _includeCategorySummary = val),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: VisualDensity.compact,
+                    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                     labelStyle: TextStyle(
                       fontFamily: 'Manrope',
-                      fontSize: 11.sp,
-                      fontWeight: _includeCategorySummary ? FontWeight.bold : FontWeight.normal,
+                      fontSize: 10.5.sp,
+                      fontWeight: _includeCategorySummary
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                       color: _includeCategorySummary ? Colors.white : textColor,
                     ),
                     selectedColor: AppColors.primaryTeal,
-                    backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                    backgroundColor: isDark
+                        ? const Color(0xFF1E293B)
+                        : const Color(0xFFF1F5F9),
                     side: BorderSide(
-                      color: _includeCategorySummary ? AppColors.primaryTeal : cardBorder,
+                      color: _includeCategorySummary
+                          ? AppColors.primaryTeal
+                          : cardBorder,
                       width: 1,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
                     ),
                   ),
                   FilterChip(
-                    label: Text(_isMultiMonth ? '📅 By Month' : '📅 By Month (Multi-month)'),
+                    label: Text(_isMultiMonth
+                        ? '📅 By Month'
+                        : '📅 By Month (Multi-month)'),
                     selected: _isMultiMonth && _includeMonthlyBreakdown,
                     onSelected: _isMultiMonth
                         ? (val) => setState(() => _includeMonthlyBreakdown = val)
                         : null,
-                    disabledColor: isDark ? Colors.white10 : const Color(0xFFF1F5F9),
+                    disabledColor:
+                        isDark ? Colors.white10 : const Color(0xFFF1F5F9),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: VisualDensity.compact,
+                    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                     labelStyle: TextStyle(
                       fontFamily: 'Manrope',
-                      fontSize: 11.sp,
-                      fontWeight: (_isMultiMonth && _includeMonthlyBreakdown) ? FontWeight.bold : FontWeight.normal,
+                      fontSize: 10.5.sp,
+                      fontWeight: (_isMultiMonth && _includeMonthlyBreakdown)
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                       color: !_isMultiMonth
                           ? mutedColor.withValues(alpha: 0.5)
-                          : (_includeMonthlyBreakdown ? Colors.white : textColor),
+                          : (_includeMonthlyBreakdown
+                              ? Colors.white
+                              : textColor),
                     ),
                     selectedColor: AppColors.primaryTeal,
-                    backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                    backgroundColor: isDark
+                        ? const Color(0xFF1E293B)
+                        : const Color(0xFFF1F5F9),
                     side: BorderSide(
-                      color: (_isMultiMonth && _includeMonthlyBreakdown) ? AppColors.primaryTeal : cardBorder,
+                      color: (_isMultiMonth && _includeMonthlyBreakdown)
+                          ? AppColors.primaryTeal
+                          : cardBorder,
                       width: 1,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
                     ),
                   ),
                   FilterChip(
                     label: const Text('💳 By Payment Method'),
                     selected: _includePaymentMethodBreakdown,
-                    onSelected: (val) => setState(() => _includePaymentMethodBreakdown = val),
+                    onSelected: (val) =>
+                        setState(() => _includePaymentMethodBreakdown = val),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: VisualDensity.compact,
+                    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                     labelStyle: TextStyle(
                       fontFamily: 'Manrope',
-                      fontSize: 11.sp,
-                      fontWeight: _includePaymentMethodBreakdown ? FontWeight.bold : FontWeight.normal,
-                      color: _includePaymentMethodBreakdown ? Colors.white : textColor,
+                      fontSize: 10.5.sp,
+                      fontWeight: _includePaymentMethodBreakdown
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                      color: _includePaymentMethodBreakdown
+                          ? Colors.white
+                          : textColor,
                     ),
                     selectedColor: AppColors.primaryTeal,
-                    backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                    backgroundColor: isDark
+                        ? const Color(0xFF1E293B)
+                        : const Color(0xFFF1F5F9),
                     side: BorderSide(
-                      color: _includePaymentMethodBreakdown ? AppColors.primaryTeal : cardBorder,
+                      color: _includePaymentMethodBreakdown
+                          ? AppColors.primaryTeal
+                          : cardBorder,
                       width: 1,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
                     ),
                   ),
                   FilterChip(
-                    label: Text(_isMultiMonth ? '📈 High / Low / Avg (Month)' : '📈 High / Low / Avg (Multi-month)'),
+                    label: Text(_isMultiMonth
+                        ? '📈 Min / Max / Avg'
+                        : '📈 Min / Max / Avg (Multi-month)'),
                     selected: _isMultiMonth && _includeHighLowAvgMetrics,
                     onSelected: _isMultiMonth
                         ? (val) => setState(() => _includeHighLowAvgMetrics = val)
                         : null,
-                    disabledColor: isDark ? Colors.white10 : const Color(0xFFF1F5F9),
+                    disabledColor:
+                        isDark ? Colors.white10 : const Color(0xFFF1F5F9),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: VisualDensity.compact,
+                    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                     labelStyle: TextStyle(
                       fontFamily: 'Manrope',
-                      fontSize: 11.sp,
-                      fontWeight: (_isMultiMonth && _includeHighLowAvgMetrics) ? FontWeight.bold : FontWeight.normal,
+                      fontSize: 10.5.sp,
+                      fontWeight: (_isMultiMonth && _includeHighLowAvgMetrics)
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                       color: !_isMultiMonth
                           ? mutedColor.withValues(alpha: 0.5)
-                          : (_includeHighLowAvgMetrics ? Colors.white : textColor),
+                          : (_includeHighLowAvgMetrics
+                              ? Colors.white
+                              : textColor),
                     ),
                     selectedColor: AppColors.primaryTeal,
-                    backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                    backgroundColor: isDark
+                        ? const Color(0xFF1E293B)
+                        : const Color(0xFFF1F5F9),
                     side: BorderSide(
-                      color: (_isMultiMonth && _includeHighLowAvgMetrics) ? AppColors.primaryTeal : cardBorder,
+                      color: (_isMultiMonth && _includeHighLowAvgMetrics)
+                          ? AppColors.primaryTeal
+                          : cardBorder,
                       width: 1,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
                     ),
                   ),
                 ],
               ),
               SizedBox(height: 24.h),
 
-              // 7. Generate Button
-              ElevatedButton(
-                onPressed: _isGenerating ? null : _handleGeneratePdf,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryTeal,
-                  foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(vertical: 14.h),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14.r),
-                  ),
-                  elevation: 0,
-                ),
-                child: _isGenerating
-                    ? SizedBox(
-                        height: 20.h,
-                        width: 20.h,
-                        child: const CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.picture_as_pdf_rounded, size: 18.sp),
-                          SizedBox(width: 8.w),
-                          Flexible(
-                            child: Text(
-                              'Generate & Preview PDF',
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontFamily: 'Manrope',
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13.5.sp,
-                              ),
-                            ),
-                          ),
-                        ],
+              // 7. Action Buttons Bar (Clear & Apply)
+              Row(
+                children: [
+                  // Clear / Reset Button
+                  OutlinedButton.icon(
+                    icon: Icon(Icons.restart_alt_rounded, size: 18.sp),
+                    label: const Text('Clear'),
+                    onPressed: _handleResetDefaults,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: mutedColor,
+                      side: BorderSide(color: cardBorder),
+                      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14.r),
                       ),
+                      textStyle: TextStyle(
+                        fontFamily: 'Manrope',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13.sp,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 12.w),
+                  // Apply Filters Button
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.tune_rounded, size: 18),
+                      label: const Text('Apply Filters'),
+                      onPressed: _handleApplyFilters,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryTeal,
+                        foregroundColor: Colors.white,
+                        elevation: 1,
+                        padding: EdgeInsets.symmetric(vertical: 14.h),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14.r),
+                        ),
+                        textStyle: TextStyle(
+                          fontFamily: 'Manrope',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13.sp,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -515,20 +615,21 @@ class _ExpenseReportFilterMenuContentState
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontFamily: 'Manrope',
-                      fontSize: 13.sp,
                       fontWeight: FontWeight.bold,
+                      fontSize: 12.5.sp,
                       color: isSelected ? AppColors.primaryTeal : textColor,
                     ),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 4.h),
+            SizedBox(height: 3.h),
             Text(
               subtitle,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontFamily: 'Manrope',
-                fontSize: 9.5.sp,
+                fontSize: 10.5.sp,
                 color: mutedColor,
               ),
             ),

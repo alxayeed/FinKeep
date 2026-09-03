@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:finkeep/core/common/widgets/app_toast.dart';
 import 'package:finkeep/core/common/widgets/custom_app_bar.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
@@ -13,12 +15,18 @@ class ExpenseReportPdfViewerScreen extends StatefulWidget {
   final Uint8List pdfBytes;
   final ExpensePdfReportConfig config;
   final Widget Function(BuildContext, Uint8List)? pdfViewerBuilder;
+  final Future<void> Function(String filePath)? fileOpener;
+  final Future<Directory?> Function()? targetDirectoryProvider;
+  final Future<void> Function(File file, Uint8List bytes)? fileSaver;
 
   const ExpenseReportPdfViewerScreen({
     super.key,
     required this.pdfBytes,
     required this.config,
     this.pdfViewerBuilder,
+    this.fileOpener,
+    this.targetDirectoryProvider,
+    this.fileSaver,
   });
 
   @override
@@ -47,12 +55,7 @@ class _ExpenseReportPdfViewerScreenState
       );
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to share PDF: $e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        AppToast.showError(context, message: 'Failed to share PDF: $e');
       }
     } finally {
       if (mounted) setState(() => _isSharing = false);
@@ -64,40 +67,56 @@ class _ExpenseReportPdfViewerScreenState
     setState(() => _isSaving = true);
     try {
       Directory? targetDir;
-      if (Platform.isAndroid) {
-        targetDir = Directory('/storage/emulated/0/Download');
-        if (!await targetDir.exists()) {
-          targetDir = await getExternalStorageDirectory();
-        }
+      if (widget.targetDirectoryProvider != null) {
+        targetDir = await widget.targetDirectoryProvider!();
       } else {
-        targetDir = await getApplicationDocumentsDirectory();
+        try {
+          if (Platform.isAndroid) {
+            final downloadDir = Directory('/storage/emulated/0/Download');
+            if (await downloadDir.exists()) {
+              targetDir = downloadDir;
+            } else {
+              targetDir = await getExternalStorageDirectory();
+            }
+          } else {
+            targetDir = await getApplicationDocumentsDirectory();
+          }
+        } catch (_) {
+          targetDir = Directory.systemTemp;
+        }
       }
 
-      targetDir ??= await getApplicationDocumentsDirectory();
+      targetDir ??= Directory.systemTemp;
 
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final savedFile = File(
         '${targetDir.path}/FinKeep_Expense_Report_$timestamp.pdf',
       );
-      await savedFile.writeAsBytes(widget.pdfBytes);
+      if (widget.fileSaver != null) {
+        await widget.fileSaver!(savedFile, widget.pdfBytes);
+      } else {
+        await savedFile.writeAsBytes(widget.pdfBytes);
+      }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Saved to ${savedFile.path}'),
-            backgroundColor: AppColors.success,
-            duration: const Duration(seconds: 3),
-          ),
+        AppToast.showSuccess(
+          context,
+          message: 'Download successful',
+          actionLabel: 'View',
+          onAction: () async {
+            try {
+              if (widget.fileOpener != null) {
+                await widget.fileOpener!(savedFile.path);
+              } else {
+                await OpenFilex.open(savedFile.path);
+              }
+            } catch (_) {}
+          },
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to save PDF: $e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        AppToast.showError(context, message: 'Failed to save PDF: $e');
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);

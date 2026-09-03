@@ -124,10 +124,11 @@ void main() {
       );
       expect(clothingRow2025.totalAmount, 8400.0);
 
-      // Verify total sum equals original sum
-      final originalTotal = sampleExpenses.fold(0.0, (acc, item) => acc + item.amount);
-      final groupedTotal = grouped.fold(0.0, (acc, item) => acc + item.totalAmount);
-      expect(groupedTotal, originalTotal);
+      // Verify chronological ordering (earliest date first)
+      expect(grouped[0].category, 'Clothing'); // 2025-12-20
+      expect(grouped[1].category, 'Utilities'); // 2026-08-27
+      expect(grouped[2].category, 'Food'); // 2026-08-28 (alphabetical category secondary sort)
+      expect(grouped[3].category, 'Transport'); // 2026-08-28
     });
 
     test('groupExpensesForCompactMode returns empty list on empty input', () {

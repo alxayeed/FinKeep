@@ -28,7 +28,7 @@ class ExpenseSummeryWidget extends StatelessWidget {
   final bool isReport;
 
   List<ExpenseEntity> get _dataList {
-    return isReport ? controller.reportExpenses : [];
+    return isReport ? controller.reportFilteredExpenses : [];
   }
 
   @override
@@ -48,7 +48,7 @@ class ExpenseSummeryWidget extends StatelessWidget {
             child: Column(
               children: [
                 ExpenseSummery(expenses: data, isReport: isReport),
-                if (isReport) ...[
+                if (isReport && controller.includeMonthlyBreakdown.value) ...[
                   SizedBox(height: 16.h),
                   ExpenseMonthlyAnalysis(expenses: data),
                 ],
@@ -295,10 +295,12 @@ class ExpenseSummery extends StatelessWidget {
         ),
 
         // 💳 Spending Medium Chart
-        PaymentMediumChart(expenses: expenses),
+        if (!isReport || reportController.includePaymentMethodBreakdown.value)
+          PaymentMediumChart(expenses: expenses),
 
         // 📊 Summary by Category
-        SummaryByCategoryWidget(expenses: expenses),
+        if (!isReport || reportController.includeCategorySummary.value)
+          SummaryByCategoryWidget(expenses: expenses),
       ],
     );
   }
@@ -328,8 +330,9 @@ class SummaryByCategoryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final categorySpending = _calculateCategorySpending();
-
-    return CategorySummaryList.compact(spentByCategory: categorySpending);
+    return Obx(() {
+      final categorySpending = _calculateCategorySpending();
+      return CategorySummaryList.compact(spentByCategory: categorySpending);
+    });
   }
 }

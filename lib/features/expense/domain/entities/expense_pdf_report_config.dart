@@ -111,7 +111,7 @@ List<CompactExpenseRow> groupExpensesForCompactMode(List<ExpenseEntity> expenses
 
   final result = grouped.values.toList()
     ..sort((a, b) {
-      final dateCompare = b.date.compareTo(a.date);
+      final dateCompare = a.date.compareTo(b.date);
       if (dateCompare != 0) return dateCompare;
       return a.category.compareTo(b.category);
     });

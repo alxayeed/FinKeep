@@ -9,6 +9,8 @@ import 'budget_controller.dart';
 
 import '../../../../core/common/models/date_filter.dart';
 
+import '../../domain/entities/expense_pdf_report_config.dart';
+
 class ExpenseReportController extends GetxController {
   final GetExpensesInRangeUseCase getExpensesInRangeUseCase;
 
@@ -25,6 +27,7 @@ class ExpenseReportController extends GetxController {
   ];
 
   var selectedCategory = 'All'.obs;
+  final RxList<String> selectedCategories = <String>[].obs;
   var searchQuery = ''.obs;
 
   final Rx<DateTime?> startDate = Rx<DateTime?>(null);
@@ -33,6 +36,11 @@ class ExpenseReportController extends GetxController {
     type: DateFilterType.yearly,
     referenceDate: DateTime.now(),
   ).obs;
+  final Rx<ExpenseReportPdfMode> listMode = ExpenseReportPdfMode.compact.obs;
+  final RxBool includeCategorySummary = true.obs;
+  final RxBool includeMonthlyBreakdown = true.obs;
+  final RxBool includePaymentMethodBreakdown = true.obs;
+  final RxBool includeHighLowAvgMetrics = true.obs;
 
   ExpenseReportController({
     required this.getExpensesInRangeUseCase,
@@ -44,12 +52,62 @@ class ExpenseReportController extends GetxController {
     super.onInit();
   }
 
-  void updateDateFilter(DateFilter newFilter) {
+  Future<void> updateDateFilter(DateFilter newFilter) async {
     dateFilter.value = newFilter;
     final range = newFilter.dateRange;
     if (range != null) {
-      fetchExpensesInRange(range.start, range.end);
+      await fetchExpensesInRange(range.start, range.end);
     }
+  }
+
+  Future<void> applyReportFilters({
+    required DateFilter newDateFilter,
+    required List<String> categories,
+    ExpenseReportPdfMode? mode,
+    bool? categorySummary,
+    bool? monthlyBreakdown,
+    bool? paymentMethodBreakdown,
+    bool? highLowAvgMetrics,
+  }) async {
+    if (mode != null) {
+      listMode.value = mode;
+    }
+    if (categorySummary != null) includeCategorySummary.value = categorySummary;
+    if (monthlyBreakdown != null) includeMonthlyBreakdown.value = monthlyBreakdown;
+    if (paymentMethodBreakdown != null) includePaymentMethodBreakdown.value = paymentMethodBreakdown;
+    if (highLowAvgMetrics != null) includeHighLowAvgMetrics.value = highLowAvgMetrics;
+    dateFilter.value = newDateFilter;
+    selectedCategories.assignAll(categories);
+    final range = newDateFilter.dateRange;
+    if (range != null) {
+      await fetchExpensesInRange(range.start, range.end);
+    } else {
+      final now = DateTime.now();
+      final start = newDateFilter.customStartDate ?? DateTime(2000, 1, 1);
+      final end = newDateFilter.customEndDate ?? DateTime(now.year + 10, 12, 31, 23, 59, 59);
+      await fetchExpensesInRange(start, end);
+    }
+  }
+
+  Future<void> resetReportFilters() async {
+    listMode.value = ExpenseReportPdfMode.compact;
+    includeCategorySummary.value = true;
+    includeMonthlyBreakdown.value = true;
+    includePaymentMethodBreakdown.value = true;
+    includeHighLowAvgMetrics.value = true;
+    final defaultFilter = DateFilter(
+      type: DateFilterType.yearly,
+      referenceDate: DateTime.now(),
+    );
+    await applyReportFilters(
+      newDateFilter: defaultFilter,
+      categories: [],
+      mode: ExpenseReportPdfMode.compact,
+      categorySummary: true,
+      monthlyBreakdown: true,
+      paymentMethodBreakdown: true,
+      highLowAvgMetrics: true,
+    );
   }
 
   void clearReportState() {
@@ -58,7 +116,6 @@ class ExpenseReportController extends GetxController {
     reportTotalExpense.value = 0.0;
     startDate.value = null;
     endDate.value = null;
-    selectedCategory.value = 'All';
     searchQuery.value = '';
     reportRangeBudget.value = 0.0;
     missingBudgetMonths.clear();
@@ -69,7 +126,6 @@ class ExpenseReportController extends GetxController {
 
     startDate.value = start;
     endDate.value = end;
-    selectedCategory.value = 'All';
     isLoading.value = true;
 
     try {
@@ -77,7 +133,6 @@ class ExpenseReportController extends GetxController {
         start,
         end,
       );
-      updateReportTotalExpense();
       filterReportExpensesByCategory();
       await calculateBudgetForRange(start, end);
       await checkMissingBudgets();
@@ -172,7 +227,9 @@ class ExpenseReportController extends GetxController {
     final query = searchQuery.value.trim().toLowerCase();
     List<ExpenseEntity> temp = reportExpenses;
     
-    if (selectedCategory.value != 'All') {
+    if (selectedCategories.isNotEmpty) {
+      temp = temp.where((expense) => selectedCategories.contains(expense.category)).toList();
+    } else if (selectedCategory.value != 'All') {
       temp = temp.where((expense) => expense.category == selectedCategory.value).toList();
     }
     
@@ -185,6 +242,7 @@ class ExpenseReportController extends GetxController {
     }
     
     reportFilteredExpenses.value = temp;
+    updateReportTotalExpense();
   }
 
   void updateReportTotalExpense() {

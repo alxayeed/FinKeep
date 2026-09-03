@@ -125,39 +125,92 @@ void main() {
     await tester.tap(find.text('Open Modal'));
     await tester.pumpAndSettle();
 
-    // Verify Modal Header
+    // Verify Modal Header & Inline Date Period Selector
     expect(find.text('Filter Menu'), findsOneWidget);
+    expect(find.text('Yearly'), findsOneWidget);
     expect(find.text('Year 2026'), findsOneWidget);
+
+    // Tap next chevron to go to Year 2027
+    await tester.tap(find.byIcon(Icons.chevron_right_rounded));
+    await tester.pumpAndSettle();
+    expect(find.text('Year 2027'), findsOneWidget);
 
     // Verify Multi-select Category Field
     expect(find.text('Category Filter (Multi-Select)'), findsOneWidget);
-    expect(find.text('All Categories'), findsOneWidget);
+    expect(find.text('✨ All Categories'), findsOneWidget);
 
     // Verify Mode Selectors
     expect(find.text('Compact'), findsOneWidget);
     expect(find.text('Details'), findsOneWidget);
 
-    // Verify Optional Summary Section Chips
-    expect(find.text('📊 Category Summary'), findsOneWidget);
+    // Verify Summary Section Chips
+    expect(find.text('📊 By Category'), findsOneWidget);
     expect(find.text('📅 By Month'), findsOneWidget);
     expect(find.text('💳 By Payment Method'), findsOneWidget);
-    expect(find.text('📈 High / Low / Avg (Month)'), findsOneWidget);
+    expect(find.text('📈 Min / Max / Avg'), findsOneWidget);
 
-    // Verify Generate Button
-    expect(find.text('Generate & Preview PDF'), findsOneWidget);
+    // Verify Action Buttons: Clear & Apply Filters
+    expect(find.text('Clear'), findsOneWidget);
+    expect(find.text('Apply Filters'), findsOneWidget);
+
+    // Toggle Summary Section Chip
+    await tester.tap(find.text('📊 By Category'));
+    await tester.pumpAndSettle();
 
     // Tap Mode to Details
     await tester.tap(find.text('Details'));
     await tester.pumpAndSettle();
 
-    // Toggle Summary Chips
-    await tester.tap(find.text('📊 Category Summary'));
+    // Tap Apply Button
+    await tester.tap(find.text('Apply Filters'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('📈 High / Low / Avg (Month)'));
+    // Verify modal is dismissed after apply
+    expect(find.text('Filter Menu'), findsNothing);
+  });
+
+  testWidgets('ExpenseReportFilterMenu Clear button resets and auto-dismisses modal', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final reportController = Get.find<ExpenseReportController>();
+    reportController.selectedCategories.assignAll(['Food', 'Fuel']);
+
+    await tester.pumpWidget(
+      CurrencyTheme(
+        notifier: CurrencyProvider(),
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) {
+              Responsive.init(context, refHeight: 844, refWidth: 390);
+              return Scaffold(
+                body: ElevatedButton(
+                  onPressed: () => showExpenseReportFilterMenu(context),
+                  child: const Text('Open Filter'),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
     await tester.pumpAndSettle();
 
-    // Verify tapping Generate button is interactive
-    expect(find.text('Generate & Preview PDF'), findsOneWidget);
+    // Open Filter Menu
+    await tester.tap(find.text('Open Filter'));
+    await tester.pumpAndSettle();
+    expect(find.text('Filter Menu'), findsOneWidget);
+
+    // Scroll to & Tap Clear Button
+    await tester.ensureVisible(find.text('Clear'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Clear'));
+    await tester.pumpAndSettle();
+
+    // Verify modal is dismissed and controller categories reset
+    expect(find.text('Filter Menu'), findsNothing);
+    expect(reportController.selectedCategories, isEmpty);
   });
 }
