@@ -36,6 +36,14 @@ class PrivacyProvider extends ValueNotifier<bool> with WidgetsBindingObserver {
     }
   }
 
+  /// Ensure the user is authenticated (prompts biometric/PIN auth if masked)
+  Future<bool> authenticate(BuildContext context) async {
+    if (!value) {
+      return true; // Already revealed / authenticated
+    }
+    return toggleWithBiometrics(context);
+  }
+
   /// Toggle privacy mode (Eye ON requires biometric/PIN authentication)
   Future<bool> toggleWithBiometrics(BuildContext context) async {
     if (value) {

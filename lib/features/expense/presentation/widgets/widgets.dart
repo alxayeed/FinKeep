@@ -13,3 +13,4 @@ export 'segmented_tab_bar.dart';
 export 'smart_insight_banner.dart';
 export 'missing_budget_dialog.dart';
 export 'historical_budget_shimmer.dart';
+export 'expense_report_export_modal.dart';

@@ -12,6 +12,7 @@ import '../controllers/expense_report_controller.dart';
 import '../widgets/missing_budget_dialog.dart';
 import '../widgets/monthly_expense_shimmer.dart';
 import '../widgets/segmented_tab_bar.dart';
+import '../widgets/expense_report_export_modal.dart';
 import 'expense_report_summary_screen.dart';
 import 'expense_report_list_screen.dart';
 
@@ -86,6 +87,7 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
                 onDateFilterChanged: (newFilter) {
                   controller.updateDateFilter(newFilter);
                 },
+                onPrintPressed: () => showExpenseReportExportModal(context),
                 onSettingsPressed: () {
                   context.pushNamed(AppRoutes.settings);
                 },

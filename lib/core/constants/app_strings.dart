@@ -15,6 +15,8 @@ class AppStrings {
   //UI
   static const String notAvailable = 'Not Available';
   static const String privacyPolicyPath = 'assets/files/finkeep_pp.pdf';
+  static const String playStoreUrl =
+      'https://play.google.com/store/apps/details?id=com.raindropstudio.finkeep';
 
   //DB
   static const String lendingsCollection = 'lendings';
