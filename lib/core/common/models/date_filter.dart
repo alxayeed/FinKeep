@@ -223,4 +223,39 @@ class DateFilter {
         return this;
     }
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! DateFilter) return false;
+    if (type != other.type) return false;
+    if (fiscalYearStartMonth != other.fiscalYearStartMonth) return false;
+    if (customStartDate != other.customStartDate ||
+        customEndDate != other.customEndDate) {
+      return false;
+    }
+    switch (type) {
+      case DateFilterType.monthly:
+        return referenceDate.year == other.referenceDate.year &&
+            referenceDate.month == other.referenceDate.month;
+      case DateFilterType.yearly:
+        return referenceDate.year == other.referenceDate.year;
+      case DateFilterType.fiscalYearly:
+        return referenceDate.year == other.referenceDate.year &&
+            referenceDate.month == other.referenceDate.month;
+      case DateFilterType.custom:
+      case DateFilterType.allTime:
+        return true;
+    }
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        type,
+        referenceDate.year,
+        referenceDate.month,
+        customStartDate,
+        customEndDate,
+        fiscalYearStartMonth,
+      );
 }

@@ -77,16 +77,35 @@ class ExpenseReportController extends GetxController {
     if (monthlyBreakdown != null) includeMonthlyBreakdown.value = monthlyBreakdown;
     if (paymentMethodBreakdown != null) includePaymentMethodBreakdown.value = paymentMethodBreakdown;
     if (highLowAvgMetrics != null) includeHighLowAvgMetrics.value = highLowAvgMetrics;
+
+    final oldStart = startDate.value;
+    final oldEnd = endDate.value;
+
     dateFilter.value = newDateFilter;
     selectedCategories.assignAll(categories);
+
     final range = newDateFilter.dateRange;
+    final DateTime targetStart;
+    final DateTime targetEnd;
+
     if (range != null) {
-      await fetchExpensesInRange(range.start, range.end);
+      targetStart = range.start;
+      targetEnd = range.end;
     } else {
       final now = DateTime.now();
-      final start = newDateFilter.customStartDate ?? DateTime(2000, 1, 1);
-      final end = newDateFilter.customEndDate ?? DateTime(now.year + 10, 12, 31, 23, 59, 59);
-      await fetchExpensesInRange(start, end);
+      targetStart = newDateFilter.customStartDate ?? DateTime(2000, 1, 1);
+      targetEnd = newDateFilter.customEndDate ?? DateTime(now.year + 10, 12, 31, 23, 59, 59);
+    }
+
+    final isDateRangeChanged = oldStart == null ||
+        oldEnd == null ||
+        !oldStart.isAtSameMomentAs(targetStart) ||
+        !oldEnd.isAtSameMomentAs(targetEnd);
+
+    if (isDateRangeChanged) {
+      await fetchExpensesInRange(targetStart, targetEnd);
+    } else {
+      filterReportExpensesByCategory();
     }
   }
 

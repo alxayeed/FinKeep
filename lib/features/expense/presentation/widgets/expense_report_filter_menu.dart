@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:finkeep/core/common/models/date_filter.dart';
@@ -118,7 +119,23 @@ class _ExpenseReportFilterMenuContentState
     Navigator.of(context).pop();
 
     if (Get.isRegistered<ExpenseReportController>()) {
-      Get.find<ExpenseReportController>().resetReportFilters();
+      final ctrl = Get.find<ExpenseReportController>();
+      final defaultFilter = DateFilter(
+        type: DateFilterType.yearly,
+        referenceDate: DateTime.now(),
+      );
+
+      final isAlreadyDefault = ctrl.dateFilter.value == defaultFilter &&
+          ctrl.selectedCategories.isEmpty &&
+          ctrl.listMode.value == ExpenseReportPdfMode.compact &&
+          ctrl.includeCategorySummary.value == true &&
+          ctrl.includeMonthlyBreakdown.value == true &&
+          ctrl.includePaymentMethodBreakdown.value == true &&
+          ctrl.includeHighLowAvgMetrics.value == true;
+
+      if (!isAlreadyDefault) {
+        ctrl.resetReportFilters();
+      }
     }
   }
 
@@ -126,15 +143,35 @@ class _ExpenseReportFilterMenuContentState
     Navigator.of(context).pop();
 
     if (Get.isRegistered<ExpenseReportController>()) {
-      Get.find<ExpenseReportController>().applyReportFilters(
-        newDateFilter: _dateFilter,
-        categories: _selectedCategories.toList(),
-        mode: _selectedMode,
-        categorySummary: _includeCategorySummary,
-        monthlyBreakdown: _includeMonthlyBreakdown,
-        paymentMethodBreakdown: _includePaymentMethodBreakdown,
-        highLowAvgMetrics: _includeHighLowAvgMetrics,
-      );
+      final ctrl = Get.find<ExpenseReportController>();
+
+      final isDateSame = ctrl.dateFilter.value == _dateFilter;
+      final isCategorySame = setEquals(ctrl.selectedCategories.toSet(), _selectedCategories);
+      final isModeSame = ctrl.listMode.value == _selectedMode;
+      final isSummarySame = ctrl.includeCategorySummary.value == _includeCategorySummary;
+      final isMonthlySame = ctrl.includeMonthlyBreakdown.value == _includeMonthlyBreakdown;
+      final isPaymentSame = ctrl.includePaymentMethodBreakdown.value == _includePaymentMethodBreakdown;
+      final isMetricsSame = ctrl.includeHighLowAvgMetrics.value == _includeHighLowAvgMetrics;
+
+      final hasNoChange = isDateSame &&
+          isCategorySame &&
+          isModeSame &&
+          isSummarySame &&
+          isMonthlySame &&
+          isPaymentSame &&
+          isMetricsSame;
+
+      if (!hasNoChange) {
+        ctrl.applyReportFilters(
+          newDateFilter: _dateFilter,
+          categories: _selectedCategories.toList(),
+          mode: _selectedMode,
+          categorySummary: _includeCategorySummary,
+          monthlyBreakdown: _includeMonthlyBreakdown,
+          paymentMethodBreakdown: _includePaymentMethodBreakdown,
+          highLowAvgMetrics: _includeHighLowAvgMetrics,
+        );
+      }
     }
   }
 
