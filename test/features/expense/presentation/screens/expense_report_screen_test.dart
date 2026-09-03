@@ -125,9 +125,8 @@ void main() {
     // Verify AppDateFilter is NOT in the main screen body
     expect(find.byType(AppDateFilter), findsNothing);
 
-    // Verify Active Duration banner is rendered
-    expect(find.textContaining('Year 2026'), findsOneWidget);
-    expect(find.textContaining('All Categories'), findsOneWidget);
+    // Verify Active Duration banner is rendered with date only
+    expect(find.text('Year 2026'), findsOneWidget);
 
     // Verify export action in CustomAppBar
     expect(find.byIcon(Icons.ios_share_rounded), findsOneWidget);

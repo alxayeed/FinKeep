@@ -240,6 +240,16 @@ class _ExpenseReportFilterMenuContentState
               SizedBox(height: 16.h),
 
               // 3. Inline Date Filter
+              Text(
+                'Date Period Range',
+                style: TextStyle(
+                  fontFamily: 'Manrope',
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12.sp,
+                  color: mutedColor,
+                ),
+              ),
+              SizedBox(height: 8.h),
               AppDateFilter.inline(
                 dateFilter: _dateFilter,
                 onDateFilterChanged: (newFilter) {
@@ -395,9 +405,9 @@ class _ExpenseReportFilterMenuContentState
               ),
               SizedBox(height: 16.h),
 
-              // 6. Summary Sections (Optional)
+              // 6. PDF Export Sections (Optional)
               Text(
-                'Summary Sections (On-Screen & PDF)',
+                'PDF Export Sections',
                 style: TextStyle(
                   fontFamily: 'Manrope',
                   fontWeight: FontWeight.w600,

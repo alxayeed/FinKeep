@@ -136,20 +136,12 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
     final filter = controller.dateFilter.value;
     final start = controller.startDate.value;
     final end = controller.endDate.value;
-    final activeCategories = controller.selectedCategories;
 
     String dateText = filter.displayTitle;
     if (filter.type == DateFilterType.custom && start != null && end != null) {
-      dateText = '${DateFormat('dd MMM yyyy').format(start)} – ${DateFormat('dd MMM yyyy').format(end)}';
-    } else if (filter.type == DateFilterType.fiscalYearly) {
-      dateText = '${filter.displayTitle} · ${filter.fiscalYearPeriodSubtitle}';
+      dateText =
+          '${DateFormat('dd MMM yyyy').format(start)} – ${DateFormat('dd MMM yyyy').format(end)}';
     }
-
-    final categorySubtitle = activeCategories.isEmpty
-        ? 'All Categories'
-        : (activeCategories.length == 1
-            ? activeCategories.first
-            : '${activeCategories.length} Categories');
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
@@ -186,7 +178,7 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
                 SizedBox(width: 8.w),
                 Expanded(
                   child: Text(
-                    '$dateText  •  $categorySubtitle',
+                    dateText,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontFamily: 'Manrope',

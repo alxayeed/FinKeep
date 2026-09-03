@@ -14,3 +14,6 @@ export 'smart_insight_banner.dart';
 export 'missing_budget_dialog.dart';
 export 'historical_budget_shimmer.dart';
 export 'expense_report_filter_menu.dart';
+export 'category_focus_card.dart';
+export 'period_summary_card.dart';
+export 'expense_report_hero_card.dart';

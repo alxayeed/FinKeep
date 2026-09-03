@@ -32,10 +32,93 @@ class ExpenseReportListScreen extends StatelessWidget {
 
 
 
+  Widget _buildTopSummaryBar(
+    BuildContext context,
+    bool isDark,
+    int count,
+    double total, {
+    bool isGrouped = false,
+  }) {
+    final countLabel = isGrouped
+        ? '$count ${count == 1 ? "Category Group" : "Category Groups"}'
+        : '$count ${count == 1 ? "Transaction" : "Transactions"}';
+
+    final cardBorder = isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0);
+
+    return Container(
+      margin: EdgeInsets.only(bottom: 10.h),
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: cardBorder),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Row(
+              children: [
+                Icon(
+                  Icons.receipt_long_rounded,
+                  size: 15.sp,
+                  color: AppColors.primaryTeal,
+                ),
+                SizedBox(width: 6.w),
+                Expanded(
+                  child: Text(
+                    countLabel,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 11.5.sp,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white70 : const Color(0xFF475569),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: 8.w),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Total: ',
+                style: TextStyle(
+                  fontFamily: 'Manrope',
+                  fontSize: 11.5.sp,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white70 : const Color(0xFF475569),
+                ),
+              ),
+              PrivacyText(
+                total,
+                style: TextStyle(
+                  fontFamily: 'Manrope',
+                  fontSize: 12.5.sp,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.primaryTeal,
+                ),
+              ),
+              SizedBox(width: 2.w),
+              FaIcon(
+                context.currency.icon,
+                size: 8.5.sp,
+                color: AppColors.primaryTeal,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildCompactListView(
     BuildContext context,
     bool isDark,
     List<CompactExpenseRow> groupedRows,
+    double totalAmount,
   ) {
     final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
     final mutedColor = isDark ? Colors.white60 : const Color(0xFF64748B);
@@ -50,9 +133,19 @@ class ExpenseReportListScreen extends StatelessWidget {
       child: ListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.only(bottom: 100.h, left: 16.w, right: 16.w, top: 4.h),
-        itemCount: groupedRows.length + 1,
+        itemCount: groupedRows.length + 2,
         itemBuilder: (context, index) {
           if (index == 0) {
+            return _buildTopSummaryBar(
+              context,
+              isDark,
+              groupedRows.length,
+              totalAmount,
+              isGrouped: true,
+            );
+          }
+
+          if (index == 1) {
             // Table Column Headers
             return Container(
               padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 9.h),
@@ -103,9 +196,9 @@ class ExpenseReportListScreen extends StatelessWidget {
             );
           }
 
-          final row = groupedRows[index - 1];
-          final isEven = (index - 1) % 2 == 1;
-          final isLast = index == groupedRows.length;
+          final row = groupedRows[index - 2];
+          final isEven = (index - 2) % 2 == 1;
+          final isLast = index == groupedRows.length + 1;
 
           return Container(
             padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
@@ -186,6 +279,7 @@ class ExpenseReportListScreen extends StatelessWidget {
     BuildContext context,
     bool isDark,
     List<ExpenseEntity> expenses,
+    double totalAmount,
   ) {
     final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
     final mutedColor = isDark ? Colors.white60 : const Color(0xFF64748B);
@@ -200,9 +294,19 @@ class ExpenseReportListScreen extends StatelessWidget {
       child: ListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.only(bottom: 100.h, left: 16.w, right: 16.w, top: 4.h),
-        itemCount: expenses.length + 1,
+        itemCount: expenses.length + 2,
         itemBuilder: (context, index) {
           if (index == 0) {
+            return _buildTopSummaryBar(
+              context,
+              isDark,
+              expenses.length,
+              totalAmount,
+              isGrouped: false,
+            );
+          }
+
+          if (index == 1) {
             // Table Column Headers
             return Container(
               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
@@ -265,9 +369,9 @@ class ExpenseReportListScreen extends StatelessWidget {
             );
           }
 
-          final expense = expenses[index - 1];
-          final isEven = (index - 1) % 2 == 1;
-          final isLast = index == expenses.length;
+          final expense = expenses[index - 2];
+          final isEven = (index - 2) % 2 == 1;
+          final isLast = index == expenses.length + 1;
 
           return Container(
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 9.h),
@@ -415,14 +519,16 @@ class ExpenseReportListScreen extends StatelessWidget {
         );
       }
 
+      final totalAmount = filteredExpenses.fold(0.0, (sum, e) => sum + e.amount);
+
       // 1. Compact Mode -> Grouped Records Table (Date + Category + Total Amount)
       if (controller.listMode.value == ExpenseReportPdfMode.compact) {
         final groupedRows = groupExpensesForCompactMode(filteredExpenses);
-        return _buildCompactListView(context, isDark, groupedRows);
+        return _buildCompactListView(context, isDark, groupedRows, totalAmount);
       }
 
       // 2. Details Mode -> All Itemized Records Table (Date + Category/Note + Payment + Amount)
-      return _buildDetailsListView(context, isDark, filteredExpenses);
+      return _buildDetailsListView(context, isDark, filteredExpenses, totalAmount);
     });
   }
 }

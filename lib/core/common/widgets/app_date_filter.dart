@@ -81,7 +81,7 @@ class AppDateFilter extends StatelessWidget {
             children: DateFilterType.values.map((type) {
               final isSelected = currentSelection.type == type;
               return Padding(
-                padding: EdgeInsets.only(right: 6.w),
+                padding: EdgeInsets.only(right: 5.w),
                 child: ChoiceChip(
                   label: Text(type.label),
                   selected: isSelected,
@@ -92,7 +92,7 @@ class AppDateFilter extends StatelessWidget {
                   },
                   labelStyle: TextStyle(
                     fontFamily: 'Manrope',
-                    fontSize: 11.5.sp,
+                    fontSize: 10.5.sp,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
                     color: isSelected
                         ? Colors.white
@@ -101,7 +101,7 @@ class AppDateFilter extends StatelessWidget {
                   backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
                   selectedColor: AppColors.primaryTeal,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.r),
+                    borderRadius: BorderRadius.circular(16.r),
                     side: BorderSide(
                       color: isSelected
                           ? AppColors.primaryTeal
@@ -109,13 +109,15 @@ class AppDateFilter extends StatelessWidget {
                     ),
                   ),
                   showCheckmark: false,
-                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                 ),
               );
             }).toList(),
           ),
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: 6.h),
 
         // Period Navigator
         _buildInlineNavigator(context, currentSelection, isDark, textColor, mutedColor, cardBorder),
@@ -159,12 +161,12 @@ class AppDateFilter extends StatelessWidget {
                   );
                 }
               },
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.circular(10.r),
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
                 decoration: BoxDecoration(
                   color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(12.r),
+                  borderRadius: BorderRadius.circular(10.r),
                   border: Border.all(color: cardBorder),
                 ),
                 child: Column(
@@ -174,22 +176,22 @@ class AppDateFilter extends StatelessWidget {
                       'Start Date',
                       style: TextStyle(
                         fontFamily: 'Manrope',
-                        fontSize: 11.sp,
+                        fontSize: 9.5.sp,
                         color: mutedColor,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    SizedBox(height: 4.h),
+                    SizedBox(height: 2.h),
                     Row(
                       children: [
-                        Icon(Icons.calendar_today_rounded, size: 14.sp, color: AppColors.primaryTeal),
-                        SizedBox(width: 6.w),
+                        Icon(Icons.calendar_today_rounded, size: 12.sp, color: AppColors.primaryTeal),
+                        SizedBox(width: 4.w),
                         Expanded(
                           child: Text(
                             '${start.day.toString().padLeft(2, '0')}/${start.month.toString().padLeft(2, '0')}/${start.year}',
                             style: TextStyle(
                               fontFamily: 'Manrope',
-                              fontSize: 12.5.sp,
+                              fontSize: 11.5.sp,
                               fontWeight: FontWeight.bold,
                               color: textColor,
                             ),
@@ -202,7 +204,7 @@ class AppDateFilter extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(width: 8.w),
+          SizedBox(width: 6.w),
           // End Date Field
           Expanded(
             child: InkWell(
@@ -224,12 +226,12 @@ class AppDateFilter extends StatelessWidget {
                   );
                 }
               },
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.circular(10.r),
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
                 decoration: BoxDecoration(
                   color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(12.r),
+                  borderRadius: BorderRadius.circular(10.r),
                   border: Border.all(color: cardBorder),
                 ),
                 child: Column(
@@ -239,22 +241,22 @@ class AppDateFilter extends StatelessWidget {
                       'End Date',
                       style: TextStyle(
                         fontFamily: 'Manrope',
-                        fontSize: 11.sp,
+                        fontSize: 9.5.sp,
                         color: mutedColor,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    SizedBox(height: 4.h),
+                    SizedBox(height: 2.h),
                     Row(
                       children: [
-                        Icon(Icons.calendar_today_rounded, size: 14.sp, color: AppColors.primaryTeal),
-                        SizedBox(width: 6.w),
+                        Icon(Icons.calendar_today_rounded, size: 12.sp, color: AppColors.primaryTeal),
+                        SizedBox(width: 4.w),
                         Expanded(
                           child: Text(
                             '${end.day.toString().padLeft(2, '0')}/${end.month.toString().padLeft(2, '0')}/${end.year}',
                             style: TextStyle(
                               fontFamily: 'Manrope',
-                              fontSize: 12.5.sp,
+                              fontSize: 11.5.sp,
                               fontWeight: FontWeight.bold,
                               color: textColor,
                             ),
@@ -273,21 +275,21 @@ class AppDateFilter extends StatelessWidget {
 
     if (currentSelection.type == DateFilterType.allTime) {
       return Container(
-        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 7.h),
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(10.r),
           border: Border.all(color: cardBorder),
         ),
         child: Row(
           children: [
-            Icon(Icons.all_inclusive_rounded, size: 18.sp, color: AppColors.primaryTeal),
-            SizedBox(width: 10.w),
+            Icon(Icons.all_inclusive_rounded, size: 16.sp, color: AppColors.primaryTeal),
+            SizedBox(width: 8.w),
             Text(
               'All Time (All Recorded Transactions)',
               style: TextStyle(
                 fontFamily: 'Manrope',
-                fontSize: 13.sp,
+                fontSize: 11.5.sp,
                 fontWeight: FontWeight.bold,
                 color: textColor,
               ),
@@ -299,30 +301,34 @@ class AppDateFilter extends StatelessWidget {
 
     // Monthly, Yearly, Fiscal Yearly
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 0.h),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(10.r),
         border: Border.all(color: cardBorder),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(
-            icon: Icon(Icons.chevron_left_rounded, size: 22.sp, color: textColor),
+            icon: Icon(Icons.chevron_left_rounded, size: 20.sp, color: textColor),
+            padding: EdgeInsets.all(4.r),
+            constraints: const BoxConstraints(),
             onPressed: () => onDateFilterChanged(currentSelection.previous()),
           ),
           Text(
             currentSelection.displayTitle,
             style: TextStyle(
               fontFamily: 'Manrope',
-              fontSize: 14.sp,
+              fontSize: 12.5.sp,
               fontWeight: FontWeight.bold,
               color: textColor,
             ),
           ),
           IconButton(
-            icon: Icon(Icons.chevron_right_rounded, size: 22.sp, color: textColor),
+            icon: Icon(Icons.chevron_right_rounded, size: 20.sp, color: textColor),
+            padding: EdgeInsets.all(4.r),
+            constraints: const BoxConstraints(),
             onPressed: () => onDateFilterChanged(currentSelection.next()),
           ),
         ],
