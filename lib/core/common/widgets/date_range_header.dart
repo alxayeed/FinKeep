@@ -138,6 +138,9 @@ class DateRangeHeader extends StatelessWidget {
                   ValueListenableBuilder<bool>(
                     valueListenable: PrivacyProvider(),
                     builder: (context, isMasked, _) {
+                      if (!PrivacyProvider().isPrivacyModeEnabled) {
+                        return const SizedBox.shrink();
+                      }
                       return GestureDetector(
                         onTap: () => PrivacyProvider().toggleWithBiometrics(context),
                         child: Container(

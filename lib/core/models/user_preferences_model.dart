@@ -6,6 +6,7 @@ class UserPreferencesModel {
   final bool dailyReminderEnabled;
   final String dailyReminderTime;
   final bool biometricEnabled;
+  final bool privacyModeEnabled;
   final bool autoBackupEnabled;
   final DateTime updatedAt;
 
@@ -17,6 +18,7 @@ class UserPreferencesModel {
     required this.dailyReminderEnabled,
     required this.dailyReminderTime,
     required this.biometricEnabled,
+    this.privacyModeEnabled = false,
     required this.autoBackupEnabled,
     required this.updatedAt,
   });
@@ -30,6 +32,7 @@ class UserPreferencesModel {
       dailyReminderEnabled: true,
       dailyReminderTime: '20:00',
       biometricEnabled: false,
+      privacyModeEnabled: false,
       autoBackupEnabled: true,
       updatedAt: DateTime.now(),
     );
@@ -44,6 +47,7 @@ class UserPreferencesModel {
       dailyReminderEnabled: json['dailyReminderEnabled'] as bool? ?? true,
       dailyReminderTime: json['dailyReminderTime'] as String? ?? '20:00',
       biometricEnabled: json['biometricEnabled'] as bool? ?? false,
+      privacyModeEnabled: json['privacyModeEnabled'] as bool? ?? false,
       autoBackupEnabled: json['autoBackupEnabled'] as bool? ?? true,
       updatedAt: json['updatedAt'] != null
           ? DateTime.parse(json['updatedAt'] as String)
@@ -60,6 +64,7 @@ class UserPreferencesModel {
       'dailyReminderEnabled': dailyReminderEnabled,
       'dailyReminderTime': dailyReminderTime,
       'biometricEnabled': biometricEnabled,
+      'privacyModeEnabled': privacyModeEnabled,
       'autoBackupEnabled': autoBackupEnabled,
       'updatedAt': updatedAt.toIso8601String(),
     };
@@ -73,6 +78,7 @@ class UserPreferencesModel {
     bool? dailyReminderEnabled,
     String? dailyReminderTime,
     bool? biometricEnabled,
+    bool? privacyModeEnabled,
     bool? autoBackupEnabled,
     DateTime? updatedAt,
   }) {
@@ -84,6 +90,7 @@ class UserPreferencesModel {
       dailyReminderEnabled: dailyReminderEnabled ?? this.dailyReminderEnabled,
       dailyReminderTime: dailyReminderTime ?? this.dailyReminderTime,
       biometricEnabled: biometricEnabled ?? this.biometricEnabled,
+      privacyModeEnabled: privacyModeEnabled ?? this.privacyModeEnabled,
       autoBackupEnabled: autoBackupEnabled ?? this.autoBackupEnabled,
       updatedAt: updatedAt ?? DateTime.now(),
     );

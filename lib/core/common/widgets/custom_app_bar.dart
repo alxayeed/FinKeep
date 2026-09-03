@@ -67,6 +67,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ValueListenableBuilder<bool>(
             valueListenable: PrivacyProvider(),
             builder: (context, isMasked, _) {
+              if (!PrivacyProvider().isPrivacyModeEnabled) {
+                return const SizedBox.shrink();
+              }
               return IconButton(
                 icon: Icon(
                   isMasked

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/biometric_service.dart';
 
 class PrivacyProvider extends ValueNotifier<bool> with WidgetsBindingObserver {
   static PrivacyProvider? _instance;
   final BiometricService _biometricService = BiometricService();
+  bool _privacyModeEnabled = false;
 
-  PrivacyProvider._internal() : super(true) {
+  PrivacyProvider._internal() : super(false) {
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -15,16 +17,31 @@ class PrivacyProvider extends ValueNotifier<bool> with WidgetsBindingObserver {
   }
 
   bool get isMasked => value;
+  bool get isPrivacyModeEnabled => _privacyModeEnabled;
 
   bool _isAuthenticating = false;
 
-  /// Always force privacy mask (Eye OFF) when app enters background state
+  /// Initialize privacy setting from stored user preferences
+  Future<void> init([SharedPreferences? prefs]) async {
+    final preferences = prefs ?? await SharedPreferences.getInstance();
+    _privacyModeEnabled = preferences.getBool('privacy_mode_enabled') ?? false;
+    value = _privacyModeEnabled;
+  }
+
+  /// Update privacy mode preference and current mask state
+  void setPrivacyModeEnabled(bool enabled) {
+    _privacyModeEnabled = enabled;
+    value = enabled;
+    notifyListeners();
+  }
+
+  /// Always force privacy mask (Eye OFF) when app enters background state IF privacy mode is enabled
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // Ignore inactive state when system biometric prompt dialog is active
     if (_isAuthenticating) return;
 
-    if (state == AppLifecycleState.paused) {
+    if (state == AppLifecycleState.paused && _privacyModeEnabled) {
       mask();
     }
   }
@@ -36,10 +53,17 @@ class PrivacyProvider extends ValueNotifier<bool> with WidgetsBindingObserver {
     }
   }
 
+  /// Reveal privacy mode (Eye ON)
+  void unmask() {
+    if (value) {
+      value = false;
+    }
+  }
+
   /// Ensure the user is authenticated (prompts biometric/PIN auth if masked)
   Future<bool> authenticate(BuildContext context) async {
-    if (!value) {
-      return true; // Already revealed / authenticated
+    if (!value || !_privacyModeEnabled) {
+      return true; // Already revealed / authenticated or privacy mode not active
     }
     return toggleWithBiometrics(context);
   }
