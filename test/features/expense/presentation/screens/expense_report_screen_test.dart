@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:finkeep/core/common/widgets/custom_app_bar.dart';
 import 'package:finkeep/core/common/widgets/app_date_filter.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
@@ -46,6 +47,7 @@ void main() {
   late ExpenseCategoryController catController;
 
   setUp(() {
+    SharedPreferences.setMockInitialValues({'ignore_missing_budget_prompt': true});
     Get.reset();
     mockGetExpenses = MockGetExpensesInRangeUseCase();
     mockAddCat = MockAddExpenseCategoryUseCase();

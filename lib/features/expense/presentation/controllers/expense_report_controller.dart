@@ -1,6 +1,7 @@
 import 'package:finkeep/core/error/exception_handler.dart';
 import 'package:get/get.dart';
 import 'package:finkeep/core/enums/expense_category.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../../domain/usecases/usecases.dart';
 import 'package:intl/intl.dart';
@@ -145,6 +146,13 @@ class ExpenseReportController extends GetxController {
   }
 
   Future<void> checkMissingBudgets() async {
+    final prefs = await SharedPreferences.getInstance();
+    final ignorePrompt = prefs.getBool('ignore_missing_budget_prompt') ?? false;
+    if (ignorePrompt) {
+      missingBudgetMonths.clear();
+      return;
+    }
+
     final start = startDate.value;
     final end = endDate.value;
     if (start == null || end == null) return;
@@ -175,6 +183,12 @@ class ExpenseReportController extends GetxController {
     } else {
       missingBudgetMonths.clear();
     }
+  }
+
+  Future<void> ignoreMissingBudgetPrompt() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('ignore_missing_budget_prompt', true);
+    missingBudgetMonths.clear();
   }
 
   Future<void> saveBudgetForMonths(List<DateTime> months, double amount) async {

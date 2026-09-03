@@ -57,6 +57,9 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
             onSave: (amount) {
               controller.saveBudgetForMonths(missing, amount);
             },
+            onSkip: () {
+              controller.ignoreMissingBudgetPrompt();
+            },
           ),
         );
       }
