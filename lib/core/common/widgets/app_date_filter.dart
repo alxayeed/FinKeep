@@ -15,7 +15,6 @@ class AppDateFilter extends StatelessWidget {
   final DateFilter dateFilter;
   final ValueChanged<DateFilter> onDateFilterChanged;
   final VoidCallback? onSettingsPressed;
-  final VoidCallback? onPrintPressed;
   final bool showSearchButton;
   final AppDateFilterVariant variant;
 
@@ -24,7 +23,6 @@ class AppDateFilter extends StatelessWidget {
     required this.dateFilter,
     required this.onDateFilterChanged,
     this.onSettingsPressed,
-    this.onPrintPressed,
     this.showSearchButton = false,
     this.variant = AppDateFilterVariant.header,
   });
@@ -34,7 +32,6 @@ class AppDateFilter extends StatelessWidget {
     required this.dateFilter,
     required this.onDateFilterChanged,
     this.onSettingsPressed,
-    this.onPrintPressed,
     this.showSearchButton = false,
   }) : variant = AppDateFilterVariant.inline;
 
@@ -486,25 +483,6 @@ class AppDateFilter extends StatelessWidget {
                   );
                 },
               ),
-              if (onPrintPressed != null) ...[
-                SizedBox(width: 4.w),
-                GestureDetector(
-                  onTap: onPrintPressed,
-                  child: Container(
-                    width: 36.r,
-                    height: 36.r,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: isDark ? const Color(0xFF1E293B) : Colors.transparent,
-                    ),
-                    child: Icon(
-                      Icons.picture_as_pdf_rounded,
-                      size: 22.sp,
-                      color: isDark ? Colors.white70 : const Color(0xFF64748B),
-                    ),
-                  ),
-                ),
-              ],
               if (onSettingsPressed != null) ...[
                 SizedBox(width: 4.w),
                 GestureDetector(

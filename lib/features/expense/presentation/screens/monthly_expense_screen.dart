@@ -40,10 +40,6 @@ class _MonthlyExpenseScreenState extends State<MonthlyExpenseScreen> {
                 onDateFilterChanged: (newDateFilter) {
                   controller.updateDateFilter(newDateFilter);
                 },
-                onPrintPressed: () => showExpenseReportFilterMenu(
-                  context,
-                  dateFilter: controller.dateFilter.value,
-                ),
                 onSettingsPressed: () {
                   context.pushNamed(AppRoutes.settings);
                 },

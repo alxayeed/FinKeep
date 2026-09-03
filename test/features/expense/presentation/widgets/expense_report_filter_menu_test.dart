@@ -139,26 +139,12 @@ void main() {
     expect(find.text('Category Filter (Multi-Select)'), findsOneWidget);
     expect(find.text('✨ All Categories'), findsOneWidget);
 
-    // Verify Mode Selectors
-    expect(find.text('Compact'), findsOneWidget);
-    expect(find.text('Details'), findsOneWidget);
-
-    // Verify Summary Section Chips
-    expect(find.text('📊 By Category'), findsOneWidget);
-    expect(find.text('📅 By Month'), findsOneWidget);
-    expect(find.text('💳 By Payment Method'), findsOneWidget);
-    expect(find.text('📈 Min / Max / Avg'), findsOneWidget);
-
     // Verify Action Buttons: Clear & Apply Filters
     expect(find.text('Clear'), findsOneWidget);
     expect(find.text('Apply Filters'), findsOneWidget);
 
-    // Toggle Summary Section Chip
-    await tester.tap(find.text('📊 By Category'));
-    await tester.pumpAndSettle();
-
-    // Tap Mode to Details
-    await tester.tap(find.text('Details'));
+    // Tap Food Category Chip
+    await tester.tap(find.text('🍔 Food'));
     await tester.pumpAndSettle();
 
     // Tap Apply Button

@@ -3,20 +3,17 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import 'package:finkeep/core/common/models/date_filter.dart';
-import 'package:finkeep/core/common/widgets/app_toast.dart';
 import 'package:finkeep/core/common/widgets/custom_app_bar.dart';
 import 'package:finkeep/core/responsive/responsive.dart';
 import 'package:finkeep/core/styles/app_colors.dart';
-import 'package:finkeep/core/styles/currency_provider.dart';
 
-import '../../data/services/expense_pdf_service.dart';
 import '../../domain/entities/expense_pdf_report_config.dart';
 import '../controllers/expense_report_controller.dart';
 import '../widgets/missing_budget_dialog.dart';
 import '../widgets/monthly_expense_shimmer.dart';
 import '../widgets/segmented_tab_bar.dart';
 import '../widgets/expense_report_filter_menu.dart';
-import 'expense_report_pdf_viewer_screen.dart';
+import '../widgets/expense_pdf_export_sheet.dart';
 import 'expense_report_summary_screen.dart';
 import 'expense_report_list_screen.dart';
 
@@ -30,7 +27,6 @@ class ExpenseReportScreen extends StatefulWidget {
 class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
   final ExpenseReportController controller = Get.find<ExpenseReportController>();
   int _selectedTab = 0; // 0 for Summary, 1 for Details
-  bool _isExporting = false;
   late final Worker _missingBudgetWorker;
 
   @override
@@ -69,67 +65,8 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
     super.dispose();
   }
 
-  Future<void> _handleExportPdf(BuildContext context) async {
-    if (_isExporting) return;
-    setState(() => _isExporting = true);
-
-    final currency = context.currency;
-    final expenses = controller.reportFilteredExpenses;
-    final filter = controller.dateFilter.value;
-    final range = filter.dateRange;
-
-    DateTime start = controller.startDate.value ?? DateTime(DateTime.now().year, 1, 1);
-    DateTime end = controller.endDate.value ?? DateTime(DateTime.now().year, 12, 31, 23, 59, 59);
-
-    if (range != null) {
-      start = range.start;
-      end = range.end;
-    }
-
-    final isMultiMonth = filter.type != DateFilterType.monthly &&
-        (start.year != end.year || start.month != end.month);
-
-    final config = ExpensePdfReportConfig(
-      startDate: start,
-      endDate: end,
-      selectedCategory: controller.selectedCategories.length == 1
-          ? controller.selectedCategories.first
-          : 'All',
-      selectedCategories: controller.selectedCategories.toList(),
-      mode: controller.listMode.value,
-      currencySymbol: currency.symbol,
-      includeCategorySummary: controller.includeCategorySummary.value,
-      includeMonthlyBreakdown: isMultiMonth && controller.includeMonthlyBreakdown.value,
-      includePaymentMethodBreakdown: controller.includePaymentMethodBreakdown.value,
-      includeHighLowAvgMetrics: isMultiMonth && controller.includeHighLowAvgMetrics.value,
-    );
-
-    try {
-      final pdfService = ExpensePdfService();
-      final pdfBytes = await pdfService.generateExpensePdf(
-        expenses: expenses.toList(),
-        config: config,
-      );
-
-      if (context.mounted) {
-        await Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => ExpenseReportPdfViewerScreen(
-              pdfBytes: pdfBytes,
-              config: config,
-            ),
-          ),
-        );
-      }
-    } catch (e) {
-      if (context.mounted) {
-        AppToast.showError(context, message: 'Failed to generate PDF report: $e');
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isExporting = false);
-      }
-    }
+  void _handleExportPdf(BuildContext context) {
+    showExpensePdfExportSheet(context, controller: controller);
   }
 
   Widget _buildActivePeriodBanner(BuildContext context, bool isDark) {
@@ -236,31 +173,15 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
         title: 'Expense Report',
         showBackButton: true,
         actions: [
-          if (_isExporting)
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 14.w),
-              child: Center(
-                child: SizedBox(
-                  width: 18.sp,
-                  height: 18.sp,
-                  child: const CircularProgressIndicator(
-                    strokeWidth: 2.2,
-                    valueColor:
-                        AlwaysStoppedAnimation<Color>(AppColors.primaryTeal),
-                  ),
-                ),
-              ),
-            )
-          else
-            IconButton(
-              icon: Icon(
-                Icons.ios_share_rounded,
-                size: 22.sp,
-                color: isDark ? Colors.white : const Color(0xFF0F172A),
-              ),
-              tooltip: 'Export Report',
-              onPressed: () => _handleExportPdf(context),
+          IconButton(
+            icon: Icon(
+              Icons.ios_share_rounded,
+              size: 22.sp,
+              color: isDark ? Colors.white : const Color(0xFF0F172A),
             ),
+            tooltip: 'Export Report',
+            onPressed: () => _handleExportPdf(context),
+          ),
         ],
       ),
       body: Obx(() {
@@ -270,9 +191,10 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
             // 1. Active Period & Scope Indicator Banner
             _buildActivePeriodBanner(context, isDark),
 
-            // 2. Sliding Segmented Tab Switcher (Summary & Details)
+            // 2. Sliding Segmented Tab Switcher (Summary, By Category, Transactions)
             SegmentedTabBar(
               selectedIndex: _selectedTab,
+              tabs: const ['Summary', 'By Category', 'Transactions'],
               onTabChanged: (index) {
                 setState(() {
                   _selectedTab = index;
@@ -288,9 +210,15 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
                       ? ExpenseReportSummaryScreen(
                           controller: controller,
                         )
-                      : ExpenseReportListScreen(
-                          controller: controller,
-                        )),
+                      : (_selectedTab == 1
+                          ? ExpenseReportListScreen(
+                              controller: controller,
+                              forcedMode: ExpenseReportPdfMode.compact,
+                            )
+                          : ExpenseReportListScreen(
+                              controller: controller,
+                              forcedMode: ExpenseReportPdfMode.details,
+                            ))),
             ),
           ],
         );

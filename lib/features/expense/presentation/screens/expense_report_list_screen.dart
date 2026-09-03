@@ -17,8 +17,13 @@ import '../widgets/widgets.dart';
 
 class ExpenseReportListScreen extends StatelessWidget {
   final ExpenseReportController controller;
+  final ExpenseReportPdfMode? forcedMode;
 
-  const ExpenseReportListScreen({super.key, required this.controller});
+  const ExpenseReportListScreen({
+    super.key,
+    required this.controller,
+    this.forcedMode,
+  });
 
   Future<void> _handleRefresh() async {
     if (controller.startDate.value != null &&
@@ -29,8 +34,6 @@ class ExpenseReportListScreen extends StatelessWidget {
       );
     }
   }
-
-
 
   Widget _buildTopSummaryBar(
     BuildContext context,
@@ -520,9 +523,10 @@ class ExpenseReportListScreen extends StatelessWidget {
       }
 
       final totalAmount = filteredExpenses.fold(0.0, (sum, e) => sum + e.amount);
+      final mode = forcedMode ?? controller.listMode.value;
 
       // 1. Compact Mode -> Grouped Records Table (Date + Category + Total Amount)
-      if (controller.listMode.value == ExpenseReportPdfMode.compact) {
+      if (mode == ExpenseReportPdfMode.compact) {
         final groupedRows = groupExpensesForCompactMode(filteredExpenses);
         return _buildCompactListView(context, isDark, groupedRows, totalAmount);
       }
