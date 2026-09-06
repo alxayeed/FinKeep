@@ -1,6 +1,7 @@
 import 'package:finkeep/core/config/app_config.dart';
 import '../../domain/entities/expense_entity.dart';
 import '../../domain/entities/expense_category_entity.dart';
+import '../../domain/entities/category_delete_result.dart';
 import '../../domain/repositories/expense_repository.dart';
 import '../datasources/expense_local_datasource.dart';
 import '../datasources/expense_remote_datasource.dart';
@@ -28,13 +29,51 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
 
   @override
   Future<List<ExpenseCategoryEntity>> getCategories() async {
+    final List<ExpenseCategoryEntity> rawCategories;
     if (AppConfig.useRemote) {
       final models = await remoteDataSource.getCategories();
-      return models.map((m) => m.toEntity()).toList();
+      rawCategories = models.map((m) => m.toEntity()).toList();
     } else {
       final models = await localDataSource.getCategories();
-      return models.map((m) => m.toEntity()).toList();
+      rawCategories = models.map((m) => m.toEntity()).toList();
     }
+
+    // Auto-purge stale soft-deleted categories that have zero associated records
+    final softDeleted = rawCategories.where((c) => c.isDeleted).toList();
+    if (softDeleted.isEmpty) {
+      return rawCategories;
+    }
+
+    final expenses = AppConfig.useRemote
+        ? await remoteDataSource.getExpenses()
+        : await localDataSource.getExpenses();
+
+    final activeOrReferenced = <ExpenseCategoryEntity>[];
+    for (final cat in rawCategories) {
+      if (!cat.isDeleted) {
+        activeOrReferenced.add(cat);
+      } else {
+        final normId = cat.id.toLowerCase();
+        final normLabel = cat.displayLabel.toLowerCase();
+        final hasRecords = expenses.any((e) {
+          final expCat = e.category.toLowerCase();
+          return expCat == normId || expCat == normLabel;
+        });
+
+        if (hasRecords) {
+          activeOrReferenced.add(cat);
+        } else {
+          // 0 records associated with a soft-deleted category -> purge it from storage permanently
+          if (AppConfig.useRemote) {
+            await remoteDataSource.deleteCategory(cat.id, hardDelete: true);
+          } else {
+            await localDataSource.deleteCategory(cat.id, hardDelete: true);
+          }
+        }
+      }
+    }
+
+    return activeOrReferenced;
   }
 
   @override
@@ -48,11 +87,46 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
   }
 
   @override
-  Future<void> deleteCategory(String id) async {
-    if (AppConfig.useRemote) {
-      await remoteDataSource.deleteCategory(id);
+  Future<CategoryDeleteResult> deleteCategory(String id) async {
+    // 1. Fetch expenses to verify whether any transaction references this category
+    final expenses = AppConfig.useRemote
+        ? await remoteDataSource.getExpenses()
+        : await localDataSource.getExpenses();
+
+    // 2. Fetch raw categories from data source to match target by ID or label
+    final rawCategories = AppConfig.useRemote
+        ? (await remoteDataSource.getCategories()).map((m) => m.toEntity()).toList()
+        : (await localDataSource.getCategories()).map((m) => m.toEntity()).toList();
+
+    final targetCategory = rawCategories.firstWhere(
+      (c) => c.id == id || c.displayLabel.toLowerCase() == id.toLowerCase(),
+      orElse: () => ExpenseCategoryEntity(id: id, displayLabel: id, emoji: '📦', isCustom: true),
+    );
+
+    final normId = targetCategory.id.toLowerCase();
+    final normLabel = targetCategory.displayLabel.toLowerCase();
+
+    final hasRecords = expenses.any((e) {
+      final expCat = e.category.toLowerCase();
+      return expCat == normId || expCat == normLabel;
+    });
+
+    if (hasRecords) {
+      // At least 1 transaction exists -> Soft delete to preserve historical records safely
+      if (AppConfig.useRemote) {
+        await remoteDataSource.deleteCategory(targetCategory.id, hardDelete: false);
+      } else {
+        await localDataSource.deleteCategory(targetCategory.id, hardDelete: false);
+      }
+      return CategoryDeleteResult.softDeleted;
     } else {
-      await localDataSource.deleteCategory(id);
+      // 0 transactions exist -> Hard delete permanently from storage
+      if (AppConfig.useRemote) {
+        await remoteDataSource.deleteCategory(targetCategory.id, hardDelete: true);
+      } else {
+        await localDataSource.deleteCategory(targetCategory.id, hardDelete: true);
+      }
+      return CategoryDeleteResult.hardDeleted;
     }
   }
 

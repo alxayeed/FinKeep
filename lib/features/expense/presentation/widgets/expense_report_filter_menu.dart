@@ -258,7 +258,8 @@ class _ExpenseReportFilterMenuContentState
             ),
             SizedBox(height: 8.h),
             Obx(() {
-              final categories = categoryController.categories;
+              final categories =
+                  categoryController.categories.where((c) => !c.isDeleted).toList();
 
               return Wrap(
                 spacing: 6.w,

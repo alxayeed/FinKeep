@@ -5,6 +5,7 @@ import '../../../../core/responsive/responsive.dart';
 import '../../../../core/styles/app_colors.dart';
 import '../../../../core/styles/app_text_styles.dart';
 import 'package:finkeep/core/common/widgets/widgets.dart';
+import '../../domain/entities/category_delete_result.dart';
 import '../controllers/expense_category_controller.dart';
 
 class ExpenseCategorySettingsScreen extends StatefulWidget {
@@ -71,7 +72,7 @@ class _ExpenseCategorySettingsScreenState extends State<ExpenseCategorySettingsS
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Delete Category'),
-        content: Text('Are you sure you want to delete the category "$label"? historical logs will remain safe.'),
+        content: Text('Are you sure you want to delete the category "$label"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -80,12 +81,19 @@ class _ExpenseCategorySettingsScreenState extends State<ExpenseCategorySettingsS
           TextButton(
             onPressed: () async {
               Navigator.pop(ctx);
-              await categoryController.softDeleteCategory(id);
+              final result = await categoryController.deleteCategory(id);
               if (mounted) {
+                final message = result == CategoryDeleteResult.softDeleted
+                    ? 'Category is deleted but all historical data will be available'
+                    : 'Category deleted successfully.';
+                final bgColor = result == CategoryDeleteResult.softDeleted
+                    ? AppColors.primaryTeal
+                    : Colors.green;
+
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Category successfully deleted.'),
-                    backgroundColor: Colors.green,
+                  SnackBar(
+                    content: Text(message),
+                    backgroundColor: bgColor,
                   ),
                 );
               }

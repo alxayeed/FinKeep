@@ -199,4 +199,49 @@ void main() {
     expect(find.text('Filter Menu'), findsNothing);
     expect(reportController.selectedCategories, isEmpty);
   });
+
+  testWidgets('ExpenseReportFilterMenu hides soft-deleted categories from chips',
+      (WidgetTester tester) async {
+    catController.categories.assignAll([
+      const ExpenseCategoryEntity(id: '1', displayLabel: 'Food', emoji: '🍔', isDeleted: false),
+      const ExpenseCategoryEntity(id: '2', displayLabel: 'Transport', emoji: '🚗', isDeleted: false),
+      const ExpenseCategoryEntity(id: '3', displayLabel: 'Yo', emoji: '📦', isDeleted: true),
+    ]);
+
+    await tester.pumpWidget(
+      CurrencyTheme(
+        notifier: CurrencyProvider(),
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) {
+              Responsive.init(context, refHeight: 844, refWidth: 390);
+              return Scaffold(
+                body: ElevatedButton(
+                  onPressed: () => showExpenseReportFilterMenu(
+                    context,
+                    dateFilter: DateFilter(
+                      type: DateFilterType.monthly,
+                      referenceDate: DateTime(2026, 3, 1),
+                    ),
+                  ),
+                  child: const Text('Open Modal'),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open Modal'));
+    await tester.pumpAndSettle();
+
+    // Active categories should be present
+    expect(find.text('🍔 Food'), findsOneWidget);
+    expect(find.text('🚗 Transport'), findsOneWidget);
+
+    // Stale soft-deleted category 'Yo' must NOT be rendered
+    expect(find.text('📦 Yo'), findsNothing);
+    expect(find.text('Yo'), findsNothing);
+  });
 }

@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:finkeep/core/error/exception_handler.dart';
+import '../../domain/entities/category_delete_result.dart';
 import '../../domain/entities/expense_category_entity.dart';
 import '../../domain/usecases/add_expense_category_usecase.dart';
 import '../../domain/usecases/get_expense_categories_usecase.dart';
@@ -91,16 +92,23 @@ class ExpenseCategoryController extends GetxController {
     }
   }
 
-  Future<void> softDeleteCategory(String id) async {
+  Future<CategoryDeleteResult?> deleteCategory(String id) async {
     isLoading.value = true;
     try {
-      await deleteCategoryUseCase(id);
+      final result = await deleteCategoryUseCase(id);
       await fetchCategories();
+      return result;
     } catch (e, stackTrace) {
-      ExceptionHandler.handle(e, stackTrace, 'ExpenseCategoryController.softDeleteCategory');
+      ExceptionHandler.handle(e, stackTrace, 'ExpenseCategoryController.deleteCategory');
+      return null;
     } finally {
       isLoading.value = false;
     }
+  }
+
+  /// Backward-compatible alias for existing callers
+  Future<void> softDeleteCategory(String id) async {
+    await deleteCategory(id);
   }
 
   ExpenseCategoryEntity resolveCategory(String categoryName) {

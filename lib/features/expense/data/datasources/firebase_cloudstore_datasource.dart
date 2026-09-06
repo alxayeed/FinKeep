@@ -55,7 +55,11 @@ class FirebaseCloudStoreDataSource implements ExpenseRemoteDataSource {
   }
 
   @override
-  Future<void> deleteCategory(String id) async {
+  Future<void> deleteCategory(String id, {bool hardDelete = false}) async {
+    if (hardDelete) {
+      await _categoriesCollection.doc(id).delete();
+      return;
+    }
     final snapshot = await _categoriesCollection.doc(id).get();
     if (snapshot.exists && snapshot.data() != null) {
       final category = ExpenseCategoryModel.fromFirestoreMap(snapshot.data()!..['id'] = snapshot.id);

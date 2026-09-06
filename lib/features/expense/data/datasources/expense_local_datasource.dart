@@ -29,5 +29,5 @@ abstract class ExpenseLocalDataSource {
   Future<void> createCategory(ExpenseCategoryModel category);
   Future<List<ExpenseCategoryModel>> getCategories();
   Future<void> updateCategory(ExpenseCategoryModel category);
-  Future<void> deleteCategory(String id);
+  Future<void> deleteCategory(String id, {bool hardDelete = false});
 }

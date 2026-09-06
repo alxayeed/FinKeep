@@ -68,7 +68,7 @@ class ExpenseHiveDataSource implements ExpenseLocalDataSource {
   }
 
   @override
-  Future<void> deleteCategory(String id) async {
+  Future<void> deleteCategory(String id, {bool hardDelete = false}) async {
     dynamic keyToUpdate = id;
     var raw = localDb.expenseCategoriesBox.get(id);
 
@@ -84,6 +84,14 @@ class ExpenseHiveDataSource implements ExpenseLocalDataSource {
           }
         }
       }
+    }
+
+    if (hardDelete) {
+      await localDb.expenseCategoriesBox.delete(keyToUpdate);
+      if (keyToUpdate != id) {
+        await localDb.expenseCategoriesBox.delete(id);
+      }
+      return;
     }
 
     if (raw != null) {

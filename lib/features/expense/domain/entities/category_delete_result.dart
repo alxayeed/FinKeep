@@ -1,0 +1,4 @@
+enum CategoryDeleteResult {
+  hardDeleted,
+  softDeleted,
+}

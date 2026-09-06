@@ -1,5 +1,6 @@
 import '../entities/expense_entity.dart';
 import '../entities/expense_category_entity.dart';
+import '../entities/category_delete_result.dart';
 
 abstract class ExpenseRepository {
   Future<void> addExpense(ExpenseEntity expense);
@@ -29,5 +30,5 @@ abstract class ExpenseRepository {
   Future<void> addCategory(ExpenseCategoryEntity category);
   Future<List<ExpenseCategoryEntity>> getCategories();
   Future<void> updateCategory(ExpenseCategoryEntity category);
-  Future<void> deleteCategory(String id);
+  Future<CategoryDeleteResult> deleteCategory(String id);
 }

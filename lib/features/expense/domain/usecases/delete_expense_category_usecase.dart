@@ -1,3 +1,4 @@
+import '../entities/category_delete_result.dart';
 import '../repositories/expense_repository.dart';
 
 class DeleteExpenseCategoryUseCase {
@@ -5,7 +6,7 @@ class DeleteExpenseCategoryUseCase {
 
   DeleteExpenseCategoryUseCase(this.repository);
 
-  Future<void> call(String id) async {
-    await repository.deleteCategory(id);
+  Future<CategoryDeleteResult> call(String id) async {
+    return await repository.deleteCategory(id);
   }
 }
