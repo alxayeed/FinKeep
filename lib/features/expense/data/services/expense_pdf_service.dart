@@ -88,7 +88,6 @@ class ExpensePdfService {
     final dateFormat = DateFormat('dd/MM/yyyy');
     final formattedStart = dateFormat.format(config.startDate);
     final formattedEnd = dateFormat.format(config.endDate);
-    final dateRangeStr = '$formattedStart - $formattedEnd';
 
     // 3. Filter expenses by categories if specific categories are selected
     List<ExpenseEntity> filteredExpenses = expenses;
@@ -154,51 +153,90 @@ class ExpensePdfService {
         pageTheme: pageTheme,
         header: (context) {
           if (context.pageNumber > 1) {
-            return pw.SizedBox(height: 10);
+            return pw.Container(
+              margin: const pw.EdgeInsets.only(bottom: 12),
+              padding: const pw.EdgeInsets.only(bottom: 4),
+              decoration: const pw.BoxDecoration(
+                border: pw.Border(
+                  bottom: pw.BorderSide(color: PdfColors.grey300, width: 0.5),
+                ),
+              ),
+              child: pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text(
+                    'Expense Report',
+                    style: boldTextStyle.copyWith(
+                      fontSize: 9,
+                      color: PdfColors.grey700,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
+                  pw.Text(
+                    'Duration : $formattedStart - $formattedEnd',
+                    style: baseTextStyle.copyWith(
+                      fontSize: 8.5,
+                      color: PdfColors.grey600,
+                    ),
+                  ),
+                ],
+              ),
+            );
           }
           return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
+              pw.Center(
+                child: pw.Text(
+                  'Expense Report',
+                  style: boldTextStyle.copyWith(
+                    fontSize: 20,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.blueGrey900,
+                  ),
+                ),
+              ),
+              pw.SizedBox(height: 8),
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                crossAxisAlignment: pw.CrossAxisAlignment.center,
                 children: [
                   pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
                       pw.Text(
-                        'Expense Report',
+                        'Duration : $formattedStart - $formattedEnd',
                         style: boldTextStyle.copyWith(
-                          fontSize: 16,
+                          fontSize: 11.5,
                           fontWeight: pw.FontWeight.bold,
-                          color: PdfColors.blueGrey900,
+                          color: PdfColors.blueGrey800,
                         ),
                       ),
                       pw.SizedBox(height: 2),
                       pw.Text(
-                        '$dateRangeStr | ${config.mode.displayName}${effectiveCategories.isEmpty ? "" : " (${effectiveCategories.length <= 3 ? effectiveCategories.join(', ') : '${effectiveCategories.take(2).join(', ')} +${effectiveCategories.length - 2} more'})"}',
-                        style: baseTextStyle.copyWith(
-                          fontSize: 9.5,
-                          color: PdfColors.grey700,
-                        ),
-                      ),
-                    ],
-                  ),
-                  pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.end,
-                    children: [
-                      pw.Text(
-                        'Total Spent',
+                        'Layout: ${config.mode.displayName}${effectiveCategories.isEmpty ? "" : " | Categories: (${effectiveCategories.length <= 3 ? effectiveCategories.join(', ') : '${effectiveCategories.take(2).join(', ')} +${effectiveCategories.length - 2} more'})"}',
                         style: baseTextStyle.copyWith(
                           fontSize: 8.5,
                           color: PdfColors.grey600,
                         ),
                       ),
-                      pw.SizedBox(height: 1),
+                    ],
+                  ),
+                  pw.Row(
+                    mainAxisSize: pw.MainAxisSize.min,
+                    crossAxisAlignment: pw.CrossAxisAlignment.center,
+                    children: [
+                      pw.Text(
+                        'Total: ',
+                        style: baseTextStyle.copyWith(
+                          fontSize: 10,
+                          color: PdfColors.grey700,
+                        ),
+                      ),
                       pw.Text(
                         _formatAmount(totalAmount, currencySymbol),
                         style: boldTextStyle.copyWith(
-                          fontSize: 14,
+                          fontSize: 19,
                           fontWeight: pw.FontWeight.bold,
                           color: PdfColors.teal900,
                         ),

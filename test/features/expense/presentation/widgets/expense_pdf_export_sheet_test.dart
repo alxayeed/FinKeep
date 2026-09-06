@@ -166,6 +166,7 @@ void main() {
     expect(find.text('📊 Category Breakdown'), findsOneWidget);
     expect(find.text('📈 Monthly Trend'), findsOneWidget);
     expect(find.text('💳 Payment Methods'), findsOneWidget);
+    expect(find.text('⚖️ Min / Max / Avg'), findsOneWidget);
 
     // Verify Preview & Generate PDF Button
     expect(find.text('Preview & Generate PDF'), findsOneWidget);
@@ -176,6 +177,10 @@ void main() {
 
     // Toggle Monthly Trend
     await tester.tap(find.text('📈 Monthly Trend'));
+    await tester.pumpAndSettle();
+
+    // Toggle Min / Max / Avg
+    await tester.tap(find.text('⚖️ Min / Max / Avg'));
     await tester.pumpAndSettle();
   });
 }

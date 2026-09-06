@@ -54,6 +54,7 @@ class _ExpensePdfExportSheetContentState
   late bool _includeCategorySummary;
   late bool _includeMonthlyBreakdown;
   late bool _includePaymentMethods;
+  late bool _includeHighLowAvgMetrics;
   bool _isGenerating = false;
 
   bool get _isMultiMonth {
@@ -72,6 +73,7 @@ class _ExpensePdfExportSheetContentState
     _includeCategorySummary = ctrl.includeCategorySummary.value;
     _includeMonthlyBreakdown = ctrl.includeMonthlyBreakdown.value;
     _includePaymentMethods = ctrl.includePaymentMethodBreakdown.value;
+    _includeHighLowAvgMetrics = ctrl.includeHighLowAvgMetrics.value;
   }
 
   Future<void> _handleGeneratePdf() async {
@@ -87,6 +89,7 @@ class _ExpensePdfExportSheetContentState
     ctrl.includeCategorySummary.value = _includeCategorySummary;
     ctrl.includeMonthlyBreakdown.value = _includeMonthlyBreakdown;
     ctrl.includePaymentMethodBreakdown.value = _includePaymentMethods;
+    ctrl.includeHighLowAvgMetrics.value = _includeHighLowAvgMetrics;
 
     final filter = ctrl.dateFilter.value;
     final currency = context.currency;
@@ -116,7 +119,7 @@ class _ExpensePdfExportSheetContentState
       includeMonthlyBreakdown: isMultiMonth && _includeMonthlyBreakdown,
       includePaymentMethodBreakdown: _includePaymentMethods,
       includeHighLowAvgMetrics:
-          isMultiMonth && ctrl.includeHighLowAvgMetrics.value,
+          isMultiMonth && _includeHighLowAvgMetrics,
     );
 
     try {
@@ -402,6 +405,48 @@ class _ExpensePdfExportSheetContentState
                       borderRadius: BorderRadius.circular(16.r),
                       side: BorderSide(
                         color: _includePaymentMethods
+                            ? AppColors.primaryTeal
+                            : cardBorder,
+                        width: 1,
+                      ),
+                    ),
+                    showCheckmark: false,
+                  ),
+                  FilterChip(
+                    label: Text(_isMultiMonth
+                        ? '⚖️ Min / Max / Avg'
+                        : '⚖️ Min / Max / Avg (Multi-month)'),
+                    selected: _isMultiMonth && _includeHighLowAvgMetrics,
+                    onSelected: _isMultiMonth
+                        ? (val) =>
+                            setState(() => _includeHighLowAvgMetrics = val)
+                        : null,
+                    disabledColor:
+                        isDark ? Colors.white10 : const Color(0xFFF1F5F9),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: VisualDensity.compact,
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                    labelStyle: TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 10.5.sp,
+                      fontWeight: (_isMultiMonth && _includeHighLowAvgMetrics)
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                      color: !_isMultiMonth
+                          ? mutedColor.withValues(alpha: 0.5)
+                          : (_includeHighLowAvgMetrics
+                              ? Colors.white
+                              : textColor),
+                    ),
+                    selectedColor: AppColors.primaryTeal,
+                    backgroundColor: isDark
+                        ? const Color(0xFF1E293B)
+                        : const Color(0xFFF1F5F9),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.r),
+                      side: BorderSide(
+                        color: (_isMultiMonth && _includeHighLowAvgMetrics)
                             ? AppColors.primaryTeal
                             : cardBorder,
                         width: 1,
