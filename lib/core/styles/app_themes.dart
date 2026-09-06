@@ -82,8 +82,24 @@ class AppThemes {
       ),
     ),
     switchTheme: SwitchThemeData(
-      thumbColor: WidgetStateProperty.all(AppColors.primaryTeal),
-      trackColor: WidgetStateProperty.all(AppColors.primaryTeal.withValues(alpha: 0.5)),
+      thumbColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return AppColors.primaryTeal;
+        }
+        return Colors.white;
+      }),
+      trackColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return AppColors.primaryTeal.withValues(alpha: 0.38);
+        }
+        return const Color(0xFFE2E8F0);
+      }),
+      trackOutlineColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return Colors.transparent;
+        }
+        return const Color(0xFFCBD5E1);
+      }),
     ),
     checkboxTheme: CheckboxThemeData(
       fillColor: WidgetStateProperty.all(AppColors.primaryTeal),
@@ -175,8 +191,24 @@ class AppThemes {
       ),
     ),
     switchTheme: SwitchThemeData(
-      thumbColor: WidgetStateProperty.all(AppColors.primaryTeal),
-      trackColor: WidgetStateProperty.all(AppColors.primaryTeal.withValues(alpha: 0.5)),
+      thumbColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return AppColors.primaryTeal;
+        }
+        return const Color(0xFF94A3B8);
+      }),
+      trackColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return AppColors.primaryTeal.withValues(alpha: 0.38);
+        }
+        return const Color(0xFF334155);
+      }),
+      trackOutlineColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return Colors.transparent;
+        }
+        return const Color(0xFF475569);
+      }),
     ),
     checkboxTheme: CheckboxThemeData(
       fillColor: WidgetStateProperty.all(AppColors.primaryTeal),

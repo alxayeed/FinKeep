@@ -13,11 +13,21 @@ class AppSwitchButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Switch(
       value: value,
       onChanged: onChanged,
       activeThumbColor: AppColors.primaryTeal,
-      activeTrackColor: AppColors.primaryTeal.withValues(alpha: 0.3),
+      activeTrackColor: AppColors.primaryTeal.withValues(alpha: 0.38),
+      inactiveThumbColor: isDark ? const Color(0xFF94A3B8) : Colors.white,
+      inactiveTrackColor:
+          isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+      trackOutlineColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return Colors.transparent;
+        }
+        return isDark ? const Color(0xFF475569) : const Color(0xFFCBD5E1);
+      }),
     );
   }
 }

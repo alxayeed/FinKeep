@@ -1389,10 +1389,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     : const Color(0xFFE2E8F0),
                               ),
                               ListTile(
-                                contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 16.w,
-                                  vertical: 4.h,
-                                ),
                                 leading: Icon(
                                   _privacyModeEnabled
                                       ? Icons.visibility_off_rounded

@@ -13,6 +13,8 @@
 - FIX: filter dashboard lending dues and investment metrics by selected date range
 - FEATURE: add reactive PrivacyText widget and biometric privacy mode
 - FIX: filter investment status distribution card by selected date range
+- FIX: Stale expense categories shown issue
+- FIX: Settings switch button UI and alignment
 
 
 1.1.0+20
