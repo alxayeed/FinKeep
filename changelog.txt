@@ -1,4 +1,4 @@
-1.2.0+22
+1.2.0+24
 [11/08/2026]
 - ADD: Redesigned expense analytics and report
 - ADD: privacy toggle mode
