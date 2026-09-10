@@ -44,8 +44,7 @@ class _ExpenseReportPdfViewerScreenState
     setState(() => _isSharing = true);
     try {
       final tempDir = await getTemporaryDirectory();
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final file = File('${tempDir.path}/FinKeep_Expense_Report_$timestamp.pdf');
+      final file = File('${tempDir.path}/${widget.config.exportFileName}');
       await file.writeAsBytes(widget.pdfBytes);
 
       await Share.shareXFiles(
@@ -88,9 +87,8 @@ class _ExpenseReportPdfViewerScreenState
 
       targetDir ??= Directory.systemTemp;
 
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
       final savedFile = File(
-        '${targetDir.path}/FinKeep_Expense_Report_$timestamp.pdf',
+        '${targetDir.path}/${widget.config.exportFileName}',
       );
       if (widget.fileSaver != null) {
         await widget.fileSaver!(savedFile, widget.pdfBytes);

@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:intl/intl.dart';
 import 'expense_entity.dart';
 
 enum ExpenseReportPdfMode {
@@ -66,6 +67,18 @@ class ExpensePdfReportConfig extends Equatable {
       return [selectedCategory];
     }
     return const [];
+  }
+
+  /// Returns a clean, filesystem-safe exported file name containing the report's date range.
+  String get exportFileName {
+    final startFormatted = DateFormat('yyyy-MM-dd').format(startDate);
+    final endFormatted = DateFormat('yyyy-MM-dd').format(endDate);
+    if (startDate.year == endDate.year &&
+        startDate.month == endDate.month &&
+        startDate.day == endDate.day) {
+      return 'FinKeep_Expense_Report_$startFormatted.pdf';
+    }
+    return 'FinKeep_Expense_Report_${startFormatted}_to_${endFormatted}.pdf';
   }
 
   @override

@@ -135,5 +135,47 @@ void main() {
       final grouped = groupExpensesForCompactMode([]);
       expect(grouped, isEmpty);
     });
+
+    test('exportFileName generates correct naming for various date ranges', () {
+      // Custom Date Range
+      final customRangeConfig = ExpensePdfReportConfig(
+        startDate: DateTime(2026, 8, 1),
+        endDate: DateTime(2026, 8, 15),
+      );
+      expect(
+        customRangeConfig.exportFileName,
+        'FinKeep_Expense_Report_2026-08-01_to_2026-08-15.pdf',
+      );
+
+      // Full Month
+      final fullMonthConfig = ExpensePdfReportConfig(
+        startDate: DateTime(2026, 8, 1),
+        endDate: DateTime(2026, 8, 31),
+      );
+      expect(
+        fullMonthConfig.exportFileName,
+        'FinKeep_Expense_Report_2026-08-01_to_2026-08-31.pdf',
+      );
+
+      // Full Year
+      final fullYearConfig = ExpensePdfReportConfig(
+        startDate: DateTime(2026, 1, 1),
+        endDate: DateTime(2026, 12, 31),
+      );
+      expect(
+        fullYearConfig.exportFileName,
+        'FinKeep_Expense_Report_2026-01-01_to_2026-12-31.pdf',
+      );
+
+      // Single Day
+      final singleDayConfig = ExpensePdfReportConfig(
+        startDate: DateTime(2026, 9, 10, 8, 30),
+        endDate: DateTime(2026, 9, 10, 23, 59),
+      );
+      expect(
+        singleDayConfig.exportFileName,
+        'FinKeep_Expense_Report_2026-09-10.pdf',
+      );
+    });
   });
 }

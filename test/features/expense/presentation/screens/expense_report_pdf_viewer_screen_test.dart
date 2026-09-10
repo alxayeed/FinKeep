@@ -95,6 +95,10 @@ void main() {
     expect(find.text('Download successful'), findsOneWidget);
     expect(find.text('View'), findsOneWidget);
     expect(savedFilePath, isNotNull);
+    expect(
+      savedFilePath,
+      endsWith('FinKeep_Expense_Report_2026-08-01_to_2026-08-31.pdf'),
+    );
 
     // Tap View button
     await tester.tap(find.text('View'));

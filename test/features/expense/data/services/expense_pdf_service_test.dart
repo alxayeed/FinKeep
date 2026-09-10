@@ -173,5 +173,24 @@ void main() {
       final header = String.fromCharCodes(bytes.take(4));
       expect(header, '%PDF');
     });
+
+    test('generateExpensePdf supports explicit generationDate', () async {
+      final config = ExpensePdfReportConfig(
+        startDate: DateTime(2026, 8, 1),
+        endDate: DateTime(2026, 8, 31),
+        mode: ExpenseReportPdfMode.compact,
+      );
+
+      final bytes = await service.generateExpensePdf(
+        config: config,
+        expenses: sampleExpenses,
+        generationDate: DateTime(2026, 9, 10),
+        logoBytes: dummyPngBytes,
+      );
+
+      expect(bytes, isNotEmpty);
+      final header = String.fromCharCodes(bytes.take(4));
+      expect(header, '%PDF');
+    });
   });
 }
